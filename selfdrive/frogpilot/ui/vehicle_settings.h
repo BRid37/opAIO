@@ -20,6 +20,7 @@ private:
   ToggleControl *lockDoorsToggle;
 
   ToggleControl *longPitchToggle;
+  ToggleControl *lowerVoltToggle;
 
   QString brandSelection;
   QStringList models;

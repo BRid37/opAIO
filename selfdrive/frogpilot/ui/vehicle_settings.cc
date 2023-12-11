@@ -116,6 +116,7 @@ void FrogPilotVehiclesPanel::setToggles() {
   static bool toyotaTogglesAdded = false;
 
   if(longPitchToggle) longPitchToggle->setEnabled(gm);
+  if(lowerVoltToggle) lowerVoltToggle->setEnabled(gm);
 
   if(lockDoorsToggle) lockDoorsToggle->setEnabled(toyota);
 
@@ -134,6 +135,9 @@ void FrogPilotVehiclesPanel::setToggles() {
   if (gm && !gmTogglesAdded) {
     longPitchToggle = addToggle("LongPitch", "Long Pitch Compensation", 
                           "Reduces speed and acceleration error for greater passenger comfort and improved vehicle efficiency.");
+
+    lowerVoltToggle = addToggle("LowerVolt", "Lower Volt Enable Speed", 
+                                "Lowers the Volt's minimum enable speed in order to enable openpilot at any speed.");
 
     gmTogglesAdded = true;
   } else if (toyota && !toyotaTogglesAdded) {
