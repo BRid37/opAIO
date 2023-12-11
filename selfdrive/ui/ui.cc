@@ -421,6 +421,9 @@ void Device::updateBrightness(const UIState &s) {
   int brightness = brightness_filter.update(clipped_brightness);
   if (!awake) {
     brightness = 0;
+  } else if (s.scene.screen_brightness <= 100) {
+    // Bring the screen brightness up to 5% upon screen tap
+    brightness = fmax(5, s.scene.screen_brightness);
   }
 
   if (brightness != last_brightness) {
@@ -441,7 +444,11 @@ void Device::updateWakefulness(const UIState &s) {
     emit interactiveTimeout();
   }
 
-  setAwake(s.scene.ignition || interactive_timeout > 0);
+  if (s.scene.screen_brightness != 0) {
+    setAwake(s.scene.ignition || interactive_timeout > 0);
+  } else {
+    setAwake(interactive_timeout > 0);
+  }
 }
 
 UIState *uiState() {
