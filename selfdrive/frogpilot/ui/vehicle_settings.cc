@@ -109,6 +109,12 @@ void FrogPilotVehiclesPanel::setModels() {
 }
 
 void FrogPilotVehiclesPanel::setToggles() {
+  const bool gm = brandSelection == "Buick" || brandSelection == "Cadillac" || brandSelection == "Chevrolet"|| brandSelection == "GM"|| brandSelection == "GMC";
+
+  static bool gmTogglesAdded = false;
+
+  if(longPitchToggle) longPitchToggle->setEnabled(gm);
+
   std::function<ToggleControl*(const char*, const char*, const char*)> addToggle = 
     [&](const char *param, const char *title, const char *description) {
       bool value = params.getBool(param);
@@ -120,4 +126,11 @@ void FrogPilotVehiclesPanel::setToggles() {
       addItem(toggle);
       return toggle;
   };
+
+  if (gm && !gmTogglesAdded) {
+    longPitchToggle = addToggle("LongPitch", "Long Pitch Compensation", 
+                          "Reduces speed and acceleration error for greater passenger comfort and improved vehicle efficiency.");
+
+    gmTogglesAdded = true;
+  }
 }
