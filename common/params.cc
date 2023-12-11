@@ -214,6 +214,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"AggressiveAcceleration", PERSISTENT},
     {"AlwaysOnLateral", PERSISTENT},
     {"AlwaysOnLateralMain", PERSISTENT},
+    {"AverageCurvature", PERSISTENT},
     {"FrogPilotTogglesUpdated", PERSISTENT},
     {"LateralTune", PERSISTENT},
     {"LongitudinalTune", PERSISTENT},
