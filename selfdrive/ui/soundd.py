@@ -13,6 +13,7 @@ from openpilot.system import micd
 from openpilot.system.hardware import TICI
 
 from openpilot.common.realtime import Ratekeeper
+from openpilot.common.params import Params
 from openpilot.common.swaglog import cloudlog
 
 SAMPLE_RATE = 48000
@@ -53,6 +54,12 @@ def check_controls_timeout_alert(sm):
 
 class Soundd:
   def __init__(self):
+    # FrogPilot variables
+    self.params = Params()
+    self.params_memory = Params("/dev/shm/params")
+
+    self.update_frogpilot_params()
+
     self.load_sounds()
 
     self.current_alert = AudibleAlert.none
@@ -151,6 +158,11 @@ class Soundd:
 
         assert stream.active
 
+    # Update FrogPilot parameters
+    if self.params_memory.get_bool("FrogPilotTogglesUpdated"):
+      self.update_frogpilot_params()
+
+  def update_frogpilot_params(self):
 
 def main():
   s = Soundd()
