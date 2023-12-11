@@ -110,10 +110,14 @@ void FrogPilotVehiclesPanel::setModels() {
 
 void FrogPilotVehiclesPanel::setToggles() {
   const bool gm = brandSelection == "Buick" || brandSelection == "Cadillac" || brandSelection == "Chevrolet"|| brandSelection == "GM"|| brandSelection == "GMC";
+  const bool toyota = brandSelection == "Lexus" || brandSelection == "Toyota";
 
   static bool gmTogglesAdded = false;
+  static bool toyotaTogglesAdded = false;
 
   if(longPitchToggle) longPitchToggle->setEnabled(gm);
+
+  if(lockDoorsToggle) lockDoorsToggle->setEnabled(toyota);
 
   std::function<ToggleControl*(const char*, const char*, const char*)> addToggle = 
     [&](const char *param, const char *title, const char *description) {
@@ -132,5 +136,10 @@ void FrogPilotVehiclesPanel::setToggles() {
                           "Reduces speed and acceleration error for greater passenger comfort and improved vehicle efficiency.");
 
     gmTogglesAdded = true;
+  } else if (toyota && !toyotaTogglesAdded) {
+    lockDoorsToggle = addToggle("LockDoors", "Lock Doors In Drive", 
+                                "Automatically locks the doors when in drive and unlocks when in park.");
+
+    toyotaTogglesAdded = true;
   }
 }

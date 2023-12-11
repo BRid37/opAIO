@@ -47,6 +47,7 @@ const CanMsg TOYOTA_TX_MSGS[] = {{0x283, 0, 7}, {0x2E6, 0, 8}, {0x2E7, 0, 8}, {0
                                  {0x128, 1, 6}, {0x141, 1, 4}, {0x160, 1, 8}, {0x161, 1, 7}, {0x470, 1, 4},  // DSU bus 1
                                  {0x2E4, 0, 5}, {0x191, 0, 8}, {0x411, 0, 8}, {0x412, 0, 8}, {0x343, 0, 8}, {0x1D2, 0, 8},  // LKAS + ACC
                                  {0x1D3, 0, 8},
+                                 {0x750, 0, 8},   // white list 0x750 for Enhanced Diagnostic Request
                                  {0x200, 0, 6}};  // interceptor
 
 #define TOYOTA_COMMON_RX_CHECKS(lta)                                                                        \

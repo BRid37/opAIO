@@ -17,6 +17,8 @@ private:
   ButtonControl *selectMakeButton;
   ButtonControl *selectModelButton;
 
+  ToggleControl *lockDoorsToggle;
+
   ToggleControl *longPitchToggle;
 
   QString brandSelection;
