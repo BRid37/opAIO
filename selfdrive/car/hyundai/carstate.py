@@ -52,20 +52,6 @@ class CarState(CarStateBase):
 
     self.params = CarControllerParams(CP)
 
-  def calculate_speed_limit(self, cp, cp_cam):
-    if self.CP.carFingerprint in CANFD_CAR:
-      can_parser = cp if self.CP.flags & HyundaiFlags.CANFD_HDA2 else cp_cam
-      speed_limit_key = "SPEED_LIMIT_1"
-      cluster_speed_limit = "CLUSTER_SPEED_LIMIT"
-    else:
-      can_parser = cp
-      speed_limit_key = "SpeedLim_Nav_Clu"
-      cluster_speed_limit = "Navi_HU"
-    if speed_limit_key not in can_parser.vl[cluster_speed_limit]:
-      return 0
-    speed_limit = can_parser.vl[cluster_speed_limit][speed_limit_key]
-    return speed_limit if speed_limit not in (0, 255) else 0
-
   def update(self, cp, cp_cam):
     if self.CP.carFingerprint in CANFD_CAR:
       return self.update_canfd(cp, cp_cam)
@@ -211,8 +197,6 @@ class CarState(CarStateBase):
           put_bool_nonblocking("ExperimentalMode", not experimental_mode)
       self.lkas_previously_pressed = lkas_pressed
 
-    self.param_memory.put_int("CarStateSpeedLimit", self.calculate_speed_limit(cp, cp_cam))
-
     return ret
 
   def update_canfd(self, cp, cp_cam):
@@ -329,8 +313,6 @@ class CarState(CarStateBase):
           put_bool_nonblocking("ExperimentalMode", not experimental_mode)
       self.lkas_previously_pressed = lkas_pressed
 
-    self.param_memory.put_int("CarStateSpeedLimit", self.calculate_speed_limit(cp, cp_cam))
-
     return ret
 
   def get_can_parser(self, CP):
@@ -381,7 +363,6 @@ class CarState(CarStateBase):
       messages.append(("LVR12", 100))
 
     messages.append(("BCM_PO_11", 50))
-    messages.append(("Navi_HU", 5))
 
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, 0)
 
@@ -438,8 +419,6 @@ class CarState(CarStateBase):
         ("SCC_CONTROL", 50),
       ]
 
-    messages.append(("CLUSTER_SPEED_LIMIT", 10))
-
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, CanBus(CP).ECAN)
 
   @staticmethod
@@ -452,7 +431,5 @@ class CarState(CarStateBase):
       messages += [
         ("SCC_CONTROL", 50),
       ]
-
-    messages.append(("CLUSTER_SPEED_LIMIT", 10))
 
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, CanBus(CP).CAM)
