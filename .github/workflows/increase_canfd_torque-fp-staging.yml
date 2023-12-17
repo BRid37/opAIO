@@ -1,9 +1,9 @@
-name: Cherry-Pick Commit
+name: Apply CAN-FD Patch to FP-Staging
 
 on:
   push:
     branches:
-      - fp-canfd-patch
+      - fp-FrogPilot-Staging
 
 jobs:
   cherry-pick:
