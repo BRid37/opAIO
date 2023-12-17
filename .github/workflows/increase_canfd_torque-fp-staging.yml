@@ -12,11 +12,12 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Cherry-pick commit
       run: |
-        git fetch origin fp-canfd-patch
+        git fetch --all
+        git checkout fp-canfd-patch
         git checkout fp-FrogPilot-Staging
         git cherry-pick dd91e916a94ad3ca4230aa20e8de6c93351a0a57
 
