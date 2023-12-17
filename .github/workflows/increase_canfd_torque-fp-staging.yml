@@ -16,10 +16,13 @@ jobs:
 
     - name: Cherry-pick commit
       run: |
+        git config --global user.email "55640145+BRid37@users.noreply.github.com"
+        git config --global user.name "BRid37"
         git fetch --all
         git checkout fp-canfd-patch
         git checkout fp-FrogPilot-Staging
         git cherry-pick dd91e916a94ad3ca4230aa20e8de6c93351a0a57
+        
 
     - name: Push changes
       run: |
