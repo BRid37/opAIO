@@ -1,9 +1,8 @@
 name: Apply CAN-FD Patch to FP-Staging
 
 on:
-  push:
-    branches:
-      - fp-FrogPilot-Staging
+  schedule:
+    - cron: "2 9 * * *"
   workflow_dispatch:
 
 jobs:
