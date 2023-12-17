@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - fp-FrogPilot-Staging
+  workflow_dispatch:
 
 jobs:
   cherry-pick:
