@@ -1,0 +1,24 @@
+name: Cherry-Pick Commit
+
+on:
+  push:
+    branches:
+      - fp-canfd-patch
+
+jobs:
+  cherry-pick:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Cherry-pick commit
+      run: |
+        git fetch origin fp-FrogPilot-Staging
+        git checkout fp-FrogPilot-Staging
+        git cherry-pick dd91e916a94ad3ca4230aa20e8de6c93351a0a57
+
+    - name: Push changes
+      run: |
+        git push origin fp-FrogPilot-Staging
