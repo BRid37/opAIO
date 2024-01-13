@@ -35,6 +35,10 @@ class CarState(CarStateBase):
     self.pscm_status = copy.copy(pt_cp.vl["PSCMStatus"])
     self.moving_backward = pt_cp.vl["EBCMWheelSpdRear"]["MovingBackward"] != 0
 
+    if self.CP.enableBsm:
+      ret.leftBlindspot = pt_cp.vl["BCMBSM"]["Left_BSM"] == 1
+      ret.rightBlindspot = pt_cp.vl["BCMBSM"]["Right_BSM"] == 1
+
     # Variables used for avoiding LKAS faults
     self.loopback_lka_steering_cmd_updated = len(loopback_cp.vl_all["ASCMLKASteeringCmd"]["RollingCounter"]) > 0
     if self.loopback_lka_steering_cmd_updated:
