@@ -28,6 +28,7 @@ struct FrogPilotLateralPlan @0xda96579883444c35 {
 }
 
 struct FrogPilotLongitudinalPlan @0x80ae746ee2596b11 {
+  adjustedCruise @0: Float32;
   conditionalExperimental @1 :Bool;
   desiredFollowDistance @2 :Int16;
   distances @3 :List(Float32);

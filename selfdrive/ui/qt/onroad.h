@@ -143,6 +143,7 @@ private:
   bool turnSignalRight;
   bool useSI;
   double maxAcceleration;
+  float cruiseAdjustment;
   float laneWidthLeft;
   float laneWidthRight;
   int cameraView;
