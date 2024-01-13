@@ -2,6 +2,8 @@
 
 #include <set>
 
+#include <QStringList>
+
 #include "selfdrive/frogpilot/ui/frogpilot_functions.h"
 #include "selfdrive/ui/qt/offroad/settings.h"
 
@@ -12,8 +14,15 @@ public:
   explicit FrogPilotVehiclesPanel(SettingsWindow *parent);
 
 private:
+  void setModels();
   void setToggles();
   void updateToggles();
+
+  ButtonControl *selectMakeButton;
+  ButtonControl *selectModelButton;
+
+  QString carMake;
+  QStringList models;
 
   std::map<std::string, ParamControl*> toggles;
 

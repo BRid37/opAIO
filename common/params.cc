@@ -225,6 +225,8 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"BlindSpotPath", PERSISTENT},
     {"CameraFPS", PERSISTENT},
     {"CameraView", PERSISTENT},
+    {"CarMake", PERSISTENT},
+    {"CarModel", PERSISTENT},
     {"CECurves", PERSISTENT},
     {"CECurvesLead", PERSISTENT},
     {"CENavigation", PERSISTENT},
