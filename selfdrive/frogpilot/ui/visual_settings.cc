@@ -106,8 +106,8 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
       toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 101, brightnessLabels, this, false);
 
     } else if (param == "WheelIcon") {
-      std::vector<QString> wheelToggles{};
-      std::vector<QString> wheelToggleNames{};
+      std::vector<QString> wheelToggles{"RotatingWheel"};
+      std::vector<QString> wheelToggleNames{tr("Rotating")};
       std::map<int, QString> steeringWheelLabels = {{0, "Stock"}, {1, "Lexus"}, {2, "Toyota"}, {3, "Frog"}, {4, "Rocket"}, {5, "Hyundai"}, {6, "Stalin"}};
       toggle = new FrogPilotParamValueToggleControl(param, title, desc, icon, 0, 6, steeringWheelLabels, this, true, "", 1, wheelToggles, wheelToggleNames);
 
