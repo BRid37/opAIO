@@ -330,6 +330,7 @@ void ui_update_params(UIState *s) {
   scene.quality_of_life_visuals = params.getBool("QOLVisuals");
   scene.full_map = params.getBool("QOLVisuals") && scene.quality_of_life_visuals;
 
+  scene.random_events = params.getBool("RandomEvents");
   scene.rotating_wheel = params.getBool("RotatingWheel");
   scene.screen_brightness = params.getInt("ScreenBrightness");
   scene.speed_limit_controller = params.getBool("SpeedLimitController");
@@ -409,6 +410,9 @@ void UIState::update() {
   // FrogPilot live variables that need to be constantly checked
   if (scene.conditional_experimental) {
     scene.conditional_status = paramsMemory.getInt("CEStatus");
+  }
+  if (scene.random_events) {
+    scene.current_random_event = paramsMemory.getInt("CurrentRandomEvent");
   }
 }
 

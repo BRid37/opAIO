@@ -24,6 +24,9 @@ enum FrogPilotEvents @0xf35cc4560bbf6ec2 {
   torqueNNLoad @3;
   turningLeft @4;
   turningRight @5;
+
+  # Random Events
+  firefoxSteerSaturated @6;
 }
 
 struct FrogPilotLateralPlan @0xda96579883444c35 {

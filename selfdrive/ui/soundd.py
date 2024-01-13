@@ -40,6 +40,8 @@ sound_list: Dict[int, Tuple[str, Optional[int], float]] = {
 
   AudibleAlert.warningSoft: ("warning_soft.wav", None, MAX_VOLUME),
   AudibleAlert.warningImmediate: ("warning_immediate.wav", None, MAX_VOLUME),
+
+  AudibleAlert.firefox: ("firefox.wav", None, MAX_VOLUME),
 }
 
 def check_controls_timeout_alert(sm):
