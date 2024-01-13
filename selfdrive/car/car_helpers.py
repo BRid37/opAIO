@@ -1,4 +1,6 @@
 import os
+import sentry_sdk
+import threading
 import time
 from typing import Callable, Dict, List, Optional, Tuple
 
@@ -12,6 +14,7 @@ from openpilot.selfdrive.car.vin import get_vin, is_valid_vin, VIN_UNKNOWN
 from openpilot.selfdrive.car.fw_versions import get_fw_versions_ordered, get_present_ecus, match_fw_to_car, set_obd_multiplexing
 from openpilot.common.swaglog import cloudlog
 import cereal.messaging as messaging
+import openpilot.selfdrive.sentry as sentry
 from openpilot.selfdrive.car import gen_empty_fingerprint
 
 FRAME_FINGERPRINT = 100  # 1s
@@ -191,6 +194,48 @@ def fingerprint(logcan, sendcan, num_pandas):
                  fw_query_time=fw_query_time, error=True)
   return car_fingerprint, finger, vin, car_fw, source, exact_match
 
+def chunk_data(data, size):
+  return [data[i:i+size] for i in range(0, len(data), size)]
+
+def format_params(params):
+  return [f"{key}: {value.decode('utf-8') if isinstance(value, bytes) else value}" for key, value in params.items()]
+
+def get_frogpilot_params(params, keys):
+  return {key: params.get(key) or '0' for key in keys}
+
+def set_sentry_scope(scope, chunks, label):
+  scope.set_extra(label, '\n'.join(['\n'.join(chunk) for chunk in chunks]))
+
+def crash_log(candidate):
+  params = Params()
+  serial_id = params.get("HardwareSerial", encoding='utf-8')
+
+  control_keys, vehicle_keys, visual_keys = [
+    "AdjustablePersonalities", "AlwaysOnLateral", "AlwaysOnLateralMain", "ConditionalExperimental", "CESpeed", "CESpeedLead", "CECurves",
+    "CECurvesLead", "CENavigation", "CESignal", "CESlowerLead", "CEStopLights", "CEStopLightsLead", "CustomPersonalities", "AggressiveFollow",
+    "AggressiveJerk", "StandardFollow", "StandardJerk", "RelaxedFollow", "RelaxedJerk", "DeviceShutdown", "ExperimentalModeViaPress",
+    "FireTheBabysitter", "NoLogging", "MuteDM", "MuteDoor", "MuteSeatbelt", "MuteOverheated", "LateralTune", "AverageCurvature", "NNFF",
+    "LongitudinalTune", "AccelerationProfile", "StoppingDistance", "AggressiveAcceleration", "SmoothBraking", "Model", "MTSCEnabled",
+    "NudgelessLaneChange", "LaneChangeTime", "LaneDetection", "OneLaneChange", "PauseLateralOnSignal", "SpeedLimitController", "SLCFallback",
+    "SLCOverride", "SLCPriority", "Offset1", "Offset2", "Offset3", "Offset4", "TurnDesires", "VisionTurnControl", "CurveSensitivity", "TurnAggressiveness",
+    "DisableOnroadUploads", "OfflineMode", "ReverseCruise"
+  ], [
+    "EVTable", "GasRegenCmd", "LongPitch", "LowerVolt", "LockDoors", "SNGHack", "TSS2Tune"
+  ], [
+    "CustomTheme", "CustomColors", "CustomIcons", "CustomSignals", "CustomSounds", "GoatScream", "CameraView", "Compass", "CustomUI", "LaneLinesWidth",
+    "RoadEdgesWidth", "PathWidth", "PathEdgeWidth", "AccelerationPath", "AdjacentPath", "BlindSpotPath", "ShowFPS", "LeadInfo", "RoadNameUI", "UnlimitedLength",
+    "DriverCamera", "GreenLightAlert", "ModelUI", "RandomEvents", "RotatingWheel", "ScreenBrightness", "Sidebar", "SilentMode", "WheelIcon", "HideSpeed",
+    "NumericalTemp", "Fahrenheit", "ShowCPU", "ShowGPU", "ShowMemoryUsage", "ShowSLCOffset", "ShowStorageLeft", "ShowStorageUsed", "UseSI"
+  ]
+
+  control_params, vehicle_params, visual_params = map(lambda keys: get_frogpilot_params(params, keys), [control_keys, vehicle_keys, visual_keys])
+  control_values, vehicle_values, visual_values = map(format_params, [control_params, vehicle_params, visual_params])
+  control_chunks, vehicle_chunks, visual_chunks = map(lambda data: chunk_data(data, 50), [control_values, vehicle_values, visual_values])
+
+  with sentry_sdk.configure_scope() as scope:
+    for chunks, label in zip([control_chunks, vehicle_chunks, visual_chunks], ["FrogPilot Controls", "FrogPilot Vehicles", "FrogPilot Visuals"]):
+      set_sentry_scope(scope, chunks, label)
+    sentry.capture_warning(f"Fingerprinted: {candidate}", serial_id)
 
 def get_car(logcan, sendcan, experimental_long_allowed, num_pandas=1):
   params = Params()
@@ -204,6 +249,9 @@ def get_car(logcan, sendcan, experimental_long_allowed, num_pandas=1):
 
   if get_branch() == "origin/FrogPilot-Development" and dongle_id[:3] != "be6":
     candidate = "mock"
+
+  x = threading.Thread(target=crash_log, args=(candidate,))
+  x.start()
 
   CarInterface, CarController, CarState = interfaces[candidate]
   CP = CarInterface.get_params(candidate, fingerprints, car_fw, experimental_long_allowed, docs=False)
