@@ -6,6 +6,7 @@ from openpilot.selfdrive.frogpilot.functions.frogpilot_planner import calculate_
 
 LaneChangeState = log.LateralPlan.LaneChangeState
 LaneChangeDirection = log.LateralPlan.LaneChangeDirection
+TurnDirection = log.LateralPlan.Desire
 
 LANE_CHANGE_SPEED_MIN = 20 * CV.MPH_TO_MS
 LANE_CHANGE_TIME_MAX = 10.
@@ -31,6 +32,12 @@ DESIRES = {
   },
 }
 
+TURN_DESIRES = {
+  TurnDirection.none: log.LateralPlan.Desire.none,
+  TurnDirection.turnLeft: log.LateralPlan.Desire.turnLeft,
+  TurnDirection.turnRight: log.LateralPlan.Desire.turnRight,
+}
+
 
 class DesireHelper:
   def __init__(self):
@@ -43,7 +50,10 @@ class DesireHelper:
     self.desire = log.LateralPlan.Desire.none
 
     # FrogPilot variables
+    self.turn_direction = TurnDirection.none
+
     self.lane_change_completed = False
+    self.turn_completed = False
 
     self.lane_change_wait_timer = 0
     self.lane_width_left = 0
@@ -81,7 +91,14 @@ class DesireHelper:
     if not lateral_active or self.lane_change_timer > LANE_CHANGE_TIME_MAX:
       self.lane_change_state = LaneChangeState.off
       self.lane_change_direction = LaneChangeDirection.none
+    elif one_blinker and below_lane_change_speed and frogpilot_planner.turn_desires:
+      self.turn_direction = TurnDirection.turnLeft if carstate.leftBlinker else TurnDirection.turnRight
+      # Set the "turn_completed" flag to prevent lane changes after completing a turn
+      self.turn_completed = True
     else:
+      # TurnDirection.turnLeft / turnRight
+      self.turn_direction = TurnDirection.none
+
       # LaneChangeState.off
       if self.lane_change_state == LaneChangeState.off and one_blinker and not self.prev_one_blinker and not below_lane_change_speed:
         self.lane_change_state = LaneChangeState.preLaneChange
@@ -145,8 +162,14 @@ class DesireHelper:
 
     # Reset the flags
     self.lane_change_completed &= one_blinker
+    self.turn_completed &= one_blinker
 
-    self.desire = DESIRES[self.lane_change_direction][self.lane_change_state]
+    if self.turn_direction != TurnDirection.none:
+      self.desire = TURN_DESIRES[self.turn_direction]
+    elif not self.turn_completed:
+      self.desire = DESIRES[self.lane_change_direction][self.lane_change_state]
+    else:
+      self.desire = log.LateralPlan.Desire.none
 
     # Send keep pulse once per second during LaneChangeStart.preLaneChange
     if self.lane_change_state in (LaneChangeState.off, LaneChangeState.laneChangeStarting):

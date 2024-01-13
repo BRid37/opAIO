@@ -209,3 +209,5 @@ class FrogPilotPlanner:
     if self.speed_limit_controller:
       self.speed_limit_controller_override = params.get_int("SLCOverride")
       SpeedLimitController.update_frogpilot_params()
+
+    self.turn_desires = params.get_bool("TurnDesires")
