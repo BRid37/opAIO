@@ -7,6 +7,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
 
     {"LongitudinalTune", "Longitudinal Tuning", "Modify openpilot's acceleration and braking behavior.", "../frogpilot/assets/toggle_icons/icon_longitudinal_tune.png"},
     {"AccelerationProfile", "Acceleration Profile", "Change the acceleration rate to be either sporty or eco-friendly.", ""},
+    {"AggressiveAcceleration", "Aggressive Acceleration With Lead", "Increase acceleration aggressiveness when following a lead vehicle from a stop.", ""},
   };
 
   for (const auto &[param, title, desc, icon] : controlToggles) {
@@ -80,7 +81,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
   fireTheBabysitterKeys = {};
   laneChangeKeys = {};
   lateralTuneKeys = {};
-  longitudinalTuneKeys = {"AccelerationProfile"};
+  longitudinalTuneKeys = {"AccelerationProfile", "AggressiveAcceleration"};
   speedLimitControllerKeys = {};
   visionTurnControlKeys = {};
 
