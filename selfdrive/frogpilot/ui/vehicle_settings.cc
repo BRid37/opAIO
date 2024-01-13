@@ -3,6 +3,7 @@
 
 FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(SettingsWindow *parent) : FrogPilotListWidget(parent) {
   std::vector<std::tuple<QString, QString, QString, QString>> vehicleToggles {
+    {"GasRegenCmd", "Gas Regen Cmd", "", ""},
   };
 
   for (auto &[param, title, desc, icon] : vehicleToggles) {
@@ -17,7 +18,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(SettingsWindow *parent) : FrogPil
     });
   }
 
-  gmKeys = {};
+  gmKeys = {"GasRegenCmd"};
   toyotaKeys = {};
 
   std::set<std::string> rebootKeys = {};

@@ -215,6 +215,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"AccelerationProfile", PERSISTENT},
     {"ApiCache_DriveStats", PERSISTENT},
     {"FrogPilotTogglesUpdated", PERSISTENT},
+    {"GasRegenCmd", PERSISTENT},
     {"LateralTune", PERSISTENT},
     {"LongitudinalTune", PERSISTENT},
 };
