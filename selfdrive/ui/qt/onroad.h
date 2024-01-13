@@ -200,6 +200,9 @@ private:
   // FrogPilot variables
   UIScene &scene;
 
+  QPoint timeoutPoint = QPoint(420, 69);
+  QTimer clickTimer;
+
 private slots:
   void offroadTransition(bool offroad);
   void primeChanged(bool prime);

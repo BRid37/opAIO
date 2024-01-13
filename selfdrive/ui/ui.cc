@@ -305,6 +305,7 @@ void ui_update_params(UIState *s) {
   scene.unlimited_road_ui_length = scene.model_ui && params.getBool("UnlimitedLength");
 
   scene.driver_camera = params.getBool("DriverCamera");
+  scene.experimental_mode_via_press = params.getBool("ExperimentalModeViaPress");
   scene.screen_brightness = params.getInt("ScreenBrightness");
   scene.wheel_icon = params.getInt("WheelIcon");
 }

@@ -366,6 +366,7 @@ class CarStateBase(ABC):
     self.param = Params()
     self.param_memory = Params("/dev/shm/params")
 
+    self.lkas_previously_pressed = False
     self.main_enabled = False
 
   def update_speed_kf(self, v_ego_raw):
@@ -457,6 +458,8 @@ class CarStateBase(ABC):
     return None
 
   def update_frogpilot_params(self, params):
+    self.conditional_experimental_mode = params.get_bool("ConditionalExperimental")
+    self.experimental_mode_via_press = params.get_bool("ExperimentalModeViaPress")
 
 INTERFACE_ATTR_FILE = {
   "FINGERPRINTS": "fingerprints",
