@@ -88,7 +88,9 @@ class LongitudinalPlanner:
       j = np.zeros(len(T_IDXS_MPC))
     return x, v, a, j
 
-  def update(self, sm):
+  def update(self, sm, frogpilot_planner):
+    frogpilot_planner.update(sm, self.mpc)
+
     if self.param_read_counter % 50 == 0:
       self.read_param()
     self.param_read_counter += 1
@@ -152,7 +154,7 @@ class LongitudinalPlanner:
     self.a_desired = float(interp(self.dt, ModelConstants.T_IDXS[:CONTROL_N], self.a_desired_trajectory))
     self.v_desired_filter.x = self.v_desired_filter.x + self.dt * (self.a_desired + a_prev) / 2.0
 
-  def publish(self, sm, pm):
+  def publish(self, sm, pm, frogpilot_planner):
     plan_send = messaging.new_message('longitudinalPlan')
 
     plan_send.valid = sm.all_checks(service_list=['carState', 'controlsState'])
@@ -173,3 +175,5 @@ class LongitudinalPlanner:
     longitudinalPlan.personality = self.personality
 
     pm.send('longitudinalPlan', plan_send)
+
+    frogpilot_planner.publish_longitudinal(sm, pm, self.mpc)

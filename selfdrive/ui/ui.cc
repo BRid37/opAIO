@@ -13,6 +13,8 @@
 #include "common/watchdog.h"
 #include "system/hardware/hw.h"
 
+#include "selfdrive/frogpilot/ui/frogpilot_functions.h"
+
 #define BACKLIGHT_DT 0.05
 #define BACKLIGHT_TS 10.00
 
@@ -201,6 +203,26 @@ static void update_state(UIState *s) {
   if (sm.updated("carParams")) {
     scene.longitudinal_control = sm["carParams"].getCarParams().getOpenpilotLongitudinalControl();
   }
+  if (sm.updated("carState")) {
+    auto carState = sm["carState"].getCarState();
+  }
+  if (sm.updated("controlsState")) {
+    auto controlsState = sm["controlsState"].getControlsState();
+    scene.enabled = controlsState.getEnabled();
+    scene.experimental_mode = controlsState.getExperimentalMode();
+  }
+  if (sm.updated("frogpilotCarControl")) {
+    auto frogpilotCarControl = sm["frogpilotCarControl"].getFrogpilotCarControl();
+  }
+  if (sm.updated("frogpilotLateralPlan")) {
+    auto frogpilotLateralPlan = sm["frogpilotLateralPlan"].getFrogpilotLateralPlan();
+  }
+  if (sm.updated("frogpilotLongitudinalPlan")) {
+    auto frogpilotLongitudinalPlan = sm["frogpilotLongitudinalPlan"].getFrogpilotLongitudinalPlan();
+  }
+  if (sm.updated("liveLocationKalman")) {
+    auto liveLocationKalman = sm["liveLocationKalman"].getLiveLocationKalman();
+  }
   if (sm.updated("wideRoadCameraState")) {
     auto cam_state = sm["wideRoadCameraState"].getWideRoadCameraState();
     float scale = (cam_state.getSensor() == cereal::FrameData::ImageSensor::AR0231) ? 6.0f : 1.0f;
@@ -219,6 +241,9 @@ void ui_update_params(UIState *s) {
   auto params = Params();
   s->scene.is_metric = params.getBool("IsMetric");
   s->scene.map_on_left = params.getBool("NavSettingLeftSide");
+
+  // FrogPilot variables
+  UIScene &scene = s->scene;
 }
 
 void UIState::updateStatus() {
@@ -249,6 +274,7 @@ UIState::UIState(QObject *parent) : QObject(parent) {
     "modelV2", "controlsState", "liveCalibration", "radarState", "deviceState",
     "pandaStates", "carParams", "driverMonitoringState", "carState", "liveLocationKalman", "driverStateV2",
     "wideRoadCameraState", "managerState", "navInstruction", "navRoute", "uiPlan",
+    "frogpilotCarControl", "frogpilotDeviceState", "frogpilotLateralPlan", "frogpilotLongitudinalPlan",
   });
 
   Params params;
@@ -262,6 +288,8 @@ UIState::UIState(QObject *parent) : QObject(parent) {
   timer = new QTimer(this);
   QObject::connect(timer, &QTimer::timeout, this, &UIState::update);
   timer->start(1000 / UI_FREQ);
+
+  setDefaultParams();
 }
 
 void UIState::update() {
@@ -273,6 +301,15 @@ void UIState::update() {
     watchdog_kick(nanos_since_boot());
   }
   emit uiUpdate(*this);
+
+  // Update FrogPilot variables when they are changed
+  Params paramsMemory{"/dev/shm/params"};
+  if (paramsMemory.getBool("FrogPilotTogglesUpdated")) {
+    ui_update_params(this);
+    emit uiUpdateFrogPilotParams();
+  }
+
+  // FrogPilot live variables that need to be constantly checked
 }
 
 void UIState::setPrimeType(PrimeType type) {

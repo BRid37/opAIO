@@ -44,6 +44,8 @@ class CarState(CarStateBase):
     self.acc_type = 1
     self.lkas_hud = {}
 
+    # FrogPilot variables
+
   def update(self, cp, cp_cam):
     ret = car.CarState.new_message()
 

@@ -36,8 +36,12 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
   setFixedWidth(300);
 
   QObject::connect(uiState(), &UIState::uiUpdate, this, &Sidebar::updateState);
+  QObject::connect(uiState(), &UIState::uiUpdateFrogPilotParams, this, &Sidebar::updateFrogPilotParams);
 
   pm = std::make_unique<PubMaster, const std::initializer_list<const char *>>({"userFlag"});
+
+  // FrogPilot variables
+  updateFrogPilotParams();
 }
 
 void Sidebar::mousePressEvent(QMouseEvent *event) {
@@ -79,6 +83,9 @@ void Sidebar::updateState(const UIState &s) {
   int strength = (int)deviceState.getNetworkStrength();
   setProperty("netStrength", strength > 0 ? strength + 1 : 0);
 
+  // FrogPilot properties
+  auto frogpilotDeviceState = sm["frogpilotDeviceState"].getFrogpilotDeviceState();
+
   ItemStatus connectStatus;
   auto last_ping = deviceState.getLastAthenaPingTime();
   if (last_ping == 0) {
@@ -106,6 +113,10 @@ void Sidebar::updateState(const UIState &s) {
     pandaStatus = {{tr("GPS"), tr("SEARCH")}, warning_color};
   }
   setProperty("pandaStatus", QVariant::fromValue(pandaStatus));
+}
+
+void Sidebar::updateFrogPilotParams() {
+  // Update FrogPilot parameters upon toggle change
 }
 
 void Sidebar::paintEvent(QPaintEvent *event) {

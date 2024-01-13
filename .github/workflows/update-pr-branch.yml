@@ -1,0 +1,29 @@
+name: Overwrite MAKE-PRS-HERE Branch with FrogPilot
+
+on:
+  push:
+    branches:
+      - FrogPilot
+
+jobs:
+  overwrite-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Overwrite MAKE-PRS-HERE with FrogPilot
+        run: |
+          git checkout FrogPilot
+          git pull
+          git checkout MAKE-PRS-HERE
+          git reset --hard FrogPilot
+          git push origin MAKE-PRS-HERE --force
+        env:
+          GIT_COMMITTER_NAME: FrogAi
+          GIT_COMMITTER_EMAIL: 91348155+FrogAi@users.noreply@github.com
+          GIT_AUTHOR_NAME: FrogAi
+          GIT_AUTHOR_EMAIL: 91348155+FrogAi@users.noreply@github.com
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
