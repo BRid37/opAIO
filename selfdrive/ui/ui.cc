@@ -89,7 +89,8 @@ void update_model(UIState *s,
   if (plan_position.getX().size() < model.getPosition().getX().size()) {
     plan_position = model.getPosition();
   }
-  float max_distance = std::clamp(*(plan_position.getX().end() - 1),
+  float max_distance = scene.unlimited_road_ui_length ? *(plan_position.getX().end() - 1) :
+                       std::clamp(*(plan_position.getX().end() - 1),
                                   MIN_DRAW_DISTANCE, MAX_DRAW_DISTANCE);
 
   // update lane lines
@@ -98,7 +99,7 @@ void update_model(UIState *s,
   int max_idx = get_path_length_idx(lane_lines[0], max_distance);
   for (int i = 0; i < std::size(scene.lane_line_vertices); i++) {
     scene.lane_line_probs[i] = lane_line_probs[i];
-    update_line_data(s, lane_lines[i], 0.025 * scene.lane_line_probs[i], 0, &scene.lane_line_vertices[i], max_idx);
+    update_line_data(s, lane_lines[i], scene.model_ui ? scene.lane_line_width * scene.lane_line_probs[i] : 0.025 * scene.lane_line_probs[i], 0, &scene.lane_line_vertices[i], max_idx);
   }
 
   // update road edges
@@ -106,7 +107,7 @@ void update_model(UIState *s,
   const auto road_edge_stds = model.getRoadEdgeStds();
   for (int i = 0; i < std::size(scene.road_edge_vertices); i++) {
     scene.road_edge_stds[i] = road_edge_stds[i];
-    update_line_data(s, road_edges[i], 0.025, 0, &scene.road_edge_vertices[i], max_idx);
+    update_line_data(s, road_edges[i], scene.model_ui ? scene.road_edge_width : 0.025, 0, &scene.road_edge_vertices[i], max_idx);
   }
 
   // update path
@@ -116,7 +117,15 @@ void update_model(UIState *s,
     max_distance = std::clamp((float)(lead_d - fmin(lead_d * 0.35, 10.)), 0.0f, max_distance);
   }
   max_idx = get_path_length_idx(plan_position, max_distance);
-  update_line_data(s, plan_position, 0.9, 1.22, &scene.track_vertices, max_idx, false);
+  update_line_data(s, plan_position, scene.model_ui ? scene.path_width * (1 - scene.path_edge_width / 100) : 0.9, 1.22, &scene.track_vertices, max_idx, false);
+
+  // update path edges
+  update_line_data(s, plan_position, scene.model_ui ? scene.path_width : 0, 1.22, &scene.track_edge_vertices, max_idx, false);
+
+  // update adjacent paths
+  for (int i = 4; i <= 5; i++) {
+    update_line_data(s, lane_lines[i], scene.blind_spot_path ? (i == 4 ? scene.lane_width_left : scene.lane_width_right) / 2 : 0, 0, &scene.track_adjacent_vertices[i], max_idx);
+  }
 }
 
 void update_dmonitoring(UIState *s, const cereal::DriverStateV2::Reader &driverstate, float dm_fade_state, bool is_rhd) {
@@ -205,6 +214,10 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("carState")) {
     auto carState = sm["carState"].getCarState();
+    if (scene.blind_spot_path) {
+      scene.blind_spot_left = carState.getLeftBlindspot();
+      scene.blind_spot_right = carState.getRightBlindspot();
+    }
   }
   if (sm.updated("controlsState")) {
     auto controlsState = sm["controlsState"].getControlsState();
@@ -219,9 +232,19 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("frogpilotLateralPlan")) {
     auto frogpilotLateralPlan = sm["frogpilotLateralPlan"].getFrogpilotLateralPlan();
+    if (scene.blind_spot_path) {
+      scene.lane_width_left = frogpilotLateralPlan.getLaneWidthLeft();
+      scene.lane_width_right = frogpilotLateralPlan.getLaneWidthRight();
+    }
   }
   if (sm.updated("frogpilotLongitudinalPlan")) {
     auto frogpilotLongitudinalPlan = sm["frogpilotLongitudinalPlan"].getFrogpilotLongitudinalPlan();
+    if (scene.lead_info) {
+      scene.desired_follow = frogpilotLongitudinalPlan.getDesiredFollowDistance();
+      scene.obstacle_distance = frogpilotLongitudinalPlan.getSafeObstacleDistance();
+      scene.obstacle_distance_stock = frogpilotLongitudinalPlan.getSafeObstacleDistanceStock();
+      scene.stopped_equivalence = frogpilotLongitudinalPlan.getStoppedEquivalenceFactor();
+    }
   }
   if (sm.updated("liveLocationKalman")) {
     auto liveLocationKalman = sm["liveLocationKalman"].getLiveLocationKalman();
@@ -254,6 +277,21 @@ void ui_update_params(UIState *s) {
   scene.conditional_experimental = params.getBool("ConditionalExperimental");
   scene.conditional_speed = params.getInt("CESpeed");
   scene.conditional_speed_lead = params.getInt("CESpeedLead");
+
+  scene.custom_onroad_ui = params.getBool("CustomUI");
+  scene.adjacent_path = scene.custom_onroad_ui && params.getBool("AdjacentPath");
+  scene.blind_spot_path = scene.custom_onroad_ui && params.getBool("BlindSpotPath");
+  scene.lead_info = scene.custom_onroad_ui && params.getBool("LeadInfo");
+  scene.show_fps = scene.custom_onroad_ui && params.getBool("ShowFPS");
+  scene.use_si = scene.custom_onroad_ui && params.getBool("UseSI");
+
+  scene.model_ui = params.getBool("ModelUI");
+  scene.acceleration_path = scene.model_ui && params.getBool("AccelerationPath");
+  scene.lane_line_width = params.getInt("LaneLinesWidth") * (scene.is_metric ? 1 : INCH_TO_CM) / 200;
+  scene.path_edge_width = params.getInt("PathEdgeWidth");
+  scene.path_width = params.getInt("PathWidth") / 10.0 * (scene.is_metric ? 1 : FOOT_TO_METER) / 2;
+  scene.road_edge_width = params.getInt("RoadEdgesWidth") * (scene.is_metric ? 1 : INCH_TO_CM) / 200;
+  scene.unlimited_road_ui_length = scene.model_ui && params.getBool("UnlimitedLength");
 }
 
 void UIState::updateStatus() {

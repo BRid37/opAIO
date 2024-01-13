@@ -13,17 +13,25 @@ struct FrogPilotCarControl @0x81c2f05a394cf4af {
 }
 
 struct FrogPilotDeviceState @0xaedffd8f31e7b55d {
+  freeSpace @0 :Int16;
+  usedSpace @1 :Int16;
 }
 
 enum FrogPilotEvents @0xf35cc4560bbf6ec2 {
 }
 
 struct FrogPilotLateralPlan @0xda96579883444c35 {
+  laneWidthLeft @0 :Float32;
+  laneWidthRight @1 :Float32;
 }
 
 struct FrogPilotLongitudinalPlan @0x80ae746ee2596b11 {
   conditionalExperimental @1 :Bool;
+  desiredFollowDistance @2 :Int16;
   distances @3 :List(Float32);
+  safeObstacleDistance @5 :Int16;
+  safeObstacleDistanceStock @6 :Int16;
+  stoppedEquivalenceFactor @11 :Int16;
 }
 
 struct FrogPilotNavigation @0xa5cd762cd951a455 {

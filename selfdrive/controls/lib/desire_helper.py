@@ -2,6 +2,8 @@ from cereal import log
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.realtime import DT_MDL
 
+from openpilot.selfdrive.frogpilot.functions.frogpilot_planner import calculate_lane_width
+
 LaneChangeState = log.LateralPlan.LaneChangeState
 LaneChangeDirection = log.LateralPlan.LaneChangeDirection
 
@@ -46,6 +48,16 @@ class DesireHelper:
     v_ego = carstate.vEgo
     one_blinker = carstate.leftBlinker != carstate.rightBlinker
     below_lane_change_speed = v_ego < LANE_CHANGE_SPEED_MIN
+
+    # Calculate left and right lane widths for the blindspot path
+    turning = abs(carstate.steeringAngleDeg) >= 60
+    if frogpilot_planner.blindspot_path and not below_lane_change_speed and not turning:
+      # Calculate left and right lane widths
+      self.lane_width_left = calculate_lane_width(modeldata.laneLines[0], modeldata.laneLines[1], modeldata.roadEdges[0])
+      self.lane_width_right = calculate_lane_width(modeldata.laneLines[3], modeldata.laneLines[2], modeldata.roadEdges[1])
+    else:
+      self.lane_width_left = 0
+      self.lane_width_right = 0
 
     if not lateral_active or self.lane_change_timer > LANE_CHANGE_TIME_MAX:
       self.lane_change_state = LaneChangeState.off

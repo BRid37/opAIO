@@ -19,6 +19,9 @@ class Sidebar : public QFrame {
   Q_PROPERTY(int netStrength MEMBER net_strength NOTIFY valueChanged);
 
   // FrogPilot properties
+  Q_PROPERTY(ItemStatus cpuStatus MEMBER cpu_status NOTIFY valueChanged)
+  Q_PROPERTY(ItemStatus memoryStatus MEMBER memory_status NOTIFY valueChanged)
+  Q_PROPERTY(ItemStatus storageStatus MEMBER storage_status NOTIFY valueChanged)
 
 public:
   explicit Sidebar(QWidget* parent = 0);
@@ -67,4 +70,12 @@ private:
 
   // FrogPilot variables
   Params params;
+
+  ItemStatus cpu_status, memory_status, storage_status;
+
+  bool isCPU;
+  bool isGPU;
+  bool isMemoryUsage;
+  bool isStorageLeft;
+  bool isStorageUsed;
 };

@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include <QElapsedTimer>
 #include <QPushButton>
 #include <QStackedLayout>
 #include <QWidget>
@@ -15,6 +16,7 @@ const int btn_size = 192;
 const int img_size = (btn_size / 4) * 3;
 
 // FrogPilot global variables
+static double fps;
 
 // ***** onroad widgets *****
 class OnroadAlerts : public QWidget {
@@ -40,7 +42,7 @@ class ExperimentalButton : public QPushButton {
 
 public:
   explicit ExperimentalButton(QWidget *parent = 0);
-  void updateState(const UIState &s);
+  void updateState(const UIState &s, bool leadInfo);
 
 private:
   void paintEvent(QPaintEvent *event) override;
@@ -54,6 +56,8 @@ private:
 
   // FrogPilot variables
   UIScene &scene;
+
+  int y_offset;
 };
 
 
@@ -106,6 +110,7 @@ private:
   bool wide_cam_requested = false;
 
   // FrogPilot widgets
+  void drawLeadInfo(QPainter &p);
   void drawStatusBar(QPainter &p);
   void initializeFrogPilotWidgets();
   void updateFrogPilotWidgets(QPainter &p);
@@ -117,13 +122,26 @@ private:
 
   QHBoxLayout *bottom_layout;
 
+  bool accelerationPath;
+  bool adjacentPath;
   bool alwaysOnLateral;
+  bool blindSpotLeft;
+  bool blindSpotRight;
   bool conditionalExperimental;
   bool experimentalMode;
+  bool leadInfo;
+  bool useSI;
+  double maxAcceleration;
+  float laneWidthLeft;
+  float laneWidthRight;
   int cameraView;
   int conditionalSpeed;
   int conditionalSpeedLead;
   int conditionalStatus;
+  int desiredFollow;
+  int obstacleDistance;
+  int obstacleDistanceStock;
+  int stoppedEquivalence;
 
 protected:
   void paintGL() override;

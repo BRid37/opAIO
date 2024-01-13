@@ -34,6 +34,19 @@ def get_min_accel_sport_tune(v_ego):
 def get_max_accel_sport_tune(v_ego):
   return interp(v_ego, A_CRUISE_MAX_BP_CUSTOM, A_CRUISE_MAX_VALS_SPORT_TUNE)
 
+def calculate_lane_width(lane, current_lane, road_edge):
+  lane_x, lane_y = np.array(lane.x), np.array(lane.y)
+  edge_x, edge_y = np.array(road_edge.x), np.array(road_edge.y)
+  current_x, current_y = np.array(current_lane.x), np.array(current_lane.y)
+
+  lane_y_interp = np.interp(current_x, lane_x[lane_x.argsort()], lane_y[lane_x.argsort()])
+  road_edge_y_interp = np.interp(current_x, edge_x[edge_x.argsort()], edge_y[edge_x.argsort()])
+
+  distance_to_lane = np.mean(np.abs(current_y - lane_y_interp))
+  distance_to_road_edge = np.mean(np.abs(current_y - road_edge_y_interp))
+
+  return min(distance_to_lane, distance_to_road_edge)
+
 
 class FrogPilotPlanner:
   def __init__(self, params):
@@ -80,6 +93,9 @@ class FrogPilotPlanner:
     frogpilot_lateral_plan_send.valid = sm.all_checks(service_list=['carState', 'controlsState', 'modelV2'])
     frogpilotLateralPlan = frogpilot_lateral_plan_send.frogpilotLateralPlan
 
+    frogpilotLateralPlan.laneWidthLeft = float(DH.lane_width_left)
+    frogpilotLateralPlan.laneWidthRight = float(DH.lane_width_right)
+
     pm.send('frogpilotLateralPlan', frogpilot_lateral_plan_send)
 
   def publish_longitudinal(self, sm, pm, mpc):
@@ -90,10 +106,17 @@ class FrogPilotPlanner:
     frogpilotLongitudinalPlan.conditionalExperimental = self.cem.experimental_mode
     frogpilotLongitudinalPlan.distances = self.x_desired_trajectory.tolist()
 
+    frogpilotLongitudinalPlan.safeObstacleDistance = mpc.safe_obstacle_distance
+    frogpilotLongitudinalPlan.stoppedEquivalenceFactor = mpc.stopped_equivalence_factor
+    frogpilotLongitudinalPlan.desiredFollowDistance = mpc.safe_obstacle_distance - mpc.stopped_equivalence_factor
+    frogpilotLongitudinalPlan.safeObstacleDistanceStock = mpc.safe_obstacle_distance_stock
+
     pm.send('frogpilotLongitudinalPlan', frogpilot_longitudinal_plan_send)
 
   def update_frogpilot_params(self, params):
     self.is_metric = params.get_bool("IsMetric")
+
+    self.blindspot_path = params.get_bool("CustomUI") and params.get_bool("BlindSpotPath")
 
     self.conditional_experimental_mode = params.get_bool("ConditionalExperimental")
     if self.conditional_experimental_mode:
