@@ -109,6 +109,7 @@ private:
 
   ButtonControl *updateTime;
 
+  int deviceShutdown;
   int schedule;
   int time;
 };
