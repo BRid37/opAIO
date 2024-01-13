@@ -179,8 +179,8 @@ class FrogPilotParamToggleControl : public ParamControl {
   Q_OBJECT
 public:
   FrogPilotParamToggleControl(const QString &param, const QString &title, const QString &desc,
-                     const QString &icon, const std::vector<QString> &button_params, 
-                     const std::vector<QString> &button_texts, QWidget *parent = nullptr, 
+                     const QString &icon, const std::vector<QString> &button_params,
+                     const std::vector<QString> &button_texts, QWidget *parent = nullptr,
                      const int minimum_button_width = 225)
     : ParamControl(param, title, desc, icon, parent) {
 
@@ -313,10 +313,11 @@ public:
     valueLabel->setStyleSheet("QLabel { color: #E0E879; }");
   }
 
-  void updateControl(int newMinValue, int newMaxValue, const QString &newLabel) {
+  void updateControl(int newMinValue, int newMaxValue, const QString &newLabel, int newDivision = 1) {
     minValue = newMinValue;
     maxValue = newMaxValue;
     labelText = newLabel;
+    division = newDivision;
   }
 
   void showEvent(QShowEvent *event) override {
@@ -492,10 +493,11 @@ public:
     valueLabel->setStyleSheet("QLabel { color: #E0E879; }");
   }
 
-  void updateControl(int newMinValue, int newMaxValue, const QString &newLabel) {
+  void updateControl(int newMinValue, int newMaxValue, const QString &newLabel, int newDivision) {
     minValue = newMinValue;
     maxValue = newMaxValue;
     labelText = newLabel;
+    division = newDivision;
   }
 
   void showEvent(QShowEvent *event) override {

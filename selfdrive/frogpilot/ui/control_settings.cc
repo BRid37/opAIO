@@ -27,6 +27,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     {"LateralTune", "Lateral Tuning", "Modify openpilot's steering behavior.", "../frogpilot/assets/toggle_icons/icon_lateral_tune.png"},
     {"AverageCurvature", "Average Desired Curvature", "Use Pfeiferj's distance-based curvature adjustment for improved curve handling.", ""},
     {"NNFF", "NNFF - Neural Network Feedforward", "Use Twilsonco's Neural Network Feedforward for enhanced precision in lateral control.", ""},
+    {"SteerRatio", steerRatioStock != 0 ? QString("Steer Ratio (Default: " + QString::number(steerRatioStock / 10.0) + ")") : "Steer Ratio", "Set a custom steer ratio for your vehicle controls.", ""},
 
     {"LongitudinalTune", "Longitudinal Tuning", "Modify openpilot's acceleration and braking behavior.", "../frogpilot/assets/toggle_icons/icon_longitudinal_tune.png"},
     {"AccelerationProfile", "Acceleration Profile", "Change the acceleration rate to be either sporty or eco-friendly.", ""},
@@ -176,6 +177,8 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
         }
       });
       toggle = lateralTuneToggle;
+    } else if (param == "SteerRatio") {
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, steerRatioStock * 0.75, steerRatioStock * 1.25, std::map<int, QString>(), this, false, "", 10);
 
     } else if (param == "LongitudinalTune") {
       FrogPilotParamManageControl *longitudinalTuneToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
@@ -359,10 +362,16 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
   conditionalExperimentalKeys = {"CECurves", "CECurvesLead", "CESlowerLead", "CENavigation", "CEStopLights", "CESignal"};
   fireTheBabysitterKeys = {"NoLogging", "MuteDM", "MuteDoor", "MuteOverheated", "MuteSeatbelt"};
   laneChangeKeys = {"LaneChangeTime", "LaneDetection", "OneLaneChange", "PauseLateralOnSignal"};
-  lateralTuneKeys = {"AverageCurvature", "NNFF"};
+  lateralTuneKeys = {"AverageCurvature", "NNFF", "SteerRatio"};
   longitudinalTuneKeys = {"AccelerationProfile", "AggressiveAcceleration", "SmoothBraking", "StoppingDistance"};
   speedLimitControllerKeys = {"Offset1", "Offset2", "Offset3", "Offset4", "SLCFallback", "SLCOverride", "SLCPriority"};
   visionTurnControlKeys = {};
+
+  QObject::connect(uiState(), &UIState::offroadTransition, this, [this](bool offroad) {
+    if (!offroad) {
+      updateCarToggles();
+    }
+  });
 
   QObject::connect(device(), &Device::interactiveTimeout, this, &FrogPilotControlsPanel::hideSubToggles);
   QObject::connect(parent, &SettingsWindow::closeParentToggle, this, &FrogPilotControlsPanel::hideSubToggles);
@@ -370,6 +379,14 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
 
   hideSubToggles();
   updateMetric();
+}
+
+void FrogPilotControlsPanel::updateCarToggles() {
+  FrogPilotParamValueControl *steerRatioToggle = static_cast<FrogPilotParamValueControl*>(toggles["SteerRatio"]);
+  steerRatioStock = params.getInt("SteerRatioStock");
+  steerRatioToggle->setTitle(steerRatioStock != 0 ? QString("Steer Ratio (Default: " + QString::number(steerRatioStock / 10.0) + ")") : QString("Steer Ratio"));
+  steerRatioToggle->updateControl(steerRatioStock * 0.75, steerRatioStock * 1.25, "", 10);
+  steerRatioToggle->refresh();
 }
 
 void FrogPilotControlsPanel::updateToggles() {

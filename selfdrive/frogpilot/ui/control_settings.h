@@ -19,6 +19,7 @@ private:
   void hideEvent(QHideEvent *event);
   void hideSubToggles();
   void parentToggleClicked();
+  void updateCarToggles();
   void updateMetric();
   void updateToggles();
 
@@ -46,4 +47,5 @@ private:
   Params paramsMemory{"/dev/shm/params"};
 
   bool isMetric = params.getBool("IsMetric");
+  int steerRatioStock = params.getInt("SteerRatioStock");
 };
