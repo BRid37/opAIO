@@ -100,6 +100,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(SettingsWindow *parent) : FrogPil
 
   std::vector<std::tuple<QString, QString, QString, QString>> vehicleToggles {
     {"GasRegenCmd", "Gas Regen Cmd", "", ""},
+    {"LongPitch", "Long Pitch Compensation", "Reduce speed and acceleration error for greater passenger comfort and improved vehicle efficiency.", ""},
   };
 
   for (auto &[param, title, desc, icon] : vehicleToggles) {
@@ -114,7 +115,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(SettingsWindow *parent) : FrogPil
     });
   }
 
-  gmKeys = {"GasRegenCmd"};
+  gmKeys = {"GasRegenCmd", "LongPitch"};
   toyotaKeys = {};
 
   std::set<std::string> rebootKeys = {};
