@@ -99,6 +99,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(SettingsWindow *parent) : FrogPil
   selectModelButton->setVisible(false);
 
   std::vector<std::tuple<QString, QString, QString, QString>> vehicleToggles {
+    {"EVTable", "EV Lookup Tables", "Smoothen out the gas and brake controls for EV vehicles.", ""},
     {"GasRegenCmd", "Gas Regen Cmd", "", ""},
     {"LongPitch", "Long Pitch Compensation", "Reduce speed and acceleration error for greater passenger comfort and improved vehicle efficiency.", ""},
     {"LowerVolt", "Lower Volt Enable Speed", "Lower the Volt's minimum enable speed to enable openpilot at any speed.", ""},
@@ -120,7 +121,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(SettingsWindow *parent) : FrogPil
     });
   }
 
-  gmKeys = {"GasRegenCmd", "LongPitch"};
+  gmKeys = {"EVTable", "GasRegenCmd", "LongPitch"};
   toyotaKeys = {};
 
   std::set<std::string> rebootKeys = {"LowerVolt", "TSS2Tune"};
