@@ -245,6 +245,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"CustomTheme", PERSISTENT},
     {"DeviceShutdown", PERSISTENT},
     {"DisableOnroadUploads", PERSISTENT},
+    {"DriverCamera", PERSISTENT},
     {"FrogPilotTogglesUpdated", PERSISTENT},
     {"GasRegenCmd", PERSISTENT},
     {"GoatScream", PERSISTENT},

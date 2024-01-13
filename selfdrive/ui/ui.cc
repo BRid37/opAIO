@@ -222,6 +222,9 @@ static void update_state(UIState *s) {
       scene.turn_signal_left = carState.getLeftBlinker();
       scene.turn_signal_right = carState.getRightBlinker();
     }
+    if (scene.driver_camera) {
+      scene.show_driver_camera = carState.getGearShifter() == cereal::CarState::GearShifter::REVERSE;
+    }
   }
   if (sm.updated("controlsState")) {
     auto controlsState = sm["controlsState"].getControlsState();
@@ -301,6 +304,7 @@ void ui_update_params(UIState *s) {
   scene.road_edge_width = params.getInt("RoadEdgesWidth") * (scene.is_metric ? 1 : INCH_TO_CM) / 200;
   scene.unlimited_road_ui_length = scene.model_ui && params.getBool("UnlimitedLength");
 
+  scene.driver_camera = params.getBool("DriverCamera");
   scene.screen_brightness = params.getInt("ScreenBrightness");
   scene.wheel_icon = params.getInt("WheelIcon");
 }
