@@ -3,12 +3,20 @@
 
 FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilotListWidget(parent) {
   const std::vector<std::tuple<QString, QString, QString, QString>> visualToggles {
+    {"CameraView", "Camera View", "Choose your preferred camera view for the onroad UI. This is a visual change only and doesn't impact openpilot.", "../frogpilot/assets/toggle_icons/icon_camera.png"},
   };
 
   for (const auto &[param, title, desc, icon] : visualToggles) {
     ParamControl *toggle;
 
-    toggle = new ParamControl(param, title, desc, icon, this);
+    if (param == "CameraView") {
+      std::vector<QString> cameraOptions{tr("Auto"), tr("Standard"), tr("Wide"), tr("Driver")};
+      FrogPilotButtonParamControl *preferredCamera = new FrogPilotButtonParamControl(param, title, desc, icon, cameraOptions);
+      toggle = preferredCamera;
+
+    } else {
+      toggle = new ParamControl(param, title, desc, icon, this);
+    }
 
     addItem(toggle);
     toggles[param.toStdString()] = toggle;

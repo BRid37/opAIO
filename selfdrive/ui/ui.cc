@@ -249,6 +249,7 @@ void ui_update_params(UIState *s) {
   UIScene &scene = s->scene;
 
   scene.always_on_lateral = params.getBool("AlwaysOnLateral");
+  scene.camera_view = params.getInt("CameraView");
 }
 
 void UIState::updateStatus() {
