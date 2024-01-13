@@ -200,6 +200,7 @@ typedef struct UIScene {
   int obstacle_distance_stock;
   int screen_brightness;
   int stopped_equivalence;
+  int wheel_icon;
   QPolygonF track_adjacent_vertices[6];
   QPolygonF track_edge_vertices;
 

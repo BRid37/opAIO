@@ -265,6 +265,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"UpdateSchedule", PERSISTENT},
     {"UpdateTime", PERSISTENT},
     {"UseSI", PERSISTENT},
+    {"WheelIcon", PERSISTENT},
     {"WideCamera", PERSISTENT},
 };
 

@@ -57,6 +57,9 @@ private:
   // FrogPilot variables
   UIScene &scene;
 
+  std::map<int, QPixmap> wheelImages;
+
+  int wheelIcon;
   int y_offset;
 };
 
