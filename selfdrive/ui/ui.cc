@@ -297,6 +297,7 @@ void ui_update_params(UIState *s) {
   scene.adjacent_path = scene.custom_onroad_ui && params.getBool("AdjacentPath");
   scene.blind_spot_path = scene.custom_onroad_ui && params.getBool("BlindSpotPath");
   scene.lead_info = scene.custom_onroad_ui && params.getBool("LeadInfo");
+  scene.road_name_ui = scene.custom_onroad_ui && params.getBool("RoadNameUI");
   scene.show_fps = scene.custom_onroad_ui && params.getBool("ShowFPS");
   scene.use_si = scene.custom_onroad_ui && params.getBool("UseSI");
 
