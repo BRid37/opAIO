@@ -12,6 +12,10 @@ from openpilot.selfdrive.frogpilot.functions.conditional_experimental_mode impor
 from openpilot.selfdrive.frogpilot.functions.map_turn_speed_controller import MapTurnSpeedController
 from openpilot.selfdrive.frogpilot.functions.speed_limit_controller import SpeedLimitController
 
+# VTSC variables
+MIN_TARGET_V = 5    # m/s
+TARGET_LAT_A = 1.9  # m/s^2
+
 # Acceleration profiles - Credit goes to the DragonPilot team!
                  # MPH = [0.,  35,   35,  40,    40,  45,    45,  67,    67,   67, 123]
 A_CRUISE_MIN_BP_CUSTOM = [0., 2.0, 2.01, 11., 11.01, 18., 18.01, 28., 28.01,  33., 55.]
@@ -61,6 +65,7 @@ class FrogPilotPlanner:
     self.mtsc_target = 0
     self.slc_target = 0
     self.v_cruise = 0
+    self.vtsc_target = 0
 
     self.x_desired_trajectory = np.zeros(CONTROL_N)
 
@@ -76,7 +81,7 @@ class FrogPilotPlanner:
     v_ego = carState.vEgo
 
     # Acceleration profiles
-    v_cruise_changed = (self.mtsc_target) + 1 < v_cruise  # Use stock acceleration profiles to handle MTSC more precisely
+    v_cruise_changed = (self.mtsc_target or self.vtsc_target) + 1 < v_cruise  # Use stock acceleration profiles to handle MTSC/VTSC more precisely
     if v_cruise_changed:
       self.accel_limits = [A_CRUISE_MIN, get_max_accel(v_ego)]
     elif self.acceleration_profile == 1:
@@ -90,7 +95,12 @@ class FrogPilotPlanner:
     if self.conditional_experimental_mode and enabled:
       self.cem.update(carState, sm['frogpilotNavigation'], sm['modelV2'], mpc, sm['radarState'], carState.standstill, v_ego)
 
-    self.v_cruise = self.update_v_cruise(carState, controlsState, modelData, enabled, v_cruise, v_ego)
+    if v_ego > MIN_TARGET_V:
+      self.v_cruise = self.update_v_cruise(carState, controlsState, modelData, enabled, v_cruise, v_ego)
+    else:
+      self.mtsc_target = v_cruise
+      self.vtsc_target = v_cruise
+      self.v_cruise = v_cruise
 
     self.x_desired_trajectory_full = np.interp(ModelConstants.T_IDXS, T_IDXS_MPC, mpc.x_solution)
     self.x_desired_trajectory = self.x_desired_trajectory_full[:CONTROL_N]
@@ -135,8 +145,31 @@ class FrogPilotPlanner:
       self.overriden_speed = 0
       self.slc_target = v_cruise
 
+    # Pfeiferj's Vision Turn Controller
+    if self.vision_turn_controller:
+      # Set the curve sensitivity
+      orientation_rate = np.array(np.abs(modelData.orientationRate.z)) * self.curve_sensitivity
+      velocity = np.array(modelData.velocity.x)
+
+      # Get the maximum lat accel from the model
+      max_pred_lat_acc = np.amax(orientation_rate * velocity)
+
+      # Get the maximum curve based on the current velocity
+      max_curve = max_pred_lat_acc / (v_ego**2)
+
+      # Set the target lateral acceleration
+      adjusted_target_lat_a = TARGET_LAT_A * self.turn_aggressiveness
+
+      # Get the target velocity for the maximum curve
+      self.vtsc_target = (adjusted_target_lat_a / max_curve) ** 0.5
+      self.vtsc_target = np.clip(self.vtsc_target, MIN_TARGET_V, v_cruise)
+      if self.vtsc_target == MIN_TARGET_V:
+        self.vtsc_target = v_cruise
+    else:
+      self.vtsc_target = v_cruise
+
     v_ego_diff = max(carState.vEgoRaw - carState.vEgoCluster, 0)
-    return min(v_cruise, self.mtsc_target, self.slc_target) - v_ego_diff
+    return min(v_cruise, self.mtsc_target, self.slc_target, self.vtsc_target) - v_ego_diff
 
   def publish_lateral(self, sm, pm, DH):
     frogpilot_lateral_plan_send = messaging.new_message('frogpilotLateralPlan')
@@ -153,7 +186,7 @@ class FrogPilotPlanner:
     frogpilot_longitudinal_plan_send.valid = sm.all_checks(service_list=['carState', 'controlsState'])
     frogpilotLongitudinalPlan = frogpilot_longitudinal_plan_send.frogpilotLongitudinalPlan
 
-    frogpilotLongitudinalPlan.adjustedCruise = float(min(self.mtsc_target) * (CV.MS_TO_KPH if self.is_metric else CV.MS_TO_MPH))
+    frogpilotLongitudinalPlan.adjustedCruise = float(min(self.mtsc_target, self.vtsc_target) * (CV.MS_TO_KPH if self.is_metric else CV.MS_TO_MPH))
     frogpilotLongitudinalPlan.conditionalExperimental = self.cem.experimental_mode
     frogpilotLongitudinalPlan.distances = self.x_desired_trajectory.tolist()
     frogpilotLongitudinalPlan.redLight = bool(self.cem.red_light_detected)
@@ -211,3 +244,8 @@ class FrogPilotPlanner:
       SpeedLimitController.update_frogpilot_params()
 
     self.turn_desires = params.get_bool("TurnDesires")
+
+    self.vision_turn_controller = params.get_bool("VisionTurnControl")
+    if self.vision_turn_controller:
+      self.curve_sensitivity = params.get_int("CurveSensitivity") / 100
+      self.turn_aggressiveness = params.get_int("TurnAggressiveness") / 100
