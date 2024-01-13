@@ -198,6 +198,7 @@ typedef struct UIScene {
   int desired_follow;
   int obstacle_distance;
   int obstacle_distance_stock;
+  int screen_brightness;
   int stopped_equivalence;
   QPolygonF track_adjacent_vertices[6];
   QPolygonF track_edge_vertices;

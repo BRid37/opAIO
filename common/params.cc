@@ -251,6 +251,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"RelaxedFollow", PERSISTENT},
     {"RelaxedJerk", PERSISTENT},
     {"RoadEdgesWidth", PERSISTENT},
+    {"ScreenBrightness", PERSISTENT},
     {"ShowCPU", PERSISTENT},
     {"ShowFPS", PERSISTENT},
     {"ShowGPU", PERSISTENT},

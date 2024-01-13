@@ -292,6 +292,8 @@ void ui_update_params(UIState *s) {
   scene.path_width = params.getInt("PathWidth") / 10.0 * (scene.is_metric ? 1 : FOOT_TO_METER) / 2;
   scene.road_edge_width = params.getInt("RoadEdgesWidth") * (scene.is_metric ? 1 : INCH_TO_CM) / 200;
   scene.unlimited_road_ui_length = scene.model_ui && params.getBool("UnlimitedLength");
+
+  scene.screen_brightness = params.getInt("ScreenBrightness");
 }
 
 void UIState::updateStatus() {
@@ -338,6 +340,8 @@ UIState::UIState(QObject *parent) : QObject(parent) {
   timer = new QTimer(this);
   QObject::connect(timer, &QTimer::timeout, this, &UIState::update);
   timer->start(1000 / UI_FREQ);
+
+  scene.screen_brightness = params.getInt("ScreenBrightness");
 
   setDefaultParams();
 }
@@ -427,6 +431,9 @@ void Device::updateBrightness(const UIState &s) {
   int brightness = brightness_filter.update(clipped_brightness);
   if (!awake) {
     brightness = 0;
+  } else if (s.scene.screen_brightness <= 100) {
+    // Bring the screen brightness up to 5% upon screen tap
+    brightness = fmax(5, s.scene.screen_brightness);
   }
 
   if (brightness != last_brightness) {
@@ -447,7 +454,11 @@ void Device::updateWakefulness(const UIState &s) {
     emit interactiveTimeout();
   }
 
-  setAwake(s.scene.ignition || interactive_timeout > 0);
+  if (s.scene.screen_brightness != 0) {
+    setAwake(s.scene.ignition || interactive_timeout > 0);
+  } else {
+    setAwake(interactive_timeout > 0);
+  }
 }
 
 UIState *uiState() {
