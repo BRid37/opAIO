@@ -214,9 +214,13 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("carState")) {
     auto carState = sm["carState"].getCarState();
-    if (scene.blind_spot_path) {
+    if (scene.blind_spot_path || scene.custom_signals) {
       scene.blind_spot_left = carState.getLeftBlindspot();
       scene.blind_spot_right = carState.getRightBlindspot();
+    }
+    if (scene.custom_signals) {
+      scene.turn_signal_left = carState.getLeftBlinker();
+      scene.turn_signal_right = carState.getRightBlinker();
     }
   }
   if (sm.updated("controlsState")) {
@@ -284,6 +288,10 @@ void ui_update_params(UIState *s) {
   scene.lead_info = scene.custom_onroad_ui && params.getBool("LeadInfo");
   scene.show_fps = scene.custom_onroad_ui && params.getBool("ShowFPS");
   scene.use_si = scene.custom_onroad_ui && params.getBool("UseSI");
+
+  scene.custom_theme = params.getBool("CustomTheme");
+  scene.custom_colors = scene.custom_theme ? params.getInt("CustomColors") : 0;
+  scene.custom_signals = scene.custom_theme ? params.getInt("CustomSignals") : 0;
 
   scene.model_ui = params.getBool("ModelUI");
   scene.acceleration_path = scene.model_ui && params.getBool("AccelerationPath");

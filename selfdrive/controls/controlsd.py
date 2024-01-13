@@ -698,7 +698,7 @@ class Controls:
         good_speed = CS.vEgo > 5
         max_torque = abs(self.last_actuators.steer) > 0.99
         if undershooting and turning and good_speed and max_torque:
-          lac_log.active and self.events.add(EventName.steerSaturated)
+          lac_log.active and self.events.add(FrogPilotEventName.frogSteerSaturated if self.goat_scream else EventName.steerSaturated)
       elif lac_log.saturated:
         dpath_points = lat_plan.dPathPoints
         if len(dpath_points):
@@ -952,6 +952,11 @@ class Controls:
 
     self.average_desired_curvature = self.params.get_bool("AverageCurvature")
     self.conditional_experimental_mode = self.params.get_bool("ConditionalExperimental")
+
+    custom_theme = self.params.get_bool("CustomTheme")
+    custom_sounds = self.params.get_int("CustomSounds") if custom_theme else 0
+    frog_sounds = custom_sounds == 1
+    self.goat_scream = self.params.get_bool("GoatScream") and frog_sounds
 
     longitudinal_tune = self.params.get_bool("LongitudinalTune")
     self.sport_plus = self.params.get_int("AccelerationProfile") == 3 and longitudinal_tune
