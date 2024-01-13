@@ -34,6 +34,11 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
 
     {"Model", "Model Selector", "Choose your preferred openpilot model.", "../assets/offroad/icon_calibration.png"},
     {"MTSCEnabled", "Map Turn Speed Control", "Slow down for anticipated curves detected by your downloaded maps.", "../frogpilot/assets/toggle_icons/icon_speed_map.png"},
+
+    {"NudgelessLaneChange", "Nudgeless Lane Change", "Enable lane changes without manual steering input.", "../frogpilot/assets/toggle_icons/icon_lane.png"},
+    {"LaneChangeTime", "Lane Change Timer", "Specify a delay before executing a nudgeless lane change.", ""},
+    {"LaneDetection", "Lane Detection", "Block nudgeless lane changes when a lane isn't detected.", ""},
+    {"OneLaneChange", "One Lane Change Per Signal", "Limit to one nudgeless lane change per turn signal activation.", ""},
   };
 
   for (const auto &[param, title, desc, icon] : controlToggles) {
@@ -200,6 +205,22 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
       modelSelectorButton->setValue(models[params.getInt("Model")]);
       addItem(modelSelectorButton);
 
+    } else if (param == "NudgelessLaneChange") {
+      FrogPilotParamManageControl *laneChangeToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
+      QObject::connect(laneChangeToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
+        parentToggleClicked();
+        for (auto &[key, toggle] : toggles) {
+          toggle->setVisible(laneChangeKeys.find(key.c_str()) != laneChangeKeys.end());
+        }
+      });
+      toggle = laneChangeToggle;
+    } else if (param == "LaneChangeTime") {
+      std::map<int, QString> laneChangeTimeLabels;
+      for (int i = 0; i <= 10; ++i) {
+        laneChangeTimeLabels[i] = i == 0 ? "Instant" : QString::number(i / 2.0) + " seconds";
+      }
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 10, laneChangeTimeLabels, this, false);
+
     } else {
       toggle = new ParamControl(param, title, desc, icon, this);
     }
@@ -235,7 +256,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
 
   conditionalExperimentalKeys = {"CECurves", "CECurvesLead", "CESlowerLead", "CENavigation", "CEStopLights", "CESignal"};
   fireTheBabysitterKeys = {"NoLogging", "MuteDM", "MuteDoor", "MuteOverheated", "MuteSeatbelt"};
-  laneChangeKeys = {};
+  laneChangeKeys = {"LaneChangeTime", "LaneDetection", "OneLaneChange"};
   lateralTuneKeys = {"AverageCurvature", "NNFF"};
   longitudinalTuneKeys = {"AccelerationProfile", "AggressiveAcceleration", "StoppingDistance"};
   speedLimitControllerKeys = {};

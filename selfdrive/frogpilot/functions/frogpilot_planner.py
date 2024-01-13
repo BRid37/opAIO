@@ -157,3 +157,8 @@ class FrogPilotPlanner:
     self.increased_stopping_distance = params.get_int("StoppingDistance") * (1 if self.is_metric else CV.FOOT_TO_METER) if longitudinal_tune else 0
 
     self.map_turn_speed_controller = params.get_bool("MTSCEnabled")
+
+    self.nudgeless = params.get_bool("NudgelessLaneChange")
+    self.lane_change_delay = params.get_int("LaneChangeTime") if self.nudgeless else 0
+    self.lane_detection = params.get_bool("LaneDetection") if self.nudgeless else False
+    self.one_lane_change = params.get_bool("OneLaneChange") if self.nudgeless else False
