@@ -117,6 +117,7 @@ private:
 
   QHBoxLayout *bottom_layout;
 
+  bool alwaysOnLateral;
   bool experimentalMode;
 
 protected:
