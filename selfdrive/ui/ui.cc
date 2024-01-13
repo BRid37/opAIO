@@ -255,6 +255,12 @@ static void update_state(UIState *s) {
       scene.obstacle_distance_stock = frogpilotLongitudinalPlan.getSafeObstacleDistanceStock();
       scene.stopped_equivalence = frogpilotLongitudinalPlan.getStoppedEquivalenceFactor();
     }
+    if (scene.speed_limit_controller) {
+      scene.speed_limit = frogpilotLongitudinalPlan.getSlcSpeedLimit();
+      scene.speed_limit_offset = frogpilotLongitudinalPlan.getSlcSpeedLimitOffset();
+      scene.speed_limit_overridden = frogpilotLongitudinalPlan.getSlcOverridden();
+      scene.speed_limit_overridden_speed = frogpilotLongitudinalPlan.getSlcOverriddenSpeed();
+    }
     scene.adjusted_cruise = frogpilotLongitudinalPlan.getAdjustedCruise();
   }
   if (sm.updated("liveLocationKalman")) {
@@ -321,6 +327,7 @@ void ui_update_params(UIState *s) {
   scene.mute_dm = params.getBool("FireTheBabysitter") && params.getBool("MuteDM");
   scene.rotating_wheel = params.getBool("RotatingWheel");
   scene.screen_brightness = params.getInt("ScreenBrightness");
+  scene.speed_limit_controller = params.getBool("SpeedLimitController");
   scene.wheel_icon = params.getInt("WheelIcon");
 }
 

@@ -950,7 +950,7 @@ class Controls:
     while not evt.is_set():
       self.is_metric = self.params.get_bool("IsMetric")
       if self.CP.openpilotLongitudinalControl and not self.conditional_experimental_mode:
-        self.experimental_mode = self.params.get_bool("ExperimentalMode")
+        self.experimental_mode = self.params.get_bool("ExperimentalMode") or self.params_memory.get_bool("SLCExperimentalMode")
       if self.CP.notCar:
         self.joystick_mode = self.params.get_bool("JoystickDebugMode")
       time.sleep(0.1)

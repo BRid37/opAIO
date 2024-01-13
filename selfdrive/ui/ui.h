@@ -193,6 +193,8 @@ typedef struct UIScene {
   bool rotating_wheel;
   bool show_driver_camera;
   bool show_fps;
+  bool speed_limit_controller;
+  bool speed_limit_overridden;
   bool tethering_enabled;
   bool turn_signal_left;
   bool turn_signal_right;
@@ -205,6 +207,9 @@ typedef struct UIScene {
   float path_edge_width;
   float path_width;
   float road_edge_width;
+  float speed_limit;
+  float speed_limit_offset;
+  float speed_limit_overridden_speed;
   int bearing_deg;
   int camera_view;
   int conditional_speed;

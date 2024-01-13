@@ -41,6 +41,15 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     {"LaneDetection", "Lane Detection", "Block nudgeless lane changes when a lane isn't detected.", ""},
     {"OneLaneChange", "One Lane Change Per Signal", "Limit to one nudgeless lane change per turn signal activation.", ""},
     {"PauseLateralOnSignal", "Pause Lateral On Turn Signal", "Temporarily disable lateral control during turn signal use.", ""},
+
+    {"SpeedLimitController", "Speed Limit Controller", "Automatically adjust vehicle speed to match speed limits using 'Open Street Map's, 'Navigate On openpilot', or your car's dashboard (TSS2 Toyotas only).", "../assets/offroad/icon_speed_limit.png"},
+    {"Offset1", "Speed Limit Offset (0-34 mph)", "Speed limit offset for speed limits between 0-34 mph.", ""},
+    {"Offset2", "Speed Limit Offset (35-54 mph)", "Speed limit offset for speed limits between 35-54 mph.", ""},
+    {"Offset3", "Speed Limit Offset (55-64 mph)", "Speed limit offset for speed limits between 55-64 mph.", ""},
+    {"Offset4", "Speed Limit Offset (65-99 mph)", "Speed limit offset for speed limits between 65-99 mph.", ""},
+    {"SLCFallback", "Fallback Method", "Choose your fallback method for when there are no speed limits currently being obtained from Navigation, OSM, and the car's dashboard.", ""},
+    {"SLCOverride", "Override Method", "Choose your preferred method to override the current speed limit.", ""},
+    {"SLCPriority", "Priority Order", "Determine the priority order for what speed limits to use.", ""},
   };
 
   for (const auto &[param, title, desc, icon] : controlToggles) {
@@ -223,6 +232,91 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
       }
       toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 10, laneChangeTimeLabels, this, false);
 
+    } else if (param == "SpeedLimitController") {
+      FrogPilotParamManageControl *speedLimitControllerToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
+      QObject::connect(speedLimitControllerToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
+        parentToggleClicked();
+        for (auto &[key, toggle] : toggles) {
+          toggle->setVisible(speedLimitControllerKeys.find(key.c_str()) != speedLimitControllerKeys.end());
+        }
+        slscPriorityButton->setVisible(true);
+      });
+      toggle = speedLimitControllerToggle;
+    } else if (param == "Offset1" || param == "Offset2" || param == "Offset3" || param == "Offset4") {
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, std::map<int, QString>(), this, false, " mph");
+    } else if (param == "SLCFallback") {
+      std::vector<QString> fallbackOptions{tr("None"), tr("Experimental Mode"), tr("Previous Limit")};
+      FrogPilotButtonParamControl *fallbackSelection = new FrogPilotButtonParamControl(param, title, desc, icon, fallbackOptions);
+      toggle = fallbackSelection;
+    } else if (param == "SLCOverride") {
+      std::vector<QString> overrideOptions{tr("None"), tr("Manual Set Speed"), tr("Max Set Speed")};
+      FrogPilotButtonParamControl *overrideSelection = new FrogPilotButtonParamControl(param, title, desc, icon, overrideOptions);
+      toggle = overrideSelection;
+    } else if (param == "SLCPriority") {
+      const QStringList priorities {
+        "Navigation, Dashboard, Offline Maps",
+        "Navigation, Offline Maps, Dashboard",
+        "Navigation, Offline Maps",
+        "Navigation, Dashboard",
+        "Navigation",
+        "Offline Maps, Dashboard, Navigation",
+        "Offline Maps, Navigation, Dashboard",
+        "Offline Maps, Navigation",
+        "Offline Maps, Dashboard",
+        "Offline Maps",
+        "Dashboard, Navigation, Offline Maps",
+        "Dashboard, Offline Maps, Navigation",
+        "Dashboard, Offline Maps",
+        "Dashboard, Navigation",
+        "Dashboard",
+        "Highest",
+        "Lowest",
+        "",
+      };
+
+      slscPriorityButton = new ButtonControl(title, tr("SELECT"), desc);
+      QObject::connect(slscPriorityButton, &ButtonControl::clicked, this, [this, priorities]() {
+        QStringList availablePriorities = {"Dashboard", "Navigation", "Offline Maps", "Highest", "Lowest", "None"};
+        QStringList selectedPriorities;
+        int priorityValue = -1;
+
+        QStringList priorityPrompts = {tr("Select your primary priority"), tr("Select your secondary priority"), tr("Select your tertiary priority")};
+
+        for (int i = 0; i < 3; ++i) {
+          QString selection = MultiOptionDialog::getSelection(priorityPrompts[i], availablePriorities, "", this);
+          if (selection.isEmpty()) break;
+
+          if (selection == "None") {
+            priorityValue = 17;
+            break;
+          } else if (selection == "Highest") {
+            priorityValue = 15;
+            break;
+          } else if (selection == "Lowest") {
+            priorityValue = 16;
+            break;
+          } else {
+            selectedPriorities.append(selection);
+            availablePriorities.removeAll(selection);
+            availablePriorities.removeAll("Highest");
+            availablePriorities.removeAll("Lowest");
+          }
+        }
+
+        if (priorityValue == -1 && !selectedPriorities.isEmpty()) {
+          QString priorityString = selectedPriorities.join(", ");
+          priorityValue = priorities.indexOf(priorityString);
+        }
+
+        if (priorityValue != -1) {
+          slscPriorityButton->setValue(priorities[priorityValue]);
+          params.putInt("SLCPriority", priorityValue);
+          updateToggles();
+        }
+      });
+      slscPriorityButton->setValue(priorities[params.getInt("SLCPriority")]);
+      addItem(slscPriorityButton);
+
     } else {
       toggle = new ParamControl(param, title, desc, icon, this);
     }
@@ -261,7 +355,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
   laneChangeKeys = {"LaneChangeTime", "LaneDetection", "OneLaneChange", "PauseLateralOnSignal"};
   lateralTuneKeys = {"AverageCurvature", "NNFF"};
   longitudinalTuneKeys = {"AccelerationProfile", "AggressiveAcceleration", "SmoothBraking", "StoppingDistance"};
-  speedLimitControllerKeys = {};
+  speedLimitControllerKeys = {"Offset1", "Offset2", "Offset3", "Offset4", "SLCFallback", "SLCOverride", "SLCPriority"};
   visionTurnControlKeys = {};
 
   QObject::connect(device(), &Device::interactiveTimeout, this, &FrogPilotControlsPanel::hideSubToggles);
@@ -289,17 +383,57 @@ void FrogPilotControlsPanel::updateMetric() {
     double speedConversion = isMetric ? MILE_TO_KM : KM_TO_MILE;
     params.putInt("CESpeed", std::nearbyint(params.getInt("CESpeed") * speedConversion));
     params.putInt("CESpeedLead", std::nearbyint(params.getInt("CESpeedLead") * speedConversion));
+    params.putInt("Offset1", std::nearbyint(params.getInt("Offset1") * speedConversion));
+    params.putInt("Offset2", std::nearbyint(params.getInt("Offset2") * speedConversion));
+    params.putInt("Offset3", std::nearbyint(params.getInt("Offset3") * speedConversion));
+    params.putInt("Offset4", std::nearbyint(params.getInt("Offset4") * speedConversion));
     params.putInt("StoppingDistance", std::nearbyint(params.getInt("StoppingDistance") * distanceConversion));
   }
 
+  FrogPilotParamValueControl *offset1Toggle = static_cast<FrogPilotParamValueControl*>(toggles["Offset1"]);
+  FrogPilotParamValueControl *offset2Toggle = static_cast<FrogPilotParamValueControl*>(toggles["Offset2"]);
+  FrogPilotParamValueControl *offset3Toggle = static_cast<FrogPilotParamValueControl*>(toggles["Offset3"]);
+  FrogPilotParamValueControl *offset4Toggle = static_cast<FrogPilotParamValueControl*>(toggles["Offset4"]);
   FrogPilotParamValueControl *stoppingDistanceToggle = static_cast<FrogPilotParamValueControl*>(toggles["StoppingDistance"]);
 
   if (isMetric) {
+    offset1Toggle->setTitle("Speed Limit Offset (0-34 kph)");
+    offset2Toggle->setTitle("Speed Limit Offset (35-54 kph)");
+    offset3Toggle->setTitle("Speed Limit Offset (55-64 kph)");
+    offset4Toggle->setTitle("Speed Limit Offset (65-99 kph)");
+
+    offset1Toggle->setDescription("Set speed limit offset for limits between 0-34 kph.");
+    offset2Toggle->setDescription("Set speed limit offset for limits between 35-54 kph.");
+    offset3Toggle->setDescription("Set speed limit offset for limits between 55-64 kph.");
+    offset4Toggle->setDescription("Set speed limit offset for limits between 65-99 kph.");
+
+    offset1Toggle->updateControl(0, 99, " kph");
+    offset2Toggle->updateControl(0, 99, " kph");
+    offset3Toggle->updateControl(0, 99, " kph");
+    offset4Toggle->updateControl(0, 99, " kph");
     stoppingDistanceToggle->updateControl(0, 5, " meters");
   } else {
+    offset1Toggle->setTitle("Speed Limit Offset (0-34 mph)");
+    offset2Toggle->setTitle("Speed Limit Offset (35-54 mph)");
+    offset3Toggle->setTitle("Speed Limit Offset (55-64 mph)");
+    offset4Toggle->setTitle("Speed Limit Offset (65-99 mph)");
+
+    offset1Toggle->setDescription("Set speed limit offset for limits between 0-34 mph.");
+    offset2Toggle->setDescription("Set speed limit offset for limits between 35-54 mph.");
+    offset3Toggle->setDescription("Set speed limit offset for limits between 55-64 mph.");
+    offset4Toggle->setDescription("Set speed limit offset for limits between 65-99 mph.");
+
+    offset1Toggle->updateControl(0, 99, " mph");
+    offset2Toggle->updateControl(0, 99, " mph");
+    offset3Toggle->updateControl(0, 99, " mph");
+    offset4Toggle->updateControl(0, 99, " mph");
     stoppingDistanceToggle->updateControl(0, 10, " feet");
   }
 
+  offset1Toggle->refresh();
+  offset2Toggle->refresh();
+  offset3Toggle->refresh();
+  offset4Toggle->refresh();
   stoppingDistanceToggle->refresh();
 
   previousIsMetric = isMetric;
@@ -310,6 +444,7 @@ void FrogPilotControlsPanel::parentToggleClicked() {
   conditionalSpeedsImperial->setVisible(false);
   conditionalSpeedsMetric->setVisible(false);
   modelSelectorButton->setVisible(false);
+  slscPriorityButton->setVisible(false);
   standardProfile->setVisible(false);
   relaxedProfile->setVisible(false);
 
@@ -321,6 +456,7 @@ void FrogPilotControlsPanel::hideSubToggles() {
   conditionalSpeedsImperial->setVisible(false);
   conditionalSpeedsMetric->setVisible(false);
   modelSelectorButton->setVisible(true);
+  slscPriorityButton->setVisible(false);
   standardProfile->setVisible(false);
   relaxedProfile->setVisible(false);
 

@@ -10,6 +10,7 @@ from openpilot.selfdrive.modeld.constants import ModelConstants
 
 from openpilot.selfdrive.frogpilot.functions.conditional_experimental_mode import ConditionalExperimentalMode
 from openpilot.selfdrive.frogpilot.functions.map_turn_speed_controller import MapTurnSpeedController
+from openpilot.selfdrive.frogpilot.functions.speed_limit_controller import SpeedLimitController
 
 # Acceleration profiles - Credit goes to the DragonPilot team!
                  # MPH = [0.,  35,   35,  40,    40,  45,    45,  67,    67,   67, 123]
@@ -54,7 +55,11 @@ class FrogPilotPlanner:
     self.cem = ConditionalExperimentalMode()
     self.mtsc = MapTurnSpeedController()
 
+    self.override_slc = False
+
+    self.overridden_speed = 0
     self.mtsc_target = 0
+    self.slc_target = 0
     self.v_cruise = 0
 
     self.x_desired_trajectory = np.zeros(CONTROL_N)
@@ -99,8 +104,39 @@ class FrogPilotPlanner:
     else:
       self.mtsc_target = v_cruise
 
+    # Pfeiferj's Speed Limit Controller
+    if self.speed_limit_controller:
+      SpeedLimitController.update_current_max_velocity(v_cruise)
+      self.slc_target = SpeedLimitController.desired_speed_limit
+
+      # Override SLC upon gas pedal press and reset upon brake/cancel button
+      if self.speed_limit_controller_override:
+        self.override_slc |= carState.gasPressed
+        self.override_slc &= enabled
+        self.override_slc &= v_ego > self.slc_target
+      else:
+        self.override_slc = False
+
+      self.overridden_speed *= enabled
+
+      # Use the override speed if SLC is being overridden
+      if self.override_slc:
+        if self.speed_limit_controller_override == 1:
+          # Set the max speed to the manual set speed
+          if carState.gasPressed:
+            self.overridden_speed = np.clip(v_ego, self.slc_target, v_cruise)
+          self.slc_target = self.overridden_speed
+        elif self.speed_limit_controller_override == 2:
+          self.overridden_speed = v_cruise
+          self.slc_target = v_cruise
+      if self.slc_target == 0:
+        self.slc_target = v_cruise
+    else:
+      self.overriden_speed = 0
+      self.slc_target = v_cruise
+
     v_ego_diff = max(carState.vEgoRaw - carState.vEgoCluster, 0)
-    return min(v_cruise, self.mtsc_target) - v_ego_diff
+    return min(v_cruise, self.mtsc_target, self.slc_target) - v_ego_diff
 
   def publish_lateral(self, sm, pm, DH):
     frogpilot_lateral_plan_send = messaging.new_message('frogpilotLateralPlan')
@@ -126,6 +162,11 @@ class FrogPilotPlanner:
     frogpilotLongitudinalPlan.stoppedEquivalenceFactor = mpc.stopped_equivalence_factor
     frogpilotLongitudinalPlan.desiredFollowDistance = mpc.safe_obstacle_distance - mpc.stopped_equivalence_factor
     frogpilotLongitudinalPlan.safeObstacleDistanceStock = mpc.safe_obstacle_distance_stock
+
+    frogpilotLongitudinalPlan.slcOverridden = self.override_slc
+    frogpilotLongitudinalPlan.slcOverriddenSpeed = float(self.overridden_speed)
+    frogpilotLongitudinalPlan.slcSpeedLimit = float(self.slc_target)
+    frogpilotLongitudinalPlan.slcSpeedLimitOffset = float(SpeedLimitController.offset)
 
     pm.send('frogpilotLongitudinalPlan', frogpilot_longitudinal_plan_send)
 
@@ -163,3 +204,8 @@ class FrogPilotPlanner:
     self.lane_change_delay = params.get_int("LaneChangeTime") if self.nudgeless else 0
     self.lane_detection = params.get_bool("LaneDetection") if self.nudgeless else False
     self.one_lane_change = params.get_bool("OneLaneChange") if self.nudgeless else False
+
+    self.speed_limit_controller = params.get_bool("SpeedLimitController")
+    if self.speed_limit_controller:
+      self.speed_limit_controller_override = params.get_int("SLCOverride")
+      SpeedLimitController.update_frogpilot_params()
