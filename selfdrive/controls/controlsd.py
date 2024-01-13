@@ -82,6 +82,8 @@ class Controls:
     fire_the_babysitter = self.params.get_bool("FireTheBabysitter")
     mute_dm = fire_the_babysitter and self.params.get_bool("MuteDM")
 
+    self.stopped_for_light_previously = False
+
     ignore = self.sensor_packets + ['testJoystick']
     if SIMULATION:
       ignore += ['driverCameraState', 'managerState']
@@ -447,6 +449,15 @@ class Controls:
 
       if self.sm['modelV2'].frameDropPerc > 20:
         self.events.add(EventName.modeldLagging)
+
+    # Green light alert
+    if self.green_light_alert and self.enabled:
+      stopped_for_light = self.sm['frogpilotLongitudinalPlan'].redLight and CS.standstill
+      green_light = not stopped_for_light and self.stopped_for_light_previously
+      self.stopped_for_light_previously = stopped_for_light
+
+      if green_light and not CS.gasPressed:
+        self.events.add(FrogPilotEventName.greenLight)
 
   def data_sample(self):
     """Receive data from sockets and update carState"""
@@ -963,6 +974,8 @@ class Controls:
     custom_sounds = self.params.get_int("CustomSounds") if custom_theme else 0
     frog_sounds = custom_sounds == 1
     self.goat_scream = self.params.get_bool("GoatScream") and frog_sounds
+
+    self.green_light_alert = self.params.get_bool("GreenLightAlert")
 
     longitudinal_tune = self.params.get_bool("LongitudinalTune")
     self.sport_plus = self.params.get_int("AccelerationProfile") == 3 and longitudinal_tune

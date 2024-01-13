@@ -105,6 +105,7 @@ class FrogPilotPlanner:
 
     frogpilotLongitudinalPlan.conditionalExperimental = self.cem.experimental_mode
     frogpilotLongitudinalPlan.distances = self.x_desired_trajectory.tolist()
+    frogpilotLongitudinalPlan.redLight = bool(self.cem.red_light_detected)
 
     frogpilotLongitudinalPlan.safeObstacleDistance = mpc.safe_obstacle_distance
     frogpilotLongitudinalPlan.stoppedEquivalenceFactor = mpc.stopped_equivalence_factor
