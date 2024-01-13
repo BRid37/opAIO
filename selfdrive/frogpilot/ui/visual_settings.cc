@@ -30,6 +30,11 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
     {"RoadEdgesWidth", "Road Edges", "Adjust the visual thickness of road edges on your display.\n\nDefault is 1/2 of the MUTCD average lane line width of 4 inches.", ""},
     {"UnlimitedLength", "'Unlimited' Road UI Length", "Extend the display of the path, lane lines, and road edges as far as the system can detect, providing a more expansive view of the road ahead.", ""},
 
+    {"QOLVisuals", "Quality of Life", "Miscellaneous quality of life changes to improve your overall openpilot experience.", "../frogpilot/assets/toggle_icons/quality_of_life.png"},
+    {"DriveStats", "Drive Stats In Home Screen", "Display your device's drive stats in the home screen.", ""},
+    {"HideSpeed", "Hide Speed", "Hide the speed indicator in the onroad UI.", ""},
+    {"ShowSLCOffset", "Show Speed Limit Offset", "Show the speed limit offset seperated from the speed limit in the onroad UI when using 'Speed Limit Controller'.", ""},
+
     {"ScreenBrightness", "Screen Brightness", "Customize your screen brightness.", "../frogpilot/assets/toggle_icons/icon_light.png"},
     {"SilentMode", "Silent Mode", "Mute openpilot sounds for a quieter driving experience.", "../frogpilot/assets/toggle_icons/icon_mute.png"},
     {"WheelIcon", "Steering Wheel Icon", "Replace the default steering wheel icon with a custom design, adding a unique touch to your interface.", "../assets/offroad/icon_openpilot.png"},
@@ -99,6 +104,16 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
     } else if (param == "PathWidth") {
       toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 100, std::map<int, QString>(), this, false, " feet", 10);
 
+    } else if (param == "QOLVisuals") {
+      FrogPilotParamManageControl *qolToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
+      QObject::connect(qolToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
+        parentToggleClicked();
+        for (auto &[key, toggle] : toggles) {
+          toggle->setVisible(qolKeys.find(key.c_str()) != qolKeys.end());
+        }
+      });
+      toggle = qolToggle;
+
     } else if (param == "ScreenBrightness") {
       std::map<int, QString> brightnessLabels;
       for (int i = 0; i <= 101; ++i) {
@@ -139,6 +154,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
   customOnroadUIKeys = {"AdjacentPath", "BlindSpotPath", "ShowFPS", "LeadInfo", "RoadNameUI"};
   customThemeKeys = {"CustomColors", "CustomIcons", "CustomSignals", "CustomSounds"};
   modelUIKeys = {"AccelerationPath", "LaneLinesWidth", "PathEdgeWidth", "PathWidth", "RoadEdgesWidth", "UnlimitedLength"};
+  qolKeys = {"DriveStats", "HideSpeed", "ShowSLCOffset"};
 
   QObject::connect(device(), &Device::interactiveTimeout, this, &FrogPilotVisualsPanel::hideSubToggles);
   QObject::connect(parent, &SettingsWindow::closeParentToggle, this, &FrogPilotVisualsPanel::hideSubToggles);
@@ -201,8 +217,9 @@ void FrogPilotVisualsPanel::parentToggleClicked() {
 void FrogPilotVisualsPanel::hideSubToggles() {
   for (auto &[key, toggle] : toggles) {
     bool subToggles = modelUIKeys.find(key.c_str()) != modelUIKeys.end() ||
-                            customOnroadUIKeys.find(key.c_str()) != customOnroadUIKeys.end() ||
-                            customThemeKeys.find(key.c_str()) != customThemeKeys.end();
+                      customOnroadUIKeys.find(key.c_str()) != customOnroadUIKeys.end() ||
+                      customThemeKeys.find(key.c_str()) != customThemeKeys.end() ||
+                      qolKeys.find(key.c_str()) != qolKeys.end();
     toggle->setVisible(!subToggles);
   }
 

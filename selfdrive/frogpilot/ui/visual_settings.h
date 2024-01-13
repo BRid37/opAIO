@@ -25,6 +25,7 @@ private:
   std::set<QString> customOnroadUIKeys;
   std::set<QString> customThemeKeys;
   std::set<QString> modelUIKeys;
+  std::set<QString> qolKeys;
 
   std::map<std::string, ParamControl*> toggles;
 

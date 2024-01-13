@@ -17,9 +17,9 @@ const int btn_size = 192;
 const int img_size = (btn_size / 4) * 3;
 
 // FrogPilot global variables
+static bool hideSpeed;
 static bool reverseCruise;
 static bool showSLCOffset;
-static bool speedHidden;
 static double fps;
 
 // ***** onroad widgets *****

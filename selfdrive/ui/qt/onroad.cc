@@ -138,14 +138,23 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
     if (isMaxSpeedClicked) {
       reverseCruise = !params.getBool("ReverseCruise");
       params.putBoolNonBlocking("ReverseCruise", reverseCruise);
+      if (!params.getBool("QOLControls")) {
+        params.putBoolNonBlocking("QOLControls", true);
+      }
       paramsMemory.putBoolNonBlocking("FrogPilotTogglesUpdated", true);
     // Check if the click was within the speed text area
     } else if (isSpeedClicked) {
-      speedHidden = !params.getBool("HideSpeed");
-      params.putBoolNonBlocking("HideSpeed", speedHidden);
+      hideSpeed = !params.getBool("HideSpeed");
+      params.putBoolNonBlocking("HideSpeed", hideSpeed);
+      if (!params.getBool("QOLVisuals")) {
+        params.putBoolNonBlocking("QOLVisuals", true);
+      }
     } else {
       showSLCOffset = !params.getBool("ShowSLCOffset");
       params.putBoolNonBlocking("ShowSLCOffset", showSLCOffset);
+      if (!params.getBool("QOLVisuals")) {
+        params.putBoolNonBlocking("QOLVisuals", true);
+      }
     }
     widgetClicked = true;
   // If the click wasn't for anything specific, change the value of "ExperimentalMode"
@@ -193,7 +202,11 @@ void OnroadWindow::offroadTransition(bool offroad) {
       QObject::connect(nvg->map_settings_btn_bottom, &MapSettingsButton::clicked, m, &MapPanel::toggleMapSettings);
       nvg->map_settings_btn->setEnabled(true);
 
-      m->setFixedWidth(topWidget(this)->width() / 2 - UI_BORDER_SIZE);
+      if (scene.full_map) {
+        m->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+      } else {
+        m->setFixedWidth(topWidget(this)->width() / 2 - UI_BORDER_SIZE);
+      }
       split->insertWidget(0, m);
 
       // hidden by default, made visible when navRoute is published
@@ -643,7 +656,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
   }
 
   // current speed
-  if (!speedHidden) {
+  if (!hideSpeed) {
     p.setFont(InterFont(176, QFont::Bold));
     drawText(p, rect().center().x(), 210, speedStr);
     p.setFont(InterFont(66));
@@ -1125,16 +1138,13 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
 
   main_layout->addLayout(bottom_layout);
 
-  if (params.getBool("HideSpeed")) {
-    speedHidden = true;
+  if (params.getBool("QOLControls")) {
+    reverseCruise = params.getBool("ReverseCruise");
   }
 
-  if (params.getBool("ReverseCruise")) {
-    reverseCruise = true;
-  }
-
-  if (params.getBool("ShowSLCOffset")) {
-    showSLCOffset = true;
+  if (params.getBool("QOLVisuals")) {
+    hideSpeed = params.getBool("HideSpeed");
+    showSLCOffset = params.getBool("ShowSLCOffset");
   }
 
   // Custom themes configuration
