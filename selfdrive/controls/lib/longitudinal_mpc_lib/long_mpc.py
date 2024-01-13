@@ -351,7 +351,7 @@ class LongitudinalMpc:
     self.cruise_min_a = min_a
     self.max_a = max_a
 
-  def update(self, radarstate, v_cruise, x, v, a, j, aggressive_acceleration, custom_personalities, aggressive_follow, standard_follow, relaxed_follow, increased_stopping_distance, personality=log.LongitudinalPersonality.standard):
+  def update(self, radarstate, v_cruise, x, v, a, j, aggressive_acceleration, smoother_braking, custom_personalities, aggressive_follow, standard_follow, relaxed_follow, increased_stopping_distance, personality=log.LongitudinalPersonality.standard):
     t_follow = get_T_FOLLOW(custom_personalities, aggressive_follow, standard_follow, relaxed_follow, personality)
     self.t_follow = t_follow
     v_ego = self.x0[1]
@@ -364,6 +364,12 @@ class LongitudinalMpc:
     if aggressive_acceleration:
       distance_factor = np.maximum(1, lead_xv_0[:,0] - (lead_xv_0[:,1] * t_follow))
       t_follow_offset = np.clip((lead_xv_0[:,1] - v_ego) + (STOP_DISTANCE + increased_stopping_distance - v_ego), 1, distance_factor)
+      t_follow = t_follow / t_follow_offset
+
+    # Offset by FrogAi for FrogPilot for a more natural approach to a slower lead
+    if smoother_braking:
+      distance_factor = np.maximum(1, lead_xv_0[:,0] - (lead_xv_0[:,1] * t_follow))
+      t_follow_offset = np.clip((v_ego - lead_xv_0[:,1]) - COMFORT_BRAKE, 1, distance_factor)
       t_follow = t_follow / t_follow_offset
 
     # LongitudinalPlan variables for onroad driving insights

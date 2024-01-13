@@ -31,6 +31,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     {"AccelerationProfile", "Acceleration Profile", "Change the acceleration rate to be either sporty or eco-friendly.", ""},
     {"AggressiveAcceleration", "Aggressive Acceleration With Lead", "Increase acceleration aggressiveness when following a lead vehicle from a stop.", ""},
     {"StoppingDistance", "Increased Stopping Distance", "Increase the stopping distance for a more comfortable stop.", ""},
+    {"SmoothBraking", "Smoother Braking Behind Lead", "Smoothen out the braking behavior when approaching slower vehicles.", ""},
 
     {"Model", "Model Selector", "Choose your preferred openpilot model.", "../assets/offroad/icon_calibration.png"},
     {"MTSCEnabled", "Map Turn Speed Control", "Slow down for anticipated curves detected by your downloaded maps.", "../frogpilot/assets/toggle_icons/icon_speed_map.png"},
@@ -259,7 +260,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
   fireTheBabysitterKeys = {"NoLogging", "MuteDM", "MuteDoor", "MuteOverheated", "MuteSeatbelt"};
   laneChangeKeys = {"LaneChangeTime", "LaneDetection", "OneLaneChange", "PauseLateralOnSignal"};
   lateralTuneKeys = {"AverageCurvature", "NNFF"};
-  longitudinalTuneKeys = {"AccelerationProfile", "AggressiveAcceleration", "StoppingDistance"};
+  longitudinalTuneKeys = {"AccelerationProfile", "AggressiveAcceleration", "SmoothBraking", "StoppingDistance"};
   speedLimitControllerKeys = {};
   visionTurnControlKeys = {};
 
