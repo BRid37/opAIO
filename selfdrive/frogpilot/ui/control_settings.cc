@@ -29,6 +29,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     {"LongitudinalTune", "Longitudinal Tuning", "Modify openpilot's acceleration and braking behavior.", "../frogpilot/assets/toggle_icons/icon_longitudinal_tune.png"},
     {"AccelerationProfile", "Acceleration Profile", "Change the acceleration rate to be either sporty or eco-friendly.", ""},
     {"AggressiveAcceleration", "Aggressive Acceleration With Lead", "Increase acceleration aggressiveness when following a lead vehicle from a stop.", ""},
+    {"StoppingDistance", "Increased Stopping Distance", "Increase the stopping distance for a more comfortable stop.", ""},
   };
 
   for (const auto &[param, title, desc, icon] : controlToggles) {
@@ -170,6 +171,8 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
           "I understand the risks.", this);
         }
       });
+    } else if (param == "StoppingDistance") {
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 10, std::map<int, QString>(), this, false, " feet");
 
     } else {
       toggle = new ParamControl(param, title, desc, icon, this);
@@ -208,7 +211,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
   fireTheBabysitterKeys = {"NoLogging", "MuteDM", "MuteDoor", "MuteOverheated", "MuteSeatbelt"};
   laneChangeKeys = {};
   lateralTuneKeys = {"AverageCurvature"};
-  longitudinalTuneKeys = {"AccelerationProfile", "AggressiveAcceleration"};
+  longitudinalTuneKeys = {"AccelerationProfile", "AggressiveAcceleration", "StoppingDistance"};
   speedLimitControllerKeys = {};
   visionTurnControlKeys = {};
 
@@ -237,11 +240,18 @@ void FrogPilotControlsPanel::updateMetric() {
     double speedConversion = isMetric ? MILE_TO_KM : KM_TO_MILE;
     params.putInt("CESpeed", std::nearbyint(params.getInt("CESpeed") * speedConversion));
     params.putInt("CESpeedLead", std::nearbyint(params.getInt("CESpeedLead") * speedConversion));
+    params.putInt("StoppingDistance", std::nearbyint(params.getInt("StoppingDistance") * distanceConversion));
   }
 
+  FrogPilotParamValueControl *stoppingDistanceToggle = static_cast<FrogPilotParamValueControl*>(toggles["StoppingDistance"]);
+
   if (isMetric) {
+    stoppingDistanceToggle->updateControl(0, 5, " meters");
   } else {
+    stoppingDistanceToggle->updateControl(0, 10, " feet");
   }
+
+  stoppingDistanceToggle->refresh();
 
   previousIsMetric = isMetric;
 }

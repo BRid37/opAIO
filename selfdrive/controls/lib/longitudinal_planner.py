@@ -139,7 +139,7 @@ class LongitudinalPlanner:
     self.mpc.set_accel_limits(accel_limits_turns[0], accel_limits_turns[1])
     self.mpc.set_cur_state(self.v_desired_filter.x, self.a_desired)
     x, v, a, j = self.parse_model(sm['modelV2'], self.v_model_error)
-    self.mpc.update(sm['radarState'], frogpilot_planner.v_cruise, x, v, a, j, frogpilot_planner.aggressive_acceleration,
+    self.mpc.update(sm['radarState'], frogpilot_planner.v_cruise, x, v, a, j, frogpilot_planner.aggressive_acceleration, frogpilot_planner.increased_stopping_distance,
                     frogpilot_planner.custom_personalities, frogpilot_planner.aggressive_follow, frogpilot_planner.standard_follow, frogpilot_planner.relaxed_follow, personality=self.personality)
 
     self.v_desired_trajectory_full = np.interp(ModelConstants.T_IDXS, T_IDXS_MPC, self.mpc.v_solution)
