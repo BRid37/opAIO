@@ -571,7 +571,7 @@ class Controls:
           else:
             self.state = State.enabled
           self.current_alert_types.append(ET.ENABLE)
-          self.v_cruise_helper.initialize_v_cruise(CS, self.experimental_mode)
+          self.v_cruise_helper.initialize_v_cruise(CS, self.experimental_mode, self.conditional_experimental_mode)
 
     # Check if openpilot is engaged and actuators are enabled
     self.enabled = self.state in ENABLED_STATES
@@ -601,6 +601,10 @@ class Controls:
 
     CC = car.CarControl.new_message()
     CC.enabled = self.enabled
+
+    # Update Experimental Mode
+    if self.conditional_experimental_mode:
+      self.experimental_mode = self.sm['frogpilotLongitudinalPlan'].conditionalExperimental
 
     # Gear Check
     gear = car.CarState.GearShifter
@@ -918,7 +922,8 @@ class Controls:
   def params_thread(self, evt):
     while not evt.is_set():
       self.is_metric = self.params.get_bool("IsMetric")
-      self.experimental_mode = self.params.get_bool("ExperimentalMode") and self.CP.openpilotLongitudinalControl
+      if self.CP.openpilotLongitudinalControl and not self.conditional_experimental_mode:
+        self.experimental_mode = self.params.get_bool("ExperimentalMode")
       if self.CP.notCar:
         self.joystick_mode = self.params.get_bool("JoystickDebugMode")
       time.sleep(0.1)
@@ -946,6 +951,7 @@ class Controls:
         obj.update_frogpilot_params(self.params)
 
     self.average_desired_curvature = self.params.get_bool("AverageCurvature")
+    self.conditional_experimental_mode = self.params.get_bool("ConditionalExperimental")
 
     longitudinal_tune = self.params.get_bool("LongitudinalTune")
     self.sport_plus = self.params.get_int("AccelerationProfile") == 3 and longitudinal_tune

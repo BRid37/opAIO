@@ -118,8 +118,12 @@ private:
   QHBoxLayout *bottom_layout;
 
   bool alwaysOnLateral;
+  bool conditionalExperimental;
   bool experimentalMode;
   int cameraView;
+  int conditionalSpeed;
+  int conditionalSpeedLead;
+  int conditionalStatus;
 
 protected:
   void paintGL() override;

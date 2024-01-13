@@ -250,6 +250,10 @@ void ui_update_params(UIState *s) {
 
   scene.always_on_lateral = params.getBool("AlwaysOnLateral");
   scene.camera_view = params.getInt("CameraView");
+
+  scene.conditional_experimental = params.getBool("ConditionalExperimental");
+  scene.conditional_speed = params.getInt("CESpeed");
+  scene.conditional_speed_lead = params.getInt("CESpeedLead");
 }
 
 void UIState::updateStatus() {
@@ -318,6 +322,9 @@ void UIState::update() {
   }
 
   // FrogPilot live variables that need to be constantly checked
+  if (scene.conditional_experimental) {
+    scene.conditional_status = paramsMemory.getInt("CEStatus");
+  }
 }
 
 void UIState::setPrimeType(PrimeType type) {

@@ -8,6 +8,8 @@ from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import T_IDX
 from openpilot.selfdrive.controls.lib.longitudinal_planner import A_CRUISE_MIN, A_CRUISE_MAX_VALS, A_CRUISE_MAX_BP, get_max_accel
 from openpilot.selfdrive.modeld.constants import ModelConstants
 
+from openpilot.selfdrive.frogpilot.functions.conditional_experimental_mode import ConditionalExperimentalMode
+
 # Acceleration profiles - Credit goes to the DragonPilot team!
                  # MPH = [0.,  35,   35,  40,    40,  45,    45,  67,    67,   67, 123]
 A_CRUISE_MIN_BP_CUSTOM = [0., 2.0, 2.01, 11., 11.01, 18., 18.01, 28., 28.01,  33., 55.]
@@ -35,6 +37,8 @@ def get_max_accel_sport_tune(v_ego):
 
 class FrogPilotPlanner:
   def __init__(self, params):
+    self.cem = ConditionalExperimentalMode()
+
     self.v_cruise = 0
 
     self.x_desired_trajectory = np.zeros(CONTROL_N)
@@ -58,6 +62,10 @@ class FrogPilotPlanner:
     else:
       self.accel_limits = [A_CRUISE_MIN, get_max_accel(v_ego)]
 
+    # Conditional Experimental Mode
+    if self.conditional_experimental_mode and enabled:
+      self.cem.update(carState, sm['frogpilotNavigation'], sm['modelV2'], mpc, sm['radarState'], carState.standstill, v_ego)
+
     self.v_cruise = self.update_v_cruise(carState, controlsState, modelData, enabled, v_cruise, v_ego)
 
     self.x_desired_trajectory_full = np.interp(ModelConstants.T_IDXS, T_IDXS_MPC, mpc.x_solution)
@@ -79,12 +87,19 @@ class FrogPilotPlanner:
     frogpilot_longitudinal_plan_send.valid = sm.all_checks(service_list=['carState', 'controlsState'])
     frogpilotLongitudinalPlan = frogpilot_longitudinal_plan_send.frogpilotLongitudinalPlan
 
+    frogpilotLongitudinalPlan.conditionalExperimental = self.cem.experimental_mode
     frogpilotLongitudinalPlan.distances = self.x_desired_trajectory.tolist()
 
     pm.send('frogpilotLongitudinalPlan', frogpilot_longitudinal_plan_send)
 
   def update_frogpilot_params(self, params):
     self.is_metric = params.get_bool("IsMetric")
+
+    self.conditional_experimental_mode = params.get_bool("ConditionalExperimental")
+    if self.conditional_experimental_mode:
+      self.cem.update_frogpilot_params(self.is_metric, params)
+      if not params.get_bool("ExperimentalMode"):
+        params.put_bool("ExperimentalMode", True)
 
     lateral_tune = params.get_bool("LateralTune")
     self.average_desired_curvature = params.get_bool("AverageCurvature") and lateral_tune

@@ -178,7 +178,7 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
 
   int margin = 40;
   int radius = 30;
-  int offset = scene.always_on_lateral ? 25 : 0;
+  int offset = scene.always_on_lateral || scene.conditional_experimental ? 25 : 0;
   if (alert.size == cereal::ControlsState::AlertSize::FULL) {
     margin = 0;
     radius = 0;
@@ -548,7 +548,7 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
 
   // base icon
   int offset = UI_BORDER_SIZE + btn_size / 2;
-  offset += alwaysOnLateral ? 25 : 0;
+  offset += alwaysOnLateral || conditionalExperimental ? 25 : 0;
   int x = rightHandDM ? width() - offset : offset;
   int y = height() - offset;
   float opacity = dmActive ? 0.65 : 0.2;
@@ -655,7 +655,7 @@ void AnnotatedCameraWidget::paintGL() {
       // for replay of old routes, never go to widecam
       wide_cam_requested = wide_cam_requested && s->scene.calibration_wide_valid;
     }
-    CameraWidget::setStreamType(cameraView == 3 ? VISION_STREAM_DRIVER : 
+    CameraWidget::setStreamType(cameraView == 3 ? VISION_STREAM_DRIVER :
                                 wide_cam_requested && cameraView != 1 ? VISION_STREAM_WIDE_ROAD : VISION_STREAM_ROAD);
 
     s->scene.wide_cam = CameraWidget::getStreamType() == VISION_STREAM_WIDE_ROAD;
@@ -742,9 +742,13 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
 void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
   alwaysOnLateral = scene.always_on_lateral_active;
   cameraView = scene.camera_view;
+  conditionalExperimental = scene.conditional_experimental;
+  conditionalSpeed = scene.conditional_speed;
+  conditionalSpeedLead = scene.conditional_speed_lead;
+  conditionalStatus = scene.conditional_status;
   experimentalMode = scene.experimental_mode;
 
-  if (alwaysOnLateral) {
+  if (alwaysOnLateral || conditionalExperimental) {
     drawStatusBar(p);
   }
 
@@ -775,8 +779,26 @@ void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
   p.setOpacity(1.0);
   p.drawRoundedRect(statusBarRect, 30, 30);
 
+  QMap<int, QString> conditionalStatusMap = {
+    {0, "Conditional Experimental Mode ready"},
+    {1, "Conditional Experimental overridden"},
+    {2, "Experimental Mode manually activated"},
+    {3, "Conditional Experimental overridden"},
+    {4, "Experimental Mode manually activated"},
+    {5, "Experimental Mode activated for navigation" + (QString(" instructions input"))},
+    {6, "Experimental Mode activated due to" + (QString(" no speed limit set"))},
+    {7, "Experimental Mode activated due to" + (" speed being less than " + QString::number(conditionalSpeedLead) + (is_metric ? " kph" : " mph"))},
+    {8, "Experimental Mode activated due to" + (" speed being less than " + QString::number(conditionalSpeed) + (is_metric ? " kph" : " mph"))},
+    {9, "Experimental Mode activated for slower lead"},
+    {10, "Experimental Mode activated for turn" + (QString(" / lane change"))},
+    {11, "Experimental Mode activated for curve"},
+    {12, "Experimental Mode activated for stop" + (QString(" sign / stop light"))}
+  };
+
   if (alwaysOnLateral) {
     newStatus = QString("Always On Lateral active") + (". Press the \"Cruise Control\" button to disable");
+  } else if (conditionalExperimental) {
+    newStatus = conditionalStatusMap.contains(conditionalStatus) && status != STATUS_DISENGAGED ? conditionalStatusMap[conditionalStatus] : conditionalStatusMap[0];
   }
 
   // Check if status has changed
