@@ -182,6 +182,7 @@ typedef struct UIScene {
   bool enabled;
   bool experimental_mode;
   bool lead_info;
+  bool map_open;
   bool model_ui;
   bool show_fps;
   bool turn_signal_left;
