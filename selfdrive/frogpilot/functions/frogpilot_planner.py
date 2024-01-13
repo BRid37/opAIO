@@ -101,6 +101,14 @@ class FrogPilotPlanner:
       if not params.get_bool("ExperimentalMode"):
         params.put_bool("ExperimentalMode", True)
 
+    self.custom_personalities = params.get_bool("CustomPersonalities")
+    self.aggressive_follow = params.get_int("AggressiveFollow") / 10
+    self.standard_follow = params.get_int("StandardFollow") / 10
+    self.relaxed_follow = params.get_int("RelaxedFollow") / 10
+    self.aggressive_jerk = params.get_int("AggressiveJerk") / 10
+    self.standard_jerk = params.get_int("StandardJerk") / 10
+    self.relaxed_jerk = params.get_int("RelaxedJerk") / 10
+
     lateral_tune = params.get_bool("LateralTune")
     self.average_desired_curvature = params.get_bool("AverageCurvature") and lateral_tune
 
