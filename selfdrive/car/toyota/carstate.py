@@ -208,7 +208,7 @@ class CarState(CarStateBase):
           self.previous_personality_profile = self.personality_profile
 
     # Toggle Experimental Mode from steering wheel function
-    if self.experimental_mode_via_press and ret.cruiseState.available and self.CP.carFingerprint != CAR.PRIUS_V:
+    if self.experimental_mode_via_lkas and ret.cruiseState.available and self.CP.carFingerprint != CAR.PRIUS_V:
       message_keys = ["LDA_ON_MESSAGE", "SET_ME_X02"]
       lkas_pressed = any(self.lkas_hud.get(key) == 1 for key in message_keys)
       if lkas_pressed and not self.lkas_previously_pressed:

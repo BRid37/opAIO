@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import numpy as np
+import threading
 from cereal import car
 from openpilot.common.params import Params
 from openpilot.common.realtime import Priority, config_realtime_process
@@ -41,7 +42,7 @@ def plannerd_thread():
 
   debug_mode = bool(int(os.getenv("DEBUG", "0")))
 
-  frogpilot_planner = FrogPilotPlanner(params)
+  frogpilot_planner = FrogPilotPlanner(params, params_memory)
   longitudinal_planner = LongitudinalPlanner(CP)
   lateral_planner = LateralPlanner(CP, debug=debug_mode)
 
@@ -60,7 +61,8 @@ def plannerd_thread():
       publish_ui_plan(sm, pm, lateral_planner, longitudinal_planner)
 
     if params_memory.get_bool("FrogPilotTogglesUpdated"):
-      frogpilot_planner.update_frogpilot_params(params)
+      updateFrogPilotToggles = threading.Thread(target=frogpilot_planner.update_frogpilot_params, args=(params, params_memory))
+      updateFrogPilotToggles.start()
 
 def main():
   plannerd_thread()

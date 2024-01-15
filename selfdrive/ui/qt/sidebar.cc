@@ -24,7 +24,7 @@ void Sidebar::drawMetric(QPainter &p, const QPair<QString, QString> &label, QCol
   p.drawText(rect.adjusted(22, 0, 0, 0), Qt::AlignCenter, label.first + "\n" + label.second);
 }
 
-Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(false), settings_pressed(false) {
+Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(false), settings_pressed(false), scene(uiState()->scene) {
   home_img = loadPixmap("../assets/images/button_home.png", home_btn.size());
   flag_img = loadPixmap("../assets/images/button_flag.png", home_btn.size());
   settings_img = loadPixmap("../assets/images/button_settings.png", settings_btn.size(), Qt::IgnoreAspectRatio);
@@ -36,7 +36,6 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
   setFixedWidth(300);
 
   QObject::connect(uiState(), &UIState::uiUpdate, this, &Sidebar::updateState);
-  QObject::connect(uiState(), &UIState::uiUpdateFrogPilotParams, this, &Sidebar::updateFrogPilotParams);
 
   pm = std::make_unique<PubMaster, const std::initializer_list<const char *>>({"userFlag"});
 
@@ -68,7 +67,11 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
     settings_imgs[key] = loadPixmap(paths[2], settings_btn.size(), Qt::IgnoreAspectRatio);
   }
 
-  updateFrogPilotParams();
+  home_img = home_imgs[scene.custom_icons];
+  flag_img = flag_imgs[scene.custom_icons];
+  settings_img = settings_imgs[scene.custom_icons];
+
+  currentColors = themeConfiguration[scene.custom_colors].second;
 }
 
 void Sidebar::mousePressEvent(QMouseEvent *event) {
@@ -144,6 +147,12 @@ void Sidebar::updateState(const UIState &s) {
   setProperty("netStrength", strength > 0 ? strength + 1 : 0);
 
   // FrogPilot properties
+  home_img = home_imgs[scene.custom_icons];
+  flag_img = flag_imgs[scene.custom_icons];
+  settings_img = settings_imgs[scene.custom_icons];
+
+  currentColors = themeConfiguration[scene.custom_colors].second;
+
   auto frogpilotDeviceState = sm["frogpilotDeviceState"].getFrogpilotDeviceState();
 
   int maxTempC = deviceState.getMaxTempC();
@@ -225,19 +234,6 @@ void Sidebar::updateState(const UIState &s) {
     pandaStatus = {{tr("GPS"), tr("SEARCH")}, warning_color};
   }
   setProperty("pandaStatus", QVariant::fromValue(pandaStatus));
-}
-
-void Sidebar::updateFrogPilotParams() {
-  // Update FrogPilot parameters upon toggle change
-  isCustomTheme = params.getBool("CustomTheme");
-  customColors = isCustomTheme ? params.getInt("CustomColors") : 0;
-  customIcons = isCustomTheme ? params.getInt("CustomIcons") : 0;
-
-  home_img = home_imgs[customIcons];
-  flag_img = flag_imgs[customIcons];
-  settings_img = settings_imgs[customIcons];
-
-  currentColors = themeConfiguration[customColors].second;
 }
 
 void Sidebar::paintEvent(QPaintEvent *event) {

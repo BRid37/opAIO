@@ -34,9 +34,6 @@ public slots:
   void offroadTransition(bool offroad);
   void updateState(const UIState &s);
 
-  // FrogPilot slots
-  void updateFrogPilotParams();
-
 protected:
   void paintEvent(QPaintEvent *event) override;
   void mousePressEvent(QMouseEvent *event) override;
@@ -70,6 +67,7 @@ private:
 
   // FrogPilot variables
   Params params;
+  UIScene &scene;
 
   ItemStatus cpu_status, memory_status, storage_status;
 
@@ -80,13 +78,10 @@ private:
   std::vector<QColor> currentColors;
 
   bool isCPU;
-  bool isCustomTheme;
   bool isFahrenheit;
   bool isGPU;
   bool isMemoryUsage;
   bool isNumericalTemp;
   bool isStorageLeft;
   bool isStorageUsed;
-  int customColors;
-  int customIcons;
 };

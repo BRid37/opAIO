@@ -44,8 +44,12 @@ class CarState(CarStateBase):
     self.moving_backward = (pt_cp.vl["EBCMWheelSpdRear"]["MovingBackward"] != 0) and not moving_forward
 
     if self.CP.enableBsm:
-      ret.leftBlindspot = pt_cp.vl["BCMBSM"]["Left_BSM"] == 1
-      ret.rightBlindspot = pt_cp.vl["BCMBSM"]["Right_BSM"] == 1
+      if self.CP.carFingerprint in SDGM_CAR:
+        ret.leftBlindspot = cam_cp.vl["BCMBSM"]["Left_BSM"] == 1
+        ret.rightBlindspot = cam_cp.vl["BCMBSM"]["Right_BSM"] == 1
+      else:
+        ret.leftBlindspot = pt_cp.vl["BCMBSM"]["Left_BSM"] == 1
+        ret.rightBlindspot = pt_cp.vl["BCMBSM"]["Right_BSM"] == 1
 
     # Variables used for avoiding LKAS faults
     self.loopback_lka_steering_cmd_updated = len(loopback_cp.vl_all["ASCMLKASteeringCmd"]["RollingCounter"]) > 0
@@ -195,7 +199,7 @@ class CarState(CarStateBase):
         self.previous_personality_profile = self.personality_profile
 
     # Toggle Experimental Mode from steering wheel function
-    if self.experimental_mode_via_press and ret.cruiseState.available:
+    if self.experimental_mode_via_lkas and ret.cruiseState.available:
       if self.CP.carFingerprint in SDGM_CAR:
         lkas_pressed = cam_cp.vl["ASCMSteeringButton"]["LKAButton"]
       else:
@@ -228,6 +232,8 @@ class CarState(CarStateBase):
           ("BCMGeneralPlatformStatus", 10),
           ("ASCMSteeringButton", 33),
         ]
+        if CP.enableBsm:
+          messages.append(("BCMBSM", 10))
       else:
         messages += [
           ("AEBCmd", 10),
@@ -251,10 +257,6 @@ class CarState(CarStateBase):
       ("ECMAcceleratorPos", 80),
     ]
 
-    # BSM does not send a signal until the first instance of it lighting up
-    messages.append(("left_blindspot", 0))
-    messages.append(("right_blindspot", 0))
-
     if CP.carFingerprint in SDGM_CAR:
       messages += [
         ("ECMPRDNL2", 40),
@@ -271,6 +273,8 @@ class CarState(CarStateBase):
         ("BCMGeneralPlatformStatus", 10),
         ("ASCMSteeringButton", 33),
       ]
+      if CP.enableBsm:
+        messages.append(("BCMBSM", 10))
 
     # Used to read back last counter sent to PT by camera
     if CP.networkLocation == NetworkLocation.fwdCamera:

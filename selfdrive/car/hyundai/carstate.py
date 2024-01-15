@@ -184,7 +184,7 @@ class CarState(CarStateBase):
         self.previous_personality_profile = self.personality_profile
 
     # Toggle Experimental Mode from steering wheel function
-    if self.experimental_mode_via_press and ret.cruiseState.available:
+    if self.experimental_mode_via_lkas and ret.cruiseState.available:
       lkas_pressed = cp.vl["BCM_PO_11"]["LFA_Pressed"]
       if lkas_pressed and not self.lkas_previously_pressed:
         if self.conditional_experimental_mode:
@@ -300,7 +300,7 @@ class CarState(CarStateBase):
         self.previous_personality_profile = self.personality_profile
 
     # Toggle Experimental Mode from steering wheel function
-    if self.experimental_mode_via_press and ret.cruiseState.available:
+    if self.experimental_mode_via_lkas and ret.cruiseState.available:
       lkas_pressed = cp.vl[self.cruise_btns_msg_canfd]["LKAS_BTN"]
       if lkas_pressed and not self.lkas_previously_pressed:
         if self.conditional_experimental_mode:

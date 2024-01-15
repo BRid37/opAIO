@@ -77,7 +77,8 @@ class RouteEngine:
   def update(self):
     # Update FrogPilot parameters
     if self.params_memory.get_bool("FrogPilotTogglesUpdated"):
-      self.update_frogpilot_params()
+      updateFrogPilotParams = threading.Thread(target=self.update_frogpilot_params)
+      updateFrogPilotParams.start()
 
     self.sm.update(0)
 

@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import time
+import threading
 import wave
 
 from typing import Dict, Optional, Tuple
@@ -167,7 +168,8 @@ class Soundd:
 
     # Update FrogPilot parameters
     if self.params_memory.get_bool("FrogPilotTogglesUpdated"):
-      self.update_frogpilot_params()
+      updateFrogPilotParams = threading.Thread(target=self.update_frogpilot_params)
+      updateFrogPilotParams.start()
 
   def update_frogpilot_params(self):
     self.silent_mode = self.params.get_bool("SilentMode")

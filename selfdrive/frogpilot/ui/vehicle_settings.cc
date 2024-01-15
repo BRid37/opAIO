@@ -121,10 +121,10 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(SettingsWindow *parent) : FrogPil
     });
   }
 
-  gmKeys = {"EVTable", "GasRegenCmd", "LongPitch"};
-  toyotaKeys = {};
+  gmKeys = {"EVTable", "GasRegenCmd", "LongPitch", "LowerVolt"};
+  toyotaKeys = {"LockDoors", "SNGHack", "TSS2Tune"};
 
-  std::set<std::string> rebootKeys = {"LowerVolt", "TSS2Tune"};
+  std::set<std::string> rebootKeys = {"EVTable", "GasRegenCmd", "LongPitch", "LowerVolt", "TSS2Tune"};
   for (const std::string &key : rebootKeys) {
     QObject::connect(toggles[key], &ToggleControl::toggleFlipped, [this]() {
       if (FrogPilotConfirmationDialog::toggle("Reboot required to take effect.", "Reboot Now", this)) {

@@ -988,7 +988,8 @@ class Controls:
 
         # Update FrogPilot parameters
         if self.params_memory.get_bool("FrogPilotTogglesUpdated"):
-          self.update_frogpilot_params()
+          updateFrogPilotParams = threading.Thread(target=self.update_frogpilot_params)
+          updateFrogPilotParams.start()
 
     except SystemExit:
       e.set()

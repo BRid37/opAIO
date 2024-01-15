@@ -55,7 +55,7 @@ def calculate_lane_width(lane, current_lane, road_edge):
 
 
 class FrogPilotPlanner:
-  def __init__(self, params):
+  def __init__(self, params, params_memory):
     self.cem = ConditionalExperimentalMode()
     self.mtsc = MapTurnSpeedController()
 
@@ -69,7 +69,7 @@ class FrogPilotPlanner:
 
     self.x_desired_trajectory = np.zeros(CONTROL_N)
 
-    self.update_frogpilot_params(params)
+    self.update_frogpilot_params(params, params_memory)
 
   def update(self, sm, mpc):
     carState, controlsState, modelData = sm['carState'], sm['controlsState'], sm['modelV2']
@@ -203,7 +203,7 @@ class FrogPilotPlanner:
 
     pm.send('frogpilotLongitudinalPlan', frogpilot_longitudinal_plan_send)
 
-  def update_frogpilot_params(self, params):
+  def update_frogpilot_params(self, params, params_memory):
     self.is_metric = params.get_bool("IsMetric")
 
     self.blindspot_path = params.get_bool("CustomUI") and params.get_bool("BlindSpotPath")

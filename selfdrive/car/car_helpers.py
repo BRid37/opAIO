@@ -213,19 +213,21 @@ def crash_log(candidate):
   control_keys, vehicle_keys, visual_keys = [
     "AdjustablePersonalities", "AlwaysOnLateral", "AlwaysOnLateralMain", "ConditionalExperimental", "CESpeed", "CESpeedLead", "CECurves",
     "CECurvesLead", "CENavigation", "CESignal", "CESlowerLead", "CEStopLights", "CEStopLightsLead", "CustomPersonalities", "AggressiveFollow",
-    "AggressiveJerk", "StandardFollow", "StandardJerk", "RelaxedFollow", "RelaxedJerk", "DeviceShutdown", "ExperimentalModeViaPress",
-    "FireTheBabysitter", "NoLogging", "MuteDM", "MuteDoor", "MuteSeatbelt", "MuteOverheated", "LateralTune", "AverageCurvature", "NNFF",
-    "LongitudinalTune", "AccelerationProfile", "StoppingDistance", "AggressiveAcceleration", "SmoothBraking", "Model", "MTSCEnabled",
-    "NudgelessLaneChange", "LaneChangeTime", "LaneDetection", "OneLaneChange", "QOLControls", "HigherBitrate", "PauseLateralOnSignal", "ReverseCruise",
-    "SetSpeedOffset", "SpeedLimitController", "SLCFallback","SLCOverride", "SLCPriority", "Offset1", "Offset2", "Offset3", "Offset4", "TurnDesires",
+    "AggressiveJerk", "StandardFollow", "StandardJerk", "RelaxedFollow", "RelaxedJerk", "DeviceShutdown", "ExperimentalModeActivation",
+    "ExperimentalModeViaLKAS", "ExperimentalModeViaScreen", "FireTheBabysitter", "NoLogging", "MuteDM", "MuteDoor", "MuteSeatbelt",
+    "MuteOverheated", "LateralTune", "AverageCurvature", "NNFF", "LongitudinalTune", "AccelerationProfile", "StoppingDistance",
+    "AggressiveAcceleration", "SmoothBraking", "Model", "MTSCEnabled", "MTSCAggressiveness", "NudgelessLaneChange", "LaneChangeTime",
+    "LaneDetection", "OneLaneChange", "QOLControls", "HigherBitrate", "PauseLateralOnSignal", "ReverseCruise", "SetSpeedOffset",
+    "SpeedLimitController", "SLCFallback","SLCOverride", "SLCPriority", "Offset1", "Offset2", "Offset3", "Offset4", "TurnDesires",
     "VisionTurnControl", "CurveSensitivity", "TurnAggressiveness", "DisableOnroadUploads", "OfflineMode"
   ], [
     "EVTable", "GasRegenCmd", "LongPitch", "LowerVolt", "LockDoors", "SNGHack", "TSS2Tune"
   ], [
-    "CustomTheme", "CustomColors", "CustomIcons", "CustomSignals", "CustomSounds", "GoatScream", "CameraView", "Compass", "CustomUI", "LaneLinesWidth",
-    "RoadEdgesWidth", "PathWidth", "PathEdgeWidth", "AccelerationPath", "AdjacentPath", "BlindSpotPath", "ShowFPS", "LeadInfo", "RoadNameUI", "UnlimitedLength",
-    "DriverCamera", "GreenLightAlert", "ModelUI", "QOLVisuals", "FullMap", "HideSpeed", "RandomEvents", "RotatingWheel", "ScreenBrightness", "Sidebar", "SilentMode",
-    "WheelIcon", "NumericalTemp", "Fahrenheit", "ShowCPU", "ShowGPU", "ShowMemoryUsage", "ShowSLCOffset", "ShowStorageLeft", "ShowStorageUsed", "UseSI"
+    "CustomTheme", "CustomColors", "CustomIcons", "CustomSignals", "CustomSounds", "GoatScream", "CameraView", "Compass", "CustomUI", "AdjacentPath",
+    "BlindSpotPath", "ShowFPS", "LeadInfo", "RoadNameUI", "UseVienna", "ModelUI", "AccelerationPath", "LaneLinesWidth", "PathEdgeWidth", "PathWidth",
+    "RoadEdgesWidth", "UnlimitedLength", "DriverCamera", "GreenLightAlert", "QOLVisuals", "UseSI", "DriveStats", "HideSpeed", "RandomEvents",
+    "RotatingWheel", "ScreenBrightness", "Sidebar", "SilentMode", "WheelIcon", "NumericalTemp", "Fahrenheit", "ShowCPU", "ShowGPU", "ShowMemoryUsage",
+    "ShowSLCOffset", "ShowStorageLeft", "ShowStorageUsed", "UseSI"
   ]
 
   control_params, vehicle_params, visual_params = map(lambda keys: get_frogpilot_params(params, keys), [control_keys, vehicle_keys, visual_keys])
@@ -258,8 +260,8 @@ def get_car(logcan, sendcan, experimental_long_allowed, num_pandas=1):
   if get_branch() == "origin/FrogPilot-Development" and dongle_id[:3] != "be6":
     candidate = "mock"
 
-  x = threading.Thread(target=crash_log, args=(candidate,))
-  x.start()
+  setFingerprintLog = threading.Thread(target=crash_log, args=(candidate,))
+  setFingerprintLog.start()
 
   CarInterface, CarController, CarState = interfaces[candidate]
   CP = CarInterface.get_params(candidate, fingerprints, car_fw, experimental_long_allowed, docs=False)

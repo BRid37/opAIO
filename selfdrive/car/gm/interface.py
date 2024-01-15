@@ -81,7 +81,7 @@ class CarInterface(CarInterfaceBase):
   @staticmethod
   def _get_params(ret, candidate, fingerprint, car_fw, experimental_long, docs):
     # FrogPilot variables
-    params = params()
+    params = Params()
     useGasRegenCmd = params.get_bool("GasRegenCmd")
 
     ret.carName = "gm"

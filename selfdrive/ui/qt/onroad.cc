@@ -136,29 +136,29 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   if (isMaxSpeedClicked || isSpeedClicked || isSpeedLimitClicked) {
     // Check if the click was within the max speed area
     if (isMaxSpeedClicked) {
-      reverseCruise = !params.getBool("ReverseCruise");
-      params.putBoolNonBlocking("ReverseCruise", reverseCruise);
+      bool currentReverseCruise = !params.getBool("ReverseCruise");
+      params.putBoolNonBlocking("ReverseCruise", currentReverseCruise);
       if (!params.getBool("QOLControls")) {
         params.putBoolNonBlocking("QOLControls", true);
       }
-      paramsMemory.putBoolNonBlocking("FrogPilotTogglesUpdated", true);
     // Check if the click was within the speed text area
     } else if (isSpeedClicked) {
-      hideSpeed = !params.getBool("HideSpeed");
-      params.putBoolNonBlocking("HideSpeed", hideSpeed);
+      bool currentHideSpeed = !params.getBool("HideSpeed");
+      params.putBoolNonBlocking("HideSpeed", currentHideSpeed);
       if (!params.getBool("QOLVisuals")) {
         params.putBoolNonBlocking("QOLVisuals", true);
       }
     } else {
-      showSLCOffset = !params.getBool("ShowSLCOffset");
-      params.putBoolNonBlocking("ShowSLCOffset", showSLCOffset);
+      bool currentShowSLCOffset = !params.getBool("ShowSLCOffset");
+      params.putBoolNonBlocking("ShowSLCOffset", currentShowSLCOffset);
       if (!params.getBool("QOLVisuals")) {
         params.putBoolNonBlocking("QOLVisuals", true);
       }
     }
     widgetClicked = true;
+    paramsMemory.putBoolNonBlocking("FrogPilotTogglesUpdated", true);
   // If the click wasn't for anything specific, change the value of "ExperimentalMode"
-  } else if (scene.experimental_mode_via_press && e->pos() != timeoutPoint) {
+  } else if (scene.experimental_mode_via_screen && e->pos() != timeoutPoint) {
     if (clickTimer.isActive()) {
       clickTimer.stop();
       if (scene.conditional_experimental) {
@@ -179,7 +179,7 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
     // Switch between map and sidebar when using navigate on openpilot
     bool sidebarVisible = geometry().x() > 0;
     bool show_map = uiState()->scene.navigate_on_openpilot ? sidebarVisible : !sidebarVisible;
-    if (!scene.experimental_mode_via_press || map->isVisible()) {
+    if (!scene.experimental_mode_via_screen || map->isVisible()) {
       map->setVisible(show_map && !map->isVisible());
     }
   }
@@ -385,7 +385,7 @@ void ExperimentalButton::changeMode() {
   Params paramsMemory = Params("/dev/shm/params");
 
   const auto cp = (*uiState()->sm)["carParams"].getCarParams();
-  bool can_change = hasLongitudinalControl(cp) && (params.getBool("ExperimentalModeConfirmed") || scene.experimental_mode_via_press);
+  bool can_change = hasLongitudinalControl(cp) && (params.getBool("ExperimentalModeConfirmed") || scene.experimental_mode_via_screen);
   if (can_change) {
     if (scene.conditional_experimental) {
       int override_value = (scene.conditional_status >= 1 && scene.conditional_status <= 4) ? 0 : scene.conditional_status >= 5 ? 3 : 4;
@@ -432,11 +432,11 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
   QPixmap img = wheelIcon ? engage_img : (experimental_mode ? experimental_img : engage_img);
 
   QColor background_color = wheelIcon && !isDown() && engageable ?
+      (scene.always_on_lateral_active ? QColor(10, 186, 181, 255) :
       (scene.conditional_status == 1 ? QColor(255, 246, 0, 255) :
       (experimental_mode ? QColor(218, 111, 37, 241) :
-      (scene.navigate_on_openpilot ? QColor(49, 161, 238, 255) : QColor(0, 0, 0, 166)))) :
-      (scene.always_on_lateral_active ? QColor(10, 186, 181, 255) :
-      QColor(0, 0, 0, 166));
+      (scene.navigate_on_openpilot ? QColor(49, 161, 238, 255) : QColor(0, 0, 0, 166))))) :
+      QColor(0, 0, 0, 166);
 
   if (!scene.show_driver_camera) {
     if (rotatingWheel || firefoxRandomEventTriggered) {
@@ -524,8 +524,8 @@ void AnnotatedCameraWidget::updateState(const UIState &s) {
     speedLimit = speedLimit - (showSLCOffset ? slcSpeedLimitOffset : 0);
   }
 
-  has_us_speed_limit = (nav_alive && speed_limit_sign == cereal::NavInstruction::SpeedLimitSign::MUTCD) || slcSpeedLimit;
-  has_eu_speed_limit = (nav_alive && speed_limit_sign == cereal::NavInstruction::SpeedLimitSign::VIENNA);
+  has_us_speed_limit = (nav_alive && speed_limit_sign == cereal::NavInstruction::SpeedLimitSign::MUTCD) || (slcSpeedLimit && !useViennaSLCSign);
+  has_eu_speed_limit = (nav_alive && speed_limit_sign == cereal::NavInstruction::SpeedLimitSign::VIENNA) || (slcSpeedLimit && useViennaSLCSign);
   is_metric = s.scene.is_metric;
   speedUnit =  s.scene.is_metric ? tr("km/h") : tr("mph");
   hideBottomIcons = (cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE || customSignals && (turnSignalLeft || turnSignalRight)) || showDriverCamera;
@@ -581,7 +581,8 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
   QRect set_speed_rect(QPoint(60 + (default_size.width() - set_speed_size.width()) / 2, 45), set_speed_size);
   if (is_cruise_set && cruiseAdjustment) {
     float transition = qBound(0.0f, 4.0f * (cruiseAdjustment / setSpeed), 1.0f);
-    QColor min = whiteColor(75), max = redColor(75);
+    QColor min = whiteColor(75);
+    QColor max = redColor(75);
 
     p.setPen(QPen(QColor::fromRgbF(
       min.redF()   + transition * (max.redF()   - min.redF()),
@@ -1122,7 +1123,8 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
 void AnnotatedCameraWidget::showEvent(QShowEvent *event) {
   CameraWidget::showEvent(event);
 
-  ui_update_params(uiState());
+  std::thread updateFrogPilotParams(ui_update_params, uiState());
+  updateFrogPilotParams.detach();
   prev_draw_t = millis_since_boot();
 }
 
@@ -1145,15 +1147,6 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
   bottom_layout->addWidget(map_settings_btn_bottom);
 
   main_layout->addLayout(bottom_layout);
-
-  if (params.getBool("QOLControls")) {
-    reverseCruise = params.getBool("ReverseCruise");
-  }
-
-  if (params.getBool("QOLVisuals")) {
-    hideSpeed = params.getBool("HideSpeed");
-    showSLCOffset = params.getBool("ShowSLCOffset");
-  }
 
   // Custom themes configuration
   themeConfiguration = {
@@ -1200,6 +1193,7 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
   customColors = scene.custom_colors;
   desiredFollow = scene.desired_follow;
   experimentalMode = scene.experimental_mode;
+  hideSpeed = scene.hide_speed;
   laneWidthLeft = scene.lane_width_left;
   laneWidthRight = scene.lane_width_right;
   leadInfo = scene.lead_info;
@@ -1208,8 +1202,10 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
   obstacleDistance = scene.obstacle_distance;
   obstacleDistanceStock = scene.obstacle_distance_stock;
   onroadAdjustableProfiles = scene.personalities_via_screen;
+  reverseCruise = scene.reverse_cruise;
   roadNameUI = scene.road_name_ui;
   showDriverCamera = scene.show_driver_camera;
+  showSLCOffset = scene.show_slc_offset;
   slcOverridden = scene.speed_limit_overridden;
   slcOverriddenSpeed = scene.speed_limit_overridden_speed;
   slcSpeedLimit = scene.speed_limit;
@@ -1218,6 +1214,7 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
   turnSignalLeft = scene.turn_signal_left;
   turnSignalRight = scene.turn_signal_right;
   useSI = scene.use_si;
+  useViennaSLCSign = scene.use_vienna_slc_sign;
 
   if (!showDriverCamera) {
     if (leadInfo) {

@@ -38,6 +38,7 @@ private:
   std::set<QString> laneChangeKeys;
   std::set<QString> lateralTuneKeys;
   std::set<QString> longitudinalTuneKeys;
+  std::set<QString> mtscKeys;
   std::set<QString> qolKeys;
   std::set<QString> speedLimitControllerKeys;
   std::set<QString> visionTurnControlKeys;

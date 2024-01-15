@@ -79,8 +79,11 @@ void setDefaultParams() {
     {"CustomUI", "1"},
     {"DeviceShutdown", "9"},
     {"DriverCamera", "0"},
+    {"DriveStats", "1"},
     {"EVTable", FrogsGoMoo ? "0" : "1"},
-    {"ExperimentalModeViaPress", "1"},
+    {"ExperimentalModeActivation", "1"},
+    {"ExperimentalModeViaLKAS", "1"},
+    {"ExperimentalModeViaScreen", FrogsGoMoo ? "0" : "1"},
     {"Fahrenheit", "0"},
     {"FireTheBabysitter", FrogsGoMoo ? "1" : "0"},
     {"FullMap", "0"},
@@ -149,6 +152,7 @@ void setDefaultParams() {
     {"TurnDesires", "1"},
     {"UnlimitedLength", "1"},
     {"UseSI", FrogsGoMoo ? "1" : "0"},
+    {"UseVienna", "0"},
     {"VisionTurnControl", "1"},
     {"WheelIcon", FrogsGoMoo ? "1" : "0"}
   };

@@ -200,7 +200,7 @@ class ConditionalExperimentalMode:
   def update_frogpilot_params(self, is_metric, params):
     self.curves = params.get_bool("CECurves")
     self.curves_lead = params.get_bool("CECurvesLead")
-    self.experimental_mode_via_press = params.get_bool("ExperimentalModeViaPress")
+    self.experimental_mode_via_press = params.get_bool("ExperimentalModeActivation")
     self.limit = params.get_int("CESpeed") * (CV.KPH_TO_MS if is_metric else CV.MPH_TO_MS)
     self.limit_lead = params.get_int("CESpeedLead") * (CV.KPH_TO_MS if is_metric else CV.MPH_TO_MS)
     self.navigation = params.get_bool("CENavigation")

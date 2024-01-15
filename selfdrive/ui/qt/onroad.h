@@ -17,9 +17,6 @@ const int btn_size = 192;
 const int img_size = (btn_size / 4) * 3;
 
 // FrogPilot global variables
-static bool hideSpeed;
-static bool reverseCruise;
-static bool showSLCOffset;
 static double fps;
 
 // ***** onroad widgets *****
@@ -191,16 +188,20 @@ private:
   bool compass;
   bool conditionalExperimental;
   bool experimentalMode;
+  bool hideSpeed;
   bool leadInfo;
   bool mapOpen;
   bool muteDM;
   bool onroadAdjustableProfiles;
+  bool reverseCruise;
   bool roadNameUI;
   bool showDriverCamera;
+  bool showSLCOffset;
   bool slcOverridden;
   bool turnSignalLeft;
   bool turnSignalRight;
   bool useSI;
+  bool useViennaSLCSign;
   double maxAcceleration;
   float cruiseAdjustment;
   float laneWidthLeft;
@@ -222,6 +223,8 @@ private:
   int totalFrames = 8;
   QTimer *animationTimer;
   size_t animationFrameIndex;
+
+  inline QColor greenColor(int alpha = 242) { return QColor(23, 134, 68, alpha); }
 
   std::unordered_map<int, std::pair<QString, std::pair<QColor, std::map<double, QBrush>>>> themeConfiguration;
   std::vector<QPixmap> signalImgVector;

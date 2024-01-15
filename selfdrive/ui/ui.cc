@@ -309,9 +309,11 @@ void ui_update_params(UIState *s) {
   scene.road_name_ui = params.getBool("RoadNameUI") && scene.custom_onroad_ui;
   scene.show_fps = params.getBool("ShowFPS") && scene.custom_onroad_ui;
   scene.use_si = params.getBool("UseSI") && scene.custom_onroad_ui;
+  scene.use_vienna_slc_sign = params.getBool("UseVienna") && scene.custom_onroad_ui;
 
   scene.custom_theme = params.getBool("CustomTheme");
   scene.custom_colors = scene.custom_theme ? params.getInt("CustomColors") : 0;
+  scene.custom_icons = scene.custom_theme ? params.getInt("CustomIcons") : 0;
   scene.custom_signals = scene.custom_theme ? params.getInt("CustomSignals") : 0;
 
   scene.model_ui = params.getBool("ModelUI");
@@ -323,12 +325,17 @@ void ui_update_params(UIState *s) {
   scene.unlimited_road_ui_length = params.getBool("UnlimitedLength") && scene.model_ui;
 
   scene.driver_camera = params.getBool("DriverCamera");
-  scene.experimental_mode_via_press = params.getBool("ExperimentalModeViaPress");
+  scene.experimental_mode_via_screen = params.getBool("ExperimentalModeViaScreen") && params.getBool("ExperimentalModeActivation");
   scene.mute_dm = params.getBool("MuteDM") && params.getBool("FireTheBabysitter");
   scene.personalities_via_screen = (params.getInt("AdjustablePersonalities") == 2 || params.getInt("AdjustablePersonalities") == 3);
 
+  scene.quality_of_life_controls = params.getBool("QOLControls");
+  scene.reverse_cruise = params.getBool("ReverseCruise") && scene.quality_of_life_controls;
+
   scene.quality_of_life_visuals = params.getBool("QOLVisuals");
-  scene.full_map = params.getBool("QOLVisuals") && scene.quality_of_life_visuals;
+  scene.full_map = params.getBool("FullMap") && scene.quality_of_life_visuals;
+  scene.hide_speed = params.getBool("HideSpeed") && scene.quality_of_life_visuals;
+  scene.show_slc_offset = params.getBool("ShowSLCOffset") && scene.quality_of_life_visuals;
 
   scene.random_events = params.getBool("RandomEvents");
   scene.rotating_wheel = params.getBool("RotatingWheel");
@@ -385,8 +392,7 @@ UIState::UIState(QObject *parent) : QObject(parent) {
 
   wifi = new WifiManager(this);
 
-  scene.screen_brightness = params.getInt("ScreenBrightness");
-
+  ui_update_params(this);
   setDefaultParams();
 }
 
@@ -403,8 +409,8 @@ void UIState::update() {
   // Update FrogPilot variables when they are changed
   Params paramsMemory{"/dev/shm/params"};
   if (paramsMemory.getBool("FrogPilotTogglesUpdated")) {
-    ui_update_params(this);
-    emit uiUpdateFrogPilotParams();
+    std::thread updateFrogPilotParams(ui_update_params, this);
+    updateFrogPilotParams.detach();
   }
 
   // FrogPilot live variables that need to be constantly checked

@@ -596,7 +596,7 @@ class CarStateBase(ABC):
 
   def update_frogpilot_params(self, params):
     self.conditional_experimental_mode = params.get_bool("ConditionalExperimental")
-    self.experimental_mode_via_press = params.get_bool("ExperimentalModeViaPress")
+    self.experimental_mode_via_lkas = params.get_bool("ExperimentalModeViaLKAS") and params.get_bool("ExperimentalModeActivation");
     self.personalities_via_wheel = params.get_int("AdjustablePersonalities") in {1, 3}
 
 INTERFACE_ATTR_FILE = {

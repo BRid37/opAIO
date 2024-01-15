@@ -18,6 +18,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
     {"ShowFPS", "FPS Counter", "Display the Frames Per Second (FPS) of your onroad UI for monitoring system performance.", ""},
     {"LeadInfo", "Lead Info and Logics", "Get detailed information about the vehicle ahead, including speed and distance, and the logic behind your following distance.", ""},
     {"RoadNameUI", "Road Name", "See the name of the road you're on at the bottom of your screen. Sourced from OpenStreetMap.", ""},
+    {"UseVienna", "Use Vienna Speed Limit Signs", "Use the Vienna (EU) speed limit style signs as opposed to MUTCD (US).", ""},
 
     {"DriverCamera", "Driver Camera On Reverse", "Show the driver's camera feed when you shift to reverse.", "../assets/img_driver_face_static.png"},
     {"GreenLightAlert", "Green Light Alert", "Get an alert when a traffic light changes from red to green.", "../frogpilot/assets/toggle_icons/icon_green_light.png"},
@@ -152,7 +153,16 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
     });
   }
 
-  customOnroadUIKeys = {"AdjacentPath", "BlindSpotPath", "ShowFPS", "LeadInfo", "RoadNameUI"};
+  std::set<std::string> rebootKeys = {"DriveStats"};
+  for (const std::string &key : rebootKeys) {
+    QObject::connect(toggles[key], &ToggleControl::toggleFlipped, [this]() {
+      if (FrogPilotConfirmationDialog::toggle("Reboot required to take effect.", "Reboot Now", this)) {
+        Hardware::reboot();
+      }
+    });
+  }
+
+  customOnroadUIKeys = {"AdjacentPath", "BlindSpotPath", "ShowFPS", "LeadInfo", "RoadNameUI", "UseVienna"};
   customThemeKeys = {"CustomColors", "CustomIcons", "CustomSignals", "CustomSounds"};
   modelUIKeys = {"AccelerationPath", "LaneLinesWidth", "PathEdgeWidth", "PathWidth", "RoadEdgesWidth", "UnlimitedLength"};
   qolKeys = {"DriveStats", "HideSpeed", "ShowSLCOffset"};
