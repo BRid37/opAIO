@@ -135,9 +135,9 @@ def main():
   cloudlog.info("paramsd got CarParams")
 
   steer_ratio_stock = params_reader.get_int("SteerRatioStock")
-  if steer_ratio_stock != CP.steerRatio * 10:
-    params_reader.put_int("SteerRatio", CP.steerRatio * 10)
-    params_reader.put_int("SteerRatioStock", CP.steerRatio * 10)
+  if steer_ratio_stock != CP.steerRatio * 100:
+    params_reader.put_int("SteerRatio", CP.steerRatio * 100)
+    params_reader.put_int("SteerRatioStock", CP.steerRatio * 100)
 
   min_sr, max_sr = 0.5 * CP.steerRatio, 2.0 * CP.steerRatio
 
