@@ -198,7 +198,7 @@ class CarInterfaceBase(ABC):
     # FrogPilot variables
     params = Params()
 
-    self.has_lateral_torque_nn = self.initialize_lat_torque_nn(CP.carFingerprint, eps_firmware) and params.get_bool("LateralTune") and params.get_bool("NNFF")
+    self.has_lateral_torque_nn = False
 
     self.belowSteerSpeed_shown = False
     self.disable_belowSteerSpeed = False
@@ -233,7 +233,7 @@ class CarInterfaceBase(ABC):
     ret = cls._get_params(ret, candidate, fingerprint, car_fw, experimental_long, docs)
 
     # Enable torque controller for all cars that do not use angle based steering
-    if ret.steerControlType != car.CarParams.SteerControlType.angle and Params().get_bool("LateralTune") and Params().get_bool("NNFF"):
+    if ret.steerControlType != car.CarParams.SteerControlType.angle and False:
       CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
       eps_firmware = str(next((fw.fwVersion for fw in car_fw if fw.ecu == "eps"), ""))
       model, similarity_score = get_nn_model_path(candidate, eps_firmware)
