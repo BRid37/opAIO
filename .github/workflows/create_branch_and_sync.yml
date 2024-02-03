@@ -65,14 +65,15 @@ jobs:
           git push origin main
           
       - name: Checkout and Push New Branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
         run: |
           set -e
           git remote add public_repo ${{ github.event.inputs.remote_repo_url }}
           git fetch public_repo ${{ github.event.inputs.remote_branch_name }}
           git checkout -b ${{ github.event.inputs.new_branch_name }} public_repo/${{ github.event.inputs.remote_branch_name }}
           git push origin ${{ github.event.inputs.new_branch_name }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
+        
 
 
 
