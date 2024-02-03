@@ -68,11 +68,31 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
         run: |
-          set -e
-          git remote add public_repo ${{ github.event.inputs.remote_repo_url }}
-          git fetch public_repo ${{ github.event.inputs.remote_branch_name }}
-          git checkout -b ${{ github.event.inputs.new_branch_name }} public_repo/${{ github.event.inputs.remote_branch_name }}
-          git push origin ${{ github.event.inputs.new_branch_name }}
+          # Setup git configuration
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          
+          # Clone the remote repository to a temporary directory
+          git clone ${{ github.event.inputs.remote_repo_url }} temp_repo
+          cd temp_repo
+          
+          # Checkout the specified remote branch
+          git checkout ${{ github.event.inputs.remote_branch_name }}
+          
+          # Create a new branch from it (this step might be optional if you're just tracking the remote branch)
+          git checkout -b ${{ github.event.inputs.new_branch_name }}
+          
+          # Add your repository as a new remote and push the branch
+          git remote add personal_repo https://x-access-token:${{ secrets.PAT }}@github.com/BRid37/opAIO.git
+          git push personal_repo ${{ github.event.inputs.new_branch_name }}:refs/heads/${{ github.event.inputs.new_branch_name }}
+          
+          # Cleanup
+          cd ..
+          rm -rf temp_repo
+
+          
+      
+
         
 
 
