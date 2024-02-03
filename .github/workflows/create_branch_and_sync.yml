@@ -63,6 +63,7 @@ jobs:
           git add .github/workflows/sync_${{ github.event.inputs.new_branch_name }}.yml
           git commit -m "Add sync workflow for ${{ github.event.inputs.new_branch_name }}"
           git push origin main
+          
       - name: Checkout and Push New Branch
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
