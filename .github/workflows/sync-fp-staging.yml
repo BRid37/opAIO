@@ -27,7 +27,7 @@ jobs:
         git fetch --all
         git checkout CAN-FD_Steer_Torque
         git checkout fp-FrogPilot-Staging
-        git cherry-pick a250ba39999149c91888a3183efb10b37372e78f
+        git cherry-pick 88fa811c7cb7e11969900872171c45ca690495d0
         
 
     - name: Push changes
