@@ -161,6 +161,7 @@ def manager_init() -> None:
     ("LongPitch", "0" if FrogsGoMoo else "1"),
     ("LoudBlindspotAlert", "0"),
     ("LowerVolt", "0" if FrogsGoMoo else "1"),
+    ("MapStyle", "0"),
     ("MTSCAggressiveness", "100" if FrogsGoMoo else "100"),
     ("MTSCCurvatureCheck", "1" if FrogsGoMoo else "0"),
     ("MTSCLimit", "30" if FrogsGoMoo else "0"),
