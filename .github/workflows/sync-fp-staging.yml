@@ -20,40 +20,20 @@ jobs:
           destination_branch: "fp-FrogPilot-Staging"
           github_token: ${{ secrets.PAT }}
 
-      - name: Checkout fp-FrogPilot-Staging
+      - name: Find commit hash by name and revert
         run: |
-            git config --global user.email "55640145+BRid37@users.noreply.github.com"
-            git config --global user.name "BRid37"
-            git checkout fp-FrogPilot-Staging
-      
-      - name: Run git log
-        id: log
-        run: |
-          git log --oneline --first-parent --grep "Compile FrogPilot" fp-FrogPilot-Staging > log.txt
-
-      - name: Parse git log
-        id: parse
-        run: |
-          commit=$(cat log.txt | head -n 1 | cut -d " " -f 1)
+          git checkout fp-FrogPilot-Staging
+          git stash -u -m "Save local changes"
+          commit=$(git rev-parse "Compile FrogPilot")
           echo "Commit to revert: $commit"
-          echo "::set-output name=commit::$commit"
+          git revert -n $commit
 
-      - name: Revert commit
+      - name: Cherry-pick commit
         run: |
-          git revert -n ${{ steps.parse.outputs.commit }}
+          git config --global user.email "55640145+BRid37@users.noreply.github.com"
+          git config --global user.name "BRid37"
+          git cherry-pick 88fa811c7cb7e11969900872171c45ca690495d0
 
       - name: Push changes
         run: |
           git push origin fp-FrogPilot-Staging
-
-      - name: Cherry-pick commit
-        run: |
-            git config --global user.email "55640145+BRid37@users.noreply.github.com"
-            git config --global user.name "BRid37"
-            git fetch --all
-            git checkout Z-DO-NOT-USE-Tweaks
-            git checkout fp-FrogPilot-Staging
-            git cherry-pick 88fa811c7cb7e11969900872171c45ca690495d
-            git push origin fp-FrogPilot-Staging
-      
-      
