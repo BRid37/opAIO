@@ -29,9 +29,18 @@ jobs:
           git checkout fp-FrogPilot-Staging
           git cherry-pick 88fa811c7cb7e11969900872171c45ca690495d0
 
+      - name: Run git log
+        run: |
+          git log --oneline --first-parent --grep "Compile FrogPilot" fp-FrogPilot-Staging > log.txt
+
+      - name: Parse git log
+        run: |
+          commit=$(cat log.txt | head -n 1 | cut -d " " -f 1)
+          echo "Commit to revert: $commit"
+
       - name: Revert commit
         run: |
-          git revert --grep "Compile FrogPilot"
+          git revert -n $commit
 
       - name: Push changes
         run: |
