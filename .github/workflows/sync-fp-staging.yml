@@ -40,7 +40,7 @@ jobs:
 
       - name: Revert commit
         run: |
-          git revert -n -x theirs ${{ steps.parse.outputs.commit }}
+          git revert -n ${{ steps.parse.outputs.commit }}
 
       - name: Push changes
         run: |
