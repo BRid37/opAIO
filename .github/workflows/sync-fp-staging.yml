@@ -24,10 +24,11 @@ jobs:
         run: |
           git checkout fp-FrogPilot-Staging
           git stash -u -m "Save local changes"
-          commit=$(git rev-parse "Compile FrogPilot")
+          git log --oneline --first-parent --grep "Compile FrogPilot" fp-FrogPilot-Staging > log.txt
+          commit=$(cat log.txt | head -n 1 | cut -d " " -f 1)
           echo "Commit to revert: $commit"
           git revert -n $commit
-
+          
       - name: Cherry-pick commit
         run: |
           git config --global user.email "55640145+BRid37@users.noreply.github.com"
