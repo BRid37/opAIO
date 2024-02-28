@@ -9,27 +9,30 @@ jobs:
   repo-sync:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-      with:
-        persist-credentials: false
-    - name: repo-sync
-      uses: repo-sync/github-sync@v2.3.0
-      with:
-        source_repo: "https://github.com/FrogAi/FrogPilot.git"
-        source_branch: "FrogPilot-Staging"
-        destination_branch: "fp-FrogPilot-Staging"
-        github_token: ${{ secrets.PAT }}
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: repo-sync
+        uses: repo-sync/github-sync@v2.3.0
+        with:
+          source_repo: "https://github.com/FrogAi/FrogPilot.git"
+          source_branch: "FrogPilot-Staging"
+          destination_branch: "fp-FrogPilot-Staging"
+          github_token: ${{ secrets.PAT }}
 
-    - name: Cherry-pick commit
-      run: |
-        git config --global user.email "55640145+BRid37@users.noreply.github.com"
-        git config --global user.name "BRid37"
-        git fetch --all
-        git checkout Z-DO-NOT-USE-Tweaks
-        git checkout fp-FrogPilot-Staging
-        git cherry-pick 88fa811c7cb7e11969900872171c45ca690495d0
-        
+      - name: Cherry-pick commit
+        run: |
+          git config --global user.email "55640145+BRid37@users.noreply.github.com"
+          git config --global user.name "BRid37"
+          git fetch --all
+          git checkout Z-DO-NOT-USE-Tweaks
+          git checkout fp-FrogPilot-Staging
+          git cherry-pick 88fa811c7cb7e11969900872171c45ca690495d0
 
-    - name: Push changes
-      run: |
-        git push origin fp-FrogPilot-Staging
+      - name: Revert commit
+        run: |
+          git revert -n "Compile FrogPilot"
+
+      - name: Push changes
+        run: |
+          git push origin fp-FrogPilot-Staging
