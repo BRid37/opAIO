@@ -42,13 +42,13 @@ jobs:
           git push origin fp-FrogPilot-Staging
 
       - name: Cherry-pick commit
-              run: |
-                git config --global user.email "55640145+BRid37@users.noreply.github.com"
-                git config --global user.name "BRid37"
-                git fetch --all
-                git checkout Z-DO-NOT-USE-Tweaks
-                git checkout fp-FrogPilot-Staging
-                git cherry-pick 88fa811c7cb7e11969900872171c45ca690495d
-                git push origin fp-FrogPilot-Staging
+        run: |
+            git config --global user.email "55640145+BRid37@users.noreply.github.com"
+            git config --global user.name "BRid37"
+            git fetch --all
+            git checkout Z-DO-NOT-USE-Tweaks
+            git checkout fp-FrogPilot-Staging
+            git cherry-pick 88fa811c7cb7e11969900872171c45ca690495d
+            git push origin fp-FrogPilot-Staging
       
       
