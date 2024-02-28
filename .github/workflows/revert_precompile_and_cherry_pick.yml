@@ -5,16 +5,18 @@ on:
     workflows: ["Sync FrogPilot-Staging"]
     types:
       - completed
-  workflow_dispatch: # This line enables manual triggering
+  workflow_dispatch:
 
 jobs:
   revert-commit:
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     steps:
-      - uses: actions/checkout@v4
+
+      - name: Configure Git to skip symlinks
+        run: git config --global core.symlinks false
+        
+      - name: Checkout repo without symlinks
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Ensure you fetch all history for commits, tags, etc
           persist-credentials: false
