@@ -1,16 +1,18 @@
-name: Revert Precompile Commit After Sync and Cherry Pick
+name: Revert Commit After Sync
 
 on:
-  workflow_dispatch:
   workflow_run:
     workflows: ["Sync FrogPilot-Staging"]
     types:
       - completed
+  workflow_dispatch: # This line enables manual triggering
 
 jobs:
   revert-commit:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,7 +37,7 @@ jobs:
           commit=$(cat log.txt | head -n 1 | cut -d " " -f 1)
           echo "Commit to revert: $commit"
           git revert -n $commit
-          
+
       - name: Cherry-pick commit
         run: |
           git cherry-pick 88fa811c7cb7e11969900872171c45ca690495d0
