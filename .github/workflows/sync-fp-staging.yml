@@ -20,12 +20,15 @@ jobs:
           destination_branch: "fp-FrogPilot-Staging"
           github_token: ${{ secrets.PAT }}
 
-      - name: Prepare for operations
+      - name: Ensure clean state
         run: |
           git checkout fp-FrogPilot-Staging
+          # Ensure we're up to date with the latest state of the remote branch
           git fetch origin fp-FrogPilot-Staging
+          # Stash any local changes including untracked files
+          git stash push --include-untracked -m "Temporarily stashing local changes"
+          # Optionally, reset to the remote state if necessary
           git reset --hard origin/fp-FrogPilot-Staging
-          git clean -fdx
 
       - name: Find commit hash by name and revert
         run: |
@@ -33,6 +36,8 @@ jobs:
           commit=$(cat log.txt | head -n 1 | cut -d " " -f 1)
           echo "Commit to revert: $commit"
           git revert -n $commit
+          # If the revert succeeds, unstash the changes
+          git stash pop || true
           
       - name: Cherry-pick commit
         run: |
