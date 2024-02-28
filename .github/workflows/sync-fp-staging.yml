@@ -31,7 +31,7 @@ jobs:
 
       - name: Revert commit
         run: |
-          git revert -n "Compile FrogPilot"
+          git revert --grep "Compile FrogPilot"
 
       - name: Push changes
         run: |
