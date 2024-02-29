@@ -15,10 +15,6 @@
         <source>Reboot and Update</source>
         <translation>重啟並更新</translation>
     </message>
-    <message>
-        <source>Disable Internet Check</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>AdvancedNetworking</name>
@@ -297,81 +293,6 @@
         <source>Review</source>
         <translation>回顧</translation>
     </message>
-    <message>
-        <source>Delete Driving Data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DELETE</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>This button provides a swift and secure way to permanently delete all stored driving footage and data from your device. Ideal for maintaining privacy or freeing up space.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Are you sure you want to permanently delete all of your driving footage and data?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Flash Panda</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>FLASH</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Are you sure you want to flash the Panda?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Flash</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Soft Reboot</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Are you sure you want to soft reboot?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Disengage to Soft Reboot</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>DriveStats</name>
-    <message>
-        <source>Drives</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hours</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>ALL TIME</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>PAST WEEK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>KM</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Miles</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>DriverViewWindow</name>
@@ -435,10 +356,6 @@
     <message>
         <source>Manage at connect.comma.ai</source>
         <translation>請在 connect.comma.ai 上管理</translation>
-    </message>
-    <message>
-        <source>Manage at %1</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -642,7 +559,7 @@
     </message>
     <message>
         <source>openpilot</source>
-        <translation type="vanished">openpilot</translation>
+        <translation>openpilot</translation>
     </message>
     <message numerus="yes">
         <source>%n minute(s) ago</source>
@@ -677,10 +594,6 @@
     <message>
         <source>ft</source>
         <translation>ft</translation>
-    </message>
-    <message>
-        <source>FrogPilot</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -728,7 +641,7 @@ This may take up to a minute.</source>
     <name>SettingsWindow</name>
     <message>
         <source>×</source>
-        <translation type="vanished">×</translation>
+        <translation>×</translation>
     </message>
     <message>
         <source>Device</source>
@@ -745,26 +658,6 @@ This may take up to a minute.</source>
     <message>
         <source>Software</source>
         <translation>軟體</translation>
-    </message>
-    <message>
-        <source>← Back</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Controls</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Navigation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Vehicles</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Visuals</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -947,10 +840,6 @@ This may take up to a minute.</source>
         <source>5G</source>
         <translation>5G</translation>
     </message>
-    <message>
-        <source>MEMORY</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>SoftwarePanel</name>
@@ -1025,46 +914,6 @@ This may take up to a minute.</source>
     <message>
         <source>never</source>
         <translation>從未更新</translation>
-    </message>
-    <message>
-        <source>Manually</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Daily</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Weekly</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Update Scheduler</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Choose the frequency to automatically update FrogPilot.
-
-This feature will handle the download, installation, and device reboot for a seamless &apos;Set and Forget&apos; update experience.
-
-Weekly updates start at midnight every Sunday.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Update Time</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select a time to automatically update</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error Log</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>VIEW</source>
-        <translation type="unfinished">觀看</translation>
     </message>
 </context>
 <context>
