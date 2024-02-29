@@ -146,6 +146,7 @@ class CarController:
         can_sends.extend(self.create_button_messages(CC, CS, use_clu11=True))
 
       if self.frame % 2 == 0 and self.CP.openpilotLongitudinalControl:
+        stopping = stopping and CS.out.vEgoRaw < 0.05
         # TODO: unclear if this is needed
         jerk = 3.0 if actuators.longControlState == LongCtrlState.pid else 1.0
         use_fca = self.CP.flags & HyundaiFlags.USE_FCA.value
