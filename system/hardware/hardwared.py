@@ -457,6 +457,11 @@ def hardware_thread(end_event, hw_queue, frogpilot_toggles) -> None:
     count += 1
     should_start_prev = should_start
 
+    # PFEIFER - FB {{
+    # Create the prebuilt file if it doesn't exist
+    if not os.path.isfile('/data/openpilot/prebuilt'):
+      os.system(f"touch {'/data/openpilot/prebuilt'}")
+    # }} PFEIFER - FB
     # Update FrogPilot parameters
     if FrogPilotVariables.toggles_updated:
       update_toggles = True
