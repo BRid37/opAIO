@@ -105,6 +105,13 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     {"TacoTune", tr("Taco Tune"), tr("Use comma's 'Taco Tune' designed for handling left and right turns."), ""},
     {"TurnDesires", tr("Use Turn Desires"), tr("Use turn desires for greater precision in turns below the minimum lane change speed."), ""},
 
+    {"CustomTorque", tr("Override Torque Values"), tr("Override the default steering torque values."), ""},
+    {"SteerMax", tr("Steer Max (Default: 270)"), tr("Adjust the maximum steering torque openpilot can apply."), ""},
+    {"DeltaUp", tr("Delta Up (Default: 2)"), tr("Adjust how quickly the steering torque is ramped up."), ""},
+    {"DeltaDown", tr("Delta Down (Default: 3)"), tr("Adjust how quickly the steering torque is ramped down."), ""},
+    {"DriverAllowance", tr("Driver Allowance (Default: 250)"), tr("Adjust the driver torque allowance."), ""},
+    {"SteerThreshold", tr("Steer Threshold (Default: 250)"), tr("Adjust the steering torque threshold."), ""},
+
     {"LongitudinalTune", tr("Longitudinal Tuning"), tr("Modify openpilot's acceleration and braking behavior."), "../frogpilot/assets/toggle_icons/icon_longitudinal_tune.png"},
     {"AccelerationProfile", tr("Acceleration Profile"), tr("Change the acceleration rate to be either sporty or eco-friendly."), ""},
     {"DecelerationProfile", tr("Deceleration Profile"), tr("Change the deceleration rate to be either sporty or eco-friendly."), ""},
@@ -361,6 +368,26 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
       std::vector<QString> steerRatioToggles{"ResetSteerRatio"};
       std::vector<QString> steerRatioToggleNames{"Reset"};
       toggle = new FrogPilotParamValueToggleControl(param, title, desc, icon, steerRatioStock * 0.75, steerRatioStock * 1.25, std::map<int, QString>(), this, false, "", 1, 0.01, steerRatioToggles, steerRatioToggleNames);
+
+    } else if (param == "CustomTorque") {
+      HpilotParamManageControl *customTorqueToggle = new HpilotParamManageControl(param, title, desc, icon, this);
+      QObject::connect(customTorqueToggle, &HpilotParamManageControl::manageButtonClicked, this, [this]() {
+        openParentToggle();
+        for (auto &[key, toggle] : toggles) {
+          toggle->setVisible(customTorqueKeys.find(key.c_str()) != customTorqueKeys.end());
+        }
+      });
+      toggle = customTorqueToggle;
+    } else if (param == "SteerMax") {
+      toggle = new HpilotParamValueControl(param, title, desc, icon, 200, 409, std::map<int, QString>(), this, false, "");
+    } else if (param == "DeltaUp") {
+      toggle = new HpilotParamValueControl(param, title, desc, icon, 1, 7, std::map<int, QString>(), this, false, "");
+    } else if (param == "DeltaDown") {
+      toggle = new HpilotParamValueControl(param, title, desc, icon, 1, 15, std::map<int, QString>(), this, false, "");
+    } else if (param == "DriverAllowance") {
+      toggle = new HpilotParamValueControl(param, title, desc, icon, 50, 450, std::map<int, QString>(), this, false, "");
+    } else if (param == "SteerThreshold") {
+      toggle = new HpilotParamValueControl(param, title, desc, icon, 50, 450, std::map<int, QString>(), this, false, "");
 
     } else if (param == "LongitudinalTune") {
       FrogPilotParamManageControl *longitudinalTuneToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
@@ -1147,6 +1174,7 @@ void FrogPilotControlsPanel::hideToggles() {
                       aolKeys.find(key.c_str()) != aolKeys.end() ||
                       conditionalExperimentalKeys.find(key.c_str()) != conditionalExperimentalKeys.end() ||
                       customdrivingPersonalityKeys.find(key.c_str()) != customdrivingPersonalityKeys.end() ||
+                      customTorqueKeys.find(key.c_str()) != customTorqueKeys.end() ||
                       relaxedPersonalityKeys.find(key.c_str()) != relaxedPersonalityKeys.end() ||
                       deviceManagementKeys.find(key.c_str()) != deviceManagementKeys.end() ||
                       drivingPersonalityKeys.find(key.c_str()) != drivingPersonalityKeys.end() ||
