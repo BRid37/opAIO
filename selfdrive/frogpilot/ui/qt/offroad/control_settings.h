@@ -42,11 +42,13 @@ private:
   std::set<QString> conditionalExperimentalKeys = {"CECurves", "CELead", "CENavigation", "CESignal", "CEStopLights", "HideCEMStatusBar"};
   std::set<QString> customdrivingPersonalityKeys = {"AggressivePersonalityProfile", "RelaxedPersonalityProfile", "StandardPersonalityProfile", "TrafficPersonalityProfile"};
   std::set<QString> customTorqueKeys = {"SteerMax", "DeltaUp", "DeltaDown", "DriverAllowance", "SteerThreshold"};
+  std::set<QString> customTuneKeys = {"OfflineLatAccel", "OfflineFriction"};
   std::set<QString> deviceManagementKeys = {"DeviceShutdown", "IncreaseThermalLimits", "LowVoltageShutdown", "NoLogging", "NoUploads", "OfflineMode"};
   std::set<QString> drivingPersonalityKeys = {"CustomPersonalities", "OnroadDistanceButton"};
   std::set<QString> experimentalModeActivationKeys = {"ExperimentalModeViaDistance", "ExperimentalModeViaLKAS", "ExperimentalModeViaTap"};
   std::set<QString> laneChangeKeys = {"LaneChangeTime", "LaneDetectionWidth", "MinimumLaneChangeSpeed", "NudgelessLaneChange", "OneLaneChange"};
-  std::set<QString> lateralTuneKeys = {"CustomTorque", "ForceAutoTune", "NNFF", "NNFFLite", "SteerRatio", "TacoTune", "TurnDesires"};
+  std::set<QString> lateralTuneKeys = {"OfflineTune", "LiveTune", "CustomTorque", "ForceAutoTune", "NNFF", "NNFFLite", "SteerRatio", "TacoTune", "TurnDesires"};
+  std::set<QString> liveTuneKeys = {"LiveLatAccel", "LiveFriction"};
   std::set<QString> longitudinalTuneKeys = {"AccelerationProfile", "AggressiveAcceleration", "DecelerationProfile", "LeadDetectionThreshold", "SmoothBraking", "StoppingDistance", "TrafficMode"};
   std::set<QString> mtscKeys = {"DisableMTSCSmoothing", "MTSCAggressiveness", "MTSCCurvatureCheck"};
   std::set<QString> qolKeys = {"CustomCruise", "CustomCruiseLong", "ForceStandstill", "MapGears", "PauseLateralSpeed", "ReverseCruise", "SetSpeedOffset"};

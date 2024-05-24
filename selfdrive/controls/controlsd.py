@@ -585,6 +585,10 @@ class Controls:
   def state_control(self, CS):
     """Given the state, this function returns a CarControl packet"""
 
+    self.live_tune = self.params.get_bool("LiveTune")
+    self.live_lat_accel = self.params.get_float("LiveLatAccel")
+    self.live_friction = self.params.get_float("LiveFriction")
+
     # Update VehicleModel
     lp = self.sm['liveParameters']
     x = max(lp.stiffnessFactor, 0.1)
@@ -595,8 +599,13 @@ class Controls:
     if self.CP.lateralTuning.which() == 'torque':
       torque_params = self.sm['liveTorqueParameters']
       if self.sm.all_checks(['liveTorqueParameters']) and (torque_params.useParams or self.frogpilot_toggles.force_auto_tune):
-        self.LaC.update_live_torque_params(torque_params.latAccelFactorFiltered, torque_params.latAccelOffsetFiltered,
-                                           torque_params.frictionCoefficientFiltered)
+        if not self.live_tune:
+          self.LaC.update_live_torque_params(torque_params.latAccelFactorFiltered, torque_params.latAccelOffsetFiltered,
+                                            torque_params.frictionCoefficientFiltered)
+        else:
+          self.LaC.update_live_torque_params(self.live_lat_accel, torque_params.latAccelOffsetFiltered,
+                                            self.live_friction)
+
 
     long_plan = self.sm['longitudinalPlan']
     model_v2 = self.sm['modelV2']
