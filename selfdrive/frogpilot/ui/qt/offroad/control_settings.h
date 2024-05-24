@@ -47,7 +47,7 @@ private:
   std::set<QString> drivingPersonalityKeys = {"CustomPersonalities", "OnroadDistanceButton"};
   std::set<QString> experimentalModeActivationKeys = {"ExperimentalModeViaDistance", "ExperimentalModeViaLKAS", "ExperimentalModeViaTap"};
   std::set<QString> laneChangeKeys = {"LaneChangeTime", "LaneDetectionWidth", "MinimumLaneChangeSpeed", "NudgelessLaneChange", "OneLaneChange"};
-  std::set<QString> lateralTuneKeys = {"OfflineTune", "LiveTune", "CustomTorque", "ForceAutoTune", "NNFF", "NNFFLite", "SteerRatio", "TacoTune", "TurnDesires"};
+  std::set<QString> lateralTuneKeys = {"OfflineTune", "LiveTune", "CustomTorque", "ForceAutoTune", "NNFF", "LateralJerk", "SteerRatio", "TacoTune", "TurnDesires"};
   std::set<QString> liveTuneKeys = {"LiveLatAccel", "LiveFriction"};
   std::set<QString> longitudinalTuneKeys = {"AccelerationProfile", "AggressiveAcceleration", "DecelerationProfile", "LeadDetectionThreshold", "SmoothBraking", "StoppingDistance", "TrafficMode"};
   std::set<QString> mtscKeys = {"DisableMTSCSmoothing", "MTSCAggressiveness", "MTSCCurvatureCheck"};
