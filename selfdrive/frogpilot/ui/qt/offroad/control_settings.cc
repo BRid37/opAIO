@@ -311,9 +311,9 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
                relaxedPersonalityKeys.find(param) != relaxedPersonalityKeys.end()) {
       if (param == "TrafficFollow" || param == "AggressiveFollow" || param == "StandardFollow" || param == "RelaxedFollow") {
         if (param == "TrafficFollow") {
-          toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.5, 5, std::map<int, QString>(), this, false, tr(" seconds"), 1, 0.01);
+          toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.10, 5, std::map<int, QString>(), this, false, tr(" seconds"), 1, 0.01);
         } else {
-          toggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 5, std::map<int, QString>(), this, false, tr(" seconds"), 1, 0.01);
+          toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.50, 5, std::map<int, QString>(), this, false, tr(" seconds"), 1, 0.01);
         }
       } else {
         toggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 500, std::map<int, QString>(), this, false, "%");
