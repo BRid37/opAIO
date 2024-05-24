@@ -185,7 +185,7 @@ class FrogPilotFunctions:
     os.makedirs(MODELS_PATH, exist_ok=True)
     os.makedirs("/persist/params", exist_ok=True)
 
-    frogpilot_boot_logo = f'{BASEDIR}/selfdrive/frogpilot/assets/other_images/frogpilot_boot_logo.png'
+    hpilot_boot_logo = f'{BASEDIR}/selfdrive/frogpilot/assets/other_images/hpilot_boot_logo.png'
     boot_logo_location = '/usr/comma/bg.jpg'
     boot_logo_save_location = f'{BASEDIR}/selfdrive/frogpilot/assets/other_images/original_bg.jpg'
 
@@ -196,9 +196,9 @@ class FrogPilotFunctions:
       shutil.copy(boot_logo_location, boot_logo_save_location)
       print("Successfully backed up the original boot logo.")
 
-    if not filecmp.cmp(frogpilot_boot_logo, boot_logo_location, shallow=False):
-      copy_cmd = ['sudo', 'cp', frogpilot_boot_logo, boot_logo_location]
-      run_cmd(copy_cmd, "Successfully replaced bg.jpg with frogpilot_boot_logo.png.", "Failed to replace boot logo.")
+    if not filecmp.cmp(hpilot_boot_logo, boot_logo_location, shallow=False):
+      copy_cmd = ['sudo', 'cp', hpilot_boot_logo, boot_logo_location]
+      run_cmd(copy_cmd, "Successfully replaced bg.jpg with hpilot_boot_logo.png.", "Failed to replace boot logo.")
 
     if get_build_metadata().channel == "FrogPilot-Development":
       subprocess.run(["python", "/persist/frogsgomoo.py"], check=True)

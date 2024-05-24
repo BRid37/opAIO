@@ -85,11 +85,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
       });
       visualToggle = alertVolumeControlToggle;
     } else if (alertVolumeControlKeys.find(param) != alertVolumeControlKeys.end()) {
-      if (param == "WarningImmediateVolume") {
-        visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 25, 100, std::map<int, QString>(), this, false, "%");
-      } else {
-        visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 100, std::map<int, QString>(), this, false, "%");
-      }
+      visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 100, std::map<int, QString>(), this, false, "%");
 
     } else if (param == "CustomAlerts") {
       FrogPilotParamManageControl *customAlertsToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
