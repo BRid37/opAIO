@@ -474,6 +474,12 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"DeltaDown", PERSISTENT},
     {"DeltaUp", PERSISTENT},
     {"DriverAllowance", PERSISTENT},
+    {"LiveFriction", PERSISTENT},
+    {"LiveLatAccel", PERSISTENT},
+    {"LiveTune", PERSISTENT},
+    {"OfflineFriction", PERSISTENT},
+    {"OfflineLatAccel", PERSISTENT},
+    {"OfflineTune", PERSISTENT},
     {"SteerMax", PERSISTENT},
     {"SteerThreshold", PERSISTENT}
 };

@@ -105,6 +105,13 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     {"TacoTune", tr("Taco Tune"), tr("Use comma's 'Taco Tune' designed for handling left and right turns."), ""},
     {"TurnDesires", tr("Use Turn Desires"), tr("Use turn desires for greater precision in turns below the minimum lane change speed."), ""},
 
+    {"OfflineTune", tr("Custom Offline Tune"), tr("Set custom offline lateral acceleration and friction values for the torque controller. Overrides the default values in params.toml."), ""},
+    {"LiveTune", tr("Custom Live Tune"), tr("Set live tuning values that will be used immediately."), ""},
+    {"OfflineLatAccel", tr("Offline Lat. Accel. Factor"), tr("Set a custom lateral acceleration factor value."), ""},
+    {"OfflineFriction", tr("Offline Friction Coefficient"), tr("Set a custom friction coefficient value."), ""},
+    {"LiveLatAccel", tr("Live Lat. Accel."), tr("Set a custom live lateral acceleration factor value."), ""},
+    {"LiveFriction", tr("Live Friction"), tr("Set a custom live friction coefficient value"), ""},
+
     {"CustomTorque", tr("Override Torque Values"), tr("Override the default steering torque values."), ""},
     {"SteerMax", tr("Steer Max (Default: 270)"), tr("Adjust the maximum steering torque openpilot can apply."), ""},
     {"DeltaUp", tr("Delta Up (Default: 2)"), tr("Adjust how quickly the steering torque is ramped up."), ""},
@@ -369,9 +376,36 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
       std::vector<QString> steerRatioToggleNames{"Reset"};
       toggle = new FrogPilotParamValueToggleControl(param, title, desc, icon, steerRatioStock * 0.75, steerRatioStock * 1.25, std::map<int, QString>(), this, false, "", 1, 0.01, steerRatioToggles, steerRatioToggleNames);
 
+    } else if (param == "OfflineTune") {
+      FrogPilotParamManageControl *customTuneToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
+      QObject::connect(customTuneToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
+        openParentToggle();
+        for (auto &[key, toggle] : toggles) {
+          toggle->setVisible(customTuneKeys.find(key.c_str()) != customTuneKeys.end());
+        }
+      });
+      toggle = customTuneToggle;
+    } else if (param == "OfflineLatAccel") {
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.0, 5.0, std::map<int, QString>(), this, false, "", 1, 0.01);
+    } else if (param == "OfflineFriction") {
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.0, 1.0, std::map<int, QString>(), this, false, "", 1, 0.01);
+    } else if (param == "LiveTune") {
+      FrogPilotParamManageControl *liveTuneToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
+      QObject::connect(liveTuneToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
+        openParentToggle();
+        for (auto &[key, toggle] : toggles) {
+          toggle->setVisible(liveTuneKeys.find(key.c_str()) != liveTuneKeys.end());
+        }
+      });
+      toggle = liveTuneToggle;
+    } else if (param == "LiveLatAccel") {
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.0, 5.0, std::map<int, QString>(), this, false, "", 1, 0.01);
+    } else if (param == "LiveFriction") {
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.0, 1.0, std::map<int, QString>(), this, false, "", 1, 0.01);
+
     } else if (param == "CustomTorque") {
-      HpilotParamManageControl *customTorqueToggle = new HpilotParamManageControl(param, title, desc, icon, this);
-      QObject::connect(customTorqueToggle, &HpilotParamManageControl::manageButtonClicked, this, [this]() {
+      FrogPilotParamManageControl *customTorqueToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
+      QObject::connect(customTorqueToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
         openParentToggle();
         for (auto &[key, toggle] : toggles) {
           toggle->setVisible(customTorqueKeys.find(key.c_str()) != customTorqueKeys.end());
@@ -379,15 +413,15 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
       });
       toggle = customTorqueToggle;
     } else if (param == "SteerMax") {
-      toggle = new HpilotParamValueControl(param, title, desc, icon, 200, 409, std::map<int, QString>(), this, false, "");
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 200, 409, std::map<int, QString>(), this, false, "");
     } else if (param == "DeltaUp") {
-      toggle = new HpilotParamValueControl(param, title, desc, icon, 1, 7, std::map<int, QString>(), this, false, "");
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 7, std::map<int, QString>(), this, false, "");
     } else if (param == "DeltaDown") {
-      toggle = new HpilotParamValueControl(param, title, desc, icon, 1, 15, std::map<int, QString>(), this, false, "");
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 15, std::map<int, QString>(), this, false, "");
     } else if (param == "DriverAllowance") {
-      toggle = new HpilotParamValueControl(param, title, desc, icon, 50, 450, std::map<int, QString>(), this, false, "");
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 50, 450, std::map<int, QString>(), this, false, "");
     } else if (param == "SteerThreshold") {
-      toggle = new HpilotParamValueControl(param, title, desc, icon, 50, 450, std::map<int, QString>(), this, false, "");
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 50, 450, std::map<int, QString>(), this, false, "");
 
     } else if (param == "LongitudinalTune") {
       FrogPilotParamManageControl *longitudinalTuneToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
@@ -1175,12 +1209,14 @@ void FrogPilotControlsPanel::hideToggles() {
                       conditionalExperimentalKeys.find(key.c_str()) != conditionalExperimentalKeys.end() ||
                       customdrivingPersonalityKeys.find(key.c_str()) != customdrivingPersonalityKeys.end() ||
                       customTorqueKeys.find(key.c_str()) != customTorqueKeys.end() ||
+                      customTuneKeys.find(key.c_str()) != customTuneKeys.end() ||
                       relaxedPersonalityKeys.find(key.c_str()) != relaxedPersonalityKeys.end() ||
                       deviceManagementKeys.find(key.c_str()) != deviceManagementKeys.end() ||
                       drivingPersonalityKeys.find(key.c_str()) != drivingPersonalityKeys.end() ||
                       experimentalModeActivationKeys.find(key.c_str()) != experimentalModeActivationKeys.end() ||
                       laneChangeKeys.find(key.c_str()) != laneChangeKeys.end() ||
                       lateralTuneKeys.find(key.c_str()) != lateralTuneKeys.end() ||
+                      liveTuneKeys.find(key.c_str()) != liveTuneKeys.end() ||
                       longitudinalTuneKeys.find(key.c_str()) != longitudinalTuneKeys.end() ||
                       mtscKeys.find(key.c_str()) != mtscKeys.end() ||
                       qolKeys.find(key.c_str()) != qolKeys.end() ||
