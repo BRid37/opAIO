@@ -94,7 +94,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     {"LateralTune", tr("Lateral Tuning"), tr("Modify openpilot's steering behavior."), "../frogpilot/assets/toggle_icons/icon_lateral_tune.png"},
     {"ForceAutoTune", tr("Force Auto Tune"), tr("Forces comma's auto lateral tuning for unsupported vehicles."), ""},
     {"NNFF", tr("NNFF"), tr("Use Twilsonco's Neural Network Feedforward for enhanced precision in lateral control."), ""},
-    {"NNFFLite", tr("NNFF-Lite"), tr("Use Twilsonco's Neural Network Feedforward for enhanced precision in lateral control for cars without available NNFF logs."), ""},
+    {"LateralJerk", tr("Use Lateral Jerk"), tr("Add Twilsonco's lateral jerk to the stock torque controller for enhanced lateral control."), ""},
     {"SteerRatio", steerRatioStock != 0 ? QString(tr("Steer Ratio (Default: %1)")).arg(QString::number(steerRatioStock, 'f', 2)) : tr("Steer Ratio"), tr("Use a custom steer ratio as opposed to comma's auto tune value."), ""},
     {"TacoTune", tr("Taco Tune"), tr("Use comma's 'Taco Tune' designed for handling left and right turns."), ""},
     {"TurnDesires", tr("Use Turn Desires"), tr("Use turn desires for greater precision in turns below the minimum lane change speed."), ""},
@@ -361,11 +361,11 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
 
           if (hasCommaNNFFSupport) {
             modifiedLateralTuneKeys.erase("NNFF");
-            modifiedLateralTuneKeys.erase("NNFFLite");
-          } else if (hasNNFFLog) {
-            modifiedLateralTuneKeys.erase("NNFFLite");
-          } else {
+            modifiedLateralTuneKeys.erase("LateralJerk");
+          } else if (!hasNNFFLog) {
             modifiedLateralTuneKeys.erase("NNFF");
+          } else if (params.getBool("NNFF")){
+            modifiedLateralTuneKeys.erase("LateralJerk");
           }
 
           toggle->setVisible(modifiedLateralTuneKeys.find(key.c_str()) != modifiedLateralTuneKeys.end());
@@ -917,7 +917,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     }
   });
 
-  std::set<QString> rebootKeys = {"AlwaysOnLateral", "NNFF", "NNFFLite"};
+  std::set<QString> rebootKeys = {"AlwaysOnLateral", "NNFF", "LateralJerk"};
   for (const QString &key : rebootKeys) {
     QObject::connect(static_cast<ToggleControl*>(toggles[key.toStdString().c_str()]), &ToggleControl::toggleFlipped, [this, key](bool state) {
       if (started) {
