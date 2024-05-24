@@ -52,6 +52,9 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent), scene(uiStat
   // install update btn
   installBtn = new ButtonControl(tr("Install Update"), tr("INSTALL"));
   connect(installBtn, &ButtonControl::clicked, [=]() {
+    // PFEIFER - FB {{
+    QProcess::execute("rm -f /data/openpilot/prebuilt"); // Remove the prebuilt file when installing updates
+    // }} PFEIFER - FB
     installBtn->setEnabled(false);
     params.putBool("DoReboot", true);
   });
