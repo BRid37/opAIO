@@ -30,8 +30,8 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   addItem(versionLbl);
 
   // automatic updates toggle
-  ParamControl *automaticUpdatesToggle = new ParamControl("AutomaticUpdates", tr("Automatically Update FrogPilot"),
-                                                       tr("FrogPilot will automatically update itself and it's assets when you're offroad and connected to Wi-Fi."), "");
+  ParamControl *automaticUpdatesToggle = new ParamControl("AutomaticUpdates", tr("Automatically Update Hpilot"),
+                                                       tr("Hpilot will automatically update itself and it's assets when you're offroad and connected to Wi-Fi."), "");
   connect(automaticUpdatesToggle, &ToggleControl::toggleFlipped, this, updateFrogPilotToggles);
   addItem(automaticUpdatesToggle);
 
