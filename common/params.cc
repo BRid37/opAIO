@@ -354,7 +354,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"MTSCCurvatureCheck", PERSISTENT},
     {"MTSCEnabled", PERSISTENT},
     {"NNFF", PERSISTENT},
-    {"NNFFLite", PERSISTENT},
+    {"LateralJerk", PERSISTENT},
     {"NNFFModelName", PERSISTENT},
     {"NoLogging", PERSISTENT},
     {"NoUploads", PERSISTENT},

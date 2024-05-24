@@ -214,7 +214,7 @@ def manager_init(frogpilot_functions) -> None:
     ("ModelUI", "1"),
     ("MTSCEnabled", "1"),
     ("NNFF", "1"),
-    ("NNFFLite", "1"),
+    ("LateralJerk", "1"),
     ("NoLogging", "0"),
     ("NoUploads", "0"),
     ("NudgelessLaneChange", "1"),

@@ -97,7 +97,7 @@ def capture_fingerprint(params, candidate, blocked=False):
     "TrafficFollow", "TrafficJerkAcceleration", "TrafficJerkSpeed", "AggressivePersonalityProfile", "AggressiveFollow", "AggressiveJerkAcceleration",
     "AggressiveJerkSpeed", "StandardPersonalityProfile", "StandardFollow", "StandardJerkAcceleration", "StandardJerkSpeed", "RelaxedPersonalityProfile",
     "RelaxedFollow", "RelaxedJerkAcceleration", "RelaxedJerkSpeed", "OnroadDistanceButton", "KaofuiIcons", "ExperimentalModeActivation",
-    "ExperimentalModeViaLKAS", "ExperimentalModeViaTap", "ExperimentalModeViaDistance", "LateralTune", "ForceAutoTune", "NNFF", "NNFFLite",
+    "ExperimentalModeViaLKAS", "ExperimentalModeViaTap", "ExperimentalModeViaDistance", "LateralTune", "ForceAutoTune", "NNFF", "LateralJerk",
     "SteerRatio", "TacoTune", "TurnDesires", "SteerRatio", "LongitudinalTune", "AccelerationProfile", "DecelerationProfile", "AggressiveAcceleration",
     "StoppingDistance", "LeadDetectionThreshold", "SmoothBraking", "SmoothBrakingFarLead", "SmoothBrakingJerk", "TrafficMode", "MTSCEnabled",
     "DisableMTSCSmoothing", "MTSCCurvatureCheck", "MTSCAggressiveness", "ModelSelector", "Model", "NudgelessLaneChange", "LaneChangeTime",
