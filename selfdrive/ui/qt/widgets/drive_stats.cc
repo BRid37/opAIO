@@ -43,7 +43,7 @@ DriveStats::DriveStats(QWidget* parent) : QFrame(parent) {
 
   add_stats_layouts(tr("ALL TIME"), all_);
   add_stats_layouts(tr("PAST WEEK"), week_);
-  add_stats_layouts(tr("FROGPILOT"), frogPilot_, true);
+  add_stats_layouts(tr("HPILOT"), frogPilot_, true);
 
   if (auto dongleId = getDongleId()) {
     QString url = CommaApi::BASE_URL + "/v1.1/devices/" + *dongleId + "/stats";
@@ -58,7 +58,7 @@ DriveStats::DriveStats(QWidget* parent) : QFrame(parent) {
     }
 
     QLabel[type="title"] { font-size: 50px; font-weight: 500; }
-    QLabel[type="frogpilot_title"] { font-size: 50px; font-weight: 500; color: #178643; }
+    QLabel[type="frogpilot_title"] { font-size: 50px; font-weight: 500; color: #FF9900; }
     QLabel[type="number"] { font-size: 65px; font-weight: 400; }
     QLabel[type="unit"] { font-size: 50px; font-weight: 300; color: #A0A0A0; }
   )");
@@ -68,10 +68,10 @@ void DriveStats::updateStats() {
   QJsonObject json = stats_.object();
 
   auto updateFrogPilot = [this](const QJsonObject& obj, StatsLabels& labels) {
-    labels.routes->setText(QString::number(params.getInt("FrogPilotDrives")));
-    labels.distance->setText(QString::number(int(params.getFloat("FrogPilotKilometers") * (metric_ ? 1 : KM_TO_MILE))));
+    labels.routes->setText(QString::number(params.getInt("HpilotDrives")));
+    labels.distance->setText(QString::number(int(params.getFloat("HpilotKilometers") * (metric_ ? 1 : KM_TO_MILE))));
     labels.distance_unit->setText(getDistanceUnit());
-    labels.hours->setText(QString::number(int(params.getFloat("FrogPilotMinutes") / 60)));
+    labels.hours->setText(QString::number(int(params.getFloat("HpilotMinutes") / 60)));
   };
 
   updateFrogPilot(json["frogpilot"].toObject(), frogPilot_);
