@@ -600,13 +600,14 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::ModelDataV
 
   float g_xo = sz / 5;
   float g_yo = sz / 10;
+  float homebase_h = 12;
 
-  QPointF glow[] = {{x + (sz * 1.35) + g_xo, y + sz + g_yo}, {x, y - g_yo}, {x - (sz * 1.35) - g_xo, y + sz + g_yo}};
+  QPointF glow[] = {{x + (sz * 1.35) + g_xo, y + sz + g_yo + homebase_h},{x + (sz * 1.35) + g_xo, y + sz + g_yo}, {x, y - g_yo}, {x - (sz * 1.35) - g_xo, y + sz + g_yo},{x - (sz * 1.35) - g_xo, y + sz + g_yo + homebase_h}, {x, y + sz + homebase_h + g_yo + 10}};
   painter.setBrush(QColor(218, 202, 37, 255));
   painter.drawPolygon(glow, std::size(glow));
 
   // chevron
-  QPointF chevron[] = {{x + (sz * 1.25), y + sz}, {x, y}, {x - (sz * 1.25), y + sz}};
+  QPointF chevron[] = {{x + (sz * 1.25), y + sz + homebase_h},{x + (sz * 1.25), y + sz}, {x, y}, {x - (sz * 1.25), y + sz},{x - (sz * 1.25), y + sz + homebase_h}, {x, y + sz + homebase_h - 7}};
   if (currentHolidayTheme != 0) {
     painter.setBrush(std::get<2>(holidayThemeConfiguration[currentHolidayTheme]).begin()->second);
   } else if (customColors != 0) {
@@ -639,7 +640,224 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::ModelDataV
 
   painter.restore();
 }
+// Lead car lockon by programanichiro
+struct LeadcarLockon {
+  float x,y,d,a,lxt,lxf,lockOK;
+};
+#define LeadcarLockon_MAX 5
+LeadcarLockon leadcar_lockon[LeadcarLockon_MAX];
 
+void AnnotatedCameraWidget::drawLockon(QPainter &painter, const cereal::ModelDataV2::LeadDataV3::Reader &lead_data, const QPointF &vd , int num) {
+
+  const float d_rel = lead_data.getX()[0];
+  float a_rel = lead_data.getA()[0];
+
+  float sz = std::clamp((25 * 30) / (d_rel / 3 + 30), 15.0f, 30.0f) * 2.35;
+  float x = std::clamp((float)vd.x(), 0.f, width() - sz / 2);
+  float y = (float)vd.y();
+
+  painter.setCompositionMode(QPainter::CompositionMode_Plus);
+
+  float prob_alpha = lead_data.getProb();
+  if(prob_alpha < 0){
+    prob_alpha = 0;
+  } else if(prob_alpha > 1.0){
+    prob_alpha = 1.0;
+  }
+  prob_alpha *= 245;
+
+  painter.setPen(QPen(QColor(0.09*255, 0.945*255, 0.26*255, prob_alpha), 2));
+  painter.setBrush(QColor(0, 0, 0, 0));
+  float ww = 300 , hh = 300;
+  if(Hardware::TICI()){
+    ww *= 1.25; hh *= 1.25;
+  }
+  float d = d_rel;
+  if(d < 1){
+    d = 1;
+  }
+
+  leadcar_lockon[num].x = leadcar_lockon[num].x + (x - leadcar_lockon[num].x) / 6;
+  leadcar_lockon[num].y = leadcar_lockon[num].y + (y - leadcar_lockon[num].y) / 6;
+  leadcar_lockon[num].d = leadcar_lockon[num].d + (d - leadcar_lockon[num].d) / 6;
+  x = leadcar_lockon[num].x;
+  y = leadcar_lockon[num].y;
+  d = leadcar_lockon[num].d;
+  if(d < 1){
+    d = 1;
+  }
+
+  leadcar_lockon[num].a = leadcar_lockon[num].a + (a_rel - leadcar_lockon[num].a) / 10;
+  a_rel = leadcar_lockon[num].a;
+
+  float dh = 50;
+  if(uiState()->scene.wide_cam == false) {
+    float dd = d;
+    dd -= 25;
+    dd /= (75.0/2);
+    dd += 1;
+    if(dd < 1)dd = 1;
+    dh /= dd;
+  } else {
+    ww *= 0.5; hh *= 0.5;
+    dh = 100;
+    float dd = d;
+    dd -= 5;
+    dd /= (95.0/10);
+    dd += 1;
+    if(dd < 1)dd = 1;
+    dh /= dd*dd;
+  }
+
+  ww = ww * 2 * 5 / d;
+  hh = hh * 2 * 5 / d;
+  y = std::fmin(height(), y - dh) + dh;
+  QRect r = QRect(x - ww/2, y - hh - dh, ww, hh);
+
+#if 0
+  float y0 = lead0.getY()[0];
+  float y1 = lead1.getY()[0];
+#else
+  float y0 = leadcar_lockon[0].x * leadcar_lockon[0].d;
+  float y1 = leadcar_lockon[1].x * leadcar_lockon[1].d;
+#endif
+
+  painter.setFont(InterFont(38, QFont::DemiBold));
+  if(num == 0){
+    painter.setPen(QPen(QColor(0.09*255, 0.945*255, 0.26*255, prob_alpha), 2));
+    painter.drawRect(r);
+
+    if(leadcar_lockon[0].x > leadcar_lockon[1].x - 20){
+      leadcar_lockon[num].lxt = leadcar_lockon[num].lxt + (r.right() - leadcar_lockon[num].lxt) / 20;
+      leadcar_lockon[num].lxf = leadcar_lockon[num].lxf + (width() - leadcar_lockon[num].lxf) / 20;
+    } else {
+      leadcar_lockon[num].lxt = leadcar_lockon[num].lxt + (r.left() - leadcar_lockon[num].lxt) / 20;
+      leadcar_lockon[num].lxf = leadcar_lockon[num].lxf + (0 - leadcar_lockon[num].lxf) / 20;
+    }
+    painter.drawText(r, Qt::AlignTop | Qt::AlignLeft, " " + QString::number(num+1));
+
+    float lxt = leadcar_lockon[num].lxt;
+    if(lxt < r.left()){
+      lxt = r.left();
+    } else if(lxt > r.right()){
+      lxt = r.right();
+    }
+    painter.drawLine(lxt,r.top() , leadcar_lockon[num].lxf , 0);
+    if(ww >= 40){
+      painter.setPen(Qt::NoPen);
+      float wwa = ww * 0.15;
+      if(wwa > 40){
+        wwa = 40;
+      } else if(wwa < 10){
+        wwa = 10;
+      }
+      if(wwa > ww){
+        wwa = ww;
+      }
+
+      float hha = 0;
+      if(a_rel > 0){
+        hha = 1 - 0.1 / a_rel;
+        painter.setBrush(QColor(0.09*255, 0.945*255, 0.26*255, prob_alpha*0.9));
+
+        if(hha < 0){
+          hha = 0;
+        }
+        hha = hha * hh;
+#if 0
+        QRect ra = QRect(x - ww/2 + (ww - wwa), y - hh - dh + (hh-hha), wwa, hha);
+        painter.drawRect(ra);
+#else
+        QPointF meter[] = {{(float)x + ww/2 - wwa/2 - wwa/2 * hha / hh , (float)y - hh - dh + (hh-hha)},{(float)x + ww/2 , (float)y - hh - dh + (hh-hha)}, {(float)x + ww/2 , (float)y - hh - dh + hh}, {(float)x + ww/2 - wwa/2 , (float)y - hh - dh + hh}};
+        painter.drawPolygon(meter, std::size(meter));
+#endif
+      }
+      if(a_rel < 0){
+        hha = 1 + 0.1 / a_rel;
+        painter.setBrush(QColor(245, 0, 0, prob_alpha));
+        if(hha < 0){
+          hha = 0;
+        }
+        hha = hha * hh;
+#if 0
+        QRect ra = QRect(x - ww/2 + (ww - wwa), y - hh - dh , wwa, hha);
+        painter.drawRect(ra);
+#else
+        QPointF meter[] = {{(float)x + ww/2 - wwa/2 , (float)y - hh - dh},{(float)x + ww/2 , (float)y - hh - dh}, {(float)x + ww/2 , (float)y - hh - dh + hha}, {(float)x + ww/2 - wwa/2 - wwa/2 * hha / hh, (float)y - hh - dh + hha}};
+        painter.drawPolygon(meter, std::size(meter));
+#endif
+      }
+    }
+
+    if(std::abs(y0 - y1) <= 300) {
+      leadcar_lockon[num].lockOK = leadcar_lockon[num].lockOK + (40 - leadcar_lockon[num].lockOK) / 5;
+    } else {
+      leadcar_lockon[num].lockOK = leadcar_lockon[num].lockOK + (0 - leadcar_lockon[num].lockOK) / 5;
+    }
+    float td = leadcar_lockon[num].lockOK;
+    if(td >= 3){
+      float dd = leadcar_lockon[num].d;
+      if(dd < 10){
+        dd = 10;
+      }
+      dd -= 10;
+      dd /= (90.0/2);
+      dd += 1;
+      td /= dd;
+
+      float tlw = 8;
+      float tlw_2 = tlw / 2;
+      painter.setPen(QPen(QColor(0.09*255, 0.945*255, 0.26*255, prob_alpha), tlw));
+      painter.drawLine(r.center().x() , r.top()-tlw_2 , r.center().x() , r.top() - td);
+      painter.drawLine(r.left()-tlw_2 , r.center().y() , r.left() - td , r.center().y());
+      painter.drawLine(r.right()+tlw_2 , r.center().y() , r.right() + td , r.center().y());
+      painter.drawLine(r.center().x() , r.bottom()+tlw_2 , r.center().x() , r.bottom() + td);
+    }
+
+  } else if(true){
+    if(num == 1){
+      if(std::abs(y0 - y1) > 300) {
+        painter.setPen(QPen(QColor(245, 0, 0, prob_alpha), 2));
+      } else {
+        painter.setPen(QPen(QColor(0.09*255, 0.945*255, 0.26*255, prob_alpha), 2));
+      }
+
+      if(leadcar_lockon[0].x > leadcar_lockon[1].x - 20){
+        leadcar_lockon[num].lxt = leadcar_lockon[num].lxt + (r.left() - leadcar_lockon[num].lxt) / 20;
+        leadcar_lockon[num].lxf = leadcar_lockon[num].lxf + (0 - leadcar_lockon[num].lxf) / 20;
+      } else {
+        leadcar_lockon[num].lxt = leadcar_lockon[num].lxt + (r.right() - leadcar_lockon[num].lxt) / 20;
+        leadcar_lockon[num].lxf = leadcar_lockon[num].lxf + (width() - leadcar_lockon[num].lxf) / 20;
+      }
+      float lxt = leadcar_lockon[num].lxt;
+      if(lxt < r.left()){
+        lxt = r.left();
+      } else if(lxt > r.right()){
+        lxt = r.right();
+      }
+      painter.drawLine(lxt,r.top() , leadcar_lockon[num].lxf , 0);
+
+    } else if(num == 2){
+      painter.setPen(QPen(QColor(0.09*255, 0.945*255, 0.26*255, prob_alpha), 2));
+    } else {
+      painter.setPen(QPen(QColor(0.09*255, 0.945*255, 0.26*255, prob_alpha), 2));
+    }
+
+    painter.drawRect(r);
+
+    if(ww >= 80){
+      float d_lim = 12;
+      if(wide_cam_requested == false){
+        d_lim = 32;
+      }
+      if(num == 0 || (num==1 && (d_rel < d_lim || std::abs(y0 - y1) > 300))){
+        painter.drawText(r, Qt::AlignBottom | Qt::AlignLeft, " " + QString::number(num+1));
+      }
+    }
+  }
+  painter.setPen(Qt::NoPen);
+  painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+}
 void AnnotatedCameraWidget::paintGL() {
 }
 
@@ -650,6 +868,8 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
   const double start_draw_t = millis_since_boot();
   const cereal::ModelDataV2::Reader &model = sm["modelV2"].getModelV2();
   const float v_ego = sm["carState"].getCarState().getVEgo();
+
+  Params params;
 
   // draw camera frame
   {
@@ -706,6 +926,16 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
 
     if (s->scene.longitudinal_control && sm.rcv_frame("modelV2") > s->scene.started_frame && !s->scene.hide_lead_marker) {
       update_leads(s, model);
+
+      // Lead car lockon by programanichiro
+      const auto leads = model.getLeadsV3();
+      size_t leads_num = leads.size();
+      for(size_t i=0; i<leads_num && i < LeadcarLockon_MAX; i++){
+        if(params.getBool("LeadLockon") && (leads[i].getProb() > .2)){
+          drawLockon(painter, leads[i], s->scene.lead_vertices[i] , i);
+        }
+      }
+
       float prev_drel = -1;
       for (int i = 0; i < model.getLeadsV3().size() && i < 2; i++) {
         const auto &lead = model.getLeadsV3()[i];
