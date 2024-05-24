@@ -75,6 +75,7 @@ private:
   bool hasPCMCruise;
   bool hasDashSpeedLimits;
   bool isGM;
+  bool isHKGCanFd;
   bool isMetric = params.getBool("IsMetric");
   bool isRelease;
   bool isToyota;

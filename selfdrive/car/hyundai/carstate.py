@@ -54,6 +54,9 @@ class CarState(CarStateBase):
 
     # FrogPilot variables
     self.main_enabled = False
+    self.active_mode = 0
+    self.drive_mode = 0
+    self.drive_mode_prev = 0
 
   # Traffic signals for Speed Limit Controller - Credit goes to Multikyd!
   def calculate_speed_limit(self, cp, cp_cam):
@@ -218,6 +221,21 @@ class CarState(CarStateBase):
     gear = cp.vl[self.gear_msg_canfd]["GEAR"]
     ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(gear))
 
+    self.drive_mode = cp.vl["DRIVE_MODE"]["DRIVE_MODE2"]
+
+    if self.drive_mode != 0 and self.drive_mode != self.drive_mode_prev:
+      if self.drive_mode == 2:
+        self.active_mode = 2
+      elif self.drive_mode == 3:
+        self.active_mode = 3
+      else:
+        self.active_mode = 1
+
+      self.drive_mode_prev = self.drive_mode
+
+    fp_ret.ecoGear = self.active_mode == 2
+    fp_ret.sportGear = self.active_mode == 3
+
     # TODO: figure out positions
     ret.wheelSpeeds = self.get_wheel_speeds(
       cp.vl["WHEEL_SPEEDS"]["WHEEL_SPEED_1"],
@@ -380,6 +398,7 @@ class CarState(CarStateBase):
       ("CRUISE_BUTTONS_ALT", 50),
       ("BLINKERS", 4),
       ("DOORS_SEATBELTS", 4),
+      ("DRIVE_MODE", 0),
     ]
 
     if CP.flags & HyundaiFlags.EV:

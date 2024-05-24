@@ -700,7 +700,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
             modifiedQolKeys.erase("SetSpeedOffset");
           }
 
-          if (!isToyota && !isGM) {
+          if (!isToyota && !isGM && !isHKGCanFd) {
             modifiedQolKeys.erase("MapGears");
           }
 
@@ -1059,6 +1059,8 @@ void FrogPilotControlsPanel::updateCarToggles() {
     cereal::CarParams::Reader CP = cmsg.getRoot<cereal::CarParams>();
     auto carFingerprint = CP.getCarFingerprint();
     auto carName = CP.getCarName();
+    auto safetyConfigs = CP.getSafetyConfigs();
+    auto safetyModel = safetyConfigs[0].getSafetyModel();
 
     hasAutoTune = (carName == "hyundai" || carName == "toyota") && CP.getLateralTuning().which() == cereal::CarParams::LateralTuning::TORQUE;
     uiState()->scene.has_auto_tune = hasAutoTune;
@@ -1069,6 +1071,7 @@ void FrogPilotControlsPanel::updateCarToggles() {
     hasPCMCruise = CP.getPcmCruise();
     isGM = carName == "gm";
     isToyota = carName == "toyota";
+    isHKGCanFd = (carName == "hyundai") && (safetyModel == cereal::CarParams::SafetyModel::HYUNDAI_CANFD);
     steerRatioStock = CP.getSteerRatio();
 
     steerRatioToggle->setTitle(QString(tr("Steer Ratio (Default: %1)")).arg(QString::number(steerRatioStock, 'f', 2)));
@@ -1083,6 +1086,7 @@ void FrogPilotControlsPanel::updateCarToggles() {
     hasPCMCruise = true;
     isGM = true;
     isToyota = true;
+    isHKGCanFd = true;
   }
 
   hideToggles();
