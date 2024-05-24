@@ -92,7 +92,6 @@ void OnroadWindow::updateState(const UIState &s) {
   friction = scene.friction;
   hasLead = scene.has_lead;
   latAccel = scene.lat_accel;
-  liveValid = scene.live_valid;
   showBlindspot = scene.show_blind_spot && (blindSpotLeft || blindSpotRight);
   showFPS = scene.show_fps;
   showJerk = scene.show_jerk;
@@ -356,9 +355,7 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
   }
 
   if (showTuning) {
-    logicsDisplayString += liveValid
-        ? QString("Friction: %1 | Lateral Acceleration: %2").arg(friction, 0, 'f', 3).arg(latAccel, 0, 'f', 3)
-        : "Friction: Calculating... | Lateral Acceleration: Calculating...";
+    logicsDisplayString += QString("Friction: %1 | Lateral Acceleration: %2").arg(friction, 0, 'f', 3).arg(latAccel, 0, 'f', 3);
   }
 
   if (logicsDisplayString.endsWith(" | ")) {
