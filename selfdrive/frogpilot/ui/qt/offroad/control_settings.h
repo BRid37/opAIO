@@ -51,7 +51,7 @@ private:
   std::set<QString> liveTuneKeys = {"LiveLatAccel", "LiveFriction"};
   std::set<QString> longitudinalTuneKeys = {"AccelerationProfile", "AggressiveAcceleration", "DecelerationProfile", "LeadDetectionThreshold", "SmoothBraking", "StoppingDistance", "TrafficMode"};
   std::set<QString> mtscKeys = {"DisableMTSCSmoothing", "MTSCAggressiveness", "MTSCCurvatureCheck"};
-  std::set<QString> qolKeys = {"CustomCruise", "CustomCruiseLong", "MapGears", "PauseLateralSpeed", "ReverseCruise", "SetSpeedOffset"};
+  std::set<QString> qolKeys = {"MuteDM", "MuteDoor", "MuteSeatbelt", "CustomCruise", "CustomCruiseLong", "MapGears", "PauseLateralSpeed", "ReverseCruise", "SetSpeedOffset"};
   std::set<QString> relaxedPersonalityKeys = {"RelaxedFollow", "RelaxedJerkAcceleration", "RelaxedJerkSpeed", "ResetRelaxedPersonality"};
   std::set<QString> speedLimitControllerKeys = {"SLCControls", "SLCQOL", "SLCVisuals"};
   std::set<QString> speedLimitControllerControlsKeys = {"Offset1", "Offset2", "Offset3", "Offset4", "SLCFallback", "SLCOverride", "SLCPriority"};

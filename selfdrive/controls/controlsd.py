@@ -118,11 +118,16 @@ class Controls:
 
     self.log_sock = messaging.sub_sock('androidLog')
 
+    mute_dm = self.params_memory.get_bool("MuteDM")
+
     ignore = self.sensor_packets + ['testJoystick']
     if SIMULATION:
       ignore += ['driverCameraState', 'managerState']
     if self.frogpilot_toggles.radarless_model:
       ignore += ['radarState']
+    if mute_dm:
+      ignore += ['driverMonitoringState']
+      self.params.put_bool("DmModelInitialized", True)
     self.sm = messaging.SubMaster(['deviceState', 'pandaStates', 'peripheralState', 'modelV2', 'liveCalibration',
                                    'carOutput', 'driverMonitoringState', 'longitudinalPlan', 'liveLocationKalman',
                                    'managerState', 'liveParameters', 'radarState', 'liveTorqueParameters',

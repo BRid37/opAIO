@@ -396,6 +396,12 @@ def manager_cleanup() -> None:
 
   cloudlog.info("everything is dead")
 
+def update_hpilot_params(started, params, params_memory):
+  keys = ["MuteDoor", "MuteSeatbelt"]
+  if not started:
+    keys.append("MuteDM")
+  for key in keys:
+    params_memory.put_bool(key, params.get_bool(key))
 
 def manager_thread() -> None:
   cloudlog.bind(daemon="manager")
@@ -404,6 +410,8 @@ def manager_thread() -> None:
 
   params = Params()
   params_memory = Params("/dev/shm/params")
+
+  update_hpilot_params(False, params, params_memory)
 
   ignore: list[str] = []
   if params.get("DongleId", encoding='utf8') in (None, UNREGISTERED_DONGLE_ID):

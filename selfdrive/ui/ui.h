@@ -313,6 +313,9 @@ typedef struct UIScene {
   int stopped_equivalence;
   int wheel_icon;
 
+  // Hpilot variables
+  bool mute_dm;
+
   QPolygonF track_adjacent_vertices[6];
   QPolygonF track_edge_vertices;
 
