@@ -259,6 +259,9 @@ typedef struct UIScene {
   int tethering_config;
   int wheel_icon;
 
+  // Hpilot variables
+  bool mute_dm;
+
   QPolygonF track_adjacent_vertices[6];
   QPolygonF track_edge_vertices;
 
