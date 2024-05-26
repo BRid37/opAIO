@@ -1710,7 +1710,7 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
 
   if (customSignals != 0 && (turnSignalLeft || turnSignalRight) && !bigMapOpen) {
     if (!animationTimer->isActive()) {
-      animationTimer->start(totalFrames * 11);  // 440 milliseconds per loop; syncs up perfectly with my 2019 Lexus ES 350 turn signal clicks
+      animationTimer->start(totalFrames);
     }
     drawTurnSignals(p);
   } else if (animationTimer->isActive()) {
