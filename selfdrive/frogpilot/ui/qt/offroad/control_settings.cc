@@ -106,12 +106,12 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     {"LiveLatAccel", tr("Live Lat. Accel."), tr("Set a custom live lateral acceleration factor value."), ""},
     {"LiveFriction", tr("Live Friction"), tr("Set a custom live friction coefficient value"), ""},
 
-    {"CustomTorque", tr("Override Torque Values"), tr("Override the default steering torque values."), ""},
-    {"SteerMax", tr("Steer Max (Default: 270)"), tr("Adjust the maximum steering torque openpilot can apply."), ""},
-    {"DeltaUp", tr("Delta Up (Default: 2)"), tr("Adjust how quickly the steering torque is ramped up."), ""},
-    {"DeltaDown", tr("Delta Down (Default: 3)"), tr("Adjust how quickly the steering torque is ramped down."), ""},
-    {"DriverAllowance", tr("Driver Allowance (Default: 250)"), tr("Adjust the driver torque allowance."), ""},
-    {"SteerThreshold", tr("Steer Threshold (Default: 250)"), tr("Adjust the steering torque threshold."), ""},
+    {"CustomTorque", tr("Custom Steering Torque"), tr("Override the default steering torque values."), ""},
+    {"SteerMax", tr("Steer Max"), tr("Adjust the maximum steering torque openpilot can apply."), ""},
+    {"DeltaUp", tr("Delta Up"), tr("Adjust how quickly the steering torque is ramped up."), ""},
+    {"DeltaDown", tr("Delta Down"), tr("Adjust how quickly the steering torque is ramped down."), ""},
+    {"DriverAllowance", tr("Driver Allowance"), tr("Adjust the driver torque allowance."), ""},
+    {"SteerThreshold", tr("Steer Threshold"), tr("Adjust the steering torque threshold."), ""},
 
     {"LongitudinalTune", tr("Longitudinal Tuning"), tr("Modify openpilot's acceleration and braking behavior."), "../frogpilot/assets/toggle_icons/icon_longitudinal_tune.png"},
     {"AccelerationProfile", tr("Acceleration Profile"), tr("Change the acceleration rate to be either sporty or eco-friendly."), ""},
