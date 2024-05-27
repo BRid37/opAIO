@@ -13,6 +13,9 @@ venv/
 model2.png
 a.out
 .hypothesis
+.devcontainer/
+.vscode/
+.github/
 
 *.dylib
 *.DSYM
