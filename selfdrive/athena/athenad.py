@@ -485,6 +485,10 @@ def startLocalProxy(global_end_event: threading.Event, remote_ws_uri: str, local
     cloudlog.exception("athenad.startLocalProxy.exception")
     raise e
 
+@dispatcher.add_method
+def resetDongle():
+  Params().remove("DongleId")
+  return {"success": 1}
 
 @dispatcher.add_method
 def getPublicKey() -> str | None:
