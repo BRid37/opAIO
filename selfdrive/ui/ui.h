@@ -223,6 +223,7 @@ typedef struct UIScene {
   bool is_storage_left;
   bool is_storage_used;
   bool lead_info;
+  bool live_tune;
   bool live_valid;
   bool map_open;
   bool model_ui;
@@ -278,6 +279,8 @@ typedef struct UIScene {
   float lane_width_left;
   float lane_width_right;
   float lat_accel;
+  float live_friction;
+  float live_lat_accel;
   float path_edge_width;
   float path_width;
   float road_edge_width;
