@@ -295,7 +295,6 @@ static void update_state(UIState *s) {
     if (!scene.live_tune) {
       scene.friction = torque_params.getFrictionCoefficientFiltered();
       scene.lat_accel = torque_params.getLatAccelFactorFiltered();
-      scene.live_valid = torque_params.getLiveValid();
     } else {
       scene.friction = scene.live_friction;
       scene.lat_accel = scene.live_lat_accel;

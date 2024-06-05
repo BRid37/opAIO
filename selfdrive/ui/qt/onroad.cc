@@ -378,13 +378,9 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
       .arg(scene.speed_jerk_difference, 0, 'f', 3);
   }
   if (scene.show_tuning) {
-    if (!scene.live_valid) {
-      logicsDisplayString += "Friction: Calculating... | Lateral Acceleration: Calculating...";
-    } else {
-      logicsDisplayString += QString("Friction: %1 | Lateral Acceleration: %2")
-        .arg(scene.friction, 0, 'f', 3)
-        .arg(scene.lat_accel, 0, 'f', 3);
-    }
+    logicsDisplayString += QString("Friction: %1 | Lateral Acceleration: %2")
+      .arg(scene.friction, 0, 'f', 3)
+      .arg(scene.lat_accel, 0, 'f', 3);
   }
   if (logicsDisplayString.endsWith(" | ")) {
     logicsDisplayString.chop(3);
