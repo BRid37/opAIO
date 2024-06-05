@@ -1706,7 +1706,7 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
 
   if (customSignals != 0 && (turnSignalLeft || turnSignalRight) && !bigMapOpen) {
     if (!animationTimer->isActive()) {
-      animationTimer->start(totalFrames - 4);
+      animationTimer->start(totalFrames / 4);
     }
     drawTurnSignals(p);
   } else if (animationTimer->isActive()) {
