@@ -73,6 +73,7 @@ class Controls:
     # FrogPilot variables
     self.frogpilot_toggles = FrogPilotVariables.toggles
 
+    self.aol_disabled_via_lkas = False
     self.drive_added = False
     self.fcw_random_event_triggered = False
     self.holiday_theme_alerted = False
@@ -1103,6 +1104,7 @@ class Controls:
     self.FPCC.alwaysOnLateral &= CS.cruiseState.available
     self.FPCC.alwaysOnLateral &= self.driving_gear
     self.FPCC.alwaysOnLateral &= self.frogpilot_toggles.always_on_lateral
+    self.FPCC.alwaysOnLateral &= not self.aol_disabled_via_lkas
     self.FPCC.alwaysOnLateral &= self.speed_check
     self.FPCC.alwaysOnLateral &= not (CS.brakePressed and CS.vEgo < self.frogpilot_toggles.always_on_lateral_pause_speed) or CS.standstill
 
@@ -1139,13 +1141,8 @@ class Controls:
 
         self.drive_added = True
 
-    if any(be.pressed and be.type == FrogPilotButtonType.lkas for be in CS.buttonEvents) and self.frogpilot_toggles.experimental_mode_via_lkas:
-      if self.frogpilot_toggles.conditional_experimental_mode:
-        conditional_status = self.params_memory.get_int("CEStatus")
-        override_value = 0 if conditional_status in {1, 2, 3, 4, 5, 6} else 3 if conditional_status >= 7 else 4
-        self.params_memory.put_int("CEStatus", override_value)
-      else:
-        self.params.put_bool_nonblocking("ExperimentalMode", not self.experimental_mode)
+    if any(be.pressed and be.type == FrogPilotButtonType.lkas for be in CS.buttonEvents):
+      self.aol_disabled_via_lkas = not self.aol_disabled_via_lkas
 
     self.previously_enabled |= (self.enabled or self.FPCC.alwaysOnLateral) and CS.vEgo > CRUISING_SPEED
     self.previously_enabled &= self.driving_gear
