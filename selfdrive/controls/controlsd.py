@@ -73,7 +73,7 @@ class Controls:
     # FrogPilot variables
     self.frogpilot_toggles = FrogPilotVariables.toggles
 
-    self.aol_disabled_via_lkas = False
+    self.lkas_pressed = False
     self.drive_added = False
     self.fcw_random_event_triggered = False
     self.holiday_theme_alerted = False
@@ -1104,7 +1104,7 @@ class Controls:
     self.FPCC.alwaysOnLateral &= CS.cruiseState.available
     self.FPCC.alwaysOnLateral &= self.driving_gear
     self.FPCC.alwaysOnLateral &= self.frogpilot_toggles.always_on_lateral
-    self.FPCC.alwaysOnLateral &= not self.aol_disabled_via_lkas
+    self.FPCC.alwaysOnLateral &= self.lkas_pressed
     self.FPCC.alwaysOnLateral &= self.speed_check
     self.FPCC.alwaysOnLateral &= not (CS.brakePressed and CS.vEgo < self.frogpilot_toggles.always_on_lateral_pause_speed) or CS.standstill
 
@@ -1142,7 +1142,7 @@ class Controls:
         self.drive_added = True
 
     if any(be.pressed and be.type == FrogPilotButtonType.lkas for be in CS.buttonEvents):
-      self.aol_disabled_via_lkas = not self.aol_disabled_via_lkas
+      self.lkas_pressed = not self.lkas_pressed
 
     self.previously_enabled |= (self.enabled or self.FPCC.alwaysOnLateral) and CS.vEgo > CRUISING_SPEED
     self.previously_enabled &= self.driving_gear
