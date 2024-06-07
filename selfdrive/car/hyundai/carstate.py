@@ -307,7 +307,7 @@ class CarState(CarStateBase):
     self.lkas_previously_enabled = self.lkas_enabled
     self.lkas_enabled = cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"]
 
-    if self.lkas_enabled and self.lkas_enabled != self.lkas_previously_enabled:
+    if not self.lkas_previously_enabled and self.lkas_enabled != self.lkas_previously_enabled:
       self.lkas_enabled = not self.lkas_enabled
 
     fp_ret.dashboardSpeedLimit = self.calculate_speed_limit(cp, cp_cam) * speed_factor
