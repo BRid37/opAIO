@@ -54,6 +54,7 @@ class CarState(CarStateBase):
 
     # FrogPilot variables
     self.main_enabled = False
+    self.lkas_enabled = False
     self.active_mode = 0
     self.drive_mode = 0
     self.drive_mode_prev = 0
