@@ -1100,7 +1100,7 @@ class Controls:
   def update_frogpilot_variables(self, CS):
     self.driving_gear = CS.gearShifter not in (GearShifter.neutral, GearShifter.park, GearShifter.reverse, GearShifter.unknown)
 
-    self.FPCC.alwaysOnLateral |= CS.cruiseState.enabled or (self.frogpilot_toggles.always_on_lateral_main and self.lkas_pressed)
+    self.FPCC.alwaysOnLateral |= CS.cruiseState.enabled or self.frogpilot_toggles.always_on_lateral_main or self.lkas_pressed
     self.FPCC.alwaysOnLateral &= CS.cruiseState.available
     self.FPCC.alwaysOnLateral &= self.driving_gear
     self.FPCC.alwaysOnLateral &= self.frogpilot_toggles.always_on_lateral

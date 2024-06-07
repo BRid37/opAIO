@@ -270,7 +270,7 @@ class CarState(CarStateBase):
     ret.cruiseState.available = self.main_enabled or self.lkas_enabled
     if self.CP.openpilotLongitudinalControl:
       # These are not used for engage/disengage since openpilot keeps track of state using the buttons
-      ret.cruiseState.enabled = cp.vl["TCS"]["ACC_REQ"] == 1 or self.lkas_enabled
+      ret.cruiseState.enabled = cp.vl["TCS"]["ACC_REQ"] == 1
       ret.cruiseState.standstill = False
     else:
       cp_cruise_info = cp_cam if self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC else cp
