@@ -121,7 +121,7 @@ class CarState(CarStateBase):
     # cruise state
     if self.CP.openpilotLongitudinalControl:
       # These are not used for engage/disengage since openpilot keeps track of state using the buttons
-      ret.cruiseState.available = self.main_enabled or self.lkas_enabled
+      ret.cruiseState.available = self.main_enabled
       ret.cruiseState.enabled = cp.vl["TCS13"]["ACC_REQ"] == 1
       ret.cruiseState.standstill = False
       ret.cruiseState.nonAdaptive = False
@@ -306,7 +306,7 @@ class CarState(CarStateBase):
     self.distance_button = self.cruise_buttons[-1] == Buttons.GAP_DIST and self.prev_cruise_buttons == 0
 
     self.lkas_previously_enabled = self.lkas_enabled
-    self.lkas_enabled = cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"]
+    self.lkas_enabled = cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"] == 1
 
     if not self.lkas_previously_enabled and self.lkas_enabled != self.lkas_previously_enabled:
       self.lkas_enabled = not self.lkas_enabled
