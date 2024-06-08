@@ -161,6 +161,8 @@ class CarInterface(CarInterfaceBase):
   def _update(self, c, frogpilot_variables):
     ret, fp_ret = self.CS.update(self.cp, self.cp_cam, frogpilot_variables)
 
+    ret.cruiseState.enabled = ret.cruiseState.available
+
     if self.CS.CP.openpilotLongitudinalControl:
       ret.buttonEvents = [
         *create_button_events(self.CS.cruise_buttons[-1], self.CS.prev_cruise_buttons, BUTTONS_DICT),

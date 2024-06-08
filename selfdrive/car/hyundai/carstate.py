@@ -270,7 +270,7 @@ class CarState(CarStateBase):
     ret.cruiseState.available = self.main_enabled or self.lkas_enabled
     if self.CP.openpilotLongitudinalControl:
       # These are not used for engage/disengage since openpilot keeps track of state using the buttons
-      ret.cruiseState.enabled = cp.vl["TCS"]["ACC_REQ"] == 1
+      ret.cruiseState.enabled = ret.cruiseState.available
       ret.cruiseState.standstill = False
     else:
       cp_cruise_info = cp_cam if self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC else cp
@@ -310,6 +310,7 @@ class CarState(CarStateBase):
 
     if not self.lkas_previously_enabled and self.lkas_enabled != self.lkas_previously_enabled:
       self.lkas_enabled = not self.lkas_enabled
+      print("LKAS status changed")
 
     fp_ret.dashboardSpeedLimit = self.calculate_speed_limit(cp, cp_cam) * speed_factor
 
