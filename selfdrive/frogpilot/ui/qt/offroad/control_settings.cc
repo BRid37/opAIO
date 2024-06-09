@@ -387,11 +387,11 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
           toggle->setVisible(customTuneKeys.find(key.c_str()) != customTuneKeys.end());
         }
       });
-      toggle = customTuneToggle;
+      controlToggle = customTuneToggle;
     } else if (param == "OfflineLatAccel") {
-      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.0, 5.0, std::map<int, QString>(), this, false, "", 1, 0.01);
+      controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1.000, 5.000, std::map<int, QString>(), this, false, "", 1, 0.005);
     } else if (param == "OfflineFriction") {
-      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.0, 1.0, std::map<int, QString>(), this, false, "", 1, 0.01);
+      controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.000, 1.000, std::map<int, QString>(), this, false, "", 1, 0.005);
     } else if (param == "LiveTune") {
       FrogPilotParamManageControl *liveTuneToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
       QObject::connect(liveTuneToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
@@ -400,11 +400,11 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
           toggle->setVisible(liveTuneKeys.find(key.c_str()) != liveTuneKeys.end());
         }
       });
-      toggle = liveTuneToggle;
+      controlToggle = liveTuneToggle;
     } else if (param == "LiveLatAccel") {
-      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.0, 5.0, std::map<int, QString>(), this, false, "", 1, 0.01);
+      controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1.000, 5.000, std::map<int, QString>(), this, false, "", 1, 0.005);
     } else if (param == "LiveFriction") {
-      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.0, 1.0, std::map<int, QString>(), this, false, "", 1, 0.01);
+      controlToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.000, 1.000, std::map<int, QString>(), this, false, "", 1, 0.005);
 
     } else if (param == "CustomTorque") {
       FrogPilotParamManageControl *customTorqueToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
