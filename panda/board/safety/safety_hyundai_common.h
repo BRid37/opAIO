@@ -62,7 +62,7 @@ void hyundai_common_cruise_state_check(const bool cruise_engaged) {
   }
 }
 
-void hyundai_common_cruise_buttons_check(const int cruise_button, const bool main_button, const int lkas_button) {
+void hyundai_common_cruise_buttons_check(const int cruise_button, const bool main_button, const bool lkas_button) {
   if (lkas_button && lkas_button != lkas_button_prev) {
     acc_main_on = !acc_main_on;
   }
