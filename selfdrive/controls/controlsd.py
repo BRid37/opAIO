@@ -205,7 +205,7 @@ class Controls:
     self.speed_check = False
     self.speed_limit_changed = False
     self.update_toggles = False
-    self.use_old_long = self.CP.carFingerprint == "CHEVROLET_BOLT_CC"
+    self.use_old_long = self.CP.carFingerprint == "CHEVROLET_BOLT_CC" or self.CP.carName == "hyundai"
     self.vCruise69_alert_played = False
 
     self.display_timer = 0
