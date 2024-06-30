@@ -200,19 +200,6 @@ class CarInterface(CarInterfaceBase):
         CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
 
     elif candidate in (CAR.CHEVROLET_BOLT_EUV, CAR.CHEVROLET_BOLT_CC):
-      ret.longitudinalTuning.deadzoneBP = [0.]
-      ret.longitudinalTuning.deadzoneV = [0.15]
-
-      ret.longitudinalTuning.kpBP = [5., 35.]
-      ret.longitudinalTuning.kiBP = [0.]
-
-      ret.longitudinalTuning.kpV = [2.0, 1.5]
-      ret.longitudinalTuning.kiV = [0.72]
-
-      ret.stoppingDecelRate = 2.0  # reach brake quickly after enabling
-      ret.vEgoStopping = 0.25
-      ret.vEgoStarting = 0.25
-
       ret.steerActuatorDelay = 0.2
       CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
 
@@ -284,10 +271,8 @@ class CarInterface(CarInterfaceBase):
         ret.flags |= GMFlags.PEDAL_LONG.value
         ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_PEDAL_LONG
         # Note: Low speed, stop and go not tested. Should be fairly smooth on highway
-        ret.longitudinalTuning.kpBP = [5., 35.]
-        ret.longitudinalTuning.kpV = [0.35, 0.5]
-        ret.longitudinalTuning.kiBP = [0., 35.0]
-        ret.longitudinalTuning.kiV = [0.1, 0.1]
+        ret.longitudinalTuning.kiBP = [5., 35.]
+        ret.longitudinalTuning.kiV = [0.35, 0.5]
         ret.longitudinalTuning.kf = 0.15
         ret.stoppingDecelRate = 0.8
       else:  # Pedal used for SNG, ACC for longitudinal control otherwise
