@@ -236,9 +236,9 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
       QColor start, end;
 
       if (standstillDuration <= 60) {
-        start = end = bg_colors[STATUS_ENGAGED];
+        start = end = bg_colors[STATUS_ALWAYS_ON_LATERAL_ACTIVE];
       } else if (standstillDuration <= 90) {
-        start = bg_colors[STATUS_ENGAGED];
+        start = bg_colors[STATUS_ALWAYS_ON_LATERAL_ACTIVE];
         end = bg_colors[STATUS_CONDITIONAL_OVERRIDDEN];
         transition = (standstillDuration - 60) / 30.0f;
       } else if (standstillDuration <= 120) {
