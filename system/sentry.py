@@ -22,9 +22,9 @@ CRASHES_DIR = "/data/community/crashes/"
 
 class SentryProject(Enum):
   # python project
-  SELFDRIVE = "https://5ad1714d27324c74a30f9c538bff3b8d@o4505034923769856.ingest.sentry.io/4505034930651136"
+  SELFDRIVE = "https://75aab5fa0273d456b5e05169b58d6198@o4507143401111552.ingest.us.sentry.io/4507143417102336"
   # native project
-  SELFDRIVE_NATIVE = "https://5ad1714d27324c74a30f9c538bff3b8d@o4505034923769856.ingest.sentry.io/4505034930651136"
+  SELFDRIVE_NATIVE = "https://25362a05ef1a750760749fac09bf7b63@o4507143401111552.ingest.us.sentry.io/4507143670005760"
 
 
 def sentry_pinged(url="https://sentry.io", timeout=5):
@@ -40,8 +40,8 @@ def bind_user() -> None:
 
 
 def report_tombstone(fn: str, message: str, contents: str) -> None:
-  FrogPilot = "frogai" in get_build_metadata().openpilot.git_origin.lower()
-  if not FrogPilot or PC:
+  opAIO = "brid37" in get_build_metadata().openpilot.git_origin.lower()
+  if not opAIO or PC:
     return
 
   no_internet = 0
