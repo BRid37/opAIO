@@ -25,7 +25,7 @@ A_CRUISE_MIN_SPORT = A_CRUISE_MIN / 2
                   # MPH = [ 0.,  11,  22,  34,  45,  56,  89]
 A_CRUISE_MAX_BP_CUSTOM =  [ 0.,  5., 10., 15., 20., 25., 40.]
 A_CRUISE_MAX_VALS_ECO =   [1.4, 1.2, 1.0, 0.8, 0.6, 0.4, 0.2]
-A_CRUISE_MAX_VALS_SPORT = [4.0, 3.5, 3.0, 2.0, 1.0, 0.8, 0.6]
+A_CRUISE_MAX_VALS_SPORT = [4.0, 3.5, 3.0, 1.5, 1.0, 0.8, 0.6]
 
 TRAFFIC_MODE_BP = [0., CITY_SPEED_LIMIT]
 
@@ -113,7 +113,7 @@ class FrogPilotPlanner:
       self.tracked_model_length = 0
     elif not carState.standstill and self.tracking_lead and self.lead_one.dRel < CITY_SPEED_LIMIT:
       self.tracking_lead_distance = self.lead_one.dRel
-    elif carState.standstill and not frogpilot_toggles.force_standstill:
+    elif carState.standstill and frogpilot_toggles.force_stops:
       self.override_force_stop = True
     else:
       self.tracking_lead &= self.lead_one.status
