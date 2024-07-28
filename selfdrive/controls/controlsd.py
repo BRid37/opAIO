@@ -1038,7 +1038,7 @@ class Controls:
     driving_gear = CS.gearShifter not in (GearShifter.neutral, GearShifter.park, GearShifter.reverse, GearShifter.unknown)
 
     self.always_on_lateral_active |= self.frogpilot_toggles.always_on_lateral_main or CS.cruiseState.enabled
-    self.always_on_lateral_active &= self.frogpilot_toggles.always_on_lateral and CS.cruiseState.available
+    self.always_on_lateral_active &= self.frogpilot_toggles.always_on_lateral
     self.always_on_lateral_active &= driving_gear
     self.always_on_lateral_active &= self.speed_check
     self.always_on_lateral_active &= not (self.frogpilot_toggles.always_on_lateral_lkas and frogpilotCarState.alwaysOnLateralDisabled)

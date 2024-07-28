@@ -552,10 +552,14 @@ bool steer_torque_cmd_checks(int desired_torque, int steer_req, const SteeringLi
   bool violation = false;
   uint32_t ts = microsecond_timer_get();
 
-  bool aol_allowed = acc_main_on && (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL);
+  bool aol_allowed = alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL;
   if (controls_allowed) {
     // acc main must be on if controls are allowed
     acc_main_on = controls_allowed;
+  }
+
+  if (aol_allowed) {
+    controls_allowed = aol_allowed;
   }
 
   if (controls_allowed || aol_allowed) {
@@ -642,10 +646,14 @@ bool steer_torque_cmd_checks(int desired_torque, int steer_req, const SteeringLi
 // Safety checks for angle-based steering commands
 bool steer_angle_cmd_checks(int desired_angle, bool steer_control_enabled, const SteeringLimits limits) {
   bool violation = false;
-  bool aol_allowed = acc_main_on && (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL);
+  bool aol_allowed = alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL;
   if (controls_allowed) {
     // acc main must be on if controls are allowed
     acc_main_on = controls_allowed;
+  }
+
+  if (aol_allowed) {
+    controls_allowed = aol_allowed;
   }
 
   if ((controls_allowed || aol_allowed) && steer_control_enabled) {
