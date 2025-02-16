@@ -579,7 +579,7 @@ class CarState(CarStateBase):
     else:
       ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(gear))
 
-    if not self.CP.openpilotLongitudinalControl or self.CP.sccBus == 2:
+    if not self.CP.openpilotLongitudinalControl or self.CP.sccBus == 2 or self.CP.flags & HyundaiFlags.CAMERA_SCC:
       aeb_src = "FCA11" if self.CP.flags & HyundaiFlags.USE_FCA.value else "SCC12"
       aeb_sig = "FCA_CmdAct" if self.CP.flags & HyundaiFlags.USE_FCA.value else "AEB_CmdAct"
       aeb_warning = cp_cruise.vl[aeb_src]["CF_VSM_Warn"] != 0
@@ -939,7 +939,7 @@ class CarState(CarStateBase):
       ("TPMS11", 0),
     ]
 
-    if CP.sccBus == 0 and CP.pcmCruise:
+    if CP.sccBus == 0 and CP.pcmCruise and not (CP.flags & HyundaiFlags.CAMERA_SCC):
       pt_messages += [
         ("SCC11", 50),
         ("SCC12", 50),
@@ -982,7 +982,7 @@ class CarState(CarStateBase):
       ("LKAS11", 100)
     ]
 
-    if CP.openpilotLongitudinalControl and CP.sccBus == 2:
+    if CP.openpilotLongitudinalControl and CP.sccBus == 2 or (CP.flags & HyundaiFlags.CAMERA_SCC):
       cam_messages += [
         ("SCC11", 50),
         ("SCC12", 50),
