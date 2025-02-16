@@ -1445,6 +1445,7 @@ class CarController(CarControllerBase):
           self.cruise_gap_adjusting = False
           self.cruise_gap_set_init = False
           self.standstill_res_button = False
+          self.auto_res_starting = False
           btn_signal = self.KCC.update(CS, self.gap_by_spd_on_sw_trg)
           self.btnsignal = btn_signal
           self.on_speed_control = self.KCC.onSpeedControl
@@ -1563,5 +1564,42 @@ class CarController(CarControllerBase):
             elif CS.out.brakePressed or CS.out.gasPressed:
               self.regen_stop_timer = 0
               self.regen_stop_pre_activated = False
+
+        kisa_cruise_auto_res_condition = False
+        kisa_cruise_auto_res_condition = not self.kisa_cruise_auto_res_condition or CS.out.gasPressed
+        t_speed = 20 if not CS.is_metric else 30
+        if self.model_speed > (60 if not CS.is_metric else 95) and self.cancel_counter == 0 and not CS.cruise_active and not CS.out.brakeLights and round(CS.VSetDis) >= t_speed and \
+        (1 < CS.lead_distance < 149 or round(CS.clu_Vanz) > t_speed) and round(CS.clu_Vanz) >= 3 and self.cruise_init and \
+        self.kisa_cruise_auto_res and kisa_cruise_auto_res_condition and (self.auto_res_limit_sec == 0 or self.auto_res_limit_timer < self.auto_res_limit_sec) and \
+        (self.auto_res_delay == 0 or self.auto_res_delay_timer >= self.auto_res_delay):
+          if self.kisa_cruise_auto_res_option == 0:
+            for _ in range(self.standstill_res_count):
+              can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, CS.buttons_counter+choices([0,1], self.weights)[0], Buttons.RES_ACCEL))
+            self.last_button_frame = self.frame
+            self.auto_res_starting = True
+            self.res_speed = round(CS.VSetDis) if not CS.is_metric or self.osm_spdlimit_enabled else round(CS.clu_Vanz*1.1)
+            self.res_speed_timer = 300
+            self.refresh_time2 = randint(10,30) * 0.01
+          elif self.kisa_cruise_auto_res_option == 1:
+            for _ in range(self.standstill_res_count):
+              can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, CS.buttons_counter+choices([0,1], self.weights)[0], Buttons.SET_DECEL))
+            self.last_button_frame = self.frame
+            self.auto_res_starting = True
+            self.v_cruise_kph_auto_res = round(CS.clu_Vanz)
+            self.res_speed_timer = 50
+            self.refresh_time2 = randint(10,30) * 0.01
+          elif self.kisa_cruise_auto_res_option == 2:
+            if 1 < CS.lead_distance < 149:
+              for _ in range(self.standstill_res_count):
+                can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, CS.buttons_counter+choices([0,1], self.weights)[0], Buttons.RES_ACCEL))
+            else:
+              for _ in range(self.standstill_res_count):
+                can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, CS.buttons_counter+choices([0,1], self.weights)[0], Buttons.SET_DECEL))
+            self.last_button_frame = self.frame
+            self.auto_res_starting = True
+            self.v_cruise_kph_auto_res = round(CS.clu_Vanz)
+            self.res_speed_timer = 50
+            self.refresh_time2 = randint(10,30) * 0.01
+
 
     return can_sends
