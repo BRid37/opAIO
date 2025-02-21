@@ -266,6 +266,7 @@ typedef struct UIScene {
     int ewazenavdistance;
     std::string ewazealerttype;
     bool ewazealertextend;
+    std::string ewazealertdistanceraw;
   } liveENaviData;
 
   struct _LiveMapData

@@ -2439,6 +2439,7 @@ struct LiveENaviData {
   wazeLatitude @34 :Float32;
   wazeLongitude @35 :Float32;
   wazeAlertExtend @36 :Bool;
+  wazeAlertDistanceRaw @37 :Text;
 }
 
 struct LiveMapDataDEPRECATED {

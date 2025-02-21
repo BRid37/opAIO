@@ -268,6 +268,7 @@ static void update_state(UIState *s) {
       scene.liveENaviData.ewazenavdistance = lme_data.getWazeNavDistance();
       scene.liveENaviData.ewazealerttype = lme_data.getWazeAlertType();
       scene.liveENaviData.ewazealertextend = lme_data.getWazeAlertExtend();
+      scene.liveENaviData.ewazealertdistanceraw = lme_data.getWazeAlertDistanceRaw();
     }
   }
   if (sm.updated("liveMapData")) {
