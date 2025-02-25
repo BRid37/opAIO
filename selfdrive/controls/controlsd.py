@@ -201,7 +201,7 @@ class Controls:
     actuators.curvature = float(self.desired_curvature)
     steer, steeringAngleDeg, lac_log = self.LaC.update(CC.latActive, CS, self.VM, lp,
                                                                             self.steer_limited, self.desired_curvature,
-                                                                            self.desired_curvature_rate, self.calibrated_pose) # TODO what if not available
+                                                                            self.calibrated_pose, self.desired_curvature_rate) # TODO what if not available
     actuators.steer = float(steer)
     actuators.steeringAngleDeg = float(steeringAngleDeg)
     self.desired_angle_deg = actuators.steeringAngleDeg

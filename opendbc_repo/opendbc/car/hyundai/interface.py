@@ -2,7 +2,7 @@ from opendbc.car import Bus, get_safety_config, structs
 from opendbc.car.hyundai.hyundaicanfd import CanBus
 from opendbc.car.hyundai.values import HyundaiFlags, CAR, DBC, CANFD_RADAR_SCC_CAR, \
                                                    CANFD_UNSUPPORTED_LONGITUDINAL_CAR, \
-                                                   UNSUPPORTED_LONGITUDINAL_CAR, HyundaiSafetyFlags, LEGACY_SAFETY_MODE_CAR, LEGACY_SAFETY_MODE_CAR_ALT, ANGLE_CONTROL_CAR
+                                                   UNSUPPORTED_LONGITUDINAL_CAR, HyundaiSafetyFlags, LEGACY_SAFETY_MODE_CAR
 from opendbc.car.hyundai.radar_interface import RADAR_START_ADDR
 from opendbc.car.interfaces import CarInterfaceBase
 from opendbc.car.disable_ecu import disable_ecu
@@ -26,14 +26,19 @@ class CarInterface(CarInterfaceBase):
     ret.brand = "hyundai"
 
     cam_can = CanBus(None, fingerprint).CAM
-    hda2 = 0x50 in fingerprint[cam_can] or 0x110 in fingerprint[cam_can]
-    CAN = CanBus(None, fingerprint, hda2)
+    lka_steering = 0x50 in fingerprint[cam_can] or 0x110 in fingerprint[cam_can]
+    CAN = CanBus(None, fingerprint, lka_steering)
 
     params = Params()
 
+    kisaLongAlt = int(params.get("KISALongAlt", encoding="utf8"))
+
     if ret.flags & HyundaiFlags.CANFD:
-      # Shared configuration for CAN-FD cars
       ret.experimentalLongitudinalAvailable = candidate not in (CANFD_UNSUPPORTED_LONGITUDINAL_CAR | CANFD_RADAR_SCC_CAR)
+      if lka_steering and Ecu.adas not in [fw.ecu for fw in car_fw]:
+        # this needs to be figured out for cars without an ADAS ECU
+        ret.experimentalLongitudinalAvailable = False
+
       ret.isCanFD = True
       ret.enableBsm = 0x1e5 in fingerprint[CAN.ECAN]
       ret.sccBus = 0
@@ -42,29 +47,30 @@ class CarInterface(CarInterfaceBase):
       ret.lvrAvailable = False
       ret.evgearAvailable = False
       ret.emsAvailable = False
-      ret.autoHoldAvailable = False
+      ret.autoHoldAvailable = 0x60 in fingerprint[CAN.ECAN]
       ret.lfaHdaAvailable = False
       ret.navAvailable = False
-      ret.adrvAvailable = (hda2 and 0x200 in fingerprint[CAN.ECAN]) or 0x200 in fingerprint[cam_can]
+      ret.adrvAvailable = (lka_steering and 0x200 in fingerprint[CAN.ECAN]) or 0x200 in fingerprint[cam_can]
       ret.brakeAvailable = 0x65 in fingerprint[CAN.ECAN]
       ret.tpmsAvailable = 0x3a0 in fingerprint[CAN.ECAN]
+      ret.isAngleControl = 0xcb in fingerprint[CAN.ECAN] or 0xcb in fingerprint[CAN.ACAN]
 
       if 0x105 in fingerprint[CAN.ECAN]:
         ret.flags |= HyundaiFlags.HYBRID.value
 
-      # detect HDA2 with ADAS Driving ECU
-      if hda2:
-        ret.flags |= HyundaiFlags.CANFD_HDA2.value
+      if lka_steering:
+        # detect LKA steering
+        ret.flags |= HyundaiFlags.CANFD_LKA_STEERING.value
         if 0x110 in fingerprint[CAN.CAM]:
-          ret.flags |= HyundaiFlags.CANFD_HDA2_ALT_STEERING.value
+          ret.flags |= HyundaiFlags.CANFD_LKA_STEERING_ALT.value
       else:
-        # non-HDA2
+        # no LKA steering
         if 0x1cf not in fingerprint[CAN.ECAN]:
           ret.flags |= HyundaiFlags.CANFD_ALT_BUTTONS.value
         if not ret.flags & HyundaiFlags.RADAR_SCC:
           ret.flags |= HyundaiFlags.CANFD_CAMERA_SCC.value
 
-      # Some HDA2 cars have alternative messages for gear checks
+      # Some LKA steering cars have alternative messages for gear checks
       # ICE cars do not have 0x130; GEARS message on 0x40 or 0x70 instead
       if 0x130 not in fingerprint[CAN.ECAN]:
         if 0x40 not in fingerprint[CAN.ECAN]:
@@ -77,31 +83,34 @@ class CarInterface(CarInterfaceBase):
         cfgs.insert(0, get_safety_config(structs.CarParams.SafetyModel.noOutput))
       ret.safetyConfigs = cfgs
 
-      if ret.flags & HyundaiFlags.CANFD_HDA2:
-        ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.FLAG_HYUNDAI_CANFD_HDA2.value
-        if ret.flags & HyundaiFlags.CANFD_HDA2_ALT_STEERING:
-          ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.FLAG_HYUNDAI_CANFD_HDA2_ALT_STEERING.value
+      if ret.flags & HyundaiFlags.CANFD_LKA_STEERING:
+        ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.CANFD_LKA_STEERING.value
+        if ret.flags & HyundaiFlags.CANFD_LKA_STEERING_ALT:
+          ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.CANFD_LKA_STEERING_ALT.value
       if ret.flags & HyundaiFlags.CANFD_ALT_BUTTONS:
-        ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.FLAG_HYUNDAI_CANFD_ALT_BUTTONS.value
+        ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.CANFD_ALT_BUTTONS.value
       if ret.flags & HyundaiFlags.CANFD_CAMERA_SCC:
-        ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.FLAG_HYUNDAI_CAMERA_SCC.value
+        ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.CAMERA_SCC.value
       if params.get_bool("LFAButtonEngagement"):
-        ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.FLAG_HYUNDAI_CANFD_LFA_ENG.value
+        ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.CANFD_LFA_ENG.value
     else:
       ret.isCanFD = False
       # Shared configuration for non CAN-FD cars
       ret.experimentalLongitudinalAvailable = candidate not in UNSUPPORTED_LONGITUDINAL_CAR
       ret.enableBsm = 0x58b in fingerprint[0]
-      ret.sccBus = 2 if int(params.get("KISALongAlt", encoding="utf8")) in (1, 2) and not params.get_bool("ExperimentalLongitudinalEnabled") else 0
-      ret.bsmAvailable = True if 1419 in fingerprint[0] else False
-      ret.lfaAvailable = True if 1157 in fingerprint[2] else False
-      ret.lvrAvailable = True if 871 in fingerprint[0] else False
-      ret.evgearAvailable = True if 882 in fingerprint[0] else False
-      ret.emsAvailable = True if 870 in fingerprint[0] else False
+      ret.sccBus = 2 if kisaLongAlt and not params.get_bool("ExperimentalLongitudinalEnabled") else 0
+      ret.bsmAvailable = 1419 in fingerprint[0]
+      ret.lfaAvailable = 1157 in fingerprint[2]
+      ret.lvrAvailable = 872 in fingerprint[0]
+      ret.evgearAvailable = 882 in fingerprint[0]
+      ret.emsAvailable = 870 in fingerprint[0]
       ret.autoHoldAvailable = 1151 in fingerprint[0]
       ret.lfaHdaAvailable = 1157 in fingerprint[0]
       ret.navAvailable = 1348 in fingerprint[0]
       ret.adrvAvailable = False
+      ret.tpmsAvailable = 1427 in fingerprint[0]
+      ret.isAngleControl = False
+      ret.evInfo = 1291 in fingerprint[0]
 
       # Send LFA message on cars with HDA
       if 0x485 in fingerprint[2]:
@@ -118,16 +127,20 @@ class CarInterface(CarInterfaceBase):
         ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundai, 0)]
 
       if ret.flags & HyundaiFlags.CAMERA_SCC:
-        ret.safetyConfigs[0].safetyParam |= HyundaiSafetyFlags.FLAG_HYUNDAI_CAMERA_SCC.value
+        ret.safetyConfigs[0].safetyParam |= HyundaiSafetyFlags.CAMERA_SCC.value
+
+      # These cars have the LFA button on the steering wheel
+      if 0x391 in fingerprint[0]:
+        ret.flags |= HyundaiFlags.HAS_LDA_BUTTON.value
 
       if int(params.get("UserSpecificFeature", encoding="utf8")) == 33:
-        ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.FLAG_HYUNDAI_CANFD_LFA_ENG.value
+        ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.CANFD_LFA_ENG.value
 
     # Common lateral control setup
 
     ret.centerToFront = ret.wheelbase * 0.4
-    ret.steerActuatorDelay = 0.1
-    ret.steerLimitTimer = 0.4
+    ret.steerActuatorDelay = float(Decimal(params.get("SteerActuatorDelayAdj", encoding="utf8")) * Decimal('0.01'))   #0.1
+    ret.steerLimitTimer = float(Decimal(params.get("SteerLimitTimerAdj", encoding="utf8")) * Decimal('0.01'))   #0.4
 
     ret.smoothSteer.method = int( params.get("KisaSteerMethod", encoding="utf8") )   # 1
     ret.smoothSteer.maxSteeringAngle = float( params.get("KisaMaxSteeringAngle", encoding="utf8") )   # 90
@@ -135,13 +148,9 @@ class CarInterface(CarInterfaceBase):
     ret.smoothSteer.maxSteerAngleWait = float( params.get("KisaMaxSteerAngleWait", encoding="utf8") )   # 0.001  # 10 sec
     ret.smoothSteer.driverAngleWait = float( params.get("KisaDriverAngleWait", encoding="utf8") )  #0.001
 
-    ret.steerActuatorDelay = float(Decimal(params.get("SteerActuatorDelayAdj", encoding="utf8")) * Decimal('0.01'))
-    ret.steerLimitTimer = float(Decimal(params.get("SteerLimitTimerAdj", encoding="utf8")) * Decimal('0.01'))
-
     ret.experimentalLong = params.get_bool("ExperimentalLongitudinalEnabled")
-    ret.experimentalLongAlt = candidate in LEGACY_SAFETY_MODE_CAR_ALT
     
-    if candidate in ANGLE_CONTROL_CAR:
+    if ret.isAngleControl:    
       ret.steerControlType = SteerControlType.angle
     else:
       lat_control_method = int(params.get("LateralControlMethod", encoding="utf8"))
@@ -176,7 +185,7 @@ class CarInterface(CarInterfaceBase):
           ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundaiLegacy)]
         else:
           ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundai, 0)]
-      elif candidate in LEGACY_SAFETY_MODE_CAR_ALT or (candidate in LEGACY_SAFETY_MODE_CAR and params.get_bool("UFCModeEnabled")):
+      elif candidate in LEGACY_SAFETY_MODE_CAR and params.get_bool("UFCModeEnabled"):
         ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundaiCommunity1Legacy)]
       elif params.get_bool("UFCModeEnabled"):
         ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundaiCommunity1)]
@@ -186,28 +195,27 @@ class CarInterface(CarInterfaceBase):
       else:
         ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundai, 0)]
 
-      if ret.flags & HyundaiFlags.CAMERA_SCC:
-        ret.safetyConfigs[0].safetyParam |= HyundaiSafetyFlags.FLAG_HYUNDAI_CAMERA_SCC.value
-
       if ret.sccBus == 2:
         ret.scc13Available = 1290 in fingerprint[0] or 1290 in fingerprint[2]
         ret.scc14Available = 905 in fingerprint[0] or 905 in fingerprint[2]
         ret.openpilotLongitudinalControl = True
         ret.radarUnavailable = False
-        if int(params.get("KISALongAlt", encoding="utf8")) == 1:
+        if kisaLongAlt == 1:
           ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundaiCommunity1)]
-        elif int(params.get("KISALongAlt", encoding="utf8")) == 2:
+        elif kisaLongAlt == 2:
           ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundaiCommunity2)]
         ret.pcmCruise = True
       else:
         ret.pcmCruise = not ret.openpilotLongitudinalControl
 
-    if (ret.openpilotLongitudinalControl and int(params.get("KISALongAlt", encoding="utf8")) not in (1, 2)) or params.get_bool("ExperimentalLongitudinalEnabled"):
-      ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.FLAG_HYUNDAI_LONG.value
+    if (ret.openpilotLongitudinalControl and not kisaLongAlt) or params.get_bool("ExperimentalLongitudinalEnabled"):
+      ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.LONG.value
     if ret.flags & HyundaiFlags.HYBRID:
-      ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.FLAG_HYUNDAI_HYBRID_GAS.value
+      ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.HYBRID_GAS.value
     elif ret.flags & HyundaiFlags.EV:
-      ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.FLAG_HYUNDAI_EV_GAS.value
+      ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.EV_GAS.value
+    elif ret.flags & HyundaiFlags.FCEV:
+      ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.FCEV_GAS.value
 
     # Car specific configuration overrides
 
@@ -220,9 +228,9 @@ class CarInterface(CarInterfaceBase):
 
   @staticmethod
   def init(CP, can_recv, can_send):
-    if CP.openpilotLongitudinalControl and not (CP.flags & (HyundaiFlags.CANFD_CAMERA_SCC | HyundaiFlags.CAMERA_SCC)) and not CP.experimentalLongAlt:
+    if CP.openpilotLongitudinalControl and not (CP.flags & (HyundaiFlags.CANFD_CAMERA_SCC | HyundaiFlags.CAMERA_SCC)):
       addr, bus = 0x7d0, 0
-      if CP.flags & HyundaiFlags.CANFD_HDA2.value:
+      if CP.flags & HyundaiFlags.CANFD_LKA_STEERING.value:
         addr, bus = 0x730, CanBus(CP).ECAN
       disable_ecu(can_recv, can_send, bus=bus, addr=addr, com_cont_req=b'\x28\x83\x01')
       enable_radar_tracks(CP, can_recv, can_send) # from ajouatom. really appreciate that.

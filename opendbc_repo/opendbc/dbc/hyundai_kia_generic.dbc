@@ -1435,7 +1435,6 @@ BO_ 512 EMS20: 6 EMS
  SG_ HYDROGEN_GEAR_SHIFTER : 11|3@1+ (1,0) [0|7] "" XXX
  SG_ CF_Ems_PumpTPres : 16|8@1+ (3.137254902,0.0) [0.0|800.0] "kPa"  FPCM,IBOX
  SG_ Split_Stat : 32|1@1+ (1.0,0.0) [0.0|1.0] ""  FPCM
- SG_ Elect_Gear_Shifter_NEXO : 11|4@1+ (1,0) [0|7] "" XXX
 
 BO_ 909 FCA11: 8 FCA
  SG_ CF_VSM_Prefill : 0|1@1+ (1,0) [0|1] "" ESC
@@ -1497,7 +1496,7 @@ BO_ 1157 LFAHDA_MFC: 4 XXX
 BO_ 913 BCM_PO_11: 8 Vector__XXX
  SG_ BCM_Door_Dri_Status : 5|1@0+ (1,0) [0|1] "" PT_ESC_ABS
  SG_ BCM_Shift_R_MT_SW_Status : 39|2@0+ (1,0) [0|3] "" PT_ESC_ABS
- SG_ LFA_Pressed : 4|1@0+ (1,0) [0|1] "" XXX
+ SG_ LDA_BTN : 4|1@0+ (1,0) [0|1] "" XXX
 
 BO_ 1426 LABEL11: 8 XXX
  SG_ CC_React : 34|1@1+ (1,0) [0|1] "" XXX
@@ -1521,7 +1520,9 @@ BO_ 865 ADAS_PRK_11: 8 ADAS_PRK
  SG_ PCA_CHECK_SUM : 48|8@1+ (1,0) [0|0] "" Vector__XXX
 
 BO_ 882 ELECT_GEAR: 8 XXX
- SG_ Elect_Gear_Shifter : 16|4@1+ (1,0) [0|7] ""  CLU
+ SG_ Elect_Gear_Shifter : 16|4@1+ (1,0) [0|7] "" CLU
+ SG_ SLC_ON : 31|1@0+ (1,0) [0|1] "" CLU
+ SG_ SLC_SET_SPEED : 32|8@1+ (1,0) [0|255] "" CLU
  SG_ Elect_Gear_Step : 22|3@0+ (1,0) [0|7] "" XXX
  SG_ Elect_Motor_Speed : 0|8@1+ (1,0) [0|255] "" XXX
 
@@ -1665,9 +1666,10 @@ CM_ SG_ 1056 SCCInfoDisplay "Goes to 1 for a second while transitioning from Cru
 CM_ SG_ 1348 SpeedLim_Nav_Clu "Speed limit displayed on Nav, Cluster and HUD";
 
 VAL_ 274 CUR_GR 1 "D" 2 "D" 3 "D" 4 "D" 5 "D" 6 "D" 7 "D" 8 "D" 14 "R" 0 "P";
+VAL_ 512 HYDROGEN_GEAR_SHIFTER 5 "D" 8 "S" 6 "N" 7 "R" 0 "P";
 VAL_ 871 CF_Lvr_IsgState 0 "enabled" 1 "activated" 2 "unknown" 3 "disabled";
 VAL_ 871 CF_Lvr_Gear 12 "T" 5 "D" 8 "S" 6 "N" 7 "R" 0 "P";
-VAL_ 882 Elect_Gear_Shifter 5 "D" 8 "S" 6 "N" 7 "R" 0 "P";
+VAL_ 882 Elect_Gear_Shifter 4 "S" 5 "D" 8 "S" 6 "N" 7 "R" 0 "P";
 VAL_ 905 ACCMode 0 "off" 1 "enabled" 2 "driver_override" 3 "off_maybe_fault" 4 "cancelled";
 VAL_ 909 CF_VSM_Warn 2 "FCW" 3 "AEB";
 VAL_ 916 ACCEnable 0 "SCC ready" 1 "SCC temp fault" 2 "SCC permanent fault" 3 "SCC permanent fault, communication issue";
@@ -1678,4 +1680,3 @@ VAL_ 1157 LFA_SysWarning 0 "no_message" 1 "switching_to_hda" 2 "switching_to_scc
 VAL_ 1157 LFA_Icon_State 0 "no_wheel" 1 "white_wheel" 2 "green_wheel" 3 "green_wheel_blink";
 VAL_ 1157 HDA_SysWarning 0 "no_message" 1 "driving_convenience_systems_cancelled" 2 "highway_drive_assist_system_cancelled";
 VAL_ 1322 CF_Clu_Gear 1 "P" 2 "R" 4 "N" 8 "D";
-VAL_ 512 Elect_Gear_Shifter_NEXO 5 "D" 8 "S" 6 "N" 7 "R" 0 "P";

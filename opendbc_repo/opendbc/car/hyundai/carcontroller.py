@@ -5,7 +5,7 @@ from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.hyundai import hyundaicanfd, hyundaican
 from opendbc.car.hyundai.carstate import CarState
 from opendbc.car.hyundai.hyundaicanfd import CanBus
-from opendbc.car.hyundai.values import HyundaiFlags, Buttons, CarControllerParams, CAR, LEGACY_SAFETY_MODE_CAR_ALT, ANGLE_CONTROL_CAR
+from opendbc.car.hyundai.values import HyundaiFlags, Buttons, CarControllerParams, CAR
 from opendbc.car.interfaces import CarControllerBase
 
 from cereal import car, messaging
@@ -281,7 +281,7 @@ class CarController(CarControllerBase):
 
     self.str_log2 = ''
 
-    if self.car_fingerprint in ANGLE_CONTROL_CAR:
+    if self.CP.isAngleControl:
       pass
     else:
       if CP.lateralTuning.which() == 'pid':
@@ -340,7 +340,7 @@ class CarController(CarControllerBase):
     if len(self.sm['longitudinalPlan'].e2eX) > 12:
       self.e2e_x = self.sm['longitudinalPlan'].e2eX[12]
 
-    if abs(CS.out.steeringTorque) > 170 and CS.out.vEgo < LANE_CHANGE_SPEED_MIN and not (self.CP.flags & HyundaiFlags.CANFD):
+    if abs(CS.out.steeringTorque) > 170 and CS.out.vEgo < LANE_CHANGE_SPEED_MIN and not self.CP.isCanFD:
       self.driver_steering_torque_above_timer -= 1
       if self.driver_steering_torque_above_timer <= 0:
         self.driver_steering_torque_above_timer = 0
@@ -357,9 +357,6 @@ class CarController(CarControllerBase):
       new_steer = int(round(actuators.steer * self.params.STEER_MAX * (self.driver_steering_torque_above_timer / 150)))
     else:
       new_steer = int(round(actuators.steer * self.params.STEER_MAX))
-
-    # if self.CP.carFingerprint in LEGACY_SAFETY_MODE_CAR_ALT:
-    #   new_steer = int(round(np.interp(abs(actuators.steer), [0.9, 1.0], [new_steer, min(new_steer, 255)])))
 
     apply_steer = apply_driver_steer_torque_limits(new_steer, self.apply_steer_last, CS.out.steeringTorque, self.params)
 
@@ -386,7 +383,7 @@ class CarController(CarControllerBase):
       lat_active = False
 
     # >90 degree steering fault prevention
-    if self.to_avoid_lkas_fault_enabled or self.CP.flags & HyundaiFlags.CANFD:
+    if self.to_avoid_lkas_fault_enabled or self.CP.isCanFD:
       self.angle_limit_counter, apply_steer_req = common_fault_avoidance(abs(CS.out.steeringAngleDeg) >= self.to_avoid_lkas_fault_max_angle, lat_active,
                                                                          self.angle_limit_counter, self.to_avoid_lkas_fault_max_frame,
                                                                          MAX_ANGLE_CONSECUTIVE_FRAMES)
@@ -448,11 +445,10 @@ class CarController(CarControllerBase):
     # *** common hyundai stuff ***
 
     # tester present - w/ no response (keeps relevant ECU disabled)
-    if self.frame % 100 == 0 and not (self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC.value) and self.CP.openpilotLongitudinalControl and \
-     self.experimental_long_enabled and self.CP.carFingerprint not in LEGACY_SAFETY_MODE_CAR_ALT:
+    if self.frame % 100 == 0 and not (self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC) and self.CP.openpilotLongitudinalControl and self.experimental_long_enabled:
       # for longitudinal control, either radar or ADAS driving ECU
       addr, bus = 0x7d0, 0
-      if self.CP.flags & HyundaiFlags.CANFD_HDA2.value:
+      if self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING.value:
         addr, bus = 0x730, self.CAN.ECAN
       can_sends.append(make_tester_present_msg(addr, bus, suppress_response=True))
 
@@ -685,34 +681,32 @@ class CarController(CarControllerBase):
 
     # CAN-FD platforms
     if self.CP.flags & HyundaiFlags.CANFD:
-      hda2 = self.CP.flags & HyundaiFlags.CANFD_HDA2
-      hda2_long = hda2 and self.CP.openpilotLongitudinalControl
+      lka_steering = self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING
+      lka_steering_long = lka_steering and self.CP.openpilotLongitudinalControl
 
-      angle_control = self.CP.carFingerprint in ANGLE_CONTROL_CAR
       # steering control
-      can_sends.extend(hyundaicanfd.create_steering_messages(self.packer, self.CP, self.CAN, CC.enabled,
-                                                             apply_steer_req, CS.out.steeringPressed,
-                                                             apply_steer, apply_angle, self.lkas_max_torque, angle_control))
+      can_sends.extend(hyundaicanfd.create_steering_messages(self.packer, self.CP, self.CAN, CC.enabled, apply_steer_req, apply_steer, 
+                                                             apply_angle, self.lkas_max_torque, self.CP.isAngleControl))
 
-      # prevent LFA from activating on HDA2 by sending "no lane lines detected" to ADAS ECU
-      if self.frame % 5 == 0 and hda2:
+      # prevent LFA from activating on LKA steering cars by sending "no lane lines detected" to ADAS ECU
+      if self.frame % 5 == 0 and lka_steering:
         if not CC.enabled:
           self.stock_lfa_counter += 1 if self.stock_lfa_counter < 100 else 0
         elif self.stock_lfa_counter:
           self.stock_lfa_counter -= 1
-        can_sends.append(hyundaicanfd.create_suppress_lfa(self.packer, self.CAN, CS.hda2_lfa_block_msg,
-                                                          self.CP.flags & HyundaiFlags.CANFD_HDA2_ALT_STEERING, CC.enabled, bool(self.stock_lfa_counter)))
+        can_sends.append(hyundaicanfd.create_suppress_lfa(self.packer, self.CAN, CS.lfa_block_msg,
+                                                          self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING_ALT, CC.enabled, bool(self.stock_lfa_counter)))
 
       # LFA and HDA icons
-      if self.frame % 5 == 0 and (not hda2 or hda2_long):
+      if self.frame % 5 == 0 and (not lka_steering or lka_steering_long):
         can_sends.append(hyundaicanfd.create_lfahda_cluster(self.packer, self.CAN, CC.enabled))
 
       # blinkers
-      if hda2 and self.CP.flags & HyundaiFlags.ENABLE_BLINKERS:
+      if lka_steering and self.CP.flags & HyundaiFlags.ENABLE_BLINKERS:
         can_sends.extend(hyundaicanfd.create_spas_messages(self.packer, self.CAN, self.frame, CC.leftBlinker, CC.rightBlinker))
 
       if self.CP.openpilotLongitudinalControl:
-        if hda2:
+        if lka_steering:
           can_sends.extend(hyundaicanfd.create_adrv_messages(self.packer, self.CAN, self.frame))
         if self.frame % 2 == 0:
           can_sends.append(hyundaicanfd.create_acc_control(self.packer, self.CAN, CC.enabled, self.accel_last, accel, stopping, CC.cruiseControl.override,
@@ -1026,7 +1020,7 @@ class CarController(CarControllerBase):
             self.resume_cnt = 0
             self.auto_res_timer = int(randint(20, 25) * 2)
 
-      if not self.CP.openpilotLongitudinalControl and self.CP.flags & HyundaiFlags.CANFD:
+      if not self.CP.openpilotLongitudinalControl:
         can_sends.extend(self.create_button_messages(CC, CS, use_clu11=True))
 
       if self.CP.openpilotLongitudinalControl and self.experimental_long_enabled:
@@ -1287,8 +1281,8 @@ class CarController(CarControllerBase):
         if self.frame % 50 == 0:
           can_sends.append(hyundaican.create_scc42a(self.packer))
 
-    if self.CP.flags & HyundaiFlags.CANFD:
-      if self.car_fingerprint in ANGLE_CONTROL_CAR:
+    if self.CP.isCanFD:
+      if self.CP.isAngleControl:
         str_log1 = 'EN/LA/LO={}/{}{}/{}  MD={}  BS={:1.0f}  CV={:03.0f}/{:0.4f}  TQ={:03.0f}/{:03.0f}  A={:0.1f}/{:0.1f}/{:0.1f}'.format(
           int(CC.enabled), int(CC.latActive), int(lat_active), int(CC.longActive), CS.out.cruiseState.modeSel, self.CP.sccBus, self.model_speed, abs(self.sm['controlsState'].curvature), self.lkas_max_torque, abs(CS.out.steeringTorque), self.apply_angle_last, CS.stock_str_angle, self.apply_angle_now)
       else:
@@ -1329,7 +1323,7 @@ class CarController(CarControllerBase):
       rgn_option_list = list(self.c_params.get("RegenBrakeFeature", encoding="utf8"))
       self.regen_stop = True if '1' in rgn_option_list and self.regenbrake else False
       if self.c_params.get_bool("KisaLiveTunePanelEnable"):
-        if self.car_fingerprint in ANGLE_CONTROL_CAR:
+        if self.CP.isAngleControl:
           pass
         elif self.CP.lateralTuning.which() == 'pid':
           self.str_log2 = 'T={:0.2f}/{:0.3f}/{:0.1f}/{:0.5f}'.format(float(Decimal(self.c_params.get("PidKp", encoding="utf8"))*Decimal('0.01')), \
@@ -1354,7 +1348,7 @@ class CarController(CarControllerBase):
     new_actuators = actuators.as_builder()
     new_actuators.steer = apply_steer / self.params.STEER_MAX
     new_actuators.steerOutputCan = apply_steer
-    new_actuators.steeringAngleDeg = apply_angle if self.to_avoid_lkas_fault_enabled or self.CP.flags & HyundaiFlags.CANFD or not lat_active else 0
+    new_actuators.steeringAngleDeg = apply_angle if self.to_avoid_lkas_fault_enabled or self.CP.isCanFD or not lat_active else 0
     new_actuators.accel = self.accel if self.CP.sccBus == 2 else accel
 
     new_actuators.aqValue = self.aq_value

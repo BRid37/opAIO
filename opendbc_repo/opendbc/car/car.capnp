@@ -382,26 +382,27 @@ struct CarControl {
 
   orientationNED @13 :List(Float32);
   angularVelocity @14 :List(Float32);
+  currentCurvature @17 :Float32;  # From vehicle model
 
   cruiseControl @4 :CruiseControl;
   hudControl @5 :HUDControl;
 
-  needBrake @17: Bool;
-  lkasTempDisabled @18: Bool;
-  lanechangeManualTimer @19: Int8;
-  emergencyManualTimer @20: Int8;
-  standstillResButton @21: Bool;
-  cruiseGapAdjusting @22: Bool;
-  onSpeedBumpControl @23: Bool;
-  onSpeedControl @24: Bool;
-  curvSpeedControl @25: Bool;
-  cutInControl @26: Bool;
-  driverSccSetControl @27: Bool;
-  autoholdPopupTimer @28: Int8;
-  autoResStarting @29: Bool;
-  e2eStandstill @30: Bool;
-  modeChangeTimer @31: Int8;
-  lkasTempDisabledTimer @32: Int8;
+  needBrake @18: Bool;
+  lkasTempDisabled @19: Bool;
+  lanechangeManualTimer @20: Int8;
+  emergencyManualTimer @21: Int8;
+  standstillResButton @22: Bool;
+  cruiseGapAdjusting @23: Bool;
+  onSpeedBumpControl @24: Bool;
+  onSpeedControl @25: Bool;
+  curvSpeedControl @26: Bool;
+  cutInControl @27: Bool;
+  driverSccSetControl @28: Bool;
+  autoholdPopupTimer @29: Int8;
+  autoResStarting @30: Bool;
+  e2eStandstill @31: Bool;
+  modeChangeTimer @32: Int8;
+  lkasTempDisabledTimer @33: Int8;
 
   struct Actuators {
     # lateral commands, mutually exclusive
@@ -638,6 +639,8 @@ struct CarParams {
   adrvAvailable @96 :Bool;
   brakeAvailable @97 :Bool;
   tpmsAvailable @98 :Bool;
+  isAngleControl @99 :Bool;
+  evInfo @100 :Bool;
 
   struct SmoothSteerData
   {

@@ -71,7 +71,7 @@ class LatControlTorque(LatControl):
       self.torque_params.latAccelOffset = latAccelOffset
       self.torque_params.friction = self.friction
 
-  def update(self, active, CS, VM, params, steer_limited, desired_curvature, desired_curvature_rate, calibrated_pose):
+  def update(self, active, CS, VM, params, steer_limited, desired_curvature, calibrated_pose, desired_curvature_rate):
     self.lt_timer += 1
     if self.lt_timer > 100:
       self.lt_timer = 0
