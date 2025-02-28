@@ -1,3 +1,8 @@
+KisaPilot Version 0.9.9
+========================
+* Navi Apps for All KisaPilot Lovers
+ - Check Readme in selfdrive\assets\addon\apk
+
 KisaPilot Version 0.9.8
 ========================
 * Up to master-ci(2025-02-25)
