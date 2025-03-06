@@ -1020,7 +1020,7 @@ class CarController(CarControllerBase):
             self.resume_cnt = 0
             self.auto_res_timer = int(randint(20, 25) * 2)
 
-      if not self.CP.openpilotLongitudinalControl:
+      if self.CP.openpilotLongitudinalControl and self.CP.sccBus != 2:
         can_sends.extend(self.create_button_messages(CC, CS, use_clu11=True))
 
       if self.CP.openpilotLongitudinalControl and self.experimental_long_enabled:
@@ -1391,12 +1391,12 @@ class CarController(CarControllerBase):
     can_sends = []
     if use_clu11:
       if CC.cruiseControl.cancel:
-        can_sends.append(hyundaican.create_clu11(self.packer, self.frame, CS.clu11, Buttons.CANCEL, self.CP))
+        can_sends.append(hyundaican.create_clu11(self.packer, self.frame, CS.clu11, Buttons.CANCEL))
       elif CC.cruiseControl.resume:
         # send resume at a max freq of 10Hz
         if (self.frame - self.last_button_frame) * DT_CTRL > 0.1:
           # send 25 messages at a time to increases the likelihood of resume being accepted
-          can_sends.extend([hyundaican.create_clu11(self.packer, self.frame, CS.clu11, Buttons.RES_ACCEL, self.CP)] * self.standstill_res_count)
+          can_sends.extend([hyundaican.create_clu11(self.packer, self.frame, CS.clu11, Buttons.RES_ACCEL)] * self.standstill_res_count)
           if (self.frame - self.last_button_frame) * DT_CTRL >= 0.15:
             self.last_button_frame = self.frame
     else:

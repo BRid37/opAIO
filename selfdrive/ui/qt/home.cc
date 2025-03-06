@@ -431,6 +431,8 @@ void HomeWindow::mousePressEvent(QMouseEvent* e)
         nLoop = 3;
       } else if (uiState()->scene.lateralControlMethod == 4) {
         nLoop = 15;
+      } else if (uiState()->scene.lateralControlMethod == 5) {
+        nLoop = -1;
       }
 
       uiState()->scene.live_tune_panel_list = uiState()->scene.list_count + nLoop;

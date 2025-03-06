@@ -26,7 +26,7 @@ class ENaviUDP:
     self.waze_road_speed_limit = 0
     self.waze_road_speed_limit_keep = 0
     self.waze_alert_id = 0
-    self.waze_alert_distance = "0"
+    self.waze_alert_distance = ""
     self.waze_alert_distance_raw = ""
     self.waze_alert_str = ""
     self.waze_road_name = ""
@@ -106,61 +106,40 @@ class ENaviUDP:
 
 
   def handle_waze_data(self, data):
+    if "kisawazealert" in data:
+      data_dict = {pair.split(':')[0]: pair.split(':')[1] for pair in data.split('/') if pair}
+      with self.lock:
+        self.waze_alert_trigger_start = True
+        self.waze_alert_str = str(data_dict.get('kisawazealert'))
+        if "camera" in self.waze_alert_str or "Camera" in self.waze_alert_str:
+          self.waze_alert_id = 1
+          self.waze_alert_str = "camera"
+        elif "police" in self.waze_alert_str or "Police" in self.waze_alert_str:
+          self.waze_alert_id = 2
+          self.waze_alert_str = "police"
+        else:
+          self.waze_alert_id = 0
+        waze_alert_distance_str = data_dict.get('kisawazealert')
+        if waze_alert_distance_str not in (None, ""):
+          self.waze_alert_distance_raw = str(waze_alert_distance_str)
+          self.waze_alert_distance = str(re.sub(r'[^0-9]', '', self.waze_alert_distance_raw))
+        else:
+          self.waze_alert_distance = ""
+          self.waze_alert_distance_raw = ""
+    if "kisawazeendalert" in data:
+      data_dict = {pair.split(':')[0]: pair.split(':')[1] for pair in data.split('/') if pair}
+      with self.lock:
+        self.waze_alert_distance = ""
+    if "kisawazeroadname" in data:
+      data_dict = {pair.split(':')[0]: pair.split(':')[1] for pair in data.split('/') if pair}
+      with self.lock:
+        self.waze_road_name = str(data_dict.get('kisawazeroadname'))
     if "kisawazecurrentspd" in data:
       data_dict = {pair.split(':')[0]: pair.split(':')[1] for pair in data.split('/') if pair}
       with self.lock:
         self.waze_current_speed = int(data_dict.get('kisawazecurrentspd'))
         self.waze_road_speed_limit = int(data_dict.get('kisawazeroadspdlimit'))
-        self.cnt1 += 1
         self.check_connection = True
-        if not self.waze_alert_trigger_start:
-          self.waze_alert_str = ""
-          self.waze_alert_id = 0
-          self.waze_alert_distance = "0"
-          self.waze_alert_distance_raw = ""
-        elif self.cnt1 > self.cnt_threshold+4 and self.waze_alert_trigger_start:
-          self.waze_alert_str = ""
-          self.waze_alert_id = 0
-          self.waze_alert_distance = "0"
-          self.waze_alert_distance_raw = ""
-          self.waze_alert_trigger_start = False
-    if "kisawazereportid" in data:
-      data_dict = {pair.split(':')[0]: pair.split(':')[1] for pair in data.split('/') if pair}
-      with self.lock:
-        self.cnt1 = 0
-        self.waze_alert_trigger_start = True
-        self.waze_alert_str = str(data_dict.get('kisawazereportid'))
-        if "icon_report_speedlimit" in self.waze_alert_str:
-          self.waze_alert_id = 1
-          self.waze_alert_str = "speedlimit"
-        elif "icon_report_camera" in self.waze_alert_str:
-          self.waze_alert_id = 1
-          self.waze_alert_str = "camera"
-        elif "icon_report_speedcam" in self.waze_alert_str:
-          self.waze_alert_id = 1
-          self.waze_alert_str = "speedcam"
-        elif "icon_report_police" in self.waze_alert_str:
-          self.waze_alert_id = 2
-          self.waze_alert_str = "police"
-        elif "icon_report_hazard" in self.waze_alert_str:
-          self.waze_alert_id = 3
-          self.waze_alert_str = "hazard"
-        elif "icon_report_traffic" in self.waze_alert_str:
-          self.waze_alert_id = 4
-          self.waze_alert_str = "traffic"
-        else:
-          self.waze_alert_id = 0
-        waze_alert_distance_str = data_dict.get('kisawazealertdist')
-        if waze_alert_distance_str not in (None, ""):
-          self.waze_alert_distance_raw = str(waze_alert_distance_str)
-          self.waze_alert_distance = str(re.sub(r'[^0-9]', '', self.waze_alert_distance_raw))
-        else:
-          self.waze_alert_distance = "0"
-          self.waze_alert_distance_raw = ""
-    if "kisawazeroadname" in data:
-      data_dict = {pair.split(':')[0]: pair.split(':')[1] for pair in data.split('/') if pair}
-      with self.lock:
-        self.waze_road_name = str(data_dict.get('kisawazeroadname'))
 
 
   def reset_data(self):
@@ -178,7 +157,7 @@ class ENaviUDP:
         self.waze_current_speed = 0
         self.waze_road_speed_limit = 0
         self.waze_alert_id = 0
-        self.waze_alert_distance = "0"
+        self.waze_alert_distance = ""
         self.waze_alert_distance_raw = ""
         self.waze_road_name = ""
         self.check_connection = False
@@ -202,11 +181,11 @@ class ENaviUDP:
       elif self.navi_selection == 4:
         navi_msg.liveENaviData.wazeAlertId = int(self.waze_alert_id)
         if self.is_metric:
-          navi_msg.liveENaviData.wazeAlertDistance = int(self.waze_alert_distance)
+          navi_msg.liveENaviData.wazeAlertDistance = int(self.waze_alert_distance) if self.waze_alert_distance not in ("", None) else 0
           navi_msg.liveENaviData.wazeAlertDistanceRaw = str(self.waze_alert_distance_raw)
         else:
           if self.waze_alert_trigger_start:
-            if self.waze_alert_distance == "0":
+            if self.waze_alert_distance == "" or self.waze_alert_distance == "0":
               if self.waze_dist_longer_meter > 0:
                 self.waze_dist_longer_meter = max(0, round(self.waze_dist_longer_meter - (((int(self.waze_current_speed) + self.waze_current_speed_prev)/2) / 2.237)))
                 navi_msg.liveENaviData.wazeAlertDistance = int(self.waze_dist_longer_meter)
@@ -224,6 +203,10 @@ class ENaviUDP:
                 self.waze_road_speed_limit_keep = 0
                 navi_msg.liveENaviData.wazeAlertExtend = False
                 self.waze_alert_trigger_start = False
+                self.waze_alert_str = ""
+                self.waze_alert_id = 0
+                self.waze_alert_distance = ""
+                self.waze_alert_distance_raw = ""
             elif len(self.waze_alert_distance) in (1,2,3) and self.waze_alert_distance[0] != '0':
               self.waze_dist_longer_meter = 402
               self.waze_road_speed_limit_keep = int(self.waze_road_speed_limit)
@@ -267,7 +250,7 @@ class ENaviUDP:
               navi_msg.liveENaviData.wazeAlertDistance = 579
               self.mtom_dist_last = 579
             elif self.mtom4:
-              self.mtom_dist_last = max(466, round(self.mtom_dist_last - (((int(self.waze_current_speed) + self.waze_current_speed_prev)/2) / 2.237)))
+              self.mtom_dist_last = max(579, round(self.mtom_dist_last - (((int(self.waze_current_speed) + self.waze_current_speed_prev)/2) / 2.237)))
               navi_msg.liveENaviData.wazeAlertDistance = int(self.mtom_dist_last)
               self.waze_current_speed_prev = int(self.waze_current_speed)
             elif self.waze_alert_distance == "04" and not self.mtom4:
