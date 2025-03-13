@@ -19,7 +19,6 @@ class ENaviUDP:
     self.sign_type = ''
     self.road_limit_speed = 0
     self.road_name = ''
-    self.current_speed = 0
 
     self.waze_current_speed = 0
     self.waze_current_speed_prev = 0
@@ -76,7 +75,6 @@ class ENaviUDP:
         self.safety_distance = float(data_dict.get('kisaspddist'))
         self.safety_bl_distance = float(data_dict.get('kisaspdbldist'))
         self.sign_type = str(data_dict.get('kisasigntype'))
-        self.current_speed = int(data_dict.get('kisacurrentspd'))
     elif "Kisa_Tmap_Alive" in data:
       with self.lock:
         self.cnt1 += 1
@@ -87,7 +85,6 @@ class ENaviUDP:
           self.safety_distance = 0.0
           self.safety_bl_distance = 0.0
           self.sign_type = ''
-          self.current_speed = 0
     if "kisaroadlimitspd" in data:
       data_dict = {pair.split(':')[0]: pair.split(':')[1] for pair in data.split('/') if pair}
       with self.lock:
@@ -148,7 +145,6 @@ class ENaviUDP:
         self.spd_limit = 0
         self.safety_distance = 0.0
         self.safety_bl_distance = 0.0
-        self.current_speed = 0
         self.sign_type = ''
         self.road_limit_speed = 0
         self.road_name = ''
