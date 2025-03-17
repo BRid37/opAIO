@@ -5,6 +5,26 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 source "$DIR/launch_env.sh"
 
 function agnos_init {
+  # prebuilt recreate
+  if [ -f "/data/kisa_compiling" ]; then
+    sudo rm /data/kisa_compiling
+    if [ -f "$DIR/prebuilt" ]; then
+      sudo rm $DIR/prebuilt
+    fi
+  elif [ -f "/data/kisa_starting" ]; then
+    if [ -f "$DIR/prebuilt" ]; then
+      sudo rm $DIR/prebuilt
+    fi
+  else
+    if [ -f "/data/params/d/PutPrebuiltOn" ]; then
+      PREBUILT_CHECK=$(cat /data/params/d/PutPrebuiltOn)
+      if [[ "$PREBUILT_CHECK" == "1" && ! -f "$DIR/prebuilt" ]]; then
+        touch /data/kisa_starting
+        touch $DIR/prebuilt
+      fi
+    fi
+  fi
+
   # wait longer for screen recorder
   if [ -f "$DIR/prebuilt" ]; then
     sleep 10
@@ -73,6 +93,9 @@ function launch {
       if [ -f "${STAGING_ROOT}/finalized/.overlay_consistent" ]; then
         if [ ! -d /data/safe_staging/old_openpilot ]; then
           echo "Valid overlay update found, installing"
+          
+          touch /data/kisa_compiling
+
           LAUNCHER_LOCATION="${BASH_SOURCE[0]}"
 
           mv $DIR /data/safe_staging/old_openpilot

@@ -47,6 +47,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   installBtn = new ButtonControl(tr("Install Update"), tr("INSTALL"));
   connect(installBtn, &ButtonControl::clicked, [=]() {
     installBtn->setEnabled(false);
+    std::system("touch /data/kisa_compiling");
     params.putBool("DoReboot", true);
   });
   addItem(installBtn);

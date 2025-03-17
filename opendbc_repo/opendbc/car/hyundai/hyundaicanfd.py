@@ -34,7 +34,7 @@ class CanBus(CanBusBase):
     return self._cam
 
 
-def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_steer, apply_angle, max_torque, angle_control):
+def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque, apply_angle, max_torque, angle_control):
 
   ret = []
 
@@ -65,7 +65,7 @@ def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_steer, 
       values = {
         "LKA_MODE": 2,
         "LKA_ICON": 2 if enabled else 1,
-        "TORQUE_REQUEST": apply_steer,
+        "TORQUE_REQUEST": apply_torque,
         "LKA_ASSIST": 0,
         "STEER_REQ": 1 if lat_active else 0,
         "STEER_MODE": 0,
@@ -102,7 +102,7 @@ def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_steer, 
       "LKA_MODE": 0,
       "LKA_ACTIVE": 3 if lat_active else 0,
       "LKA_ICON": 2 if enabled else 1,
-      "TORQUE_REQUEST": apply_steer,
+      "TORQUE_REQUEST": apply_torque,
       "LKA_ASSIST": 0,
       "STEER_REQ": 1 if lat_active else 0,
       "STEER_MODE": 0,
