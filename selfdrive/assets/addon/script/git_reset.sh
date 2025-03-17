@@ -19,10 +19,9 @@ if [ "$?" == "0" ]; then
   git branch --set-upstream-to=origin/$CURRENT_BRANCH $CURRENT_BRANCH
 
   rm -f /data/params/d/DrivingModel
-  rm -f /data/openpilot/selfdrive/modeld/models/supercombo.onnx
-  rm -f /data/openpilot/selfdrive/modeld/models/supercombo.thneed
-  rm -f /data/openpilot/selfdrive/modeld/models/supercombo_metadata.pkl
-  git -C /data/openpilot/selfdrive/modeld/models checkout supercombo.onnx
+  rm -f /data/openpilot/selfdrive/modeld/models/driving_*
+  git -C /data/openpilot/selfdrive/modeld/models checkout driving_policy.onnx
+  git -C /data/openpilot/selfdrive/modeld/models checkout driving_vision.onnx
   touch /data/kisa_compiling
   sleep 1
 

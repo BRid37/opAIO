@@ -39,38 +39,34 @@ AbstractControl::AbstractControl(const QString &title, const QString &desc, cons
   title_label = new QPushButton(title);
   title_label->setFixedHeight(120);
   title_label->setStyleSheet("font-size: 50px; font-weight: 400; text-align: left; border: none;");
-  // kisapilot
-  if (!title.isEmpty()) {
-    hlayout->addWidget(title_label, 1);
-  }
+  hlayout->addWidget(title_label, 1);
 
   // value next to control button
   value = new ElidedLabel();
-  value->setAlignment(Qt::AlignVCenter);
+  value->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
   value->setStyleSheet("color: #aaaaaa");
   hlayout->addWidget(value);
 
   main_layout->addLayout(hlayout);
 
   // description
-  if (!desc.isEmpty()) {
-    description = new QLabel(desc);
-    description->setContentsMargins(40, 20, 40, 20);
-    description->setStyleSheet("font-size: 40px; color: grey");
-    description->setWordWrap(true);
-    description->setVisible(false);
-    main_layout->addWidget(description);
+  description = new QLabel(desc);
+  description->setContentsMargins(40, 20, 40, 20);
+  description->setStyleSheet("font-size: 40px; color: grey");
+  description->setWordWrap(true);
+  description->setVisible(false);
+  main_layout->addWidget(description);
 
-    connect(title_label, &QPushButton::clicked, [=]() {
-      if (!description->isVisible()) {
-        emit showDescriptionEvent();
-      }
+  connect(title_label, &QPushButton::clicked, [=]() {
+    if (!description->isVisible()) {
+      emit showDescriptionEvent();
+    }
 
-      if (!description->text().isEmpty()) {
-        description->setVisible(!description->isVisible());
-      }
-    });
-  }
+    if (!description->text().isEmpty()) {
+      description->setVisible(!description->isVisible());
+    }
+  });
+
   main_layout->addStretch();
 }
 
@@ -121,7 +117,6 @@ MenuControl::MenuControl( const QString &str_param, const QString &title, const 
 
     refresh();
   });
-
 
   btnplus.setStyleSheet(R"(
     padding: 0;
@@ -177,7 +172,6 @@ void MenuControl::refresh()
   {
 	  values = "Not";
   }
-
 
   label.setText( values );
 }

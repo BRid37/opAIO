@@ -41,7 +41,7 @@ class LatControlPID(LatControl):
                           pos_limit=self.steer_max, neg_limit=-self.steer_max)
       self.mpc_frame = 0
 
-  def update(self, active, CS, VM, params, steer_limited, desired_curvature, calibrated_pose, desired_curvature_rate):
+  def update(self, active, CS, VM, params, steer_limited_by_controls, desired_curvature, calibrated_pose, curvature_limited, desired_curvature_rate):
     self.lp_timer += 1
     if self.lp_timer > 100:
       self.lp_timer = 0
@@ -74,6 +74,6 @@ class LatControlPID(LatControl):
       pid_log.i = float(self.pid.i)
       pid_log.f = float(self.pid.f)
       pid_log.output = float(output_steer)
-      pid_log.saturated = bool(self._check_saturation(self.steer_max - abs(output_steer) < 1e-3, CS, steer_limited))
+      pid_log.saturated = bool(self._check_saturation(self.steer_max - abs(output_steer) < 1e-3, CS, steer_limited_by_controls, curvature_limited))
 
     return output_steer, angle_steers_des, pid_log

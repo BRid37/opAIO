@@ -15,9 +15,12 @@
 #include "selfdrive/ui/qt/widgets/prime.h"
 #include "selfdrive/ui/qt/widgets/scrollview.h"
 #include "selfdrive/ui/qt/offroad/developer_panel.h"
+#include "selfdrive/ui/qt/offroad/firehose.h"
 
+#include "selfdrive/ui/qt/offroad/kisaui.h" // kisapilot
+#include "selfdrive/ui/qt/offroad/kisadriving.h" // kisapilot
+#include "selfdrive/ui/qt/offroad/kisatuning.h" // kisapilot
 #include "selfdrive/ui/qt/widgets/kisapilot.h" // kisapilot
-#include "selfdrive/ui/qt/widgets/steerWidget.h" // kisapilot
 
 TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
   // param, title, desc, icon
@@ -31,18 +34,7 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
     {
       "ExperimentalMode",
       tr("Experimental Mode"),
-      QString("%1<br>"
-              "<h4>%2</h4><br>"
-              "%3<br>"
-              "<h4>%4</h4><br>"
-              "%5<br>")
-      .arg(tr("openpilot defaults to driving in <b>chill mode</b>. Experimental mode enables <b>alpha-level features</b> that aren't ready for chill mode. Experimental features are listed below:"))
-      .arg(tr("End-to-End Longitudinal Control"))
-      .arg(tr("Let the driving model control the gas and brakes. openpilot will drive as it thinks a human would, including stopping for red lights and stop signs. "
-              "Since the driving model decides the speed to drive, the set speed will only act as an upper bound. This is an alpha quality feature; "
-              "mistakes should be expected."))
-      .arg(tr("New Driving Visualization"))
-      .arg(tr("The driving visualization will transition to the road-facing wide-angle camera at low speeds to better show some turns. The Experimental mode logo will also be shown in the top right corner.")),
+      "",
       "../assets/img_experimental_white.svg",
     },
     {
@@ -50,20 +42,6 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
       tr("Disengage on Accelerator Pedal"),
       tr("When enabled, pressing the accelerator pedal will disengage openpilot."),
       "../assets/offroad/icon_disengage_on_accelerator.svg",
-    },
-    {
-      "FirehoseMode",
-      tr("FIREHOSE Mode"),
-      tr("Enable <b>FIREHOSE Mode</b> to get your driving data in the training set.<br><br>"
-         "Follow these steps to get your device ready:<br>"
-         "  1. Bring your device inside and connect to a good USB-C adapter<br>"
-         "  2. Connect to Wi-Fi<br>"
-         "  3. Enable this toggle<br>"
-         "  4. Leave it connected for at least 30 minutes<br>"
-         "<br>"
-         "This toggle turns off once you restart your device. Repeat once a week for maximum effectiveness."
-         ""),
-      "../assets/offroad/icon_warning.png",
     },
     {
       "IsLdwEnabled",
@@ -106,8 +84,8 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
   for (auto &[param, title, desc, icon] : toggle_defs) {
     auto toggle = new ParamControl(param, title, desc, icon, this);
 
-    // bool locked = params.getBool((param + "Lock").toStdString());
-    toggle->setEnabled(true);
+    bool locked = params.getBool((param + "Lock").toStdString());
+    toggle->setEnabled(!locked);
 
     addItem(toggle);
     toggles[param.toStdString()] = toggle;
@@ -120,7 +98,7 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
 
   // Toggles with confirmation dialogs
   toggles["ExperimentalMode"]->setActiveIcon("../assets/img_experimental.svg");
-  toggles["ExperimentalMode"]->setConfirmation(true, false);
+  toggles["ExperimentalMode"]->setConfirmation(true, true);
 }
 
 void TogglesPanel::updateState(const UIState &s) {
@@ -140,6 +118,60 @@ void TogglesPanel::expandToggleDescription(const QString &param) {
 }
 
 void TogglesPanel::showEvent(QShowEvent *event) {
+  updateToggles();
+}
+
+void TogglesPanel::updateToggles() {
+  auto experimental_mode_toggle = toggles["ExperimentalMode"];
+  const QString e2e_description = QString("%1<br>"
+                                          "<h4>%2</h4><br>"
+                                          "%3<br>"
+                                          "<h4>%4</h4><br>"
+                                          "%5<br>")
+                                  .arg(tr("openpilot defaults to driving in <b>chill mode</b>. Experimental mode enables <b>alpha-level features</b> that aren't ready for chill mode. Experimental features are listed below:"))
+                                  .arg(tr("End-to-End Longitudinal Control"))
+                                  .arg(tr("Let the driving model control the gas and brakes. openpilot will drive as it thinks a human would, including stopping for red lights and stop signs. "
+                                          "Since the driving model decides the speed to drive, the set speed will only act as an upper bound. This is an alpha quality feature; "
+                                          "mistakes should be expected."))
+                                  .arg(tr("New Driving Visualization"))
+                                  .arg(tr("The driving visualization will transition to the road-facing wide-angle camera at low speeds to better show some turns. The Experimental mode logo will also be shown in the top right corner."));
+
+  const bool is_release = params.getBool("IsReleaseBranch");
+  auto cp_bytes = params.get("CarParamsPersistent");
+  if (!cp_bytes.empty()) {
+    AlignedBuffer aligned_buf;
+    capnp::FlatArrayMessageReader cmsg(aligned_buf.align(cp_bytes.data(), cp_bytes.size()));
+    cereal::CarParams::Reader CP = cmsg.getRoot<cereal::CarParams>();
+
+    if (hasLongitudinalControl(CP)) {
+      // normal description and toggle
+      experimental_mode_toggle->setEnabled(true);
+      experimental_mode_toggle->setDescription(e2e_description);
+      long_personality_setting->setEnabled(true);
+    } else {
+      // no long for now
+      experimental_mode_toggle->setEnabled(false);
+      long_personality_setting->setEnabled(false);
+      params.remove("ExperimentalMode");
+
+      const QString unavailable = tr("Experimental mode is currently unavailable on this car since the car's stock ACC is used for longitudinal control.");
+
+      QString long_desc = unavailable + " " + \
+                          tr("openpilot longitudinal control may come in a future update.");
+      if (CP.getExperimentalLongitudinalAvailable()) {
+        if (is_release) {
+          long_desc = unavailable + " " + tr("An alpha version of openpilot longitudinal control can be tested, along with Experimental mode, on non-release branches.");
+        } else {
+          long_desc = tr("Enable the openpilot longitudinal control (alpha) toggle to allow Experimental mode.");
+        }
+      }
+      experimental_mode_toggle->setDescription("<b>" + long_desc + "</b><br><br>" + e2e_description);
+    }
+
+    experimental_mode_toggle->refresh();
+  } else {
+    experimental_mode_toggle->setDescription(e2e_description);
+  }
 }
 
 DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
@@ -164,7 +196,7 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   connect(dcamBtn, &ButtonControl::clicked, [=]() { emit showDriverView(); });
   addItem(dcamBtn);
 
-  auto resetCalibBtn = new ButtonControl(tr("Reset Calibration"), tr("RESET"), " ");
+  auto resetCalibBtn = new ButtonControl(tr("Reset Calibration"), tr("RESET"), "");
   connect(resetCalibBtn, &ButtonControl::showDescriptionEvent, this, &DevicePanel::updateCalibDescription);
   connect(resetCalibBtn, &ButtonControl::clicked, [&]() {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to reset calibration?"), tr("Reset"), this)) {
@@ -215,7 +247,9 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   });
   QObject::connect(uiState(), &UIState::offroadTransition, [=](bool offroad) {
     for (auto btn : findChildren<ButtonControl *>()) {
-      btn->setEnabled(true);
+      if (btn != pair_device) {
+        btn->setEnabled(offroad);
+      }
     }
   });
 
@@ -243,15 +277,11 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   }
 
   setStyleSheet(R"(
-    QPushButton {
-      height: 120px;
-      border-radius: 15px;
-    }
-    #refresh_btn { background-color: #83c744; }
+    #refresh_btn { height: 120px; border-radius: 15px; background-color: #83c744; }
     #refresh_btn:pressed { background-color: #c7deb1; }
-    #reboot_btn { background-color: #ed8e3b; }
+    #reboot_btn { height: 120px; border-radius: 15px; background-color: #ed8e3b; }
     #reboot_btn:pressed { background-color: #f0bf97; }
-    #poweroff_btn { background-color: #E22C2C; }
+    #poweroff_btn { height: 120px; border-radius: 15px; background-color: #E22C2C; }
     #poweroff_btn:pressed { background-color: #FF2424; }
   )");
   addItem(power_layout);
@@ -323,126 +353,31 @@ void DevicePanel::poweroff() {
   }
 }
 
-UIPanel::UIPanel(QWidget *parent) : QFrame(parent) {
-  QVBoxLayout *layout = new QVBoxLayout(this);
-  layout->setContentsMargins(50, 0, 50, 0);
-  layout->setSpacing(30);
-
-  // kisapilot
-  layout->addWidget(new AutoShutdown());
-  layout->addWidget(new VolumeControl());
-  layout->addWidget(new BrightnessControl());
-  layout->addWidget(new AutoScreenOff());
-  layout->addWidget(new BrightnessOffControl());
-  layout->addWidget(new DoNotDisturbMode());  
-  layout->addWidget(horizontal_line());
-  layout->addWidget(new DrivingRecordToggle());
-  layout->addWidget(new RecordCount());
-  const char* record_del = "rm -f /data/media/*.mp4";
-  auto recorddelbtn = new ButtonControl(tr("Delete All Recorded Files"), tr("RUN"));
-  QObject::connect(recorddelbtn, &ButtonControl::clicked, [=]() {
-    if (ConfirmationDialog::confirm2(tr("Delete all saved recorded files. Do you want to proceed?"), this)){
-      std::system(record_del);
-    }
-  });
-  layout->addWidget(recorddelbtn);
-  layout->addWidget(horizontal_line());
-  layout->addWidget(new EnableLogger());
-  //layout->addWidget(new EnableUploader());
-  const char* realdata_del = "rm -rf /data/media/0/realdata/*";
-  auto realdatadelbtn = new ButtonControl(tr("Delete All Driving Logs"), tr("RUN"));
-  QObject::connect(realdatadelbtn, &ButtonControl::clicked, [=]() {
-    if (ConfirmationDialog::confirm2(tr("Delete all saved driving logs. Do you want to proceed?"), this)){
-      std::system(realdata_del);
-    }
-  });
-  layout->addWidget(realdatadelbtn);
-  layout->addWidget(horizontal_line());
-  layout->addWidget(new MonitoringMode());
-  layout->addWidget(new MonitorEyesThreshold());
-  layout->addWidget(new BlinkThreshold());
-  layout->addWidget(horizontal_line());
-  layout->addWidget(new KISANaviSelect());
-  layout->addWidget(new ExternalDeviceIP());
-  //layout->addWidget(new KISAMapboxStyle());
-  layout->addWidget(horizontal_line());
-  layout->addWidget(new KISABottomTextView());
-  layout->addWidget(new RPMAnimatedToggle());
-  layout->addWidget(new RPMAnimatedMaxValue());
-  layout->addWidget(new LowUIProfile());
-}
-
-
-DrivingPanel::DrivingPanel(QWidget *parent) : QFrame(parent) {
-  QVBoxLayout *layout = new QVBoxLayout(this);
-  layout->setContentsMargins(50, 0, 50, 0);
-  layout->setSpacing(30);
-
-  // kisapilot
-  layout->addWidget(new CResumeGroup());
-  layout->addWidget(horizontal_line());
-  layout->addWidget(new CCruiseGapGroup());
-  layout->addWidget(horizontal_line());
-  layout->addWidget(new CVariableCruiseGroup());
-  layout->addWidget(horizontal_line());
-  layout->addWidget(new CLaneChangeGroup());
-  layout->addWidget(horizontal_line());
-  layout->addWidget(new CDrivingQuality());
-  layout->addWidget(horizontal_line());
-  layout->addWidget(new CSafetyandMap());
-  layout->addWidget(horizontal_line());
-  layout->addWidget(new CSteerWidget());
-  layout->addWidget(horizontal_line());
-
-  layout->addWidget(new UseLegacyLaneModel());
-}
-
-
-TuningPanel::TuningPanel(QWidget *parent) : QFrame(parent) {
-  QVBoxLayout *layout = new QVBoxLayout(this);
-
-  layout->setContentsMargins(50, 0, 50, 0);
-  layout->setSpacing(30);
-
-  // kisapilot
-  //layout->addWidget(new LabelControl(tr("〓〓〓〓〓〓〓〓〓〓〓〓【 TUNING 】〓〓〓〓〓〓〓〓〓〓〓〓"), ""));
-  layout->addWidget(new CameraOffset());
-  //layout->addWidget(new PathOffset());
-  layout->addWidget(new SteerAngleCorrection());
-  layout->addWidget(horizontal_line());
-
-  layout->addWidget(new SteerActuatorDelay());
-
-  layout->addWidget(new TireStiffnessFactor());
-  layout->addWidget(new SteerThreshold());
-  layout->addWidget(new SteerLimitTimer());
-
-  layout->addWidget(new LiveSteerRatioToggle());
-  layout->addWidget(new LiveSRPercent());
-  layout->addWidget(new SRBaseControl());
-  layout->addWidget(horizontal_line());
-  layout->addWidget(new SteerMax());
-  layout->addWidget(new SteerDeltaUp());
-  layout->addWidget(new SteerDeltaDown());
-  layout->addWidget(horizontal_line());
-
-  layout->addWidget(new CLateralControlGroup());
-  layout->addWidget(horizontal_line());
-  layout->addWidget(new CLongControlGroup());
-
-}
-
-
 void SettingsWindow::showEvent(QShowEvent *event) {
   setCurrentPanel(0);
 }
 
 void SettingsWindow::setCurrentPanel(int index, const QString &param) {
+  if (!param.isEmpty()) {
+    // Check if param ends with "Panel" to determine if it's a panel name
+    if (param.endsWith("Panel")) {
+      QString panelName = param;
+      panelName.chop(5); // Remove "Panel" suffix
+      
+      // Find the panel by name
+      for (int i = 0; i < nav_btns->buttons().size(); i++) {
+        if (nav_btns->buttons()[i]->text() == tr(panelName.toStdString().c_str())) {
+          index = i;
+          break;
+        }
+      }
+    } else {
+      emit expandToggleDescription(param);
+    }
+  }
+  
   panel_widget->setCurrentIndex(index);
   nav_btns->buttons()[index]->setChecked(true);
-  if (!param.isEmpty()) {
-    emit expandToggleDescription(param);
-  }
 }
 
 SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
@@ -450,12 +385,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   // setup two main layouts
   sidebar_widget = new QWidget;
   QVBoxLayout *sidebar_layout = new QVBoxLayout(sidebar_widget);
-  sidebar_layout->setMargin(0);
   panel_widget = new QStackedWidget();
-  panel_widget->setStyleSheet(R"(
-    border-radius: 30px;
-    background-color: #292929;
-  )");
 
   // close button
   QPushButton *close_btn = new QPushButton(tr("×"));
@@ -463,9 +393,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     QPushButton {
       font-size: 140px;
       padding-bottom: 20px;
-      font-weight: bold;
-      border 1px grey solid;
-      border-radius: 50px;
+      border-radius: 35px;
       background-color: #292929;
       font-weight: 400;
     }
@@ -473,9 +401,10 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
       background-color: #3B3B3B;
     }
   )");
-  close_btn->setFixedSize(220, 130);
+  close_btn->setFixedSize(220, 120);
   sidebar_layout->addSpacing(5);
   sidebar_layout->addWidget(close_btn, 0, Qt::AlignCenter);
+  sidebar_layout->addSpacing(45);
   QObject::connect(close_btn, &QPushButton::clicked, this, &SettingsWindow::closeSettings);
 
   // setup panels
@@ -494,29 +423,27 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     {tr("Network"), networking},
     {tr("Toggles"), toggles},
     {tr("Software"), new SoftwarePanel(this)},
+    {tr("Firehose"), new FirehosePanel(this)},
+    {tr("Developer"), new DeveloperPanel(this)},
     {tr("UIMenu"), new UIPanel(this)},
     {tr("Driving"), new DrivingPanel(this)},
-    {tr("Developer"), new DeveloperPanel(this)},
     {tr("Tuning"), new TuningPanel(this)},
   };
 
-  sidebar_layout->addSpacing(30);
-
-  const int padding = 0;
   nav_btns = new QButtonGroup(this);
   for (auto &[name, panel] : panels) {
     QPushButton *btn = new QPushButton(name);
     btn->setCheckable(true);
     btn->setChecked(nav_btns->buttons().size() == 0);
-    btn->setStyleSheet(QString(R"(
+    btn->setStyleSheet(R"(
       QPushButton {
         color: grey;
         border: none;
         background: none;
-        font-size: 60px;
-        font-weight: 500;
-        padding-top: %1px;
-        padding-bottom: %1px;
+        font-size: 65px;
+        font-weight: 600;
+        margin: 0px;
+        padding: 1px 1px;
       }
       QPushButton:checked {
         color: white;
@@ -524,7 +451,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
       QPushButton:pressed {
         color: #ADADAD;
       }
-    )").arg(padding));
+    )");
     btn->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     nav_btns->addButton(btn);
     sidebar_layout->addWidget(btn, 0, Qt::AlignRight);

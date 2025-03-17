@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 
-if [ -z "$BASEDIR" ]; then
-  BASEDIR="/data/openpilot"
-fi
-
-source "$BASEDIR/launch_env.sh"
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
+source "$DIR/launch_env.sh"
+
 function agnos_init {
+  # wait longer for screen recorder
+  if [ -f "$DIR/prebuilt" ]; then
+    sleep 10
+  fi
+
   # TODO: move this to agnos
   sudo rm -f /data/etc/NetworkManager/system-connections/*.nmmeta
 
@@ -58,25 +59,25 @@ function launch {
   # Check to see if there's a valid overlay-based update available. Conditions
   # are as follows:
   #
-  # 1. The BASEDIR init file has to exist, with a newer modtime than anything in
-  #    the BASEDIR Git repo. This checks for local development work or the user
+  # 1. The DIR init file has to exist, with a newer modtime than anything in
+  #    the DIR Git repo. This checks for local development work or the user
   #    switching branches/forks, which should not be overwritten.
   # 2. The FINALIZED consistent file has to exist, indicating there's an update
   #    that completed successfully and synced to disk.
 
-  if [ -f "${BASEDIR}/.overlay_init" ]; then
-    find ${BASEDIR}/.git -newer ${BASEDIR}/.overlay_init | grep -q '.' 2> /dev/null
+  if [ -f "${DIR}/.overlay_init" ]; then
+    find ${DIR}/.git -newer ${DIR}/.overlay_init | grep -q '.' 2> /dev/null
     if [ $? -eq 0 ]; then
-      echo "${BASEDIR} has been modified, skipping overlay update installation"
+      echo "${DIR} has been modified, skipping overlay update installation"
     else
       if [ -f "${STAGING_ROOT}/finalized/.overlay_consistent" ]; then
         if [ ! -d /data/safe_staging/old_openpilot ]; then
           echo "Valid overlay update found, installing"
           LAUNCHER_LOCATION="${BASH_SOURCE[0]}"
 
-          mv $BASEDIR /data/safe_staging/old_openpilot
-          mv "${STAGING_ROOT}/finalized" $BASEDIR
-          cd $BASEDIR
+          mv $DIR /data/safe_staging/old_openpilot
+          mv "${STAGING_ROOT}/finalized" $DIR
+          cd $DIR
 
           echo "Restarting launch script ${LAUNCHER_LOCATION}"
           unset AGNOS_VERSION
@@ -105,30 +106,13 @@ function launch {
   git log -n 1 --pretty=format:"/ %cd / %h" --date=short > /data/params/d/KisaPilotCurrentDescription
 
   # KisaPilot Model check
-  Model_Size=$(stat --printf=%s /data/openpilot/selfdrive/modeld/models/supercombo.onnx)
-  Model_Hash=$(md5sum /data/openpilot/selfdrive/modeld/models/supercombo.onnx | awk '{print $1}')
+  Model_P=$(stat --printf=%s /data/openpilot/selfdrive/modeld/models/driving_policy.onnx)
+  Model_V=$(stat --printf=%s /data/openpilot/selfdrive/modeld/models/driving_vision.onnx)
+  # Model_P_Hash=$(md5sum /data/openpilot/selfdrive/modeld/models/driving_policy.onnx | awk '{print $1}')
+  # Model_V_Hash=$(md5sum /data/openpilot/selfdrive/modeld/models/driving_vision.onnx | awk '{print $1}')
 
-  if [ "$Model_Size" == "51461700" ]; then echo -en "Not_Too_Shabby" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "49096168" ]; then echo -en "North_America" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "50320584" ] && [ "$Model_Hash" == "9547acde56cb884df920fcf0c3c3ebf5" ]; then echo -en "Null_Pointer" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "50320584" ] && [ "$Model_Hash" == "3bc05c7ad22d01c32659862e931d5567" ]; then echo -en "Postal_Service" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "50320584" ] && [ "$Model_Hash" == "f9950e8caca096c17a6d38129c738795" ]; then echo -en "PlayStation" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "50320584" ] && [ "$Model_Hash" == "930f71e841fa237de7b6748068042dfb" ]; then echo -en "NP_Cheater" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "50320584" ]; then echo -en "Alabama" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "50320138" ]; then echo -en "Dragon_Rider" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "50309976" ]; then echo -en "MLSIM" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "51453312" ]; then echo -en "Notre_Dame" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "51452435" ]; then echo -en "North_Dakota" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "50660999" ]; then echo -en "WD40" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "52263406" ]; then echo -en "Duck_Amigo" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "48193749" ] && [ "$Model_Hash" == "30c1756b6a04ba52924b3817128903bd" ]; then echo -en "Recertified_Herbalist" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "48193749" ]; then echo -en "Certified_Herbalist" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "48219112" ]; then echo -en "Los_Angeles" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "48457850" ]; then echo -en "New_Delhi" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "48457192" ]; then echo -en "Blue_Diamond" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "52524758" ]; then echo -en "Farmville" > /data/params/d/DrivingModel;
-  elif [ "$Model_Size" == "52939093" ]; then echo -en "New_Lemon_Pie" > /data/params/d/DrivingModel;
-  else echo -en "WD40" > /data/params/d/DrivingModel; fi
+  if [ "$Model_P" == "15966721" ] && [ "$Model_V" == "34882971" ]; then echo -en "Filet_o_Fish" > /data/params/d/DrivingModel;
+  else echo -en "Filet_o_Fish" > /data/params/d/DrivingModel; fi
 
   # start manager
   cd system/manager

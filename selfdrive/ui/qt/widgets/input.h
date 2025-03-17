@@ -61,17 +61,7 @@ public:
   static bool alert(const QString &prompt_text, QWidget *parent);
   static bool confirm(const QString &prompt_text, const QString &confirm_text, QWidget *parent);
   static bool rich(const QString &prompt_text, QWidget *parent);
-
   static bool confirm2(const QString &prompt_text, QWidget *parent);
-};
-
-// larger ConfirmationDialog for rich text
-class RichTextDialog : public DialogBase {
-  Q_OBJECT
-
-public:
-  explicit RichTextDialog(const QString &prompt_text, const QString &btn_text, QWidget* parent);
-  static bool alert(const QString &prompt_text, QWidget *parent);
 };
 
 class MultiOptionDialog : public DialogBase {
@@ -83,14 +73,13 @@ public:
   QString selection;
 };
 
-// UpdateInfoDialog
-class UpdateInfoDialog : public DialogBase {
+// larger ConfirmationDialog for rich text
+class RichTextDialog : public DialogBase {
   Q_OBJECT
 
 public:
-  explicit UpdateInfoDialog(const QString &prompt_text, const QString &confirm_text,
-                            const QString &cancel_text, const QString &detail_text, QWidget* parent);
-  static bool confirm(const QString &prompt_text, QWidget *parent);
+  explicit RichTextDialog(const QString &prompt_text, const QString &btn_text, QWidget* parent);
+  static bool alert(const QString &prompt_text, QWidget *parent);
 };
 
 // Git Pull Cancel

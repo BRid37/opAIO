@@ -253,11 +253,11 @@ def sw_update_thread(end_event, nv_queue):
         elif int(params.get("RunCustomCommand", encoding="utf8")) == 4:
           if p_order == 0:
             model_name = params.get("DrivingModel", encoding="utf8")
-            command1 = "wget -P /data/model https://raw.githubusercontent.com/kisapilot/model/main/models/" + model_name
-            command2 = "rm -f /data/openpilot/selfdrive/modeld/models/supercombo.onnx"
-            command3 = "rm -f /data/openpilot/selfdrive/modeld/models/supercombo.thneed"
-            command4 = "rm -f /data/openpilot/selfdrive/modeld/models/supercombo_metadata.pkl"
-            command5 = "cp -f /data/model/" + model_name + " /data/openpilot/selfdrive/modeld/models/supercombo.onnx"
+            command1 = "wget -P /data/model https://raw.githubusercontent.com/kisapilot/model/main/models/" + model_name + "_driving_policy"
+            command2 = "wget -P /data/model https://raw.githubusercontent.com/kisapilot/model/main/models/" + model_name + "_driving_vision"
+            command3 = "rm -f /data/openpilot/selfdrive/modeld/models/driving_*"
+            command4 = "cp -f /data/model/" + model_name + "_driving_policy /data/openpilot/selfdrive/modeld/models/driving_policy.onnx"
+            command5 = "cp -f /data/model/" + model_name + "_driving_vision /data/openpilot/selfdrive/modeld/models/driving_vision.onnx"
             command6 = "sudo reboot"
             p_order = 1
             lcount = 0
@@ -284,7 +284,7 @@ def sw_update_thread(end_event, nv_queue):
               result=subprocess.Popen(command3, shell=True)
             else:
               lcount += 1
-              if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
+              if lcount > 300: # killing in 180sec if proc is abnormal or not completed.
                 params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
@@ -339,11 +339,10 @@ def sw_update_thread(end_event, nv_queue):
                 result.kill()
         elif int(params.get("RunCustomCommand", encoding="utf8")) == 5:
           if p_order == 0:
-            command1 = "rm -f /data/openpilot/selfdrive/modeld/models/supercombo.onnx"
-            command2 = "rm -f /data/openpilot/selfdrive/modeld/models/supercombo.thneed"
-            command3 = "rm -f /data/openpilot/selfdrive/modeld/models/supercombo_metadata.pkl"
-            command4 = "git -C /data/openpilot/selfdrive//modeld/models checkout supercombo.onnx"
-            command5 = "sudo reboot"
+            command1 = "rm -f /data/openpilot/selfdrive/modeld/models/driving_*"
+            command2 = "git -C /data/openpilot/selfdrive//modeld/models checkout driving_policy.onnx"
+            command3 = "git -C /data/openpilot/selfdrive//modeld/models checkout driving_vision.onnx"
+            command4 = "sudo reboot"
             p_order = 1
             lcount = 0
             result=subprocess.Popen(command1, shell=True)
@@ -384,18 +383,6 @@ def sw_update_thread(end_event, nv_queue):
                 lcount = 0
                 result.kill()
           elif p_order == 4:
-            rvalue=result.poll()
-            if rvalue == 0:
-              p_order = 5
-              result=subprocess.Popen(command5, shell=True)
-            else:
-              lcount += 1
-              if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", "0")
-                p_order = 0
-                lcount = 0
-                result.kill()
-          elif p_order == 5:
             rvalue=result.poll()
             if rvalue == 0:
               p_order = 0

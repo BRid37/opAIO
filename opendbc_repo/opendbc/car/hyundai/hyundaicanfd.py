@@ -70,7 +70,7 @@ def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_steer, 
         "STEER_REQ": 1 if lat_active else 0,
         "STEER_MODE": 0,
         "HAS_LANE_SAFETY": 0,  # hide LKAS settings
-        "NEW_SIGNAL_1": 0,
+        "LKA_AVAILABLE": 0,
         "NEW_SIGNAL_2": 0,
       }
     if CP.openpilotLongitudinalControl:
@@ -82,7 +82,7 @@ def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_steer, 
       "LKAS_ANGLE_CMD": -apply_angle if lat_active else 0,
       "LKAS_ANGLE_MAX_TORQUE": max_torque if lat_active else 0,
     }
-    ret.append(packer.make_can_msg("LKAS_ADAS", CAN.ECAN, values))
+    ret.append(packer.make_can_msg("LFA_ALT", CAN.ECAN, values))
     values = {
       "LKA_MODE": 0,
       "LKA_ACTIVE": 3 if lat_active else 0,
@@ -234,7 +234,7 @@ def create_acc_control(packer, CAN, enabled, accel_last, accel, stopping, gas_ov
   return packer.make_can_msg("SCC_CONTROL", CAN.ECAN, values)
 
 
-def create_spas_messages(packer, CAN, frame, left_blink, right_blink):
+def create_spas_messages(packer, CAN, left_blink, right_blink):
   ret = []
 
   values = {
@@ -254,15 +254,8 @@ def create_spas_messages(packer, CAN, frame, left_blink, right_blink):
   return ret
 
 
-def create_adrv_messages(packer, CAN, frame):
-  # messages needed to car happy after disabling
-  # the ADAS Driving ECU to do longitudinal control
-
+def create_fca_warning_light(packer, CAN, frame):
   ret = []
-
-  values = {
-  }
-  ret.append(packer.make_can_msg("ADRV_0x51", CAN.ACAN, values))
 
   if frame % 2 == 0:
     values = {
@@ -273,6 +266,20 @@ def create_adrv_messages(packer, CAN, frame):
       'SET_ME_9': 0x9,
     }
     ret.append(packer.make_can_msg("ADRV_0x160", CAN.ECAN, values))
+  return ret
+
+
+def create_adrv_messages(packer, CAN, frame):
+  # messages needed to car happy after disabling
+  # the ADAS Driving ECU to do longitudinal control
+
+  ret = []
+
+  values = {
+  }
+  ret.append(packer.make_can_msg("ADRV_0x51", CAN.ACAN, values))
+
+  ret.extend(create_fca_warning_light(packer, CAN, frame))
 
   if frame % 5 == 0:
     values = {

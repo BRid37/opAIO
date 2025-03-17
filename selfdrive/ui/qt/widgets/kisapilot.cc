@@ -823,8 +823,7 @@ LiveParameterReset::LiveParameterReset() : AbstractControl(tr("Parameter Reset")
   });
 }
 
-CarSelectCombo::CarSelectCombo() : AbstractControl("", "", "") 
-{
+CarSelectCombo::CarSelectCombo() : AbstractControl(tr("Car"), "", "") {
   QStringList stringList;
   QFile carlistfile("/data/CarList");
   if (carlistfile.open(QIODevice::ReadOnly)) {
@@ -856,10 +855,11 @@ CarSelectCombo::CarSelectCombo() : AbstractControl("", "", "")
     background-color: #393939;
   )");
 
-  btn1.setFixedSize(1250, 100);
+  btn1.setFixedHeight(100);
+  btn1.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   btn2.setFixedSize(200, 100);
-  hlayout->addWidget(&btn1);
-  hlayout->addWidget(&btn2);
+  hlayout->addWidget(&btn1, 30);
+  hlayout->addWidget(&btn2, 0);
   btn1.setText(tr("Select Your Car"));
   btn2.setText(tr("UNSET"));
 
@@ -892,7 +892,7 @@ void CarSelectCombo::refresh() {
   }
 }
 
-ModelSelectCombo::ModelSelectCombo() : AbstractControl("", "", "") 
+ModelSelectCombo::ModelSelectCombo() : AbstractControl(tr("Model"), "", "") 
 {
   QStringList stringList;
   QFile modellistfile("/data/openpilot/selfdrive/assets/addon/model/ModelList");
@@ -906,9 +906,6 @@ ModelSelectCombo::ModelSelectCombo() : AbstractControl("", "", "")
   }
 
   hlayout->addStretch(1);
-
-  label.setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
-  hlayout->addWidget(&label);
 
   btn1.setStyleSheet(R"(
     padding: 0;
@@ -928,13 +925,13 @@ ModelSelectCombo::ModelSelectCombo() : AbstractControl("", "", "")
     background-color: #393939;
   )");
 
-  btn1.setFixedSize(1100, 100);
+  btn1.setFixedHeight(100);
+  btn1.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   btn2.setFixedSize(200, 100);
-  hlayout->addWidget(&btn1);
-  hlayout->addWidget(&btn2);
+  hlayout->addWidget(&btn1, 30);
+  hlayout->addWidget(&btn2, 0);
   btn1.setText(QString::fromStdString(params.get("DrivingModel")));
   btn2.setText(tr("Reset"));
-  label.setText(tr("Model"));
 
   QObject::connect(&btn1, &QPushButton::clicked, [=]() {
     QString cur = QString::fromStdString(params.get("DrivingModel"));
@@ -4910,22 +4907,22 @@ LCTimingFactor::LCTimingFactor() : AbstractControl("", "", "") {
 
   hlayout->addWidget(&label1a);
   hlayout->addWidget(&label1);
-  btn1.setFixedSize(145, 100);
+  btn1.setFixedSize(130, 100);
   label1a.setText("30:");
   hlayout->addWidget(&btn1);
   hlayout->addWidget(&label2a);
   hlayout->addWidget(&label2);
-  btn2.setFixedSize(145, 100);
+  btn2.setFixedSize(130, 100);
   label2a.setText("60:");
   hlayout->addWidget(&btn2);
   hlayout->addWidget(&label3a);
   hlayout->addWidget(&label3);
-  btn3.setFixedSize(145, 100);
+  btn3.setFixedSize(130, 100);
   label3a.setText("80:");
   hlayout->addWidget(&btn3);
   hlayout->addWidget(&label4a);
   hlayout->addWidget(&label4);
-  btn4.setFixedSize(145, 100);
+  btn4.setFixedSize(130, 100);
   label4a.setText("110:");
   hlayout->addWidget(&btn4);
 
@@ -5405,14 +5402,14 @@ VCurvSpeed::VCurvSpeed() : AbstractControl("", "", "") {
     height: 120px;
   )");
   btn.setFixedSize(150, 100);
-  edit1.setFixedSize(600, 100);
-  edit2.setFixedSize(600, 100);
+  edit1.setFixedHeight(100);
+  edit2.setFixedHeight(100);
   edit1.setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
   edit2.setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
 
-  hlayout->addWidget(&edit1);
-  hlayout->addWidget(&edit2);
-  hlayout->addWidget(&btn);
+  hlayout->addWidget(&edit1, 50);
+  hlayout->addWidget(&edit2, 50);
+  hlayout->addWidget(&btn, 0);
 
   QObject::connect(&btn, &QPushButton::clicked, [=]() {
     int list_count1 = 0;
@@ -5509,14 +5506,14 @@ OCurvSpeed::OCurvSpeed() : AbstractControl("", "", "") {
     height: 120px;
   )");
   btn.setFixedSize(150, 100);
-  edit1.setFixedSize(600, 100);
-  edit2.setFixedSize(600, 100);
+  edit1.setFixedHeight(100);
+  edit2.setFixedHeight(100);
   edit1.setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
   edit2.setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
 
-  hlayout->addWidget(&edit1);
-  hlayout->addWidget(&edit2);
-  hlayout->addWidget(&btn);
+  hlayout->addWidget(&edit1, 50);
+  hlayout->addWidget(&edit2, 50);
+  hlayout->addWidget(&btn, 0);
 
   QObject::connect(&btn, &QPushButton::clicked, [=]() {
     int list_count1 = 0;
@@ -6173,12 +6170,12 @@ OSMCustomSpeedLimit::OSMCustomSpeedLimit() : AbstractControl("", "", "") {
   btn.setFixedSize(150, 100);
   edit1.setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
   edit2.setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
-  edit1.setFixedSize(600, 100);
-  edit2.setFixedSize(600, 100);
+  edit1.setFixedHeight(100);
+  edit2.setFixedHeight(100);
 
-  hlayout->addWidget(&edit1);
-  hlayout->addWidget(&edit2);
-  hlayout->addWidget(&btn);
+  hlayout->addWidget(&edit1, 50);
+  hlayout->addWidget(&edit2, 50);
+  hlayout->addWidget(&btn, 0);
 
   QObject::connect(&btn, &QPushButton::clicked, [=]() {
     int list_count1 = 0;
@@ -6341,12 +6338,14 @@ DynamicTRBySpeed::DynamicTRBySpeed() : AbstractControl("", "", "") {
     height: 120px;
   )");
   btn.setFixedSize(150, 100);
+  edit1.setFixedHeight(100);
+  edit2.setFixedHeight(100);
   edit1.setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
   edit2.setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
 
-  hlayout->addWidget(&edit1);
-  hlayout->addWidget(&edit2);
-  hlayout->addWidget(&btn);
+  hlayout->addWidget(&edit1, 50);
+  hlayout->addWidget(&edit2, 50);
+  hlayout->addWidget(&btn, 0);
 
   QObject::connect(&btn, &QPushButton::clicked, [=]() {
     int list_count1 = 0;
@@ -6474,14 +6473,14 @@ SpeedLaneWidth::SpeedLaneWidth() : AbstractControl("", "", "") {
     height: 120px;
   )");
   btn.setFixedSize(150, 100);
-  edit1.setFixedSize(600, 100);
-  edit2.setFixedSize(600, 100);
+  edit1.setFixedHeight(100);
+  edit2.setFixedHeight(100);
   edit1.setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
   edit2.setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
 
-  hlayout->addWidget(&edit1);
-  hlayout->addWidget(&edit2);
-  hlayout->addWidget(&btn);
+  hlayout->addWidget(&edit1, 50);
+  hlayout->addWidget(&edit2, 50);
+  hlayout->addWidget(&btn, 0);
 
   QObject::connect(&btn, &QPushButton::clicked, [=]() {
     int list_count1 = 0;
@@ -6607,6 +6606,7 @@ void KISABottomTextView::refresh() {
 
 KISAEdgeOffset::KISAEdgeOffset() : AbstractControl("", tr("low value to move car to left, high value to move car to right on each lane."), "") {
 
+  hlayout->addStretch(1);
   labell1.setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
   labell1.setText(tr("LeftEdge: "));
   hlayout->addWidget(&labell1);
@@ -6629,8 +6629,8 @@ KISAEdgeOffset::KISAEdgeOffset() : AbstractControl("", tr("low value to move car
     color: #E4E4E4;
     background-color: #393939;
   )");
-  btnminusl.setFixedSize(150, 100);
-  btnplusl.setFixedSize(150, 100);
+  btnminusl.setFixedSize(130, 100);
+  btnplusl.setFixedSize(130, 100);
   hlayout->addWidget(&btnminusl);
   hlayout->addWidget(&btnplusl);
 
@@ -6656,8 +6656,8 @@ KISAEdgeOffset::KISAEdgeOffset() : AbstractControl("", tr("low value to move car
     color: #E4E4E4;
     background-color: #393939;
   )");
-  btnminusr.setFixedSize(150, 100);
-  btnplusr.setFixedSize(150, 100);
+  btnminusr.setFixedSize(130, 100);
+  btnplusr.setFixedSize(130, 100);
   hlayout->addWidget(&btnminusr);
   hlayout->addWidget(&btnplusr);
 
@@ -6734,6 +6734,7 @@ void KISAEdgeOffset::refreshr() {
 
 ToAvoidLKASFault::ToAvoidLKASFault() : AbstractControl("", "", "") {
 
+  hlayout->addStretch(1);
   labell1.setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
   labell1.setText(tr("MaxAngle: "));
   hlayout->addWidget(&labell1);
@@ -6756,8 +6757,8 @@ ToAvoidLKASFault::ToAvoidLKASFault() : AbstractControl("", "", "") {
     color: #E4E4E4;
     background-color: #393939;
   )");
-  btnminusl.setFixedSize(150, 100);
-  btnplusl.setFixedSize(150, 100);
+  btnminusl.setFixedSize(130, 100);
+  btnplusl.setFixedSize(130, 100);
   hlayout->addWidget(&btnminusl);
   hlayout->addWidget(&btnplusl);
 
@@ -6783,8 +6784,8 @@ ToAvoidLKASFault::ToAvoidLKASFault() : AbstractControl("", "", "") {
     color: #E4E4E4;
     background-color: #393939;
   )");
-  btnminusr.setFixedSize(150, 100);
-  btnplusr.setFixedSize(150, 100);
+  btnminusr.setFixedSize(130, 100);
+  btnplusr.setFixedSize(130, 100);
   hlayout->addWidget(&btnminusr);
   hlayout->addWidget(&btnplusr);
 
@@ -7004,10 +7005,11 @@ UserSpecificFeature::UserSpecificFeature() : AbstractControl(tr("FeatureNumber")
     font-weight: 500;
     height: 120px;
   )");
-  edit.setFixedSize(900, 100);
+  edit.setFixedHeight(100);
+  edit.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   btn.setFixedSize(200, 100);
-  hlayout->addWidget(&edit);
-  hlayout->addWidget(&btn);
+  hlayout->addWidget(&edit, 30);
+  hlayout->addWidget(&btn, 0);
 
   QObject::connect(&btn, &QPushButton::clicked, [=]() {
     QString targetvalue = InputDialog::getText(tr("User Specific Features"), this, tr("Put your number you know."), false, 1, QString::fromStdString(params.get("UserSpecificFeature")));
@@ -7967,30 +7969,41 @@ CruiseGapBySpd::CruiseGapBySpd() : AbstractControl("", "", "") {
     color: #E4E4E4;
     background-color: #393939;
   )");
-  btnminus1.setFixedSize(90, 100);
-  btnplus1.setFixedSize(90, 100);
-  btnminus2.setFixedSize(90, 100);
-  btnplus2.setFixedSize(90, 100);
-  btnminus3.setFixedSize(90, 100);
-  btnplus3.setFixedSize(90, 100);
-  btn1.setFixedSize(110, 100);
-  btn2.setFixedSize(110, 100);
-  btn3.setFixedSize(110, 100);
-  btn4.setFixedSize(110, 100);
+  btnminus1.setFixedHeight(100);
+  btnplus1.setFixedHeight(100);
+  btnminus2.setFixedHeight(100);
+  btnplus2.setFixedHeight(100);
+  btnminus3.setFixedHeight(100);
+  btnplus3.setFixedHeight(100);
+  btn1.setFixedHeight(100);
+  btn2.setFixedHeight(100);
+  btn3.setFixedHeight(100);
+  btn4.setFixedHeight(100);
 
-  hlayout->addWidget(&btn1);
-  hlayout->addWidget(&btnminus1);
-  hlayout->addWidget(&label1);
-  hlayout->addWidget(&btnplus1);
-  hlayout->addWidget(&btn2);
-  hlayout->addWidget(&btnminus2);
-  hlayout->addWidget(&label2);
-  hlayout->addWidget(&btnplus2);
-  hlayout->addWidget(&btn3);
-  hlayout->addWidget(&btnminus3);
-  hlayout->addWidget(&label3);
-  hlayout->addWidget(&btnplus3);
-  hlayout->addWidget(&btn4);
+  btn1.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  btn2.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  btn3.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  btn4.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  btnminus1.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  btnplus1.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  btnminus2.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  btnplus2.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  btnminus3.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  btnplus3.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  
+  hlayout->addWidget(&btn1, 10);
+  hlayout->addWidget(&btnminus1, 10);
+  hlayout->addWidget(&label1, 10);
+  hlayout->addWidget(&btnplus1, 10);
+  hlayout->addWidget(&btn2, 10);
+  hlayout->addWidget(&btnminus2, 10);
+  hlayout->addWidget(&label2, 10);
+  hlayout->addWidget(&btnplus2, 10);
+  hlayout->addWidget(&btn3, 10);
+  hlayout->addWidget(&btnminus3, 10);
+  hlayout->addWidget(&label3, 10);
+  hlayout->addWidget(&btnplus3, 10);
+  hlayout->addWidget(&btn4, 10);
 
   btnminus1.setText("－");
   btnplus1.setText("＋");
@@ -8246,72 +8259,6 @@ void CruiseSetwithRoadLimitSpeedOffset::refresh() {
   label.setText(QString::fromStdString(params.get("CruiseSetwithRoadLimitSpeedOffset")));
 }
 
-LongAlternative::LongAlternative() : AbstractControl(tr("Long for BUS2"), tr("Long for Bus 2. If your radar is on bus2, choose mode 1 or mode 2."), "../assets/offroad/icon_shell.png") {
-
-  label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
-  label.setStyleSheet("color: #e0e879");
-  hlayout->addWidget(&label);
-
-  btnminus.setStyleSheet(R"(
-    padding: 0;
-    border-radius: 50px;
-    font-size: 35px;
-    font-weight: 500;
-    color: #E4E4E4;
-    background-color: #393939;
-  )");
-  btnplus.setStyleSheet(R"(
-    padding: 0;
-    border-radius: 50px;
-    font-size: 35px;
-    font-weight: 500;
-    color: #E4E4E4;
-    background-color: #393939;
-  )");
-  btnminus.setFixedSize(150, 100);
-  btnplus.setFixedSize(150, 100);
-  btnminus.setText("－");
-  btnplus.setText("＋");
-  hlayout->addWidget(&btnminus);
-  hlayout->addWidget(&btnplus);
-
-  QObject::connect(&btnminus, &QPushButton::clicked, [=]() {
-    auto str = QString::fromStdString(params.get("KISALongAlt"));
-    int value = str.toInt();
-    value = value - 1;
-    if (value <= -1) {
-      value = 2;
-    }
-    QString values = QString::number(value);
-    params.put("KISALongAlt", values.toStdString());
-    refresh();
-  });
-  
-  QObject::connect(&btnplus, &QPushButton::clicked, [=]() {
-    auto str = QString::fromStdString(params.get("KISALongAlt"));
-    int value = str.toInt();
-    value = value + 1;
-    if (value >= 3) {
-      value = 0;
-    }
-    QString values = QString::number(value);
-    params.put("KISALongAlt", values.toStdString());
-    refresh();
-  });
-  refresh();
-}
-
-void LongAlternative::refresh() {
-  QString option = QString::fromStdString(params.get("KISALongAlt"));
-  if (option == "1") {
-    label.setText(tr("Mode 1"));
-  } else if (option == "2") {
-    label.setText(tr("Mode 2"));
-  } else {
-    label.setText(tr("None"));
-  }
-}
-
 MapboxToken::MapboxToken() : AbstractControl(tr("MapboxToken"), tr("MapboxToken"), "") {
   btn.setStyleSheet(R"(
     padding: -10;
@@ -8436,30 +8383,42 @@ CruiseSpammingLevel::CruiseSpammingLevel() : AbstractControl("", "", "") {
     color: #E4E4E4;
     background-color: #393939;
   )");
-  btnminus1.setFixedSize(90, 100);
-  btnplus1.setFixedSize(90, 100);
-  btnminus2.setFixedSize(90, 100);
-  btnplus2.setFixedSize(90, 100);
-  btnminus3.setFixedSize(90, 100);
-  btnplus3.setFixedSize(90, 100);
-  btn1.setFixedSize(110, 100);
-  btn2.setFixedSize(110, 100);
-  btn3.setFixedSize(110, 100);
-  btn4.setFixedSize(110, 100);
+  btnminus1.setFixedHeight(100);
+  btnplus1.setFixedHeight(100);
+  btnminus2.setFixedHeight(100);
+  btnplus2.setFixedHeight(100);
+  btnminus3.setFixedHeight(100);
+  btnplus3.setFixedHeight(100);
+  btn1.setFixedHeight(100);
+  btn2.setFixedHeight(100);
+  btn3.setFixedHeight(100);
+  btn4.setFixedHeight(100);
 
-  hlayout->addWidget(&btn1);
-  hlayout->addWidget(&btnminus1);
-  hlayout->addWidget(&label1);
-  hlayout->addWidget(&btnplus1);
-  hlayout->addWidget(&btn2);
-  hlayout->addWidget(&btnminus2);
-  hlayout->addWidget(&label2);
-  hlayout->addWidget(&btnplus2);
-  hlayout->addWidget(&btn3);
-  hlayout->addWidget(&btnminus3);
-  hlayout->addWidget(&label3);
-  hlayout->addWidget(&btnplus3);
-  hlayout->addWidget(&btn4);
+  btn1.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  btn2.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  btn3.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  btn4.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  
+  btnminus1.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  btnplus1.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  btnminus2.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  btnplus2.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  btnminus3.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  btnplus3.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  
+  hlayout->addWidget(&btn1, 10);
+  hlayout->addWidget(&btnminus1, 10);
+  hlayout->addWidget(&label1, 10);
+  hlayout->addWidget(&btnplus1, 10);
+  hlayout->addWidget(&btn2, 10);
+  hlayout->addWidget(&btnminus2, 10);
+  hlayout->addWidget(&label2, 10);
+  hlayout->addWidget(&btnplus2, 10);
+  hlayout->addWidget(&btn3, 10);
+  hlayout->addWidget(&btnminus3, 10);
+  hlayout->addWidget(&label3, 10);
+  hlayout->addWidget(&btnplus3, 10);
+  hlayout->addWidget(&btn4, 10);
 
   btnminus1.setText("－");
   btnplus1.setText("＋");

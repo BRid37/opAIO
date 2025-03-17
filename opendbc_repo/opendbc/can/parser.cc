@@ -5,8 +5,6 @@
 #include <stdexcept>
 #include <sstream>
 
-#include <unistd.h> // kisa
-
 #include "opendbc/can/common.h"
 
 int64_t get_raw_value(const std::vector<uint8_t> &msg, const Signal &sig) {
@@ -228,20 +226,10 @@ void CANParser::UpdateValid(uint64_t nanos) {
     const bool timed_out = (nanos - state.last_seen_nanos) > state.check_threshold;
     if (state.check_threshold > 0 && (missing || timed_out)) {
       if (show_missing && !bus_timeout) {
-        // kisa
-        char chk_cmd[100];
         if (missing) {
           LOGE_100("0x%X '%s' NOT SEEN", state.address, state.name.c_str());
-          if(access("/data/log/can_missing.txt", F_OK) == -1) {
-            sprintf(chk_cmd, "echo -n 0x%X > /data/log/can_missing.txt", state.address);
-            system(chk_cmd);
-          }
         } else if (timed_out) {
           LOGE_100("0x%X '%s' TIMED OUT", state.address, state.name.c_str());
-          if(access("/data/log/can_timeout.txt", F_OK) == -1) {
-            sprintf(chk_cmd, "echo -n 0x%X > /data/log/can_timeout.txt", state.address);
-            system(chk_cmd);
-          }
         }
       }
       _valid = false;

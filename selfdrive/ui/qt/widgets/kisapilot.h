@@ -992,6 +992,18 @@ public:
   }
 };
 
+class LongAlternative : public ToggleControl {
+  Q_OBJECT
+
+public:
+LongAlternative() : ToggleControl(tr("Long for BUS2"), tr("Long for Bus 2. Turn on if your radar is on bus2."), "../assets/offroad/icon_shell.png", Params().getBool("KISALongAlt")) {
+    QObject::connect(this, &LongAlternative::toggleFlipped, [=](int state) {
+      bool status = state ? true : false;
+      Params().putBool("KISALongAlt", status);
+    });
+  }
+};
+
 // openpilot preview
 class OpenpilotView : public AbstractControl {
   Q_OBJECT
@@ -1044,7 +1056,6 @@ public:
   ModelSelectCombo();
 
 private:
-  QLabel label;
   QPushButton btn1;
   QPushButton btn2;
   Params params;
@@ -2600,21 +2611,6 @@ class CruiseSetwithRoadLimitSpeedOffset : public AbstractControl {
 
 public:
   CruiseSetwithRoadLimitSpeedOffset();
-
-private:
-  QPushButton btnplus;
-  QPushButton btnminus;
-  QLabel label;
-  Params params;
-  
-  void refresh();
-};
-
-class LongAlternative : public AbstractControl {
-  Q_OBJECT
-
-public:
-  LongAlternative();
 
 private:
   QPushButton btnplus;

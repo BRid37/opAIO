@@ -74,6 +74,8 @@ private:
   Params params;
   std::map<std::string, ParamControl*> toggles;
   ButtonParamControl *long_personality_setting;
+
+  void updateToggles();
 };
 
 class SoftwarePanel : public ListWidget {
@@ -98,23 +100,11 @@ private:
   ParamWatcher *fs_watch;
 };
 
-class UIPanel : public QFrame {
-  Q_OBJECT
+// Forward declaration
+class FirehosePanel;
 
-public:
-  explicit UIPanel(QWidget *parent = nullptr);
-};
+class UIPanel;
 
-class DrivingPanel : public QFrame {
-  Q_OBJECT
+class DrivingPanel;
 
-public:
-  explicit DrivingPanel(QWidget *parent = nullptr);
-};
-
-class TuningPanel : public QFrame {
-  Q_OBJECT
-
-public:
-  explicit TuningPanel(QWidget *parent = nullptr);
-};
+class TuningPanel;

@@ -1,17 +1,20 @@
 from opendbc.car import get_safety_config, structs
 from opendbc.car.interfaces import CarInterfaceBase
+from opendbc.car.rivian.carcontroller import CarController
+from opendbc.car.rivian.carstate import CarState
+from opendbc.car.rivian.radar_interface import RadarInterface
 
 
 class CarInterface(CarInterfaceBase):
+  CarState = CarState
+  CarController = CarController
+  RadarInterface = RadarInterface
 
   @staticmethod
   def _get_params(ret: structs.CarParams, candidate, fingerprint, car_fw, experimental_long, docs) -> structs.CarParams:
     ret.brand = "rivian"
 
     ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.rivian)]
-
-    # pending validation
-    ret.dashcamOnly = True
 
     ret.steerActuatorDelay = 0.25
     ret.steerLimitTimer = 0.4
@@ -20,6 +23,7 @@ class CarInterface(CarInterfaceBase):
     ret.steerControlType = structs.CarParams.SteerControlType.torque
     ret.radarUnavailable = True
 
+    # TODO: pending finding/handling missing set speed and fixing up radar parser
     ret.experimentalLongitudinalAvailable = False
     if experimental_long:
       ret.openpilotLongitudinalControl = True

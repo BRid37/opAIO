@@ -40,6 +40,9 @@ bool hyundai_alt_limits = false;
 extern bool hyundai_fcev_gas_signal;
 bool hyundai_fcev_gas_signal = false;
 
+extern bool hyundai_alt_limits_2;
+bool hyundai_alt_limits_2 = false;
+
 static uint8_t hyundai_last_button_interaction;  // button messages since the user pressed an enable button
 
 void hyundai_common_init(uint16_t param) {

@@ -61,7 +61,7 @@ class CarController(CarControllerBase):
     self.angle_limit_counter = 0
 
     self.accel_last = 0
-    self.apply_steer_last = 0
+    self.apply_torque_last = 0
     self.car_fingerprint = CP.carFingerprint
     self.last_button_frame = 0
 
@@ -351,14 +351,14 @@ class CarController(CarControllerBase):
 
     # steering torque
     if self.CP.smoothSteer.method == 1:
-      new_steer = int(round(actuators.steer * self.params.STEER_MAX))
-      new_steer = self.smooth_steer( new_steer, CS )
+      new_torque = int(round(actuators.torque * self.params.STEER_MAX))
+      new_torque = self.smooth_steer( new_torque, CS )
     elif 0 <= self.driver_steering_torque_above_timer < 150 and not self.user_specific_feature == 60:
-      new_steer = int(round(actuators.steer * self.params.STEER_MAX * (self.driver_steering_torque_above_timer / 150)))
+      new_torque = int(round(actuators.torque * self.params.STEER_MAX * (self.driver_steering_torque_above_timer / 150)))
     else:
-      new_steer = int(round(actuators.steer * self.params.STEER_MAX))
+      new_torque = int(round(actuators.torque * self.params.STEER_MAX))
 
-    apply_steer = apply_driver_steer_torque_limits(new_steer, self.apply_steer_last, CS.out.steeringTorque, self.params)
+    apply_torque = apply_driver_steer_torque_limits(new_torque, self.apply_torque_last, CS.out.steeringTorque, self.params)
 
     if self.kisa_maxanglelimit == 90:
       lat_active = CC.latActive and abs(CS.out.steeringAngleDeg) < self.kisa_maxanglelimit and (CS.out.gearShifter == GearShifter.drive or self.user_specific_feature == 11)
@@ -387,7 +387,7 @@ class CarController(CarControllerBase):
       self.angle_limit_counter, apply_steer_req = common_fault_avoidance(abs(CS.out.steeringAngleDeg) >= self.to_avoid_lkas_fault_max_angle, lat_active,
                                                                          self.angle_limit_counter, self.to_avoid_lkas_fault_max_frame,
                                                                          MAX_ANGLE_CONSECUTIVE_FRAMES)
-      apply_angle = apply_std_steer_angle_limits(actuators.steeringAngleDeg, self.apply_angle_last, CS.out.vEgoRaw, self.params)
+      apply_angle = apply_std_steer_angle_limits(actuators.steeringAngleDeg, self.apply_angle_last, CS.out.vEgoRaw, CS.out.steeringAngleDeg, lat_active, CarControllerParams.ANGLE_LIMITS)
       self.apply_angle_now = apply_angle
       # apply_angle = np.interp(self.model_speed, [50, 80], [CS.stock_str_angle, apply_angle])
 
@@ -425,11 +425,11 @@ class CarController(CarControllerBase):
 
     if not lat_active:
       apply_angle = CS.out.steeringAngleDeg
-      apply_steer = 0
+      apply_torque = 0
       self.lkas_max_torque = 0
       self.apply_angle_last = apply_angle
 
-    self.apply_steer_last = apply_steer
+    self.apply_torque_last = apply_torque
 
     # accel + longitudinal
     accel = float(np.clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX))
@@ -447,7 +447,7 @@ class CarController(CarControllerBase):
     # tester present - w/ no response (keeps relevant ECU disabled)
     if self.frame % 100 == 0 and not (self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC) and self.CP.openpilotLongitudinalControl and self.experimental_long_enabled:
       # for longitudinal control, either radar or ADAS driving ECU
-      addr, bus = 0x7d0, 0
+      addr, bus = 0x7d0, self.CAN.ECAN if self.CP.flags & HyundaiFlags.CANFD else 0
       if self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING.value:
         addr, bus = 0x730, self.CAN.ECAN
       can_sends.append(make_tester_present_msg(addr, bus, suppress_response=True))
@@ -685,7 +685,7 @@ class CarController(CarControllerBase):
       lka_steering_long = lka_steering and self.CP.openpilotLongitudinalControl
 
       # steering control
-      can_sends.extend(hyundaicanfd.create_steering_messages(self.packer, self.CP, self.CAN, CC.enabled, apply_steer_req, apply_steer, 
+      can_sends.extend(hyundaicanfd.create_steering_messages(self.packer, self.CP, self.CAN, CC.enabled, apply_steer_req, apply_torque, 
                                                              apply_angle, self.lkas_max_torque, self.CP.isAngleControl))
 
       # prevent LFA from activating on LKA steering cars by sending "no lane lines detected" to ADAS ECU
@@ -703,7 +703,7 @@ class CarController(CarControllerBase):
 
       # blinkers
       if lka_steering and self.CP.flags & HyundaiFlags.ENABLE_BLINKERS:
-        can_sends.extend(hyundaicanfd.create_spas_messages(self.packer, self.CAN, self.frame, CC.leftBlinker, CC.rightBlinker))
+        can_sends.extend(hyundaicanfd.create_spas_messages(self.packer, self.CAN, CC.leftBlinker, CC.rightBlinker))
 
       if self.CP.openpilotLongitudinalControl:
         if lka_steering:
@@ -718,7 +718,7 @@ class CarController(CarControllerBase):
     else:
       clu11_speed = CS.clu11["CF_Clu_Vanz"]
 
-      can_sends.append(hyundaican.create_lkas11(self.packer, self.frame, self.CP, apply_steer, lat_active and not self.lkas_temp_disabled,
+      can_sends.append(hyundaican.create_lkas11(self.packer, self.frame, self.CP, apply_torque, lat_active and not self.lkas_temp_disabled,
                                                 torque_fault, CS.lkas11, sys_warning, sys_state, CC.enabled,
                                                 hud_control.leftLaneVisible, hud_control.rightLaneVisible,
                                                 left_lane_warning, right_lane_warning, 0, self.ldws_fix))
@@ -1287,7 +1287,7 @@ class CarController(CarControllerBase):
           int(CC.enabled), int(CC.latActive), int(lat_active), int(CC.longActive), CS.out.cruiseState.modeSel, self.CP.sccBus, self.model_speed, abs(self.sm['controlsState'].curvature), self.lkas_max_torque, abs(CS.out.steeringTorque), self.apply_angle_last, CS.stock_str_angle, self.apply_angle_now)
       else:
         str_log1 = 'EN/LA/LO={}/{}{}/{}  MD={}  BS={:1.0f}  CV={:03.0f}/{:0.4f}  TQ={:03.0f}/{:03.0f}  VF={:03.0f}  ST={:03.0f}/{:01.0f}/{:01.0f}'.format(
-          int(CC.enabled), int(CC.latActive), int(lat_active), int(CC.longActive), CS.out.cruiseState.modeSel, self.CP.sccBus, self.model_speed, abs(self.sm['controlsState'].curvature), abs(new_steer), abs(CS.out.steeringTorque), self.vFuture, self.params.STEER_MAX, self.params.STEER_DELTA_UP, self.params.STEER_DELTA_DOWN)
+          int(CC.enabled), int(CC.latActive), int(lat_active), int(CC.longActive), CS.out.cruiseState.modeSel, self.CP.sccBus, self.model_speed, abs(self.sm['controlsState'].curvature), abs(new_torque), abs(CS.out.steeringTorque), self.vFuture, self.params.STEER_MAX, self.params.STEER_DELTA_UP, self.params.STEER_DELTA_DOWN)
       if CS.out.cruiseState.accActive:
         str_log2 = 'AQ={:+04.2f}  SS={:03.0f}/{:03.0f}  VF={:03.0f}/{:03.0f}  TS/VS={:03.0f}/{:03.0f}  RD/ED/C/T={:04.1f}/{:04.1f}/{}/{}  C={:1.0f}/{:1.0f}/{}'.format(
         self.aq_value if self.longcontrol else CS.scc_control["aReqValue"], set_speed_in_units, self.sm['carState'].vCruise, self.vFuture, self.vFutureA, self.KCC.ctrl_speed, round(CS.VSetDis), CS.lead_distance, self.dRel, int(self.KCC.cut_in), self.KCC.cut_in_run_timer, 0, CS.cruiseGapSet, self.btnsignal if self.btnsignal is not None else 0, self.KCC.t_interval)
@@ -1296,7 +1296,7 @@ class CarController(CarControllerBase):
         int(not CS.out.steerFaultTemporary), 0, int(bool(0 < CS.lead_distance < 149)), self.aq_value if self.longcontrol else CS.scc_control["aReqValue"], self.vFuture, self.vFutureA, CS.cruiseGapSet, CS.main_buttons[-1], CS.cruise_buttons[-1])
     else:
       str_log1 = 'EN/LA/LO={}/{}{}/{}  MD={}  BS={:1.0f}  CV={:03.0f}/{:0.4f}  TQ={:03.0f}/{:03.0f}  VF={:03.0f}  ST={:03.0f}/{:01.0f}/{:01.0f}'.format(
-        int(CC.enabled), int(CC.latActive), int(lat_active), int(CC.longActive), CS.out.cruiseState.modeSel, self.CP.sccBus, self.model_speed, abs(self.sm['controlsState'].curvature), abs(new_steer), abs(CS.out.steeringTorque), self.vFuture, self.params.STEER_MAX, self.params.STEER_DELTA_UP, self.params.STEER_DELTA_DOWN)
+        int(CC.enabled), int(CC.latActive), int(lat_active), int(CC.longActive), CS.out.cruiseState.modeSel, self.CP.sccBus, self.model_speed, abs(self.sm['controlsState'].curvature), abs(new_torque), abs(CS.out.steeringTorque), self.vFuture, self.params.STEER_MAX, self.params.STEER_DELTA_UP, self.params.STEER_DELTA_DOWN)
       if CS.out.cruiseState.accActive:
         str_log2 = 'AQ={:+04.2f}  SS={:03.0f}/{:03.0f}  VF={:03.0f}/{:03.0f}  TS/VS={:03.0f}/{:03.0f}  RD/ED/C/T={:04.1f}/{:04.1f}/{}/{}/{}  C={:1.0f}/{:1.0f}/{}/{:1.0f}'.format(
         self.aq_value if self.longcontrol else CS.scc12["aReqValue"], set_speed_in_units, self.sm['carState'].vCruise, self.vFuture, self.vFutureA, self.KCC.ctrl_speed, round(CS.VSetDis), CS.lead_distance, self.dRel, int(self.KCC.cut_in), self.KCC.cut_in_run_timer, self.ed_rd_diff_on_timer, CS.cruiseGapSet, self.btnsignal if self.btnsignal is not None else 0, self.KCC.t_interval, self.l_stat)
@@ -1346,8 +1346,8 @@ class CarController(CarControllerBase):
         self.str_log2 = 'T={:0.2f}/{:0.2f}/{:0.3f}'.format(torque_params.latAccelFactorFiltered, torque_params.latAccelOffsetFiltered, torque_params.frictionCoefficientFiltered)
 
     new_actuators = actuators.as_builder()
-    new_actuators.steer = apply_steer / self.params.STEER_MAX
-    new_actuators.steerOutputCan = apply_steer
+    new_actuators.torque = apply_torque / self.params.STEER_MAX
+    new_actuators.torqueOutputCan = apply_torque
     new_actuators.steeringAngleDeg = apply_angle if self.to_avoid_lkas_fault_enabled or self.CP.isCanFD or not lat_active else 0
     new_actuators.accel = self.accel if self.CP.sccBus == 2 else accel
 

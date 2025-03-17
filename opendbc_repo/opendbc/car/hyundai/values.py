@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass, field
 from enum import Enum, IntFlag
 
-from opendbc.car import Bus, CarSpecs, DbcDict, PlatformConfig, Platforms, uds, AngleRateLimit
+from opendbc.car import AngleSteeringLimits, Bus, CarSpecs, DbcDict, PlatformConfig, Platforms, uds
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.structs import CarParams
 from opendbc.car.docs_definitions import CarFootnote, CarHarness, CarDocs, CarParts, Column, Mount
@@ -17,10 +17,14 @@ class CarControllerParams:
   ACCEL_MIN = -4.0 # m/s
   ACCEL_MAX = 2.0 # m/s
 
-  # ToDo, seen changing at 0.2 deg/frame down, 0.1 deg/frame up at 100Hz, testing with IONIQ5_PE 2025(The New IONIQ5)
-  ANGLE_RATE_LIMIT_UP = AngleRateLimit(speed_bp=[0., 5., 15.], angle_v=[7.0, 1.12, 0.21])
-  ANGLE_RATE_LIMIT_DOWN = AngleRateLimit(speed_bp=[0., 5., 15.], angle_v=[7.0, 4.9, 0.56])
   LKAS_MAX_TORQUE = 180   # max 255, seems related to steer movement speed or power
+  ANGLE_LIMITS: AngleSteeringLimits = AngleSteeringLimits(
+    # ToDo, seen changing at 0.2 deg/frame down, 0.1 deg/frame up at 100Hz, testing with IONIQ5_PE 2025(The New IONIQ5)
+    #   CANPacker packs wrong angle output to be decoded by panda
+    480,  # deg, reasonable limit
+    ([0., 5., 15.], [7.0, 1.12, 0.21]),
+    ([0., 5., 15.], [7.0, 4.9, 0.56]),
+  )
 
   def __init__(self, CP):
     self.STEER_DELTA_UP = int(Params().get("SteerDeltaUpAdj", encoding="utf8"))  # default 3
@@ -221,7 +225,7 @@ class CAR(Platforms):
     flags=HyundaiFlags.HYBRID | HyundaiFlags.MIN_STEER_32_MPH,
   )
   HYUNDAI_IONIQ_HEV_2022 = HyundaiPlatformConfig(
-    [HyundaiCarDocs("Hyundai Ioniq Hybrid 2020-22", car_parts=CarParts.common([CarHarness.hyundai_h]))],  # TODO: confirm 2020-21 harness,
+    [HyundaiCarDocs("Hyundai Ioniq Hybrid 2020-22", car_parts=CarParts.common([CarHarness.hyundai_h]))],
     CarSpecs(mass=1490, wheelbase=2.7, steerRatio=13.73, tireStiffnessFactor=0.385),
     flags=HyundaiFlags.HYBRID | HyundaiFlags.LEGACY,
   )

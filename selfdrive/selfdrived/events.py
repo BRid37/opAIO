@@ -309,6 +309,24 @@ def calibration_invalid_alert(CP: car.CarParams, CS: car.CarState, sm: messaging
   return NormalPermanentAlert("Calibration Invalid", angles)
 
 
+def paramsd_invalid_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality) -> Alert:
+  if not sm['liveParameters'].angleOffsetValid:
+    angle_offset_deg = sm['liveParameters'].angleOffsetDeg
+    title = "Steering misalignment detected"
+    text = f"Angle offset too high (Offset: {angle_offset_deg:.1f}°)"
+  elif not sm['liveParameters'].steerRatioValid:
+    steer_ratio = sm['liveParameters'].steerRatio
+    title = "Steer ratio mismatch"
+    text = f"Steering rack geometry may be off (Ratio: {steer_ratio:.1f})"
+  elif not sm['liveParameters'].stiffnessFactorValid:
+    stiffness_factor = sm['liveParameters'].stiffnessFactor
+    title = "Abnormal tire stiffness"
+    text = f"Check tires, pressure, or alignment (Factor: {stiffness_factor:.1f})"
+  else:
+    return NoEntryAlert("paramsd Temporary Error")
+
+  return NoEntryAlert(alert_text_1=title, alert_text_2=text)
+
 def overheat_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality) -> Alert:
   cpu = max(sm['deviceState'].cpuTempC, default=0.)
   gpu = max(sm['deviceState'].gpuTempC, default=0.)
@@ -338,105 +356,10 @@ def wrong_car_mode_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubM
 
 def joystick_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality) -> Alert:
   gb = sm['carControl'].actuators.accel / 4.
-  steer = sm['carControl'].actuators.steer
+  steer = sm['carControl'].actuators.torque
   vals = f"Gas: {round(gb * 100.)}%, Steer: {round(steer * 100.)}%"
   return NormalPermanentAlert("Joystick Mode", vals)
 
-# kisa
-def can_error_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality) -> Alert:
-  if CP.brand == "hyundai":
-    if os.path.isfile('/data/log/can_missing.txt'):
-      f = open('/data/log/can_missing.txt', 'r')
-      add = f.readline()
-      add_int = int(add, 0) if add else None
-      f.close()
-      canid_temp = "BO_ " + str(add_int)
-      canid_char = ""
-      if CP.isCanFD:
-        f = open('/data/openpilot/opendbc_repo/opendbc/dbc/hyundai_canfd.dbc', 'r')
-        lines = f.readlines()
-        for line in lines:
-          if canid_temp in line:
-            line = line.strip()
-            canid_char = line.split()[2]
-            canid_char = canid_char.replace(':', '')
-            break
-        f.close()
-      else:
-        f = open('/data/openpilot/opendbc_repo/opendbc/dbc/hyundai_kia_generic.dbc', 'r')
-        lines = f.readlines()
-        for line in lines:
-          if canid_temp in line:
-            line = line.strip()
-            canid_char = line.split()[2]
-            canid_char = canid_char.replace(':', '')
-            break
-        f.close()
-      if canid_char != "":
-        return Alert(
-          "CAN Error: %s is missing" % (canid_char),
-          "",
-          AlertStatus.normal, AlertSize.small,
-          Priority.LOW, VisualAlert.none, AudibleAlert.none, .2, creation_delay=1.)
-      else:
-        return Alert(
-          "CAN Error: %s is missing\n Decimal Value : %d" % (add, add_int),
-          "",
-          AlertStatus.normal, AlertSize.small,
-          Priority.LOW, VisualAlert.none, AudibleAlert.none, .2, creation_delay=1.)
-    elif os.path.isfile('/data/log/can_timeout.txt'):
-      f = open('/data/log/can_timeout.txt', 'r')
-      add = f.readline()
-      add_int = int(add, 0) if add else None
-      f.close()
-      canid_temp = "BO_ " + str(add_int)
-      canid_char = ""
-      if CP.isCanFD:
-        f = open('/data/openpilot/opendbc_repo/opendbc/dbc/hyundai_canfd.dbc', 'r')
-        lines = f.readlines()
-        for line in lines:
-          if canid_temp in line:
-            line = line.strip()
-            canid_char = line.split()[2]
-            canid_char = canid_char.replace(':', '')
-            break
-        f.close()
-      else:
-        f = open('/data/openpilot/opendbc_repo/opendbc/dbc/hyundai_kia_generic.dbc', 'r')
-        lines = f.readlines()
-        for line in lines:
-          if canid_temp in line:
-            line = line.strip()
-            canid_char = line.split()[2]
-            canid_char = canid_char.replace(':', '')
-            break
-        f.close()
-      if canid_char != "":
-        return Alert(
-          "CAN Error: %s is timeout" % (canid_char),
-          "",
-          AlertStatus.normal, AlertSize.small,
-          Priority.LOW, VisualAlert.none, AudibleAlert.none, .2, creation_delay=1.)
-      else:
-        return Alert(
-          "CAN Error: %s is timeout\n Decimal Value : %d" % (add, add_int),
-          "",
-          AlertStatus.normal, AlertSize.small,
-          Priority.LOW, VisualAlert.none, AudibleAlert.none, .2, creation_delay=1.)
-  else:
-    return Alert(
-      "CAN Error: Check Connections",
-      "",
-      AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .2, creation_delay=1.)
-
-
-def navi_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality) -> Alert:
-  return Alert(
-    tr(193) if IS_WAZE else tr(95),
-    "",
-    AlertStatus.normal, AlertSize.small,
-    Priority.LOW, VisualAlert.none, AudibleAlert.none, .5)
 
 def longitudinal_maneuver_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality) -> Alert:
   ad = sm['alertDebug']
@@ -451,6 +374,14 @@ def longitudinal_maneuver_alert(CP: car.CarParams, CS: car.CarState, sm: messagi
 def personality_changed_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality) -> Alert:
   personality = str(personality).title()
   return NormalPermanentAlert(f"Driving Personality: {personality}", duration=1.5)
+
+
+def navi_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality) -> Alert:
+  return Alert(
+    tr(193) if IS_WAZE else tr(95),
+    "",
+    AlertStatus.normal, AlertSize.small,
+    Priority.LOW, VisualAlert.none, AudibleAlert.none, .5)
 
 
 
@@ -667,46 +598,6 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
   },
 
-  EventName.laneChangeFinish: {
-    ET.WARNING: Alert(
-      tr(196),
-      "",
-      AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
-  },
-
-  EventName.e2eLongAlert: {
-    ET.WARNING: Alert(
-      tr(62),
-      tr(63),
-      AlertStatus.normal, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.warning, 2.),
-  },
-
-  EventName.laneChangeManual: {
-    ET.WARNING: Alert(
-      tr(64),
-      tr(65),
-      AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
-  },
-
-  EventName.emgButtonManual: {
-    ET.WARNING: Alert(
-      tr(66),
-      "",
-      AlertStatus.userPrompt, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
-  },
-
-  EventName.driverSteering: {
-    ET.WARNING: Alert(
-      tr(67),
-      tr(68),
-      AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
-  },
-
   EventName.steerSaturated: {
     ET.WARNING: Alert(
       tr(69),
@@ -755,7 +646,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   # This alert is thrown when any of these values exceed a sanity check. This can be caused by
   # bad alignment or bad sensor data. If this happens consistently consider creating an issue on GitHub
   EventName.paramsdTemporaryError: {
-    ET.NO_ENTRY: NoEntryAlert("paramsd Temporary Error"),
+    ET.NO_ENTRY: paramsd_invalid_alert,
     ET.SOFT_DISABLE: soft_disable_alert("paramsd Temporary Error"),
   },
 
@@ -763,64 +654,6 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.NO_ENTRY: NoEntryAlert("paramsd Permanent Error"),
     ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("paramsd Permanent Error"),
     ET.PERMANENT: NormalPermanentAlert("paramsd Permanent Error"),
-  },
-
-  EventName.modeChangeOpenpilot: {
-    ET.WARNING: Alert(
-      tr(79),
-      "",
-      AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.warning, .5),
-  },
-  
-  EventName.modeChangeDistcurv: {
-    ET.WARNING: Alert(
-      tr(80),
-      "",
-      AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.warning, .5),
-  },
-  EventName.modeChangeDistance: {
-    ET.WARNING: Alert(
-      tr(81),
-      "",
-      AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.warning, .5),
-  },
-  EventName.modeChangeCurv: {
-    ET.WARNING: Alert(
-      tr(82),
-      "",
-      AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.warning, .5),
-  },
-  EventName.modeChangeOneway: {
-    ET.WARNING: Alert(
-      tr(83),
-      "",
-      AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.warning, .5),
-  },
-  EventName.modeChangeMaponly: {
-    ET.WARNING: Alert(
-      tr(84),
-      "",
-      AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.warning, .5),
-  },
-  EventName.needBrake: {
-    ET.WARNING: Alert(
-      tr(85),
-      tr(86),
-      AlertStatus.normal, AlertSize.full,
-      Priority.LOW, VisualAlert.none, AudibleAlert.promptRepeat, .1),
-  },
-  EventName.routineDriveOn: {
-    ET.WARNING: Alert(
-      tr(87),
-      "",
-      AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, 1.),
   },
 
   # ********** events that affect controls state transitions **********
@@ -845,14 +678,6 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   EventName.brakeHold: {
     ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
     ET.NO_ENTRY: NoEntryAlert("Brake Hold Active"),
-  },
-
-  EventName.autoHold: {
-    ET.WARNING: Alert(
-      tr(88),
-      "",
-      AlertStatus.normal, AlertSize.full,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, 1.),
   },
 
   EventName.parkBrake: {
@@ -912,58 +737,6 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   EventName.steerTimeLimit: {
     ET.SOFT_DISABLE: soft_disable_alert("Vehicle Steering Time Limit"),
     ET.NO_ENTRY: NoEntryAlert("Vehicle Steering Time Limit"),
-  },
-
-  EventName.isgActive: {
-    ET.WARNING: Alert(
-      tr(94),
-      "",
-      AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
-  },
-
-  EventName.camSpeedDown: {
-    ET.WARNING: navi_alert,
-  },
-
-  EventName.standstillResButton: {
-    ET.WARNING: Alert(
-      tr(96),
-      "",
-      AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .5),
-  },
-
-  EventName.gapAdjusting: {
-    ET.WARNING: Alert(
-      tr(97),
-      "",
-      AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .5),
-  },
-
-  EventName.resCruise: {
-    ET.WARNING: Alert(
-      tr(98),
-      "",
-      AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .5),
-  },
-
-  EventName.curvSpeedDown: {
-    ET.WARNING: Alert(
-      tr(99),
-      "",
-      AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .5),
-  },
-
-  EventName.cutinDetection: {
-    ET.WARNING: Alert(
-      tr(100),
-      "",
-      AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .5),
   },
 
   EventName.outOfSpace: {
@@ -1080,6 +853,11 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.NO_ENTRY: NoEntryAlert(tr(134)),
   },
 
+  EventName.radarTempUnavailable: {
+    ET.SOFT_DISABLE: soft_disable_alert("Radar Temporarily Unavailable"),
+    ET.NO_ENTRY: NoEntryAlert("Radar Temporarily Unavailable"),
+  },
+
   # Every frame from the camera should be processed by the model. If modeld
   # is not processing frames fast enough they have to be dropped. This alert is
   # thrown when over 20% of frames are dropped.
@@ -1141,13 +919,12 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   # - CAN data is received, but some message are not received at the right frequency
   # If you're not writing a new car port, this is usually cause by faulty wiring
   EventName.canError: {
-    ET.PERMANENT: can_error_alert,
     ET.IMMEDIATE_DISABLE: ImmediateDisableAlert(tr(156)),
-    # ET.PERMANENT: Alert(
-    #   tr(157),
-    #   "",
-    #   AlertStatus.normal, AlertSize.small,
-    #   Priority.LOW, VisualAlert.none, AudibleAlert.none, 1., creation_delay=1.),
+    ET.PERMANENT: Alert(
+      tr(157),
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, 1., creation_delay=1.),
     ET.NO_ENTRY: NoEntryAlert(tr(157)),
   },
 
@@ -1183,11 +960,6 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.IMMEDIATE_DISABLE: ImmediateDisableAlert(tr(168)),
   },
 
-  EventName.plannerError: {
-    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert(tr(169)),
-    ET.NO_ENTRY: NoEntryAlert(tr(170)),
-  },
-
   # When the relay in the harness box opens the CAN bus between the LKAS camera
   # and the rest of the car is separated. When messages from the LKAS camera
   # are received on the car side this usually means the relay hasn't opened correctly
@@ -1216,6 +988,29 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.NO_ENTRY: NoEntryAlert(tr(182)),
   },
 
+  EventName.vehicleSensorsInvalid: {
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Vehicle Sensors Invalid"),
+    ET.PERMANENT: NormalPermanentAlert("Vehicle Sensors Calibrating", "Drive to Calibrate"),
+    ET.NO_ENTRY: NoEntryAlert("Vehicle Sensors Calibrating"),
+  },
+
+  EventName.personalityChanged: {
+    ET.WARNING: personality_changed_alert,
+  },
+
+  EventName.plannerError: {
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert(tr(169)),
+    ET.NO_ENTRY: NoEntryAlert(tr(170)),
+  },
+
+  EventName.autoHold: {
+    ET.WARNING: Alert(
+      tr(88),
+      "",
+      AlertStatus.normal, AlertSize.full,
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, 1.),
+  },
+
   EventName.lkasDisabled: {
     ET.WARNING: Alert(
       tr(185),
@@ -1232,14 +1027,160 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.LOW, VisualAlert.none, AudibleAlert.engage, 1.),
   },
 
-  EventName.vehicleSensorsInvalid: {
-    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Vehicle Sensors Invalid"),
-    ET.PERMANENT: NormalPermanentAlert("Vehicle Sensors Calibrating", "Drive to Calibrate"),
-    ET.NO_ENTRY: NoEntryAlert("Vehicle Sensors Calibrating"),
+  EventName.laneChangeFinish: {
+    ET.WARNING: Alert(
+      tr(196),
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
   },
 
-  EventName.personalityChanged: {
-    ET.WARNING: personality_changed_alert,
+  EventName.e2eLongAlert: {
+    ET.WARNING: Alert(
+      tr(62),
+      tr(63),
+      AlertStatus.normal, AlertSize.mid,
+      Priority.LOW, VisualAlert.none, AudibleAlert.warning, 2.),
+  },
+
+  EventName.laneChangeManual: {
+    ET.WARNING: Alert(
+      tr(64),
+      tr(65),
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
+  },
+
+  EventName.emgButtonManual: {
+    ET.WARNING: Alert(
+      tr(66),
+      "",
+      AlertStatus.userPrompt, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
+  },
+
+  EventName.driverSteering: {
+    ET.WARNING: Alert(
+      tr(67),
+      tr(68),
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
+  },
+
+  EventName.modeChangeOpenpilot: {
+    ET.WARNING: Alert(
+      tr(79),
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.warning, .5),
+  },
+  
+  EventName.modeChangeDistcurv: {
+    ET.WARNING: Alert(
+      tr(80),
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.warning, .5),
+  },
+
+  EventName.modeChangeDistance: {
+    ET.WARNING: Alert(
+      tr(81),
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.warning, .5),
+  },
+
+  EventName.modeChangeCurv: {
+    ET.WARNING: Alert(
+      tr(82),
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.warning, .5),
+  },
+
+  EventName.modeChangeOneway: {
+    ET.WARNING: Alert(
+      tr(83),
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.warning, .5),
+  },
+
+  EventName.modeChangeMaponly: {
+    ET.WARNING: Alert(
+      tr(84),
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.warning, .5),
+  },
+
+  EventName.needBrake: {
+    ET.WARNING: Alert(
+      tr(85),
+      tr(86),
+      AlertStatus.normal, AlertSize.full,
+      Priority.LOW, VisualAlert.none, AudibleAlert.promptRepeat, .1),
+  },
+
+  EventName.routineDriveOn: {
+    ET.WARNING: Alert(
+      tr(87),
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, 1.),
+  },
+
+  EventName.isgActive: {
+    ET.WARNING: Alert(
+      tr(94),
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
+  },
+
+  EventName.camSpeedDown: {
+    ET.WARNING: navi_alert,
+  },
+
+  EventName.standstillResButton: {
+    ET.WARNING: Alert(
+      tr(96),
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, .5),
+  },
+
+  EventName.gapAdjusting: {
+    ET.WARNING: Alert(
+      tr(97),
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, .5),
+  },
+
+  EventName.resCruise: {
+    ET.WARNING: Alert(
+      tr(98),
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, .5),
+  },
+
+  EventName.curvSpeedDown: {
+    ET.WARNING: Alert(
+      tr(99),
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, .5),
+  },
+
+  EventName.cutinDetection: {
+    ET.WARNING: Alert(
+      tr(100),
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, .5),
   },
 
   EventName.unSleepMode: {

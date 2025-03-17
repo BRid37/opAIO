@@ -334,13 +334,14 @@ struct CarState {
 # ******* radar state @ 20hz *******
 
 struct RadarData @0x888ad6581cf0aacb {
-  errors @0 :List(Error);
+  errors @3 :Error;
   points @1 :List(RadarPoint);
 
-  enum Error {
-    canError @0;
-    fault @1;
-    wrongConfig @2;
+  struct Error {
+    canError @0 :Bool;
+    radarFault @1 :Bool;
+    wrongConfig @2 :Bool;
+    radarUnavailableTemporary @3 :Bool;  # radar data is temporarily unavailable due to conditions the car sets
   }
 
   # similar to LiveTracks
@@ -361,8 +362,15 @@ struct RadarData @0x888ad6581cf0aacb {
     measured @6 :Bool;
   }
 
+  enum ErrorDEPRECATED {
+    canError @0;
+    fault @1;
+    wrongConfig @2;
+  }
+
   # deprecated
   canMonoTimesDEPRECATED @2 :List(UInt64);
+  errorsDEPRECATED @0 :List(ErrorDEPRECATED);
 }
 
 # ******* car controls @ 100hz *******
@@ -406,7 +414,7 @@ struct CarControl {
 
   struct Actuators {
     # lateral commands, mutually exclusive
-    steer @2: Float32;  # [0.0, 1.0]
+    torque @2: Float32;  # [0.0, 1.0]
     steeringAngleDeg @3: Float32;
     curvature @7: Float32;
 
@@ -417,7 +425,7 @@ struct CarControl {
     # these are only for logging the actual values sent to the car over CAN
     gas @0: Float32;   # [0.0, 1.0]
     brake @1: Float32; # [0.0, 1.0]
-    steerOutputCan @8: Float32;   # value sent over can to the car
+    torqueOutputCan @8: Float32;   # value sent over can to the car
     speed @6: Float32;  # m/s
 
     oaccel @9: Float32; # m/s^2
@@ -748,17 +756,16 @@ struct CarParams {
     volkswagenPq @21;
     subaruPreglobal @22;  # pre-Global platform
     hyundaiLegacy @23;
-    hyundaiCommunity1 @24;
+    hyundaiCommunity @24;
     volkswagenMlb @25;
     hongqi @26;
     body @27;
     hyundaiCanfd @28;
-    hyundaiCommunity2 @29;
-    hyundaiCommunity1Legacy @30;
-    volkswagenMqbEvo @31;
-    chryslerCusw @32;
-    psa @33;
-    fcaGiorgio @34;
+    hyundaiCommunityLegacy @29;
+    volkswagenMqbEvo @30;
+    chryslerCusw @31;
+    psa @32;
+    fcaGiorgio @33;
   }
 
   enum SteerControlType {

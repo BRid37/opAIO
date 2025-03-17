@@ -34,7 +34,8 @@ class CarInterface(CarInterfaceBase):
     kisaLongAlt = int(params.get("KISALongAlt", encoding="utf8"))
 
     if ret.flags & HyundaiFlags.CANFD:
-      ret.experimentalLongitudinalAvailable = candidate not in (CANFD_UNSUPPORTED_LONGITUDINAL_CAR | CANFD_RADAR_SCC_CAR)
+      # Shared configuration for CAN-FD cars
+      ret.experimentalLongitudinalAvailable = candidate not in CANFD_UNSUPPORTED_LONGITUDINAL_CAR
       if lka_steering and Ecu.adas not in [fw.ecu for fw in car_fw]:
         # this needs to be figured out for cars without an ADAS ECU
         ret.experimentalLongitudinalAvailable = False
@@ -55,7 +56,8 @@ class CarInterface(CarInterfaceBase):
       ret.tpmsAvailable = 0x3a0 in fingerprint[CAN.ECAN]
       ret.isAngleControl = 0xcb in fingerprint[CAN.ECAN] or 0xcb in fingerprint[CAN.ACAN]
 
-      if 0x105 in fingerprint[CAN.ECAN]:
+      # Check if the car is hybrid. Only HEV/PHEV cars have 0xFA on E-CAN.
+      if 0xFA in fingerprint[CAN.ECAN]:
         ret.flags |= HyundaiFlags.HYBRID.value
 
       if lka_steering:
@@ -186,9 +188,9 @@ class CarInterface(CarInterfaceBase):
         else:
           ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundai, 0)]
       elif candidate in LEGACY_SAFETY_MODE_CAR and params.get_bool("UFCModeEnabled"):
-        ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundaiCommunity1Legacy)]
+        ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundaiCommunityLegacy)]
       elif params.get_bool("UFCModeEnabled"):
-        ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundaiCommunity1)]
+        ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundaiCommunity)]
       elif candidate in LEGACY_SAFETY_MODE_CAR:
         # these cars require a special panda safety mode due to missing counters and checksums in the messages
         ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundaiLegacy)]
@@ -200,10 +202,7 @@ class CarInterface(CarInterfaceBase):
         ret.scc14Available = 905 in fingerprint[0] or 905 in fingerprint[2]
         ret.openpilotLongitudinalControl = True
         ret.radarUnavailable = False
-        if kisaLongAlt == 1:
-          ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundaiCommunity1)]
-        elif kisaLongAlt == 2:
-          ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundaiCommunity2)]
+        ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundaiCommunity)]
         ret.pcmCruise = True
       else:
         ret.pcmCruise = not ret.openpilotLongitudinalControl
@@ -229,7 +228,7 @@ class CarInterface(CarInterfaceBase):
   @staticmethod
   def init(CP, can_recv, can_send):
     if CP.openpilotLongitudinalControl and not (CP.flags & (HyundaiFlags.CANFD_CAMERA_SCC | HyundaiFlags.CAMERA_SCC)):
-      addr, bus = 0x7d0, 0
+      addr, bus = 0x7d0, CanBus(CP).ECAN if CP.flags & HyundaiFlags.CANFD else 0
       if CP.flags & HyundaiFlags.CANFD_LKA_STEERING.value:
         addr, bus = 0x730, CanBus(CP).ECAN
       disable_ecu(can_recv, can_send, bus=bus, addr=addr, com_cont_req=b'\x28\x83\x01')

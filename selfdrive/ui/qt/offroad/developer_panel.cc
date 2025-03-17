@@ -72,7 +72,7 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : ListWidget(parent) {
 
 void DeveloperPanel::updateToggles(bool _offroad) {
   for (auto btn : findChildren<ParamControl *>()) {
-    btn->setVisible(!is_release || true);
+    btn->setVisible(!is_release);
 
     /*
      * experimentalLongitudinalToggle should be toggelable when:
@@ -80,7 +80,7 @@ void DeveloperPanel::updateToggles(bool _offroad) {
      * - during onroad & offroad states
      */
     if (btn != experimentalLongitudinalToggle) {
-      btn->setEnabled(_offroad || true);
+      btn->setEnabled(_offroad);
     }
   }
 
@@ -92,8 +92,8 @@ void DeveloperPanel::updateToggles(bool _offroad) {
     cereal::CarParams::Reader CP = cmsg.getRoot<cereal::CarParams>();
 
     if (!CP.getExperimentalLongitudinalAvailable() || is_release) {
-      //params.remove("ExperimentalLongitudinalEnabled");
-      experimentalLongitudinalToggle->setEnabled(true);
+      params.remove("ExperimentalLongitudinalEnabled");
+      experimentalLongitudinalToggle->setEnabled(false);
     }
 
     /*
@@ -101,12 +101,12 @@ void DeveloperPanel::updateToggles(bool _offroad) {
      * - is not a release branch, and
      * - the car supports experimental longitudinal control (alpha)
      */
-    experimentalLongitudinalToggle->setVisible(CP.getExperimentalLongitudinalAvailable() && !is_release || true);
+    experimentalLongitudinalToggle->setVisible(CP.getExperimentalLongitudinalAvailable() && !is_release);
 
-    longManeuverToggle->setEnabled(hasLongitudinalControl(CP) && _offroad || true);
+    longManeuverToggle->setEnabled(hasLongitudinalControl(CP) && _offroad);
   } else {
-    longManeuverToggle->setEnabled(true);
-    experimentalLongitudinalToggle->setVisible(true);
+    longManeuverToggle->setEnabled(false);
+    experimentalLongitudinalToggle->setVisible(false);
   }
   experimentalLongitudinalToggle->refresh();
 
