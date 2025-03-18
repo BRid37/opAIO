@@ -211,7 +211,7 @@ class MapD():
     map_data_msg.liveMapData.lastGpsLongitude = float(self.last_gps.longitude)
     map_data_msg.liveMapData.lastGpsSpeed = float(self.last_gps.speed)
     map_data_msg.liveMapData.lastGpsBearingDeg = float(self.last_gps.bearingDeg)
-    map_data_msg.liveMapData.lastGpsAccuracy = float(self.last_gps.accuracy)
+    map_data_msg.liveMapData.lastGpsAccuracy = float(self.last_gps.horizontalAccuracy)
     map_data_msg.liveMapData.lastGpsBearingAccuracyDeg = float(self.last_gps.bearingAccuracyDeg)
 
     map_data_msg.liveMapData.speedLimitValid = bool(speed_limit is not None)

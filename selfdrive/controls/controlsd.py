@@ -251,14 +251,17 @@ class Controls:
 
     m_unit = CV.MS_TO_KPH if self.is_metric else CV.MS_TO_MPH
     if len(speeds):
-      if CS.vEgo*m_unit < self.cruise_spamming_spd[0]:
-        self.var_cruise_speed_factor = self.cruise_spamming_level[0]
-      elif self.cruise_spamming_spd[0] <= CS.vEgo*m_unit < self.cruise_spamming_spd[1]:
-        self.var_cruise_speed_factor = self.cruise_spamming_level[1]
-      elif self.cruise_spamming_spd[1] <= CS.vEgo*m_unit < self.cruise_spamming_spd[2]:
-        self.var_cruise_speed_factor = self.cruise_spamming_level[2]
-      else:
-        self.var_cruise_speed_factor = self.cruise_spamming_level[3]        
+      try:
+        if CS.vEgo*m_unit < self.cruise_spamming_spd[0]:
+          self.var_cruise_speed_factor = self.cruise_spamming_level[0]
+        elif self.cruise_spamming_spd[0] <= CS.vEgo*m_unit < self.cruise_spamming_spd[1]:
+          self.var_cruise_speed_factor = self.cruise_spamming_level[1]
+        elif self.cruise_spamming_spd[1] <= CS.vEgo*m_unit < self.cruise_spamming_spd[2]:
+          self.var_cruise_speed_factor = self.cruise_spamming_level[2]
+        else:
+          self.var_cruise_speed_factor = self.cruise_spamming_level[3]
+      except IndexError:
+        self.var_cruise_speed_factor = -1
       v_future = speeds[self.var_cruise_speed_factor]
       v_future_a = speeds[-1]
     else:
