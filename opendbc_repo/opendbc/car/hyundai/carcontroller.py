@@ -431,7 +431,7 @@ class CarController(CarControllerBase):
         can_sends.append(make_tester_present_msg(0x7b1, self.CAN.ECAN, suppress_response=True))
 
     # *** CAN/CAN FD common msgs ***
-    self.create_common_msgs(CS, CC, lat_active, stopping)
+    self.create_common_msgs(CS, CC, lat_active, stopping, set_speed_in_units)
     # *** CAN/CAN FD specific ***
     if self.CP.flags & HyundaiFlags.CANFD:
       can_sends.extend(self.create_canfd_msgs(lat_active, apply_torque, set_speed_in_units, accel,
@@ -1265,7 +1265,7 @@ class CarController(CarControllerBase):
     return can_sends
 
 
-  def create_common_msgs(self, CS, CC, lat_active, stopping):
+  def create_common_msgs(self, CS, CC, lat_active, stopping, set_speed_in_units):
     # common
     if CS.cruise_active and CS.lead_distance > 149 and self.dRel < ((CS.out.vEgo * CV.MS_TO_KPH)+5) < 100 and \
      self.vRel*3.6 < -(CS.out.vEgo * CV.MS_TO_KPH * 0.16) and CS.out.vEgo > 7 and abs(CS.out.steeringAngleDeg) < 10 and not self.longcontrol:
