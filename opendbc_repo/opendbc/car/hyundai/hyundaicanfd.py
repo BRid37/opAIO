@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 from opendbc.car import CanBusBase
 from opendbc.car.hyundai.values import HyundaiFlags
@@ -34,88 +35,69 @@ class CanBus(CanBusBase):
     return self._cam
 
 
-def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque, apply_angle, max_torque, angle_control):
+def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque, apply_angle, max_torque):
+  common_values = {
+    "LKA_MODE": 2,
+    "LKA_ICON": 2 if enabled else 1,
+    "TORQUE_REQUEST": apply_torque,
+    "LKA_ASSIST": 0,
+    "STEER_REQ": 1 if lat_active else 0,
+    "STEER_MODE": 0,
+    "HAS_LANE_SAFETY": 0,  # hide LKAS settings
+    "NEW_SIGNAL_2": 0,
+  }
+
+  lkas_values = copy.copy(common_values)
+  lkas_values["LKA_AVAILABLE"] = 0
+
+  lfa_values = copy.copy(common_values)
+  lfa_values["NEW_SIGNAL_1"] = 0
 
   ret = []
-
-  if CP.flags & HyundaiFlags.CANFD_LKA_STEERING:
+  if CP.flags & HyundaiFlags.CANFD_LKA_STEERING: # hda2
     lkas_msg = "LKAS_ALT" if CP.flags & HyundaiFlags.CANFD_LKA_STEERING_ALT else "LKAS"
-    if angle_control:
-      values = {
-        "LKA_MODE": 0,
-        "TORQUE_REQUEST": 0,
-        "LKA_ASSIST": 0,
-        "STEER_REQ": 0,
-        "STEER_MODE": 0,
-        "HAS_LANE_SAFETY": 0,
-        "NEW_SIGNAL_2": 0,
-        "LKA_ACTIVE": 3 if lat_active else 0,
-        "LKA_ICON": 2 if enabled else 1,
-        "LKAS_ANGLE_ACTIVE": 2 if lat_active else 0,
-        "LKAS_ANGLE_CMD": -apply_angle if lat_active else 0,
-        "LKAS_ANGLE_MAX_TORQUE": max_torque if lat_active else 0, # max is 250
-        "LKAS_SIGNAL_1": 10,
-        "NEW_SIGNAL_3": 9,
-        "LKAS_SIGNAL_2": 1,
-        "LKAS_SIGNAL_3": 1,
-        "LKAS_SIGNAL_4": 1,
-        "LKAS_SIGNAL_5": 1,
-      }
-    else:
-      values = {
-        "LKA_MODE": 2,
-        "LKA_ICON": 2 if enabled else 1,
-        "TORQUE_REQUEST": apply_torque,
-        "LKA_ASSIST": 0,
-        "STEER_REQ": 1 if lat_active else 0,
-        "STEER_MODE": 0,
-        "HAS_LANE_SAFETY": 0,  # hide LKAS settings
-        "LKA_AVAILABLE": 0,
-        "NEW_SIGNAL_2": 0,
-      }
     if CP.openpilotLongitudinalControl:
-      ret.append(packer.make_can_msg("LFA", CAN.ECAN, values))
-    ret.append(packer.make_can_msg(lkas_msg, CAN.ACAN, values))
-  elif angle_control:
-    values = {
+      ret.append(packer.make_can_msg("LFA", CAN.ECAN, lfa_values))
+    if CP.isAngleControl: # hda2 angle control
+      lkas_values["LKA_MODE"] = 0
+      lkas_values["TORQUE_REQUEST"] = 0
+      lkas_values["STEER_REQ"] = 0
+      lkas_values["LKA_AVAILABLE"] = 3 if lat_active else 0
+      lkas_values["LKAS_ANGLE_ACTIVE"] = 2 if lat_active else 0
+      lkas_values["LKAS_ANGLE_CMD"] = apply_angle if lat_active else 0
+      lkas_values["LKAS_ANGLE_MAX_TORQUE"] = max_torque if lat_active else 0
+      lkas_values["LKAS_SIGNAL_1"] = 10
+      lkas_values["LKAS_SIGNAL_2"] = 1
+      lkas_values["LKAS_SIGNAL_3"] = 1
+      lkas_values["LKAS_SIGNAL_4"] = 1
+      lkas_values["LKAS_SIGNAL_5"] = 1
+      lkas_values["NEW_SIGNAL_3"] = 9
+    ret.append(packer.make_can_msg(lkas_msg, CAN.ACAN, lkas_values))
+  elif CP.isAngleControl: # non-hda2 angle control
+    ang_values = {
       "LKAS_ANGLE_ACTIVE": 2 if lat_active else 1,
-      "LKAS_ANGLE_CMD": -apply_angle if lat_active else 0,
+      "LKAS_ANGLE_CMD": apply_angle if lat_active else 0,
       "LKAS_ANGLE_MAX_TORQUE": max_torque if lat_active else 0,
     }
-    ret.append(packer.make_can_msg("LFA_ALT", CAN.ECAN, values))
-    values = {
-      "LKA_MODE": 0,
-      "LKA_ACTIVE": 3 if lat_active else 0,
-      "LKA_ICON": 2 if enabled else 1,
-      "TORQUE_REQUEST": -1024,
-      "LKA_ASSIST": 1,
-      "STEER_REQ": 0,
-      "STEER_MODE": 0,
-      "HAS_LANE_SAFETY": 0,  # hide LKAS settings
-      "NEW_SIGNAL_2": 0,
-      "NEW_SIGNAL_3": 0,
-      "NEW_SIGNAL_5": 1,
-    }
-    ret.append(packer.make_can_msg("LFA", CAN.ECAN, values))
+    ret.append(packer.make_can_msg("LFA_ALT", CAN.ECAN, ang_values))
+    lfa_values["LKA_MODE"] = 0
+    lfa_values["NEW_SIGNAL_1"] = 3 if lat_active else 0
+    lfa_values["TORQUE_REQUEST"] = -1024
+    lfa_values["LKA_ASSIST"] = 1
+    lfa_values["STEER_REQ"] = 0
+    lfa_values["NEW_SIGNAL_3"] = 0
+    lfa_values["NEW_SIGNAL_5"] = 1
+    ret.append(packer.make_can_msg("LFA", CAN.ECAN, lfa_values))
   else:
-    values = {
-      "LKA_MODE": 0,
-      "LKA_ACTIVE": 3 if lat_active else 0,
-      "LKA_ICON": 2 if enabled else 1,
-      "TORQUE_REQUEST": apply_torque,
-      "LKA_ASSIST": 0,
-      "STEER_REQ": 1 if lat_active else 0,
-      "STEER_MODE": 0,
-      "HAS_LANE_SAFETY": 0,  # hide LKAS settings
-      "NEW_SIGNAL_2": 0,
-      "NEW_SIGNAL_3": 31 if lat_active else 100,
-      "NEW_SIGNAL_5": 1,
-    }
-    ret.append(packer.make_can_msg("LFA", CAN.ECAN, values))
+    lfa_values["LKA_MODE"] = 0
+    lfa_values["NEW_SIGNAL_1"] = 3 if lat_active else 0
+    lfa_values["NEW_SIGNAL_3"] = 31 if lat_active else 100
+    lfa_values["NEW_SIGNAL_5"] = 1
+    ret.append(packer.make_can_msg("LFA", CAN.ECAN, lfa_values))
 
   return ret
 
-def create_suppress_lfa(packer, CAN, lfa_block_msg, lka_steering_alt, enabled, lfa_cnt):
+def create_suppress_lfa(packer, CAN, lfa_block_msg, lka_steering_alt, enabled):
   suppress_msg = "CAM_0x362" if lka_steering_alt else "CAM_0x2a4"
 
   #msg_bytes = 32 if lka_steering_alt else 24

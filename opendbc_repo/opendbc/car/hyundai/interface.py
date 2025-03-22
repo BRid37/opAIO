@@ -61,7 +61,7 @@ class CarInterface(CarInterfaceBase):
       ret.adrvAvailable = (lka_steering and 0x200 in fingerprint[CAN.ECAN]) or 0x200 in fingerprint[cam_can]
       ret.brakeAvailable = 0x65 in fingerprint[CAN.ECAN]
       ret.tpmsAvailable = 0x3a0 in fingerprint[CAN.ECAN]
-      ret.isAngleControl = 0xcb in fingerprint[CAN.ECAN] or 0xcb in fingerprint[CAN.ACAN]
+      ret.isAngleControl = 0xcb in fingerprint[CAN.ECAN] or 0xcb in fingerprint[CAN.ACAN] or 0xcb in fingerprint[cam_can]
 
       # Check if the car is hybrid. Only HEV/PHEV cars have 0xFA on E-CAN.
       if 0xFA in fingerprint[CAN.ECAN]:

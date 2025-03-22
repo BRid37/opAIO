@@ -702,7 +702,7 @@ class CarState(CarStateBase):
                      ret.wheelSpeeds.rl <= STANDSTILL_THRESHOLD and ret.wheelSpeeds.rr <= STANDSTILL_THRESHOLD
 
     ret.steeringRateDeg = cp.vl["STEERING_SENSORS"]["STEERING_RATE"]
-    ret.steeringAngleDeg = (cp.vl["STEERING_SENSORS"]["STEERING_ANGLE"] * -1) - self.steer_anglecorrection
+    ret.steeringAngleDeg = cp.vl["STEERING_SENSORS"]["STEERING_ANGLE"] + self.steer_anglecorrection
     ret.steeringTorque = cp.vl["MDPS"]["STEERING_COL_TORQUE"]
     ret.steeringTorqueEps = cp.vl["MDPS"]["STEERING_OUT_TORQUE"]
     ret.steeringPressed = self.update_steering_pressed(abs(ret.steeringTorque) > self.params.STEER_THRESHOLD, 5)
@@ -744,6 +744,8 @@ class CarState(CarStateBase):
       ret.cruiseState.enabled = ret.cruiseState.available
       ret.cruiseAccStatus = self.acc_active
       ret.cruiseGapSet = self.cruise_gap
+      if self.lfa_button_eng:
+        prev_lfa_buttons = self.lfa_buttons[-1]
     else:
       cp_cruise_info = cp_cam if self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC else cp
       if not self.lfa_button_eng:
