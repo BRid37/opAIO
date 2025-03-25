@@ -29,6 +29,7 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : ListWidget(parent) {
   addItem(new LFAButtonEngagementToggle());
   addItem(new StockLKASEnabledatDisenagedStatusToggle());
   addItem(new UserSpecificFeature());
+  addItem(new CameraAlt());
   //addItem(new MapboxToken());
 
   addItem(new CarSelectCombo());

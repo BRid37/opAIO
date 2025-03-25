@@ -3912,6 +3912,17 @@ This may take up to a minute.</source>
     </message>
 </context>
 <context>
+    <name>CameraAlt</name>
+    <message>
+        <source>Camera Alternative</source>
+        <translation>대안 카메라</translation>
+    </message>
+    <message>
+        <source>Turn on if you don't use stock cameras.</source>
+        <translation>콤마 순정카메라가 아니라면 이 기능을 켜세요.</translation>
+    </message>
+</context>
+<context>
     <name>SetSpeedPlus</name>
     <message>
         <source>SetSpeed Changed by Num</source>
