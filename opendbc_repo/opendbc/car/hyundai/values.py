@@ -595,7 +595,7 @@ class CAR(Platforms):
   )
   GENESIS_GV70_1ST_GEN_PE = HyundaiCanFDPlatformConfig(
     [
-      HyundaiCarDocs("Genesis GV70 Facelift (with HDA II) 2025", "All", car_parts=CarParts.common([CarHarness.hyundai_a])),
+      HyundaiCarDocs("Genesis GV70 Facelift (with HDA II) 2025", "All", car_parts=CarParts.common([CarHarness.hyundai_l])),
     ],
     CarSpecs(mass=1950, wheelbase=2.87, steerRatio=14.6),
     flags=HyundaiFlags.CAMERA_SCC,
