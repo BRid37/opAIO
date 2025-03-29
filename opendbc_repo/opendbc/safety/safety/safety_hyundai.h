@@ -135,6 +135,10 @@ static void hyundai_rx_hook(const CANPacket_t *to_push) {
   int bus = GET_BUS(to_push);
   int addr = GET_ADDR(to_push);
 
+  if(hyundai_kisa_community_eng) {
+    hyundai_common_cruise_state_check_alt(true);
+  }
+
   // SCC12 is on bus 2 for camera-based SCC cars, bus 0 on all others
   if (addr == 0x421) {
     if (((bus == 0) && !hyundai_camera_scc) || ((bus == 2) && hyundai_camera_scc)) {
@@ -152,7 +156,7 @@ static void hyundai_rx_hook(const CANPacket_t *to_push) {
     }
 
     // ACC steering wheel buttons
-    if (addr == 0x4F1) {
+    if (addr == 0x4F1 && !hyundai_kisa_community_eng) {
       int cruise_button = GET_BYTE(to_push, 0) & 0x7U;
       bool main_button = GET_BIT(to_push, 3U);
       bool lfa_button = false;
@@ -209,15 +213,17 @@ static bool hyundai_tx_hook(const CANPacket_t *to_send) {
     int desired_accel_raw = (((GET_BYTE(to_send, 4) & 0x7U) << 8) | GET_BYTE(to_send, 3)) - 1023U;
     int desired_accel_val = ((GET_BYTE(to_send, 5) << 3) | (GET_BYTE(to_send, 4) >> 5)) - 1023U;
 
-    int aeb_decel_cmd = GET_BYTE(to_send, 2);
-    bool aeb_req = GET_BIT(to_send, 54U);
-
     bool violation = false;
 
     violation |= longitudinal_accel_checks(desired_accel_raw, HYUNDAI_LONG_LIMITS);
     violation |= longitudinal_accel_checks(desired_accel_val, HYUNDAI_LONG_LIMITS);
-    violation |= (aeb_decel_cmd != 0);
-    violation |= aeb_req;
+
+    if (!hyundai_kisa_community_eng) {
+      int aeb_decel_cmd = GET_BYTE(to_send, 2);
+      bool aeb_req = GET_BIT(to_send, 54U);
+      violation |= (aeb_decel_cmd != 0);
+      violation |= aeb_req;
+    }
 
     if (violation) {
       tx = false;
@@ -283,11 +289,6 @@ static safety_config hyundai_init(uint16_t param) {
     {0x38D, 0, 8, false}, // FCA11 Bus 0
     {0x483, 0, 8, false}, // FCA12 Bus 0
     {0x7D0, 0, 8, false}, // radar UDS TX addr Bus 0 (for radar disable)
-    {0x420, 0, 8, false}, // SCC11 Bus 0
-    {0x421, 0, 8, false}, // SCC12 Bus 0
-    {0x50A, 0, 8, false}, // SCC13 Bus 0
-    {0x389, 0, 8, false}, // SCC14 Bus 0
-    {0x4A2, 0, 2, false}, // FRT_RADAR11 Bus 0
   };
 
   static const CanMsg HYUNDAI_CAMERA_SCC_TX_MSGS[] = {

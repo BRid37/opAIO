@@ -216,7 +216,6 @@ extern struct sample_t vehicle_speed;
 extern bool vehicle_moving;
 extern bool acc_main_on; // referred to as "ACC off" in ISO 15622:2018
 extern int cruise_button_prev;
-extern bool lfa_button_prev;
 extern bool safety_rx_checks_invalid;
 
 // for safety modes with torque steering control
@@ -285,8 +284,6 @@ extern const safety_hooks honda_bosch_hooks;
 extern const safety_hooks hyundai_canfd_hooks;
 extern const safety_hooks hyundai_hooks;
 extern const safety_hooks hyundai_legacy_hooks;
-extern const safety_hooks hyundai_community_hooks;
-extern const safety_hooks hyundai_community_legacy_hooks;
 extern const safety_hooks mazda_hooks;
 extern const safety_hooks nissan_hooks;
 extern const safety_hooks subaru_hooks;

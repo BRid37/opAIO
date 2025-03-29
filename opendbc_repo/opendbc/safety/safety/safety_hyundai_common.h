@@ -43,6 +43,12 @@ bool hyundai_fcev_gas_signal = false;
 extern bool hyundai_alt_limits_2;
 bool hyundai_alt_limits_2 = false;
 
+extern bool hyundai_kisa_community_eng;
+bool hyundai_kisa_community_eng = false;
+
+extern bool lfa_button_prev;
+bool lfa_button_prev = false;
+
 static uint8_t hyundai_last_button_interaction;  // button messages since the user pressed an enable button
 
 void hyundai_common_init(uint16_t param) {
@@ -50,12 +56,14 @@ void hyundai_common_init(uint16_t param) {
   const int HYUNDAI_PARAM_HYBRID_GAS = 2;
   const int HYUNDAI_PARAM_CAMERA_SCC = 8;
   const int HYUNDAI_PARAM_CANFD_LKA_STEERING = 16;
+  const int HYUNDAI_PARAM_KISA_COMMUNITY = 64;
   const int HYUNDAI_PARAM_FCEV_GAS = 256;
 
   hyundai_ev_gas_signal = GET_FLAG(param, HYUNDAI_PARAM_EV_GAS);
   hyundai_hybrid_gas_signal = !hyundai_ev_gas_signal && GET_FLAG(param, HYUNDAI_PARAM_HYBRID_GAS);
   hyundai_camera_scc = GET_FLAG(param, HYUNDAI_PARAM_CAMERA_SCC);
   hyundai_canfd_lka_steering = GET_FLAG(param, HYUNDAI_PARAM_CANFD_LKA_STEERING);
+  hyundai_kisa_community_eng = GET_FLAG(param, HYUNDAI_PARAM_KISA_COMMUNITY);
   hyundai_fcev_gas_signal = GET_FLAG(param, HYUNDAI_PARAM_FCEV_GAS);
 
   hyundai_last_button_interaction = HYUNDAI_PREV_BUTTON_SAMPLES;
@@ -92,7 +100,7 @@ void hyundai_common_cruise_buttons_check(const int cruise_button, const bool mai
     hyundai_last_button_interaction = MIN(hyundai_last_button_interaction + 1U, HYUNDAI_PREV_BUTTON_SAMPLES);
   }
 
-  if (hyundai_longitudinal || true) {
+  if (hyundai_longitudinal || hyundai_kisa_community_eng) {
     if (lfa_button) {
       lfa_button_prev = true;
     } else if (lfa_button_prev && hyundai_last_button_interaction == HYUNDAI_PREV_BUTTON_SAMPLES) {

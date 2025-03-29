@@ -101,7 +101,7 @@ class CarInterface(CarInterfaceBase):
       if ret.flags & HyundaiFlags.CANFD_CAMERA_SCC:
         ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.CAMERA_SCC.value
       if params.get_bool("LFAButtonEngagement"):
-        ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.CANFD_LFA_ENG.value
+        ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.KISA_COMMUNITY.value
     else:
       ret.isCanFD = False
       # Shared configuration for non CAN-FD cars
@@ -141,9 +141,8 @@ class CarInterface(CarInterfaceBase):
       # These cars have the LFA button on the steering wheel
       if 0x391 in fingerprint[0]:
         ret.flags |= HyundaiFlags.HAS_LDA_BUTTON.value
-
-      if int(params.get("UserSpecificFeature", encoding="utf8")) == 33:
-        ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.CANFD_LFA_ENG.value
+      if params.get_bool("UFCModeEnabled"):
+        ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.KISA_COMMUNITY.value
 
     # Common lateral control setup
 
@@ -188,17 +187,7 @@ class CarInterface(CarInterfaceBase):
     if ret.flags & HyundaiFlags.CANFD:
       pass
     else:
-      if params.get_bool("ExperimentalLongitudinalEnabled"):
-        if candidate in LEGACY_SAFETY_MODE_CAR:
-          # these cars require a special panda safety mode due to missing counters and checksums in the messages
-          ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundaiLegacy)]
-        else:
-          ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundai, 0)]
-      elif candidate in LEGACY_SAFETY_MODE_CAR and params.get_bool("UFCModeEnabled"):
-        ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundaiCommunityLegacy)]
-      elif params.get_bool("UFCModeEnabled"):
-        ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundaiCommunity)]
-      elif candidate in LEGACY_SAFETY_MODE_CAR:
+      if candidate in LEGACY_SAFETY_MODE_CAR:
         # these cars require a special panda safety mode due to missing counters and checksums in the messages
         ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundaiLegacy)]
       else:

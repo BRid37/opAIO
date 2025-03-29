@@ -47,7 +47,6 @@
 
 static bool hyundai_canfd_alt_buttons = false;
 static bool hyundai_canfd_lka_steering_alt = false;
-static bool hyundai_canfd_lfa_eng = false;
 
 static int hyundai_canfd_get_lka_addr(void) {
   return hyundai_canfd_lka_steering_alt ? 0x110 : 0x50;
@@ -98,7 +97,7 @@ static void hyundai_canfd_rx_hook(const CANPacket_t *to_push) {
         main_button = GET_BIT(to_push, 34U);
         lfa_button = GET_BIT(to_push, 39U);
       }
-      hyundai_common_cruise_buttons_check(cruise_button, main_button, lfa_button && hyundai_canfd_lfa_eng);
+      hyundai_common_cruise_buttons_check(cruise_button, main_button, lfa_button && hyundai_kisa_community_eng);
     }
 
     // gas press, different for EV, hybrid, and ICE models
@@ -133,7 +132,7 @@ static void hyundai_canfd_rx_hook(const CANPacket_t *to_push) {
 
   if (bus == scc_bus) {
     // cruise state
-    if ((addr == 0x1a0) && !hyundai_longitudinal && !hyundai_canfd_lfa_eng) {
+    if ((addr == 0x1a0) && !hyundai_longitudinal && !hyundai_kisa_community_eng) {
       // 1=enabled, 2=driver override
       int cruise_status = ((GET_BYTE(to_push, 8) >> 4) & 0x7U);
       bool cruise_engaged = (cruise_status == 1) || (cruise_status == 2) || (cruise_status == 4);
@@ -257,7 +256,6 @@ static bool hyundai_canfd_fwd_hook(int bus_num, int addr) {
 static safety_config hyundai_canfd_init(uint16_t param) {
   const int HYUNDAI_PARAM_CANFD_LKA_STEERING_ALT = 128;
   const int HYUNDAI_PARAM_CANFD_ALT_BUTTONS = 32;
-  const int HYUNDAI_PARAM_CANFD_LFA_ENG = 64;
 
   static const CanMsg HYUNDAI_CANFD_LKA_STEERING_TX_MSGS[] = {
     HYUNDAI_CANFD_LKA_STEERING_COMMON_TX_MSGS(0, 1)
@@ -307,7 +305,6 @@ static safety_config hyundai_canfd_init(uint16_t param) {
   gen_crc_lookup_table_16(0x1021, hyundai_canfd_crc_lut);
   hyundai_canfd_alt_buttons = GET_FLAG(param, HYUNDAI_PARAM_CANFD_ALT_BUTTONS);
   hyundai_canfd_lka_steering_alt = GET_FLAG(param, HYUNDAI_PARAM_CANFD_LKA_STEERING_ALT);
-  hyundai_canfd_lfa_eng = GET_FLAG(param, HYUNDAI_PARAM_CANFD_LFA_ENG);
 
   safety_config ret;
   if (hyundai_longitudinal) {
