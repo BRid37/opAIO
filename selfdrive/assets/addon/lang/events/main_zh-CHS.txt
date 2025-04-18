@@ -1,6 +1,6 @@
-openpilot不可用
+kisapilot不可用
 请立即接管
-openpilot将退出
+kisapilot将退出
 请立即接管
 始终把手放在方向盘上，眼睛盯着道路
 速度低于
@@ -172,10 +172,10 @@ LKAS故障：重新启动车辆
 线束故障
 检查硬件
 线束故障
-openpilot已取消
+kisapilot已取消
 无近距离引导车
 无近距离引导车
-openpilot已取消
+kisapilot已取消
 速度过低
 速度过高
 模型在此速度下不确定

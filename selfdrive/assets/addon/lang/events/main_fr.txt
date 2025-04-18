@@ -1,6 +1,6 @@
-openpilot Non disponible
+kisapilot Non disponible
 REPRENEZ LE CONTROLE IMMEDIATEMENT
-openpilot se désengage
+kisapilot se désengage
 REPRENEZ LE CONTROLE IMMEDIATEMENT
 Restez attentifs à la route
 Vitesse basse
@@ -172,10 +172,10 @@ Malfunction du harnais
 Malfunction du harnais
 Vérifiez le hardware
 Malfunction du harnais
-openpilot annulé
+kisapilot annulé
 Pas de véhicule proche
 Pas de véhicule proche
-openpilot annulé
+kisapilot annulé
 Vitesse trop faible
 Vitesse trop élevée
 Modèle incertain à cette vitesse
