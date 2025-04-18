@@ -1,6 +1,6 @@
 KisaPilot Version 0.9.9
 ========================
-* Up to __nightly(2025-03-17)
+* Up to __nightly(2025-04-18)
 * Latest Navi Apps for All KisaPilot Lovers
  - Check Readme in selfdrive\assets\addon\apk
 

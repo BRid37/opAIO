@@ -89,7 +89,7 @@ class Car:
         if len(can.can) > 0:
           break
 
-      experimental_long_allowed = self.params.get_bool("ExperimentalLongitudinalEnabled")
+      alpha_long_allowed = self.params.get_bool("AlphaLongitudinalEnabled")
       num_pandas = len(messaging.recv_one_retry(self.sm.sock['pandaStates']).pandaStates)
 
       cached_params = None
@@ -98,7 +98,7 @@ class Car:
         with car.CarParams.from_bytes(cached_params_raw) as _cached_params:
           cached_params = _cached_params
 
-      self.CI = get_car(*self.can_callbacks, obd_callback(self.params), experimental_long_allowed, num_pandas, cached_params)
+      self.CI = get_car(*self.can_callbacks, obd_callback(self.params), alpha_long_allowed, num_pandas, cached_params)
       self.RI = interfaces[self.CI.CP.carFingerprint].RadarInterface(self.CI.CP)
       self.CP = self.CI.CP
 
@@ -266,7 +266,7 @@ class Car:
   def params_thread(self, evt):
     while not evt.is_set():
       self.is_metric = self.params.get_bool("IsMetric")
-      self.experimental_mode = self.params.get_bool("ExperimentalMode")
+      self.experimental_mode = self.params.get_bool("ExperimentalMode") and self.CP.openpilotLongitudinalControl
       time.sleep(0.1)
 
   def card_thread(self):

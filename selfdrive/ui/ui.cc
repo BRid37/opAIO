@@ -377,7 +377,7 @@ void UIState::updateStatus() {
     scene.low_ui_profile = params.getBool("LowUIProfile");
     scene.stock_lkas_on_disengagement = params.getBool("StockLKASEnabled");
     scene.ufc_mode = params.getBool("UFCModeEnabled");
-    scene.op_long_enabled = params.getBool("ExperimentalLongitudinalEnabled");
+    scene.op_long_enabled = params.getBool("AlphaLongitudinalEnabled");
     scene.model_name = QString::fromStdString(params.get("DrivingModel"));
     scene.branch_name = QString::fromStdString(params.get("GitBranch"));
     scene.hotspot_on_boot = params.getBool("KisaHotspotOnBoot");

@@ -232,7 +232,7 @@ class CarController(CarControllerBase):
     self.e2e_standstill_timer2 = 0
     self.e2e_standstill_timer_buf = 0
 
-    self.experimental_long_enabled = self.c_params.get_bool("ExperimentalLongitudinalEnabled")
+    self.alpha_long_enabled = self.c_params.get_bool("AlphaLongitudinalEnabled")
     self.experimental_mode = self.c_params.get_bool("ExperimentalMode")
     self.live_torque_params = self.c_params.get_bool("KisaLiveTorque")
     self.gapsettingdance = int(self.c_params.get("KisaCruiseGapSet", encoding="utf8"))
@@ -419,7 +419,7 @@ class CarController(CarControllerBase):
     # *** common hyundai stuff ***
 
     # tester present - w/ no response (keeps relevant ECU disabled)
-    if self.frame % 100 == 0 and not (self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC) and self.CP.openpilotLongitudinalControl and self.experimental_long_enabled:
+    if self.frame % 100 == 0 and not (self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC) and self.CP.openpilotLongitudinalControl and self.alpha_long_enabled:
       # for longitudinal control, either radar or ADAS driving ECU
       addr, bus = 0x7d0, self.CAN.ECAN if self.CP.flags & HyundaiFlags.CANFD else 0
       if self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING.value:
@@ -772,7 +772,7 @@ class CarController(CarControllerBase):
           self.resume_cnt = 0
           self.auto_res_timer = int(randint(20, 25) * 2)
 
-    if self.CP.openpilotLongitudinalControl and self.experimental_long_enabled and self.CP.sccBus != 2:
+    if self.CP.openpilotLongitudinalControl and self.alpha_long_enabled and self.CP.sccBus != 2:
       if self.prev_gapButton != CS.cruise_buttons[-1]:  # gap change.
         if CS.cruise_buttons[-1] == 3:
           self.gapsettingdance -= 1
@@ -1010,7 +1010,7 @@ class CarController(CarControllerBase):
       if self.frame % 50 == 0:
         can_sends.append(hyundaican.create_scc42a(self.packer))
 
-    if self.frame % 2 == 0 and self.CP.openpilotLongitudinalControl and self.experimental_long_enabled and self.CP.sccBus != 2:
+    if self.frame % 2 == 0 and self.CP.openpilotLongitudinalControl and self.alpha_long_enabled and self.CP.sccBus != 2:
       # TODO: unclear if this is needed
       jerk = 3.0 if actuators.longControlState == LongCtrlState.pid else 1.0
       use_fca = self.CP.flags & HyundaiFlags.USE_FCA.value

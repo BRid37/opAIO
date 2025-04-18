@@ -231,7 +231,6 @@ def manager_init() -> None:
     ("UseRadarValue", "1"),
     ("RegenBrakeFeature", "0"),
     ("RegenBrakeFeatureOn", "0"),
-    ("CameraAlt", "0"),
   ]
 
   if not PC:

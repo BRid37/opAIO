@@ -245,7 +245,7 @@ class LongitudinalMpc:
     self.dynamic_TR_mode = int(Params().get("DynamicTRGap", encoding="utf8"))
     self.custom_tr_enabled = Params().get_bool("CustomTREnabled")
 
-    self.experimental_long_enabled = Params().get_bool("ExperimentalLongitudinalEnabled")
+    self.alpha_long_enabled = Params().get_bool("AlphaLongitudinalEnabled")
 
     self.ms_to_spd = CV.MS_TO_KPH if Params().get_bool("IsMetric") else CV.MS_TO_MPH
 
@@ -384,7 +384,7 @@ class LongitudinalMpc:
         self.t_follow = np.interp(float(cruise_gap), [1., 2., 3., 4.], [self.cruise_gap1, self.cruise_gap2, self.cruise_gap3, t_follow_d])
       else:
         self.t_follow = np.interp(float(cruise_gap), [1., 2., 3., 4.], [self.cruise_gap1, self.cruise_gap2, self.cruise_gap3, self.cruise_gap4])
-    elif self.experimental_long_enabled:
+    elif self.alpha_long_enabled:
       cruise_gap = int(np.clip(carstate.cruiseGapSet, 1., 4.))
       self.t_follow = np.interp(float(cruise_gap), [1., 2., 3., 4.], [self.cruise_gap1, self.cruise_gap2, self.cruise_gap3, self.cruise_gap4])
 
@@ -409,7 +409,7 @@ class LongitudinalMpc:
       v_cruise_clipped = np.clip(v_cruise * np.ones(N+1),
                                  v_lower,
                                  v_upper)
-      cruise_obstacle = np.cumsum(T_DIFFS * v_cruise_clipped) + get_safe_obstacle_distance(v_cruise_clipped, t_follow if not (self.custom_tr_enabled or self.experimental_long_enabled) else self.t_follow)
+      cruise_obstacle = np.cumsum(T_DIFFS * v_cruise_clipped) + get_safe_obstacle_distance(v_cruise_clipped, t_follow if not (self.custom_tr_enabled or self.alpha_long_enabled) else self.t_follow)
       x_obstacles = np.column_stack([lead_0_obstacle, lead_1_obstacle, cruise_obstacle])
       self.source = SOURCES[np.argmin(x_obstacles[0])]
 

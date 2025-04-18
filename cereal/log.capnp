@@ -1724,6 +1724,10 @@ struct UbloxGnss {
       svId @0 :UInt8;
       gnssId @1 :UInt8;
       flagsBitfield @2 :UInt32;
+      cno @3 :UInt8;
+      elevationDeg @4 :Int8;
+      azimuthDeg @5 :Int16;
+      pseudorangeResidual @6 :Float32;
     }
   }
 
@@ -2412,6 +2416,21 @@ struct LiveTorqueParametersData {
   useParams @12 :Bool;
 }
 
+struct LiveDelayData {
+  lateralDelay @0 :Float32;
+  validBlocks @1 :Int32;
+  status @2 :Status;
+
+  lateralDelayEstimate @3 :Float32;
+  points @4 :List(Float32);
+
+  enum Status {
+    unestimated @0;
+    estimated @1;
+    invalid @2;
+  }
+}
+
 struct LiveENaviData {
   speedLimit @0 :Int32;
   safetyDistance @1 :Float32;
@@ -2708,6 +2727,7 @@ struct Event {
     gnssMeasurements @91 :GnssMeasurements;
     liveParameters @61 :LiveParametersData;
     liveTorqueParameters @94 :LiveTorqueParametersData;
+    liveDelay @146 : LiveDelayData;
     cameraOdometry @63 :CameraOdometry;
     thumbnail @66: Thumbnail;
     onroadEvents @134: List(OnroadEvent);
@@ -2801,8 +2821,8 @@ struct Event {
     customReserved18 @144 :Custom.CustomReserved18;
     customReserved19 @145 :Custom.CustomReserved19;
 
-    liveENaviData @146: LiveENaviData;
-    liveMapData @147: LiveMapData;
+    liveENaviData @147: LiveENaviData;
+    liveMapData @148: LiveMapData;
 
     # *********** legacy + deprecated ***********
     model @9 :Legacy.ModelData; # TODO: rename modelV2 and mark this as deprecated

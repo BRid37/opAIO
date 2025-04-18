@@ -13,7 +13,7 @@ from openpilot.common.swaglog import cloudlog
 from opendbc.car.car_helpers import interfaces
 from opendbc.car.vehicle_model import VehicleModel
 from openpilot.selfdrive.controls.lib.drive_helpers import clip_curvature, get_lag_adjusted_curvature
-from openpilot.selfdrive.controls.lib.latcontrol import LatControl, MIN_LATERAL_CONTROL_SPEED
+from openpilot.selfdrive.controls.lib.latcontrol import LatControl
 from openpilot.selfdrive.controls.lib.latcontrol_pid import LatControlPID
 from openpilot.selfdrive.controls.lib.latcontrol_indi import LatControlINDI
 from openpilot.selfdrive.controls.lib.latcontrol_lqr import LatControlLQR
@@ -55,6 +55,7 @@ class Controls:
     self.pm = messaging.PubMaster(['carControl', 'controlsState'])
 
     self.steer_limited_by_controls = False
+    self.curvature = 0.0
     self.desired_curvature = 0.0
 
     # read params
@@ -141,6 +142,9 @@ class Controls:
 
     self.steerRatio_to_send = sr
 
+    steer_angle_without_offset = math.radians(CS.steeringAngleDeg - lp.angleOffsetDeg)
+    self.curvature = -self.VM.calc_curvature(steer_angle_without_offset, CS.vEgo, lp.roll)
+
     # Update Torque Params
     if self.CP.lateralTuning.which() == 'torque':
       torque_params = self.sm['liveTorqueParameters']
@@ -155,7 +159,7 @@ class Controls:
     CC.enabled = self.sm['selfdriveState'].enabled
 
     # Check which actuators can be enabled
-    standstill = (abs(CS.vEgo) <= max(self.CP.minSteerSpeed, MIN_LATERAL_CONTROL_SPEED) and self.no_mdps_mods) or CS.standstill
+    standstill = (abs(CS.vEgo) <= max(self.CP.minSteerSpeed, 0.3) and self.no_mdps_mods) or CS.standstill
     CC.latActive = self.sm['selfdriveState'].active and not CS.steerFaultTemporary and not CS.steerFaultPermanent and \
                    not standstill and not self.sm['carOutput'].actuatorsOutput.lkasTemporaryOff
     CC.longActive = CC.enabled and not any(e.overrideLongitudinal for e in self.sm['onroadEvents']) and self.CP.openpilotLongitudinalControl
@@ -183,7 +187,8 @@ class Controls:
     if self.legacy_lane_mode == 2:
       model_speed = self.sm['lateralPlan'].modelSpeed
       desired_curvature1, self.desired_curvature_rate = get_lag_adjusted_curvature(self.CP, CS.vEgo, lat_plan.psis, lat_plan.curvatures, lat_plan.curvatureRates)
-      desired_curvature2, curvature_limited = clip_curvature(CS.vEgo, self.desired_curvature, model_v2.action.desiredCurvature, lp.roll)
+      new_desired_curvature = model_v2.action.desiredCurvature if CC.latActive else self.curvature
+      desired_curvature2, curvature_limited = clip_curvature(CS.vEgo, self.desired_curvature, new_desired_curvature, lp.roll)
       desired_curvature3 = np.interp(CS.vEgo, [0.3, 1.0], [desired_curvature1, desired_curvature2])
       self.desired_curvature = np.interp(model_speed, [30, 80], [desired_curvature3, desired_curvature1])
       if lat_plan.laneChangeState != LaneChangeState.off:
@@ -191,13 +196,15 @@ class Controls:
     elif self.legacy_lane_mode == 1:
       model_speed = self.sm['lateralPlan'].modelSpeed
       desired_curvature1, self.desired_curvature_rate = get_lag_adjusted_curvature(self.CP, CS.vEgo, lat_plan.psis, lat_plan.curvatures, lat_plan.curvatureRates)
-      desired_curvature2, curvature_limited = clip_curvature(CS.vEgo, self.desired_curvature, model_v2.action.desiredCurvature, lp.roll)
+      new_desired_curvature = model_v2.action.desiredCurvature if CC.latActive else self.curvature
+      desired_curvature2, curvature_limited = clip_curvature(CS.vEgo, self.desired_curvature, new_desired_curvature, lp.roll)
       desired_curvature3 = np.interp(CS.vEgo, [0.3, 1.0], [desired_curvature1, desired_curvature2])
       self.desired_curvature = np.interp(model_speed, [29, 30], [desired_curvature3, desired_curvature1])
       if lat_plan.laneChangeState != LaneChangeState.off:
         self.desired_curvature = desired_curvature2
     else:
-      self.desired_curvature, curvature_limited = clip_curvature(CS.vEgo, self.desired_curvature, model_v2.action.desiredCurvature, lp.roll)
+      new_desired_curvature = model_v2.action.desiredCurvature if CC.latActive else self.curvature
+      self.desired_curvature, curvature_limited = clip_curvature(CS.vEgo, self.desired_curvature, new_desired_curvature, lp.roll)
       self.desired_curvature_rate = 0.0
     actuators.curvature = float(self.desired_curvature)
     steer, steeringAngleDeg, lac_log = self.LaC.update(CC.latActive, CS, self.VM, lp,
@@ -288,10 +295,7 @@ class Controls:
     dat.valid = CS.canValid
     cs = dat.controlsState
 
-    lp = self.sm['liveParameters']
-    steer_angle_without_offset = math.radians(CS.steeringAngleDeg - lp.angleOffsetDeg)
-    cs.curvature = -self.VM.calc_curvature(steer_angle_without_offset, CS.vEgo, lp.roll)
-
+    cs.curvature = self.curvature
     cs.longitudinalPlanMonoTime = self.sm.logMonoTime['longitudinalPlan']
     cs.lateralPlanMonoTime = self.sm.logMonoTime['lateralPlan'] if self.legacy_lane_mode else self.sm.logMonoTime['modelV2']
     cs.desiredCurvature = float(self.desired_curvature)

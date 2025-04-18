@@ -29,7 +29,7 @@ class CarInterface(CarInterfaceBase):
   RadarInterface = RadarInterface
 
   @staticmethod
-  def _get_params(ret: structs.CarParams, candidate, fingerprint, car_fw, experimental_long, docs) -> structs.CarParams:
+  def _get_params(ret: structs.CarParams, candidate, fingerprint, car_fw, alpha_long, docs) -> structs.CarParams:
     ret.brand = "hyundai"
 
     cam_can = CanBus(None, fingerprint).CAM
@@ -42,10 +42,10 @@ class CarInterface(CarInterfaceBase):
 
     if ret.flags & HyundaiFlags.CANFD:
       # Shared configuration for CAN-FD cars
-      ret.experimentalLongitudinalAvailable = candidate not in CANFD_UNSUPPORTED_LONGITUDINAL_CAR
+      ret.alphaLongitudinalAvailable = candidate not in CANFD_UNSUPPORTED_LONGITUDINAL_CAR
       if lka_steering and Ecu.adas not in [fw.ecu for fw in car_fw]:
         # this needs to be figured out for cars without an ADAS ECU
-        ret.experimentalLongitudinalAvailable = False
+        ret.alphaLongitudinalAvailable = False
 
       ret.isCanFD = True
       ret.enableBsm = 0x1e5 in fingerprint[CAN.ECAN]
@@ -105,9 +105,9 @@ class CarInterface(CarInterfaceBase):
     else:
       ret.isCanFD = False
       # Shared configuration for non CAN-FD cars
-      ret.experimentalLongitudinalAvailable = candidate not in UNSUPPORTED_LONGITUDINAL_CAR
+      ret.alphaLongitudinalAvailable = candidate not in UNSUPPORTED_LONGITUDINAL_CAR
       ret.enableBsm = 0x58b in fingerprint[0]
-      ret.sccBus = 2 if kisaLongAlt and not params.get_bool("ExperimentalLongitudinalEnabled") else 0
+      ret.sccBus = 2 if kisaLongAlt and not params.get_bool("AlphaLongitudinalEnabled") else 0
       ret.bsmAvailable = 1419 in fingerprint[0]
       ret.lfaAvailable = 1157 in fingerprint[2]
       ret.lvrAvailable = 872 in fingerprint[0]
@@ -165,7 +165,7 @@ class CarInterface(CarInterfaceBase):
     ret.smoothSteer.maxSteerAngleWait = float( params.get("KisaMaxSteerAngleWait", encoding="utf8") )   # 0.001  # 10 sec
     ret.smoothSteer.driverAngleWait = float( params.get("KisaDriverAngleWait", encoding="utf8") )  #0.001
 
-    ret.experimentalLong = params.get_bool("ExperimentalLongitudinalEnabled")
+    ret.experimentalLong = params.get_bool("AlphaLongitudinalEnabled")
     
     if ret.isAngleControl:    
       ret.steerControlType = SteerControlType.angle
@@ -186,14 +186,14 @@ class CarInterface(CarInterfaceBase):
     # Common longitudinal control setup
 
     ret.radarUnavailable = RADAR_START_ADDR not in fingerprint[1] or Bus.radar not in DBC[ret.carFingerprint]
-    ret.openpilotLongitudinalControl = experimental_long and ret.experimentalLongitudinalAvailable
+    ret.openpilotLongitudinalControl = alpha_long and ret.alphaLongitudinalAvailable
     ret.pcmCruise = not ret.openpilotLongitudinalControl
     ret.startingState = True
     ret.vEgoStarting = 0.1
     ret.startAccel = 1.0
     ret.longitudinalActuatorDelay = 0.5
 
-    if (ret.openpilotLongitudinalControl and not kisaLongAlt) or params.get_bool("ExperimentalLongitudinalEnabled"):
+    if (ret.openpilotLongitudinalControl and not kisaLongAlt) or params.get_bool("AlphaLongitudinalEnabled"):
       ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.LONG.value
     if ret.flags & HyundaiFlags.HYBRID:
       ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.HYBRID_GAS.value

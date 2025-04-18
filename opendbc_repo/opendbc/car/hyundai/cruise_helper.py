@@ -11,7 +11,7 @@ from opendbc.car.isotp_parallel_query import IsoTpParallelQuery
 def enable_radar_tracks(CP, logcan, sendcan):
   # START: Try to enable radar tracks
   print("Try to enable radar tracks")
-  if Params().get_bool("ExperimentalLongitudinalEnabled") and DBC[CP.carFingerprint]['radar'] == 'hyundai_kia_mando_front_radar_generated':
+  if Params().get_bool("AlphaLongitudinalEnabled") and DBC[CP.carFingerprint]['radar'] == 'hyundai_kia_mando_front_radar_generated':
     rdr_fw_address = 0x7d0
     for i in range(10):
       print("O yes")

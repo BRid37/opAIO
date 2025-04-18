@@ -1,10 +1,6 @@
 Import('env', 'arch', 'messaging', 'common', 'gpucommon', 'visionipc')
-import os
 
 libs = [common, 'OpenCL', messaging, visionipc, gpucommon]
-
-if os.path.exists('/data/CAMERA_ALT'):
-  env.Append(CPPDEFINES=["CAMERA_ALT"])
 
 if arch != "Darwin":
   camera_obj = env.Object(['cameras/camera_qcom2.cc', 'cameras/camera_common.cc', 'cameras/spectra.cc',

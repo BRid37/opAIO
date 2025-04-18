@@ -10,7 +10,7 @@ from opendbc.car.hyundai.values import Buttons
 from openpilot.common.params import Params
 
 IS_METRIC = Params().get_bool("IsMetric") if Params().get_bool("IsMetric") is not None else False
-LONG_ENABLED = Params().get_bool("ExperimentalLongitudinalEnabled") if Params().get_bool("ExperimentalLongitudinalEnabled") is not None else False
+LONG_ENABLED = Params().get_bool("AlphaLongitudinalEnabled") if Params().get_bool("AlphaLongitudinalEnabled") is not None else False
 # WARNING: this value was determined based on the model's training distribution,
 #          model predictions above this speed can be unpredictable
 # V_CRUISE's are in kph
