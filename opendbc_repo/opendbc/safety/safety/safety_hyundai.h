@@ -50,6 +50,9 @@ const LongitudinalLimits HYUNDAI_LONG_LIMITS = {
 #define HYUNDAI_SCC12_ADDR_CHECK(scc_bus)                                               \
   {.msg = {{0x421, (scc_bus), 8, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}}, \
 
+#define HYUNDAI_SCC11_ADDR_CHECK(scc_bus)                                                                            \
+  {.msg = {{0x420, (scc_bus), 8, .ignore_checksum = true, .ignore_counter = true, .frequency = 50U}, { 0 }, { 0 }}}, \
+
 #define HYUNDAI_FCEV_GAS_ADDR_CHECK \
   {.msg = {{0x91,  0, 8, .ignore_checksum = true, .ignore_counter = true, .frequency = 100U}, { 0 }, { 0 }}}, \
 
@@ -135,12 +138,8 @@ static void hyundai_rx_hook(const CANPacket_t *to_push) {
   int bus = GET_BUS(to_push);
   int addr = GET_ADDR(to_push);
 
-  if(hyundai_kisa_community_eng) {
-    hyundai_common_cruise_state_check_alt(true);
-  }
-
   // SCC12 is on bus 2 for camera-based SCC cars, bus 0 on all others
-  if (addr == 0x421) {
+  if (addr == 0x421 && !hyundai_kisa_community_eng) {
     if (((bus == 0) && !hyundai_camera_scc) || ((bus == 2) && hyundai_camera_scc)) {
       // 2 bits: 13-14
       int cruise_engaged = (GET_BYTES(to_push, 0, 4) >> 13) & 0x3U;
@@ -187,6 +186,11 @@ static void hyundai_rx_hook(const CANPacket_t *to_push) {
     }
     gas_pressed = brake_pressed = false;
   }
+
+  if (hyundai_kisa_community_eng) {
+    hyundai_common_cruise_state_check_alt(true);
+  }
+
 }
 
 static bool hyundai_tx_hook(const CANPacket_t *to_send) {
@@ -215,8 +219,12 @@ static bool hyundai_tx_hook(const CANPacket_t *to_send) {
 
     bool violation = false;
 
-    violation |= longitudinal_accel_checks(desired_accel_raw, HYUNDAI_LONG_LIMITS);
-    violation |= longitudinal_accel_checks(desired_accel_val, HYUNDAI_LONG_LIMITS);
+    if (hyundai_longitudinal) {
+      violation |= longitudinal_accel_checks(desired_accel_raw, HYUNDAI_LONG_LIMITS);
+      violation |= longitudinal_accel_checks(desired_accel_val, HYUNDAI_LONG_LIMITS);
+    } else {
+      violation = false;
+    }
 
     if (!hyundai_kisa_community_eng) {
       int aeb_decel_cmd = GET_BYTE(to_send, 2);
@@ -251,17 +259,17 @@ static bool hyundai_tx_hook(const CANPacket_t *to_send) {
   }
 
   // BUTTONS: used for resume spamming and cruise cancellation
-  if ((addr == 0x4F1) && !hyundai_longitudinal) {
-    int button = GET_BYTE(to_send, 0) & 0x7U;
+  // if ((addr == 0x4F1) && !hyundai_longitudinal) {
+  //   int button = GET_BYTE(to_send, 0) & 0x7U;
 
-    bool allowed_resume = (button == 1) && controls_allowed;
-    bool allowed_set = (button == 2) && controls_allowed;
-    bool allowed_gap = (button == 3) && controls_allowed;
-    bool allowed_cancel = (button == 4) && cruise_engaged_prev;
-    if (!(allowed_resume || allowed_cancel || allowed_set || allowed_gap)) {
-      tx = false;
-    }
-  }
+  //   bool allowed_resume = (button == 1) && controls_allowed;
+  //   bool allowed_set = (button == 2) && controls_allowed;
+  //   bool allowed_gap = (button == 3) && controls_allowed;
+  //   bool allowed_cancel = (button == 4) && cruise_engaged_prev;
+  //   if (!(allowed_resume || allowed_cancel || allowed_set || allowed_gap)) {
+  //     tx = false;
+  //   }
+  // }
 
   return tx;
 }
@@ -357,8 +365,7 @@ static safety_config hyundai_init(uint16_t param) {
 static safety_config hyundai_legacy_init(uint16_t param) {
   // older hyundai models have less checks due to missing counters and checksums
   static RxCheck hyundai_legacy_rx_checks[] = {
-    HYUNDAI_COMMON_RX_CHECKS(true)
-    HYUNDAI_SCC12_ADDR_CHECK(0)
+    HYUNDAI_SCC11_ADDR_CHECK(0)
   };
 
   hyundai_common_init(param);
