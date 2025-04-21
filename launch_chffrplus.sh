@@ -134,8 +134,9 @@ function launch {
   # Model_P_Hash=$(md5sum /data/openpilot/selfdrive/modeld/models/driving_policy.onnx | awk '{print $1}')
   # Model_V_Hash=$(md5sum /data/openpilot/selfdrive/modeld/models/driving_vision.onnx | awk '{print $1}')
 
-  if [ "$Model_P" == "15966721" ] && [ "$Model_V" == "34882971" ]; then echo -en "Filet_o_Fish" > /data/params/d/DrivingModel;
-  else echo -en "Filet_o_Fish" > /data/params/d/DrivingModel; fi
+  if [ "$Model_P" == "15578328" ] && [ "$Model_V" == "46265585" ]; then echo -en "Tomb_raider_2" > /data/params/d/DrivingModel;
+  elif [ "$Model_P" == "15966721" ] && [ "$Model_V" == "34882971" ]; then echo -en "Filet_o_Fish" > /data/params/d/DrivingModel;
+  else echo -en "Tomb_raider_2" > /data/params/d/DrivingModel; fi
 
   # start manager
   cd system/manager
