@@ -4,10 +4,13 @@ import numpy as np
 from cereal import log
 from openpilot.selfdrive.modeld.constants import ModelConstants, Plan, Meta
 
+from openpilot.common.params import Params
+
 SEND_RAW_PRED = os.getenv('SEND_RAW_PRED')
 
 ConfidenceClass = log.ModelDataV2.ConfidenceClass
 
+USE_LEGACY_LANE_MODEL = int(Params().get("UseLegacyLaneModel", encoding="utf8")) if Params().get("UseLegacyLaneModel", encoding="utf8") is not None else 0
 
 class PublishState:
   def __init__(self):
@@ -102,8 +105,28 @@ def fill_model_msg(base_msg: capnp._DynamicStructBuilder, extended_msg: capnp._D
   # action
   modelV2.action = action
 
-  # times at X_IDXS of edges and lines aren't used
-  LINE_T_IDXS: list[float] = []
+  if USE_LEGACY_LANE_MODEL:
+    # times at X_IDXS according to model plan
+    LINE_T_IDXS = [np.nan] * ModelConstants.IDX_N
+    LINE_T_IDXS[0] = 0.0
+    line_x = net_output_data['plan'][0,:,Plan.POSITION][:,0].tolist()
+    for xidx in range(1, ModelConstants.IDX_N):
+      tidx = 0
+      # increment tidx until we find an element that's further away than the current xidx
+      while tidx < ModelConstants.IDX_N - 1 and line_x[tidx+1] < ModelConstants.X_IDXS[xidx]:
+        tidx += 1
+      if tidx == ModelConstants.IDX_N - 1:
+        # if the Plan doesn't extend far enough, set plan_t to the max value (10s), then break
+        LINE_T_IDXS[xidx] = ModelConstants.T_IDXS[ModelConstants.IDX_N - 1]
+        break
+      # interpolate to find `t` for the current xidx
+      current_x_val = line_x[tidx]
+      next_x_val = line_x[tidx+1]
+      p = (ModelConstants.X_IDXS[xidx] - current_x_val) / (next_x_val - current_x_val) if abs(next_x_val - current_x_val) > 1e-9 else float('nan')
+      LINE_T_IDXS[xidx] = p * ModelConstants.T_IDXS[tidx+1] + (1 - p) * ModelConstants.T_IDXS[tidx]
+  else:
+    # times at X_IDXS of edges and lines aren't used
+    LINE_T_IDXS: list[float] = []
 
   # lane lines
   modelV2.init('laneLines', 4)
