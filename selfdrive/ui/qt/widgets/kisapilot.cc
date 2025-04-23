@@ -900,7 +900,10 @@ ModelSelectCombo::ModelSelectCombo() : AbstractControl(tr("Model"), "", "")
     QTextStream modelname(&modellistfile);
     while (!modelname.atEnd()) {
       QString line = modelname.readLine();
-      stringList.append(line);
+      QStringList parts = line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+      if (parts.size() >= 3) {
+        stringList.append(parts[2]);
+      }
     }
     modellistfile.close();
   }
