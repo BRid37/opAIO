@@ -1,5 +1,6 @@
 import importlib
 import os
+import resource
 import signal
 import struct
 import time
@@ -52,6 +53,32 @@ def nativelauncher(pargs: list[str], cwd: str, name: str) -> None:
 
   # exec the process
   os.chdir(cwd)
+  os.execvp(pargs[0], pargs)
+
+
+def debuglauncher(pargs: list[str], cwd: str, name: str) -> None:
+  os.environ['MANAGER_DAEMON'] = name
+
+  # exec the process
+  os.chdir(cwd)
+  resource.setrlimit(resource.RLIMIT_CORE, (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
+
+  cmd = [
+    "gdb", "--batch",
+    "--ex", "set confirm off",
+    "--ex", "run",
+    "--ex", "bt",
+    "--ex", "quit",
+    "--args",
+    *pargs
+  ]
+
+  try:
+    backtrace = subprocess.run(cmd, capture_output=True, text=True, timeout=5).stdout or "<no backtrace captured>"
+  except subprocess.TimeoutExpired:
+    backtrace = "<no backtrace captured: gdb timed out>"
+  sentry.capture_backtrace(backtrace, name)
+
   os.execvp(pargs[0], pargs)
 
 
@@ -168,7 +195,7 @@ class ManagerProcess(ABC):
 
 
 class NativeProcess(ManagerProcess):
-  def __init__(self, name, cwd, cmdline, should_run, enabled=True, sigkill=False, watchdog_max_dt=None):
+  def __init__(self, name, cwd, cmdline, should_run, enabled=True, sigkill=False, watchdog_max_dt=None, debug=False):
     self.name = name
     self.cwd = cwd
     self.cmdline = cmdline
@@ -176,7 +203,7 @@ class NativeProcess(ManagerProcess):
     self.enabled = enabled
     self.sigkill = sigkill
     self.watchdog_max_dt = watchdog_max_dt
-    self.launcher = nativelauncher
+    self.launcher = debuglauncher if debug else nativelauncher
 
   def prepare(self) -> None:
     pass
@@ -187,7 +214,10 @@ class NativeProcess(ManagerProcess):
       self.stop()
 
     if self.proc is not None:
-      return
+      if self.proc.exitcode is not None and self.launcher == debuglauncher:
+        self.stop()
+      else:
+        return
 
     cwd = os.path.join(BASEDIR, self.cwd)
     cloudlog.info(f"starting process {self.name}")

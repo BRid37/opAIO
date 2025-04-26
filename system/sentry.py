@@ -11,13 +11,13 @@ from openpilot.system.hardware import HARDWARE, PC
 from openpilot.common.swaglog import cloudlog
 from openpilot.system.version import get_build_metadata, get_version
 
-from openpilot.selfdrive.frogpilot.frogpilot_variables import ERROR_LOGS_PATH
+from openpilot.frogpilot.common.frogpilot_variables import ERROR_LOGS_PATH
 
 class SentryProject(Enum):
   # python project
-  SELFDRIVE = "https://0c2fea9f108f30f51d26ee7d259580ea@o4505034923769856.ingest.us.sentry.io/4505034930651136"
+  SELFDRIVE = "https://eefdcb433b71d839dbb08e4c8917fb0e@o4505034923769856.ingest.us.sentry.io/4505034930651136"
   # native project
-  SELFDRIVE_NATIVE = "https://0c2fea9f108f30f51d26ee7d259580ea@o4505034923769856.ingest.us.sentry.io/4505034930651136"
+  SELFDRIVE_NATIVE = "https://eefdcb433b71d839dbb08e4c8917fb0e@o4505034923769856.ingest.us.sentry.io/4505034930651136"
 
 
 def report_tombstone(fn: str, message: str, contents: str) -> None:
@@ -28,6 +28,18 @@ def report_tombstone(fn: str, message: str, contents: str) -> None:
     scope.set_extra("tombstone", contents)
     sentry_sdk.capture_message(message=message)
     sentry_sdk.flush()
+
+
+def capture_backtrace(backtrace: str, name: str) -> None:
+  with sentry_sdk.push_scope() as scope:
+    scope.set_context(f"{name} Backtrace", {"trace": backtrace})
+    sentry_sdk.capture_message(f"{name} crashed", level="critical")
+    sentry_sdk.flush()
+
+  file_path = ERROR_LOGS_PATH / f"{name}_backtrace--{datetime.now().strftime('%Y-%m-%d--%H-%M-%S')}.log"
+  file_path.write_text(backtrace)
+
+  print(f"Logged current crash to {file_path}")
 
 
 def capture_exception(*args, **kwargs) -> None:
