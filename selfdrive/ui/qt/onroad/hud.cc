@@ -49,7 +49,7 @@ void HudRenderer::updateState(const UIState &s) {
   float v_ego = v_ego_cluster_seen ? car_state.getVEgoCluster() : car_state.getVEgo();
   speed = std::max<float>(0.0f, v_ego * (is_metric ? MS_TO_KPH : MS_TO_MPH));
 
-  over_sl = s.scene.limitSpeedCamera > 19 && ((s.scene.car_state.getVEgo() * (is_metric ? MS_TO_KPH : MS_TO_MPH)) > s.scene.ctrl_speed+1.5);
+  over_sl = s.scene.limitSpeedCamera > 18 && ((s.scene.car_state.getVEgo() * (is_metric ? MS_TO_KPH : MS_TO_MPH)) > s.scene.ctrl_speed+1.5);
   auto lead_one = sm["radarState"].getRadarState().getLeadOne();
   if (s.scene.radarDRel < 149 && s.scene.use_radar_value) {
     dist_rel = s.scene.radarDRel;
@@ -99,17 +99,10 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   if (s->scene.nDebugUi3 && s->scene.comma_stock_ui != 1) {
     p.setFont(InterFont(35, QFont::DemiBold));
     uiText(p, ui_viz_rx+400, ui_viz_ry+560,
-    "0: " + QString::number(s->scene.longitudinalPlan.lead0[0], 'f', 2) +
-    " "   + QString::number(s->scene.longitudinalPlan.lead0[12], 'f', 2));
-    uiText(p, ui_viz_rx+400, ui_viz_ry+600,
-    "1: " + QString::number(s->scene.longitudinalPlan.lead1[0], 'f', 2) +
-    " "   + QString::number(s->scene.longitudinalPlan.lead1[12], 'f', 2));
-    uiText(p, ui_viz_rx+400, ui_viz_ry+640,
-    "C: " + QString::number(s->scene.longitudinalPlan.cruisetg[0], 'f', 2) +
-    " "   + QString::number(s->scene.longitudinalPlan.cruisetg[12], 'f', 2));
-    uiText(p, ui_viz_rx+400, ui_viz_ry+680,
-    "X: " + QString::number(s->scene.longitudinalPlan.e2ex[0], 'f', 2) +
-    " "   + QString::number(s->scene.longitudinalPlan.e2ex[12], 'f', 2));
+     "0/1/C/X: " + QString::number(s->scene.longitudinalPlan.lead0[0], 'f', 1) + "-" + QString::number(s->scene.longitudinalPlan.lead0[12], 'f', 1) + "/" +
+     QString::number(s->scene.longitudinalPlan.lead1[0], 'f', 1) + "-" + QString::number(s->scene.longitudinalPlan.lead1[12], 'f', 1) + "/" +
+     QString::number(s->scene.longitudinalPlan.cruisetg[0], 'f', 1) + "-" + QString::number(s->scene.longitudinalPlan.cruisetg[12], 'f', 1) + "/" +
+     QString::number(s->scene.longitudinalPlan.e2ex[0], 'f', 1) + "-" + QString::number(s->scene.longitudinalPlan.e2ex[12], 'f', 1));
   }
   if (s->scene.KISA_Debug && s->scene.comma_stock_ui != 1) {
     p.setFont(InterFont(35, QFont::DemiBold));
@@ -703,7 +696,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
       sl_opacity = 1;
     }
 
-    if (s->scene.limitSpeedCamera > 21) {
+    if (s->scene.limitSpeedCamera > 18 || (s->scene.limitSpeedCameraDist != 0 && (s->scene.navi_select == 2 || s->scene.navi_select == 4))) {
       if (s->scene.speedlimit_signtype) {
         p.setBrush(whiteColor(255/sl_opacity));
         p.drawRoundedRect(rect_si, 8, 8);
@@ -1039,7 +1032,7 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   }
   if (over_sl) {
     p.setBrush(ochreColor(128));
-  } else if (!over_sl && s->scene.limitSpeedCamera > 19){
+  } else if (!over_sl && s->scene.limitSpeedCamera > 18){
     p.setBrush(greenColor(100));
   } else if (s->scene.cruiseAccStatus) {
     p.setBrush(blueColor(128));
