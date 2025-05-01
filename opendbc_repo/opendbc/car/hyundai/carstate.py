@@ -932,7 +932,7 @@ class CarState(CarStateBase):
         cam_messages += [
           ("LKAS_ALT", 100),
         ]
-    elif CP.flags & HyundaiFlags.CANFD_CAMERA_SCC:
+    elif (CP.flags & HyundaiFlags.CANFD_CAMERA_SCC) or (CP.openpilotLongitudinalControl and CP.sccBus == 2):
       cam_messages += [
         ("SCC_CONTROL", 50),
       ]

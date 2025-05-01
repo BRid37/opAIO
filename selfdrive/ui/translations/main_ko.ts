@@ -3895,12 +3895,12 @@ This may take up to a minute.</source>
 <context>
     <name>LongAlternative</name>
     <message>
-        <source>Long for BUS2</source>
-        <translation>롱컨트롤(BUS2)</translation>
+        <source>Camera or Modded LongControl</source>
+        <translation>카메라 혹은 배선개조 롱컨 사용</translation>
     </message>
     <message>
-        <source>Long for Bus 2. Turn on if your radar is on bus2.</source>
-        <translation>배선개조 롱컨트롤(SCC Bus 2)일 경우, 이 기능을 켜십시오.</translation>
+        <source>Turn on if your radar is on bus2(camera or modded(wiring modification) SCC) for longitudinal control.</source>
+        <translation>배선개조 롱컨트롤이거나 카메라SCC인 경우, 이 기능을 켜십시오. 오픈파일럿 롱컨트롤을 활성화 할 수 있습니다.</translation>
     </message>
 </context>
 <context>

@@ -996,7 +996,7 @@ class LongAlternative : public ToggleControl {
   Q_OBJECT
 
 public:
-LongAlternative() : ToggleControl(tr("Long for BUS2"), tr("Long for Bus 2. Turn on if your radar is on bus2."), "../assets/offroad/icon_shell.png", Params().getBool("KISALongAlt")) {
+LongAlternative() : ToggleControl(tr("Camera or Modded LongControl"), tr("Turn on if your radar is on bus2(camera or modded(wiring modification) SCC) for longitudinal control."), "../assets/offroad/icon_shell.png", Params().getBool("KISALongAlt")) {
     QObject::connect(this, &LongAlternative::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("KISALongAlt", status);

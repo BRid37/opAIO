@@ -54,6 +54,7 @@ static uint8_t hyundai_last_button_interaction;  // button messages since the us
 void hyundai_common_init(uint16_t param) {
   const int HYUNDAI_PARAM_EV_GAS = 1;
   const int HYUNDAI_PARAM_HYBRID_GAS = 2;
+  const int HYUNDAI_PARAM_LONGITUDINAL = 4;
   const int HYUNDAI_PARAM_CAMERA_SCC = 8;
   const int HYUNDAI_PARAM_CANFD_LKA_STEERING = 16;
   const int HYUNDAI_PARAM_KISA_COMMUNITY = 64;
@@ -67,15 +68,9 @@ void hyundai_common_init(uint16_t param) {
   hyundai_kisa_community_eng = GET_FLAG(param, HYUNDAI_PARAM_KISA_COMMUNITY);
   hyundai_fcev_gas_signal = GET_FLAG(param, HYUNDAI_PARAM_FCEV_GAS);
   hyundai_alt_limits_2 = GET_FLAG(param, HYUNDAI_PARAM_ALT_LIMITS_2);
+  hyundai_longitudinal = GET_FLAG(param, HYUNDAI_PARAM_LONGITUDINAL);
 
   hyundai_last_button_interaction = HYUNDAI_PREV_BUTTON_SAMPLES;
-
-#ifdef ALLOW_DEBUG
-  const int HYUNDAI_PARAM_LONGITUDINAL = 4;
-  hyundai_longitudinal = GET_FLAG(param, HYUNDAI_PARAM_LONGITUDINAL);
-#else
-  hyundai_longitudinal = false;
-#endif
 }
 
 void hyundai_common_cruise_state_check(const bool cruise_engaged) {

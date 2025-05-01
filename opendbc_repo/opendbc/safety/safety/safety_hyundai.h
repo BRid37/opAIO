@@ -345,6 +345,10 @@ static safety_config hyundai_init(uint16_t param) {
 }
 
 static safety_config hyundai_legacy_init(uint16_t param) {
+  static const CanMsg HYUNDAI_CAMERA_SCC_LONG_TX_MSGS[] = {
+    HYUNDAI_LONG_COMMON_TX_MSGS(2)
+  };
+
   // older hyundai models have less checks due to missing counters and checksums
   static RxCheck hyundai_legacy_rx_checks[] = {
     HYUNDAI_SCC11_ADDR_CHECK(0)
@@ -352,9 +356,14 @@ static safety_config hyundai_legacy_init(uint16_t param) {
 
   hyundai_common_init(param);
   hyundai_legacy = true;
-  hyundai_longitudinal = false;
-  hyundai_camera_scc = false;
-  return BUILD_SAFETY_CFG(hyundai_legacy_rx_checks, HYUNDAI_TX_MSGS);
+
+  safety_config ret;
+  if (hyundai_camera_scc && hyundai_longitudinal) {
+    ret = BUILD_SAFETY_CFG(hyundai_legacy_rx_checks, HYUNDAI_CAMERA_SCC_LONG_TX_MSGS);
+  } else {
+    ret = BUILD_SAFETY_CFG(hyundai_legacy_rx_checks, HYUNDAI_TX_MSGS);
+  }
+  return ret;
 }
 
 const safety_hooks hyundai_hooks = {

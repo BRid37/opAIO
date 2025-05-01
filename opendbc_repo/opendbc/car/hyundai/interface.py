@@ -49,7 +49,7 @@ class CarInterface(CarInterfaceBase):
 
       ret.isCanFD = True
       ret.enableBsm = 0x1e5 in fingerprint[CAN.ECAN]
-      ret.sccBus = 0
+      ret.sccBus = 2 if kisaLongAlt and not params.get_bool("AlphaLongitudinalEnabled") else 0
       ret.bsmAvailable = False
       ret.lfaAvailable = False
       ret.lvrAvailable = False
@@ -100,8 +100,24 @@ class CarInterface(CarInterfaceBase):
         ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.CANFD_ALT_BUTTONS.value
       if ret.flags & HyundaiFlags.CANFD_CAMERA_SCC:
         ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.CAMERA_SCC.value
+      if ret.sccBus == 2:
+        ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.LONG.value
       if params.get_bool("LFAButtonEngagement"):
         ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.KISA_COMMUNITY.value
+
+      if ret.sccBus == 2:
+        ret.radarUnavailable = False
+        ret.openpilotLongitudinalControl = True
+        ret.pcmCruise = True
+      else:
+        ret.radarUnavailable = RADAR_START_ADDR not in fingerprint[1] or Bus.radar not in DBC[ret.carFingerprint]
+        ret.openpilotLongitudinalControl = alpha_long and ret.alphaLongitudinalAvailable
+        ret.pcmCruise = not ret.openpilotLongitudinalControl
+      ret.startingState = True
+      ret.vEgoStarting = 0.1
+      ret.startAccel = 1.0
+      ret.longitudinalActuatorDelay = 0.5
+
     else:
       ret.isCanFD = False
       # Shared configuration for non CAN-FD cars
@@ -142,10 +158,18 @@ class CarInterface(CarInterfaceBase):
         ret.radarUnavailable = False
         ret.pcmCruise = True
       else:
+        ret.radarUnavailable = RADAR_START_ADDR not in fingerprint[1] or Bus.radar not in DBC[ret.carFingerprint]
+        ret.openpilotLongitudinalControl = alpha_long and ret.alphaLongitudinalAvailable
         ret.pcmCruise = not ret.openpilotLongitudinalControl
+      ret.startingState = True
+      ret.vEgoStarting = 0.1
+      ret.startAccel = 1.0
+      ret.longitudinalActuatorDelay = 0.5
 
-      if ret.flags & HyundaiFlags.CAMERA_SCC or ret.sccBus == 2:
+      if (ret.flags & HyundaiFlags.CAMERA_SCC) or ret.sccBus == 2:
         ret.safetyConfigs[0].safetyParam |= HyundaiSafetyFlags.CAMERA_SCC.value
+      if ret.sccBus == 2:
+        ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.LONG.value
 
       # These cars have the LFA button on the steering wheel
       if 0x391 in fingerprint[0]:
@@ -182,16 +206,6 @@ class CarInterface(CarInterfaceBase):
         CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
       elif lat_control_method == 4:
         set_lat_tune(ret.lateralTuning, LatTunes.ATOM)    # Hybrid tune
-
-    # Common longitudinal control setup
-
-    ret.radarUnavailable = RADAR_START_ADDR not in fingerprint[1] or Bus.radar not in DBC[ret.carFingerprint]
-    ret.openpilotLongitudinalControl = alpha_long and ret.alphaLongitudinalAvailable
-    ret.pcmCruise = not ret.openpilotLongitudinalControl
-    ret.startingState = True
-    ret.vEgoStarting = 0.1
-    ret.startAccel = 1.0
-    ret.longitudinalActuatorDelay = 0.5
 
     if (ret.openpilotLongitudinalControl and not kisaLongAlt) or params.get_bool("AlphaLongitudinalEnabled"):
       ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.LONG.value
