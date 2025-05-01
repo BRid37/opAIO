@@ -75,17 +75,14 @@ class RadarInterface(RadarInterfaceBase):
       if self.rcp is None:
         return ret
 
-      errors = []
-
       if not self.rcp.can_valid:
-        errors.append("canError")
-      ret.errors = errors
+        ret.errors.canError = True
 
       for addr in range(RADAR_START_ADDR, RADAR_START_ADDR + RADAR_MSG_COUNT):
         msg = self.rcp.vl[f"RADAR_TRACK_{addr:x}"]
 
         if addr not in self.pts:
-          self.pts[addr] = car.RadarData.RadarPoint.new_message()
+          self.pts[addr] = structs.RadarData.RadarPoint()
           self.pts[addr].trackId = self.track_id
           self.track_id += 1
 
@@ -104,10 +101,8 @@ class RadarInterface(RadarInterfaceBase):
 
     else:
       cpt = self.rcp.vl
-      errors = []
       if not self.rcp.can_valid:
-        errors.append("canError")
-      ret.errors = errors
+        ret.errors.canError = True
 
       valid = cpt["SCC11"]['ACC_ObjStatus']
 
