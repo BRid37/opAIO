@@ -1226,7 +1226,7 @@ class CarController(CarControllerBase):
               self.regen_stop_pre_activated = False
 
         kisa_cruise_auto_res_condition = False
-        kisa_cruise_auto_res_condition = not self.kisa_cruise_auto_res_condition or CS.out.gasPressed
+        kisa_cruise_auto_res_condition = CS.acc_active_standby and (not self.kisa_cruise_auto_res_condition or CS.out.gasPressed)
         t_speed = 20 if not CS.is_metric else 30
         if self.model_speed > (60 if not CS.is_metric else 95) and self.cancel_counter == 0 and not CS.cruise_active and not CS.out.brakeLights and round(CS.VSetDis) >= t_speed and \
         (1 < CS.lead_distance < 149 or round(CS.clu_Vanz) > t_speed) and round(CS.clu_Vanz) >= 3 and self.cruise_init and \

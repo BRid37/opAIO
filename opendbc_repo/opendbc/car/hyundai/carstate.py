@@ -103,6 +103,7 @@ class CarState(CarStateBase):
     self.prev_main_btn2 = False
     self.prev_main_btn_timer = 0
     self.acc_active = False
+    self.acc_active_standby = False
     self.cruise_set_speed_kph = 0
     self.cruise_set_mode = int(Params().get("CruiseStatemodeSelInit", encoding="utf8"))
     self.gasPressed = False
@@ -775,6 +776,7 @@ class CarState(CarStateBase):
         ret.cruiseState.enabled = ret.cruiseState.available
 
       self.acc_active = cp_cruise_info.vl["SCC_CONTROL"]["ACCMode"] in (1, 2)
+      self.acc_active_standby = cp_cruise_info.vl["SCC_CONTROL"]["MainMode_ACC"] != 0
       ret.cruiseState.accActive = self.acc_active
       if self.acc_active:
         self.brake_check = False
