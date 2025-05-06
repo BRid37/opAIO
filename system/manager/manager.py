@@ -230,7 +230,6 @@ def manager_init() -> None:
     ("UseRadarValue", "1"),
     ("RegenBrakeFeature", "0"),
     ("RegenBrakeFeatureOn", "0"),
-    ("KISAADRVConnected", "0"),
     ("TimeFactorModHours", "0"),
     ("TimeFactorModMinutes", "0"),
   ]

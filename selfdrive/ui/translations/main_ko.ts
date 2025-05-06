@@ -3919,17 +3919,6 @@ This may take up to a minute.</source>
     </message>
 </context>
 <context>
-    <name>AdrvConnected</name>
-    <message>
-        <source>ADAS ECU Direct Connected</source>
-        <translation>ADAS 장치 직접연결 사용</translation>
-    </message>
-    <message>
-        <source>Turn on this feature if you have connected the OpenPilot directly to ADAS ECU for Openpilot control.</source>
-        <translation>오픈파일럿을 ADAS ECU에 직접 연결하여 오픈파일럿 제어를 수행하는 경우 이 기능을 켜세요.</translation>
-    </message>
-</context>
-<context>
     <name>TimeFactorModification</name>
     <message>
         <source>LocalTime Adjust -> UTC</source>

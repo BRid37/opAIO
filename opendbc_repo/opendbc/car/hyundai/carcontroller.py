@@ -1040,7 +1040,7 @@ class CarController(CarControllerBase):
 
     # steering control
     can_sends.extend(hyundaicanfd.create_steering_messages(self.packer, self.CP, self.CAN, CC.enabled, apply_steer_req, apply_torque, 
-                                                            apply_angle, lkas_max_torque))
+                                                            apply_angle, lkas_max_torque, CS.lfa_info, CS.lfa_alt_info))
 
     # prevent LFA from activating on LKA steering cars by sending "no lane lines detected" to ADAS ECU
     if self.frame % 5 == 0 and lka_steering:
@@ -1050,6 +1050,11 @@ class CarController(CarControllerBase):
     # LFA and HDA icons
     if self.frame % 5 == 0 and (not lka_steering or lka_steering_long):
       can_sends.append(hyundaicanfd.create_lfahda_cluster(self.packer, self.CAN, CC.enabled))
+
+    # if self.CP.adrvControl:
+    #   if self.frame % 5 == 0:
+    #     can_sends.extend(hyundaicanfd.create_ccnc(self.packer, self.CAN, self.frame, CS.ccnc_161, CS.ccnc_162, CS.adrv_1ea))
+    #   can_sends.extend(hyundaicanfd.create_fca_warning_light(self.packer, self.CAN, self.frame))
 
     # blinkers
     if lka_steering and self.CP.flags & HyundaiFlags.ENABLE_BLINKERS:

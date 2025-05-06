@@ -35,7 +35,7 @@ class CanBus(CanBusBase):
     return self._cam
 
 
-def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque, apply_angle, max_torque):
+def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque, apply_angle, max_torque, lfa_info, lfa_alt_info):
   common_values = {
     "LKA_MODE": 2,
     "LKA_ICON": 2 if enabled else 1,
@@ -73,21 +73,21 @@ def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque,
       lkas_values["LKAS_SIGNAL_5"] = 1
       lkas_values["NEW_SIGNAL_3"] = 9
     ret.append(packer.make_can_msg(lkas_msg, CAN.ACAN, lkas_values))
-  elif CP.isAngleControl: # non-hda2 angle control
-    ang_values = {
-      "LKAS_ANGLE_ACTIVE": 2 if lat_active else 1,
-      "LKAS_ANGLE_CMD": apply_angle if lat_active else 0,
-      "LKAS_ANGLE_MAX_TORQUE": max_torque if lat_active else 0,
-    }
-    ret.append(packer.make_can_msg("LFA_ALT", CAN.ECAN, ang_values))
+  elif CP.isAngleControl: # non-hda2 angle control or adas direct connected.
     lfa_values["LKA_MODE"] = 0
     lfa_values["NEW_SIGNAL_1"] = 3 if lat_active else 0
     lfa_values["TORQUE_REQUEST"] = -1024
-    lfa_values["LKA_ASSIST"] = 1
     lfa_values["STEER_REQ"] = 0
     lfa_values["NEW_SIGNAL_3"] = 0
+    lfa_values["NEW_SIGNAL_4"] = 1
     lfa_values["NEW_SIGNAL_5"] = 1
     ret.append(packer.make_can_msg("LFA", CAN.ECAN, lfa_values))
+
+    ang_values = lfa_alt_info.copy()
+    ang_values["LKAS_ANGLE_ACTIVE"] = 2 if lat_active else 1
+    ang_values["LKAS_ANGLE_CMD"] = apply_angle if lat_active else lfa_alt_info["LKAS_ANGLE_CMD"]
+    ang_values["LKAS_ANGLE_MAX_TORQUE"] = max_torque if lat_active else lfa_alt_info["LKAS_ANGLE_MAX_TORQUE"]
+    ret.append(packer.make_can_msg("LFA_ALT", CAN.ECAN, ang_values))
   else:
     lfa_values["LKA_MODE"] = 0
     lfa_values["NEW_SIGNAL_1"] = 3 if lat_active else 0
@@ -290,5 +290,33 @@ def create_adrv_messages(packer, CAN, frame):
       'SET_ME_41': 0x41,
     }
     ret.append(packer.make_can_msg("ADRV_0x1da", CAN.ECAN, values))
+
+  return ret
+
+
+def create_ccnc(packer, CAN, frame, ccnc_161, ccnc_162, adrv_1ea):
+  ret = []
+
+  values_161 = ccnc_161
+  values_161.update({
+    "FCA_ALT_ICON": 0,
+  })
+  ret.append(packer.make_can_msg("CCNC_0x161", CAN.ECAN, values_161))
+
+  values_162 = ccnc_162
+  values_162.update({
+    "FAULT_FCA": 0,
+    "FAULT_LFA": 0,
+    "FAULT_LCA": 0,
+    "FAULT_DAS": 0,
+  })
+  ret.append(packer.make_can_msg("CCNC_0x162", CAN.ECAN, values_162))
+
+  values_1ea = adrv_1ea
+  values_1ea.update({
+    "SET_ME_1C": 0,
+    "NEW_SIGNAL_1": 0,
+  })
+  ret.append(packer.make_can_msg("ADRV_0x1ea", CAN.ECAN, values_1ea))
 
   return ret

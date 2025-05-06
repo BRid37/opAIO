@@ -59,6 +59,11 @@ class CarState(CarStateBase):
     self.buttons_counter = 0
 
     self.cruise_info = {}
+    self.lfa_info = {}
+    self.lfa_alt_info = {}
+    self.ccnc_161 = {}
+    self.ccnc_162 = {}
+    self.adrv_1ea = {}
 
     # On some cars, CLU15->CF_Clu_VehicleSpeed can oscillate faster than the dash updates. Sample at 5 Hz
     self.cluster_speed = 0
@@ -715,14 +720,22 @@ class CarState(CarStateBase):
       left_blinker_sig, right_blinker_sig = "LEFT_LAMP_ALT", "RIGHT_LAMP_ALT"
     ret.leftBlinker, ret.rightBlinker = self.update_blinker_from_lamp(50, cp.vl["BLINKERS"][left_blinker_sig],
                                                                       cp.vl["BLINKERS"][right_blinker_sig])
-    if self.CP.enableBsm:
+    if self.CP.enableBsm and not self.CP.adrvControl:
       if self.CP.isAngleControl:
         ret.leftBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["FL_INDICATOR_ALT"] != 0
         ret.rightBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["FR_INDICATOR_ALT"] != 0
       else:
         ret.leftBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["FL_INDICATOR"] != 0
         ret.rightBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["FR_INDICATOR"] != 0
+    else:
+      if self.CP.isAngleControl:
+        ret.leftBlindspot = cp_cam.vl["BLINDSPOTS_REAR_CORNERS"]["FL_INDICATOR_ALT"] != 0
+        ret.rightBlindspot = cp_cam.vl["BLINDSPOTS_REAR_CORNERS"]["FR_INDICATOR_ALT"] != 0
+      else:
+        ret.leftBlindspot = cp_cam.vl["BLINDSPOTS_REAR_CORNERS"]["FL_INDICATOR"] != 0
+        ret.rightBlindspot = cp_cam.vl["BLINDSPOTS_REAR_CORNERS"]["FR_INDICATOR"] != 0
 
+    cp_cruise_info = cp_cam if self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC else cp
     if self.CP.openpilotLongitudinalControl:
       # These are not used for engage/disengage since openpilot keeps track of state using the buttons
       # ret.cruiseState.enabled = cp.vl["TCS"]["ACC_REQ"] == 1
@@ -748,7 +761,6 @@ class CarState(CarStateBase):
       if self.lfa_button_eng:
         prev_lfa_buttons = self.lfa_buttons[-1]
     else:
-      cp_cruise_info = cp_cam if self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC else cp
       if not self.lfa_button_eng:
         ret.cruiseState.available = cp_cruise_info.vl["SCC_CONTROL"]["MainMode_ACC"] != 0
         ret.cruiseState.enabled = cp_cruise_info.vl["SCC_CONTROL"]["ACCMode"] in (1, 2)
@@ -757,6 +769,12 @@ class CarState(CarStateBase):
       ret.vSetDis = self.VSetDis
       self.cruiseState_standstill = ret.cruiseState.standstill
       self.cruise_info = copy.copy(cp_cruise_info.vl["SCC_CONTROL"])
+      if self.CP.adrvControl:
+        self.lfa_info = copy.copy(cp_cruise_info.vl["LFA"])
+        self.lfa_alt_info = copy.copy(cp_cruise_info.vl["LFA_ALT"])
+        self.ccnc_161 = copy.copy(cp_cruise_info.vl["CCNC_0x161"])
+        self.ccnc_162 = copy.copy(cp_cruise_info.vl["CCNC_0x161"])
+        self.adrv_1ea = copy.copy(cp_cruise_info.vl["ADRV_0x1ea"])
       if self.lfa_button_eng:
         if self.lfa_buttons[-1]:
           self.prev_lfa_btn_timer = 2
@@ -896,17 +914,17 @@ class CarState(CarStateBase):
         ("CRUISE_BUTTONS", 50)
       ]
 
-    if CP.enableBsm:
+    if CP.enableBsm and not CP.adrvControl:
       pt_messages += [
         ("BLINDSPOTS_REAR_CORNERS", 20),
       ]
 
-    if not (CP.flags & HyundaiFlags.CANFD_CAMERA_SCC.value) and not CP.openpilotLongitudinalControl:
+    if not (CP.flags & HyundaiFlags.CANFD_CAMERA_SCC.value) and not CP.openpilotLongitudinalControl and not CP.adrvControl:
       pt_messages += [
         ("SCC_CONTROL", 50),
       ]
 
-    if CP.adrvAvailable and CP.flags & HyundaiFlags.CANFD_LKA_STEERING:
+    if CP.adrvAvailable and CP.flags & HyundaiFlags.CANFD_LKA_STEERING and not CP.adrvControl:
       pt_messages += [
         ("ADRV_0x200", 20),
       ]
@@ -938,10 +956,19 @@ class CarState(CarStateBase):
       cam_messages += [
         ("SCC_CONTROL", 50),
       ]
-      if CP.adrvAvailable and not CP.flags & HyundaiFlags.CANFD_LKA_STEERING:
+      if (CP.adrvAvailable and not CP.flags & HyundaiFlags.CANFD_LKA_STEERING) or CP.adrvControl:
         cam_messages += [
           ("ADRV_0x200", 20),
         ]
+    if CP.adrvControl:
+      cam_messages += [
+        ("BLINDSPOTS_REAR_CORNERS", 20),
+        ("LFA", 100),
+        ("LFA_ALT", 100),
+        ("CCNC_0x161", 20),
+        ("CCNC_0x162", 20),
+        ("ADRV_0x1ea", 20),
+      ]
 
     return {
       Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], pt_messages, CanBus(CP).ECAN),
