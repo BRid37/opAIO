@@ -983,7 +983,14 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     } else if (s->scene.navi_select == 2 || s->scene.navi_select == 4) {
       road_name = QString::fromStdString(s->scene.liveENaviData.ewazeroadname);
     }
-    QDateTime now = QDateTime::currentDateTime();
+
+    int tm_hour = s->scene.timemod_hours;
+    int tm_minute = s->scene.timemod_minutes;
+    if (tm_hour < 0) {
+      tm_minute = -tm_minute;
+    }
+    int totalSeconds = tm_hour * 3600 + tm_minute * 60;
+    QDateTime now = QDateTime::currentDateTime().addSecs(totalSeconds);
     QString tvalue = "";
 
     if (s->scene.bottom_text_view == 1) {

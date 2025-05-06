@@ -9045,3 +9045,125 @@ void SetSpeedPlus::refresh() {
     label.setText(QString::fromStdString(params.get("SetSpeedPlus")));
   }
 }
+
+TimeFactorModification::TimeFactorModification() : AbstractControl(tr("LocalTime Adjust -> UTC"), tr("Adjusts the time displayed by adding or subtracting time from UTC."), "../assets/offroad/icon_shell.png") {
+  btn1.setStyleSheet(R"(
+    padding: -10;
+    border-radius: 35px;
+    font-size: 30px;
+    font-weight: 500;
+    color: #E4E4E4;
+    background-color: #393939;
+  )");
+  btn2.setStyleSheet(R"(
+    padding: -10;
+    border-radius: 35px;
+    font-size: 30px;
+    font-weight: 500;
+    color: #E4E4E4;
+    background-color: #393939;
+  )");
+  btn3.setStyleSheet(R"(
+    padding: -10;
+    border-radius: 35px;
+    font-size: 30px;
+    font-weight: 500;
+    color: #E4E4E4;
+    background-color: #393939;
+  )");
+  btn4.setStyleSheet(R"(
+    padding: -10;
+    border-radius: 35px;
+    font-size: 30px;
+    font-weight: 500;
+    color: #E4E4E4;
+    background-color: #393939;
+  )");
+  label1.setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
+  label1.setStyleSheet("color: #e0e879");
+  label2.setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
+  label2.setStyleSheet("color: #e0e879");
+  labelc.setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
+  btn1.setText("H－");
+  btn2.setText("H＋");
+  btn3.setText("M－");
+  btn4.setText("M＋");
+
+  btn1.setFixedSize(120, 100);
+  btn2.setFixedSize(120, 100);
+  btn3.setFixedSize(120, 100);
+  btn4.setFixedSize(120, 100);
+  labelc.setText(":");
+
+  hlayout->addWidget(&label1);
+  hlayout->addWidget(&labelc);
+  hlayout->addWidget(&label2);
+
+  hlayout->addWidget(&btn1);
+  hlayout->addWidget(&btn2);
+  hlayout->addWidget(&btn3);
+  hlayout->addWidget(&btn4);
+
+  QObject::connect(&btn1, &QPushButton::clicked, [=]() {
+    auto str = QString::fromStdString(params.get("TimeFactorModHours"));
+    int value = str.toInt();
+    value = value - 1;
+    if (value <= -12) {
+      value = -12;
+    }
+    QString values = QString::number(value);
+    params.put("TimeFactorModHours", values.toStdString());
+    refresh1();
+  });
+  
+  QObject::connect(&btn2, &QPushButton::clicked, [=]() {
+    auto str = QString::fromStdString(params.get("TimeFactorModHours"));
+    int value = str.toInt();
+    value = value + 1;
+    if (value >= 14) {
+      value = 14;
+    }
+    QString values = QString::number(value);
+    params.put("TimeFactorModHours", values.toStdString());
+    refresh1();
+  });
+  QObject::connect(&btn3, &QPushButton::clicked, [=]() {
+    auto str = QString::fromStdString(params.get("TimeFactorModMinutes"));
+    int value = str.toInt();
+    value = value - 5;
+    if (value <= 0) {
+      value = 0;
+    }
+    QString values = QString::number(value);
+    params.put("TimeFactorModMinutes", values.toStdString());
+    refresh2();
+  });
+  
+  QObject::connect(&btn4, &QPushButton::clicked, [=]() {
+    auto str = QString::fromStdString(params.get("TimeFactorModMinutes"));
+    int value = str.toInt();
+    value = value + 5;
+    if (value >= 55) {
+      value = 55;
+    }
+    QString values = QString::number(value);
+    params.put("TimeFactorModMinutes", values.toStdString());
+    refresh2();
+  });
+
+  refresh1();
+  refresh2();
+}
+
+void TimeFactorModification::refresh1() {
+  auto strs = QString::fromStdString(params.get("TimeFactorModHours"));
+  int valuei = strs.toInt();
+  QString valuefs = QString::asprintf("%+d", valuei);
+  label1.setText(QString::fromStdString(valuefs.toStdString()));
+}
+void TimeFactorModification::refresh2() {
+  auto strs = QString::fromStdString(params.get("TimeFactorModMinutes"));
+  int valuei = strs.toInt();
+  QString valuefs = QString::asprintf("%02d", valuei);
+  label2.setText(QString::fromStdString(valuefs.toStdString()));
+}

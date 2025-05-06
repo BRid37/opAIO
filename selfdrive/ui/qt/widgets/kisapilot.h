@@ -2759,3 +2759,23 @@ private:
   
   void refresh();
 };
+
+class TimeFactorModification : public AbstractControl {
+  Q_OBJECT
+
+public:
+TimeFactorModification();
+
+private:
+  QPushButton btn1;
+  QPushButton btn2;
+  QPushButton btn3;
+  QPushButton btn4;
+  QLabel label1;
+  QLabel label2;
+  QLabel labelc;
+  Params params;
+
+  void refresh1();
+  void refresh2();
+};

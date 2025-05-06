@@ -28,6 +28,7 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : ListWidget(parent) {
   addItem(new UFCModeEnabledToggle());
   addItem(new LFAButtonEngagementToggle());
   addItem(new StockLKASEnabledatDisenagedStatusToggle());
+  addItem(new TimeFactorModification());
   addItem(new UserSpecificFeature());
   //addItem(new MapboxToken());
 

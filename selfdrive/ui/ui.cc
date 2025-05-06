@@ -385,6 +385,8 @@ void UIState::updateStatus() {
     scene.use_radar_value = params.getBool("UseRadarValue");
     scene.no_smart_mdps = params.getBool("NoSmartMDPS");
     scene.lfa_button_eng = params.getBool("LFAButtonEngagement");
+    scene.timemod_hours = std::stoi(params.get("TimeFactorModHours"));
+    scene.timemod_minutes = std::stoi(params.get("TimeFactorModMinutes"));
 
     if (scene.autoScreenOff > 0) {
       scene.nTime = scene.autoScreenOff * 60 * UI_FREQ;

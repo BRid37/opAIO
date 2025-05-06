@@ -192,6 +192,8 @@ typedef struct UIScene {
   bool error_occurred = false;
   int standstillElapsedTime = 0;
   bool cavailable, cenabled;
+  int timemod_hours;
+  int timemod_minutes;
 
   QString model_name;
   QString branch_name;
