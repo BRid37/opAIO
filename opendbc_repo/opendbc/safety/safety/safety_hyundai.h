@@ -354,12 +354,16 @@ static safety_config hyundai_legacy_init(uint16_t param) {
     HYUNDAI_SCC11_ADDR_CHECK(0)
   };
 
+  static RxCheck hyundai_legacy_rx_scc_long_checks[] = {
+    HYUNDAI_SCC11_ADDR_CHECK(2)
+  };
+
   hyundai_common_init(param);
   hyundai_legacy = true;
 
   safety_config ret;
   if (hyundai_camera_scc && hyundai_longitudinal) {
-    ret = BUILD_SAFETY_CFG(hyundai_legacy_rx_checks, HYUNDAI_CAMERA_SCC_LONG_TX_MSGS);
+    ret = BUILD_SAFETY_CFG(hyundai_legacy_rx_scc_long_checks, HYUNDAI_CAMERA_SCC_LONG_TX_MSGS);
   } else {
     ret = BUILD_SAFETY_CFG(hyundai_legacy_rx_checks, HYUNDAI_TX_MSGS);
   }
