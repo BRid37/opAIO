@@ -131,7 +131,7 @@ def create_clu11(packer, frame, clu11, button, CP):
   #values["CF_Clu_AliveCnt1"] = frame % 0x10
   values["CF_Clu_AliveCnt1"] = (values["CF_Clu_AliveCnt1"] + 1) % 0x10
   # send buttons to camera on camera-scc based cars
-  bus = 2 if CP.flags & HyundaiFlags.CAMERA_SCC else 0
+  bus = 2 if (CP.flags & HyundaiFlags.CAMERA_SCC) or CP.sccBus == 2 else 0
   return packer.make_can_msg("CLU11", bus, values)
 
 

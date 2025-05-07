@@ -55,6 +55,20 @@ const LongitudinalLimits HYUNDAI_LONG_LIMITS = {
 #define HYUNDAI_FCEV_GAS_ADDR_CHECK \
   {.msg = {{0x91,  0, 8, .ignore_checksum = true, .ignore_counter = true, .frequency = 100U}, { 0 }, { 0 }}}, \
 
+#define HYUNDAI_LONG_COMMON_ALT_TX_MSGS \
+  {0x340, 0,       8, .check_relay = true},   /* LKAS11 Bus 0      */ \
+  {0x340, 1,       8, .check_relay = true},   /* LKAS11 Bus 1      */ \
+  {0x4F1, 0,       4, .check_relay = false},  /* CLU11 Bus 0       */ \
+  {0x4F1, 1,       4, .check_relay = false},  /* CLU11 Bus 1       */ \
+  {0x4F1, 2,       4, .check_relay = false},  /* CLU11 Bus 2       */ \
+  {0x485, 0,       4, .check_relay = true},   /* LFAHDA_MFC Bus 0  */ \
+  {0x420, 0,       8, .check_relay = true},   /* SCC11 Bus 0       */ \
+  {0x421, 0,       8, .check_relay = true},   /* SCC12 Bus 0       */ \
+  {0x50A, 0,       8, .check_relay = true},   /* SCC13 Bus 0       */ \
+  {0x389, 0,       8, .check_relay = true},   /* SCC14 Bus 0       */ \
+  {0x4A2, 0,       2, .check_relay = false},  /* FRT_RADAR11 Bus 0 */ \
+
+
 static const CanMsg HYUNDAI_TX_MSGS[] = {
   HYUNDAI_COMMON_TX_MSGS(0)
 };
@@ -345,8 +359,8 @@ static safety_config hyundai_init(uint16_t param) {
 }
 
 static safety_config hyundai_legacy_init(uint16_t param) {
-  static const CanMsg HYUNDAI_CAMERA_SCC_LONG_TX_MSGS[] = {
-    HYUNDAI_LONG_COMMON_TX_MSGS(2)
+  static const CanMsg HYUNDAI_CAMERA_SCC_LONG_ALT_TX_MSGS[] = {
+    HYUNDAI_LONG_COMMON_ALT_TX_MSGS
   };
 
   // older hyundai models have less checks due to missing counters and checksums
@@ -363,7 +377,7 @@ static safety_config hyundai_legacy_init(uint16_t param) {
 
   safety_config ret;
   if (hyundai_camera_scc && hyundai_longitudinal) {
-    ret = BUILD_SAFETY_CFG(hyundai_legacy_rx_scc_long_checks, HYUNDAI_CAMERA_SCC_LONG_TX_MSGS);
+    ret = BUILD_SAFETY_CFG(hyundai_legacy_rx_scc_long_checks, HYUNDAI_CAMERA_SCC_LONG_ALT_TX_MSGS);
   } else {
     ret = BUILD_SAFETY_CFG(hyundai_legacy_rx_checks, HYUNDAI_TX_MSGS);
   }
