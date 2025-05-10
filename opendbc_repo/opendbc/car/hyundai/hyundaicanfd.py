@@ -83,10 +83,11 @@ def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque,
     lfa_values["NEW_SIGNAL_5"] = 1
     ret.append(packer.make_can_msg("LFA", CAN.ECAN, lfa_values))
 
-    ang_values = lfa_alt_info.copy()
-    ang_values["LKAS_ANGLE_ACTIVE"] = 2 if lat_active else 1
-    ang_values["LKAS_ANGLE_CMD"] = apply_angle if lat_active else lfa_alt_info["LKAS_ANGLE_CMD"]
-    ang_values["LKAS_ANGLE_MAX_TORQUE"] = max_torque if lat_active else lfa_alt_info["LKAS_ANGLE_MAX_TORQUE"]
+    ang_values = {
+      "LKAS_ANGLE_ACTIVE": 2 if lat_active else 1,
+      "LKAS_ANGLE_CMD": apply_angle if lat_active else 0,
+      "LKAS_ANGLE_MAX_TORQUE": max_torque if lat_active else 0,
+    }
     ret.append(packer.make_can_msg("LFA_ALT", CAN.ECAN, ang_values))
   else:
     lfa_values["LKA_MODE"] = 0
