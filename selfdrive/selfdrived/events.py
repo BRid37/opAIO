@@ -691,6 +691,11 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
                               visual_alert=VisualAlert.brakePressed),
   },
 
+  EventName.steerDisengage: {
+    ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
+    ET.NO_ENTRY: NoEntryAlert("Steering Pressed"),
+  },
+
   EventName.preEnableStandstill: {
     ET.PRE_ENABLE: Alert(
       "Release Brake to Engage",
@@ -910,7 +915,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   # causing the connection to the panda to be lost
   EventName.usbError: {
     ET.SOFT_DISABLE: soft_disable_alert(tr(153)),
-    ET.PERMANENT: NormalPermanentAlert(tr(154), ""),
+    ET.PERMANENT: NormalPermanentAlert(tr(154)),
     ET.NO_ENTRY: NoEntryAlert(tr(155)),
   },
 
@@ -996,6 +1001,10 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.personalityChanged: {
     ET.WARNING: personality_changed_alert,
+  },
+
+  EventName.userFlag: {
+    ET.PERMANENT: NormalPermanentAlert("Bookmark Saved", duration=1.5),
   },
 
   EventName.plannerError: {

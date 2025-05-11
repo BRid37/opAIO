@@ -262,6 +262,8 @@ class CarSpecificEvents:
       events.add(EventName.accFaulted)
     if CS.steeringPressed:
       events.add(EventName.steerOverride)
+    if CS.steeringDisengage and not CS_prev.steeringDisengage and not self.ufc_mode:
+      events.add(EventName.steerDisengage)
     if CS.brakePressed and CS.standstill and not self.ufc_mode:
       events.add(EventName.preEnableStandstill)
     if CS.gasPressed and not self.ufc_mode:

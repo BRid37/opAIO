@@ -194,10 +194,12 @@ struct CarState {
   steeringTorque @8 :Float32;      # TODO: standardize units
   steeringTorqueEps @27 :Float32;  # TODO: standardize units
   steeringPressed @9 :Bool;        # if the user is using the steering wheel
+  steeringDisengage @58 :Bool;     # more force than steeringPressed, disengages for applicable brands
   steerFaultTemporary @35 :Bool;   # temporary EPS fault
   steerFaultPermanent @36 :Bool;   # permanent EPS fault
   invalidLkasSetting @55 :Bool;    # stock LKAS is incorrectly configured (i.e. on or off)
   stockAeb @30 :Bool;
+  stockLkas @59 :Bool;
   stockFcw @31 :Bool;
   espDisabled @32 :Bool;
   accFaulted @42 :Bool;
@@ -236,24 +238,24 @@ struct CarState {
   # process meta
   cumLagMs @50 :Float32;
 
-  tpms @58 :TPMS;
-  radarDRel @59 :Float32;
-  radarVRel @60 :Float32;
-  vSetDis @61 :Float32;
-  cruiseButtons @62 :Float32;
-  cruiseAccStatus @63 :Bool;
-  driverAcc @64 :Bool;
-  autoHold @65 :Bool;    # AutoHold
-  cruiseGapSet @66 :UInt8;
-  safetyDist @67 :Float32;
-  safetySign @68 :Float32;
-  vEgoOP @69 :Float32;  # openpilot speed
-  gearStep @70 :Int8;
-  isMph @71 :Bool;
-  aReqValue @72 :Float32;
-  chargeMeter @73 :Float32;
-  brakeLights @74 :Bool;
-  pauseSpdLimit @75 :Bool;
+  tpms @60 :TPMS;
+  radarDRel @61 :Float32;
+  radarVRel @62 :Float32;
+  vSetDis @63 :Float32;
+  cruiseButtons @64 :Float32;
+  cruiseAccStatus @65 :Bool;
+  driverAcc @66 :Bool;
+  autoHold @67 :Bool;    # AutoHold
+  cruiseGapSet @68 :UInt8;
+  safetyDist @69 :Float32;
+  safetySign @70 :Float32;
+  vEgoOP @71 :Float32;  # openpilot speed
+  gearStep @72 :Int8;
+  isMph @73 :Bool;
+  aReqValue @74 :Float32;
+  chargeMeter @75 :Float32;
+  brakeLights @76 :Bool;
+  pauseSpdLimit @77 :Bool;
 
   struct TPMS {
     unit @0 :Int8;

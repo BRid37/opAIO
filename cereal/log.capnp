@@ -48,6 +48,7 @@ struct OnroadEvent @0xc4fa6047f024e718 {
     preEnableStandstill @12;  # added during pre-enable state with brake
     gasPressedOverride @13;  # added when user is pressing gas with no disengage on gas
     steerOverride @14;
+    steerDisengage @94;  # exits active state
     cruiseDisabled @15;
     speedTooLow @16;
     outOfSpace @17;
@@ -126,40 +127,41 @@ struct OnroadEvent @0xc4fa6047f024e718 {
     espActive @90;
     personalityChanged @91;
     aeb @92;
+    userFlag @95;
 
     soundsUnavailableDEPRECATED @47;
 
-    plannerError @94;
-    laneChangeManual @95;
-    emgButtonManual @96;
-    driverSteering @97;
-    modeChangeOpenpilot @98;
-    modeChangeDistcurv @99;
-    modeChangeDistance @100;
-    modeChangeCurv @101;
-    modeChangeOneway @102;
-    modeChangeMaponly @103;
-    needBrake @104;
-    standStill @105;
-    e2eLongAlert @106;
-    isgActive @107;
-    camSpeedDown @108;
-    gapAdjusting @109;
-    resCruise @110;
-    curvSpeedDown @111;
-    standstillResButton @112;
-    routineDriveOn @113;
-    lkasEnabled @114;
-    cutinDetection @115;
-    gearNotD @116;
-    unSleepMode @117;
-    speedBump @118;
-    sccDriverOverride @119;
-    doNotDisturb @120;
-    chimeAtResume @121;
-    autoHold @122;
-    lkasDisabled @123;
-    laneChangeFinish @124;
+    plannerError @96;
+    laneChangeManual @97;
+    emgButtonManual @98;
+    driverSteering @99;
+    modeChangeOpenpilot @100;
+    modeChangeDistcurv @101;
+    modeChangeDistance @102;
+    modeChangeCurv @103;
+    modeChangeOneway @104;
+    modeChangeMaponly @105;
+    needBrake @106;
+    standStill @107;
+    e2eLongAlert @108;
+    isgActive @109;
+    camSpeedDown @110;
+    gapAdjusting @111;
+    resCruise @112;
+    curvSpeedDown @113;
+    standstillResButton @114;
+    routineDriveOn @115;
+    lkasEnabled @116;
+    cutinDetection @117;
+    gearNotD @118;
+    unSleepMode @119;
+    speedBump @120;
+    sccDriverOverride @121;
+    doNotDisturb @122;
+    chimeAtResume @123;
+    autoHold @124;
+    lkasDisabled @125;
+    laneChangeFinish @126;
   }
 }
 
@@ -520,6 +522,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   # device thermals
   cpuTempC @26 :List(Float32);
   gpuTempC @27 :List(Float32);
+  dspTempC @49 :Float32;
   memoryTempC @28 :Float32;
   nvmeTempC @35 :List(Float32);
   modemTempC @36 :List(Float32);
@@ -534,7 +537,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   fanSpeedPercentDesired @10 :UInt16;
   screenBrightnessPercent @37 :Int8;
 
-  ipAddress @49 :Text;
+  ipAddress @50 :Text;
 
   struct ThermalZone {
     name @0 :Text;
