@@ -5,6 +5,8 @@ from openpilot.common.realtime import DT_CTRL, DT_MDL
 
 from openpilot.selfdrive.modeld.constants import ModelConstants
 
+from openpilot.selfdrive.modeld.modeld import LAT_SMOOTH_SECONDS
+
 MIN_SPEED = 1.0
 CONTROL_N = 17
 CAR_ROTATION_RADIUS = 0.0
@@ -76,15 +78,14 @@ def get_curvature_from_plan(yaws, yaw_rates, t_idxs, vego, action_t):
   return curv_from_psis(psi_target, psi_rate, vego, action_t)
 
 
-def get_lag_adjusted_curvature(CP, v_ego, psis, curvatures, curvature_rates):
+def get_lag_adjusted_curvature(CP, v_ego, psis, curvatures, curvature_rates, live_lat_delay):
   if len(psis) != CONTROL_N:
     psis = [0.0]*CONTROL_N
     curvatures = [0.0]*CONTROL_N
     curvature_rates = [0.0]*CONTROL_N
   v_ego = max(MIN_SPEED, v_ego)
 
-  # TODO this needs more thought, use .2s extra for now to estimate other delays
-  delay = max(0.01, CP.steerActuatorDelay + .2)
+  delay = max(0.01, LAT_SMOOTH_SECONDS + live_lat_delay)
 
   # MPC can plan to turn the wheel and turn back before t_delay. This means
   # in high delay cases some corrections never even get commanded. So just use

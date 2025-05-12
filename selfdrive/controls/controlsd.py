@@ -51,7 +51,7 @@ class Controls:
 
     self.sm = messaging.SubMaster(['liveParameters', 'liveTorqueParameters', 'modelV2', 'selfdriveState',
                                    'liveCalibration', 'livePose', 'longitudinalPlan', 'carState', 'carOutput',
-                                   'driverMonitoringState', 'onroadEvents', 'driverAssistance', 'lateralPlan', 'radarState', 'liveENaviData', 'liveMapData'], poll='selfdriveState')
+                                   'driverMonitoringState', 'onroadEvents', 'driverAssistance', 'liveDelay', 'lateralPlan', 'radarState', 'liveENaviData', 'liveMapData'], poll='selfdriveState')
     self.pm = messaging.PubMaster(['carControl', 'controlsState'])
 
     self.steer_limited_by_controls = False
@@ -186,7 +186,7 @@ class Controls:
     # Steering PID loop and lateral MPC
     if self.legacy_lane_mode == 2:
       model_speed = self.sm['lateralPlan'].modelSpeed
-      desired_curvature1, self.desired_curvature_rate = get_lag_adjusted_curvature(self.CP, CS.vEgo, lat_plan.psis, lat_plan.curvatures, lat_plan.curvatureRates)
+      desired_curvature1, self.desired_curvature_rate = get_lag_adjusted_curvature(self.CP, CS.vEgo, lat_plan.psis, lat_plan.curvatures, lat_plan.curvatureRates, self.sm['liveDelay'].lateralDelay)
       new_desired_curvature = model_v2.action.desiredCurvature if CC.latActive else self.curvature
       desired_curvature2, curvature_limited = clip_curvature(CS.vEgo, self.desired_curvature, new_desired_curvature, lp.roll)
       desired_curvature3 = np.interp(CS.vEgo, [0.3, 1.0], [desired_curvature1, desired_curvature2])
@@ -195,7 +195,7 @@ class Controls:
         self.desired_curvature = desired_curvature2
     elif self.legacy_lane_mode == 1:
       model_speed = self.sm['lateralPlan'].modelSpeed
-      desired_curvature1, self.desired_curvature_rate = get_lag_adjusted_curvature(self.CP, CS.vEgo, lat_plan.psis, lat_plan.curvatures, lat_plan.curvatureRates)
+      desired_curvature1, self.desired_curvature_rate = get_lag_adjusted_curvature(self.CP, CS.vEgo, lat_plan.psis, lat_plan.curvatures, lat_plan.curvatureRates, self.sm['liveDelay'].lateralDelay)
       new_desired_curvature = model_v2.action.desiredCurvature if CC.latActive else self.curvature
       desired_curvature2, curvature_limited = clip_curvature(CS.vEgo, self.desired_curvature, new_desired_curvature, lp.roll)
       desired_curvature3 = np.interp(CS.vEgo, [0.3, 1.0], [desired_curvature1, desired_curvature2])
