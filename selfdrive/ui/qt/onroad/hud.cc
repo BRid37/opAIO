@@ -126,7 +126,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     }
     uiText(p, ui_viz_rx, ui_viz_ry+280, "AA:" + QString::number(s->scene.liveParams.angleOffsetAverage, 'f', 2));
     uiText(p, ui_viz_rx, ui_viz_ry+320, "SF:" + QString::number(s->scene.liveParams.stiffnessFactor, 'f', 2));
-    uiText(p, ui_viz_rx, ui_viz_ry+360, "AD:" + QString::number(s->scene.steer_actuator_delay, 'f', 2));
+    uiText(p, ui_viz_rx, ui_viz_ry+360, "LD:" + QString::number(s->scene.live_lat_delay, 'f', 2));
     uiText(p, ui_viz_rx, ui_viz_ry+400, "OS:" + QString::number(s->scene.output_scale, 'f', 2));
     uiText(p, ui_viz_rx, ui_viz_ry+440, QString::number(s->scene.lateralPlan.dProb, 'f', 1) + "/" + QString::number(s->scene.lateralPlan.laneWidth, 'f', 1) + "m" +
      "/" + QString::number(s->scene.lateralPlan.totalCameraOffset, 'f', 2));

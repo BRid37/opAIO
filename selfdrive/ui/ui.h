@@ -194,6 +194,7 @@ typedef struct UIScene {
   bool cavailable, cenabled;
   int timemod_hours;
   int timemod_minutes;
+  float live_lat_delay;
 
   QString model_name;
   QString branch_name;

@@ -213,6 +213,12 @@ static void update_state(UIState *s) {
     scene.lateralPlan.rightLanetoRightEdgeWidth = lp_data.getRightLanetoRightEdgeWidth();
     scene.lateralPlan.leftLanetoLeftEdgeWidth = lp_data.getLeftLanetoLeftEdgeWidth();
   }
+
+  if (sm.updated("liveDelay")) {
+    auto ld_data = sm["liveDelay"].getLiveDelay();
+    scene.live_lat_delay = ld_data.getLateralDelay();
+  }
+
   if (sm.updated("longitudinalPlan")) {
     scene.longitudinal_plan = sm["longitudinalPlan"].getLongitudinalPlan();
     auto lop_data = sm["longitudinalPlan"].getLongitudinalPlan();
@@ -412,7 +418,7 @@ UIState::UIState(QObject *parent) : QObject(parent) {
     "pandaStates", "carParams", "driverMonitoringState", "carState", "driverStateV2",
     "wideRoadCameraState", "managerState", "selfdriveState", "longitudinalPlan",
     "peripheralState", "liveParameters", "ubloxGnss", "qcomGnss", "gpsLocationExternal", "gpsLocation",
-    "lateralPlan", "liveENaviData", "liveMapData",
+    "liveDelay", "lateralPlan", "liveENaviData", "liveMapData",
   });
   prime_state = new PrimeState(this);
   language = QString::fromStdString(Params().get("LanguageSetting"));
