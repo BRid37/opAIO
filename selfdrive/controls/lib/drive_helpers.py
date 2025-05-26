@@ -83,7 +83,7 @@ def get_lag_adjusted_curvature(CP, v_ego, psis, curvatures, curvature_rates, liv
     curvature_rates = [0.0]*CONTROL_N
   v_ego = max(MIN_SPEED, v_ego)
 
-  delay = max(0.01, 0.1 + live_lat_delay)
+  delay = max(0.01, live_lat_delay)
 
   # MPC can plan to turn the wheel and turn back before t_delay. This means
   # in high delay cases some corrections never even get commanded. So just use

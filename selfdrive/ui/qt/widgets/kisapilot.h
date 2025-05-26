@@ -190,7 +190,7 @@ class AutoResumeToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  AutoResumeToggle() : ToggleControl(tr("Use Auto Resume at Stop"), tr("It uses the automatic departure function when stopping while using SCC."), "../assets/offroad/icon_shell.png", Params().getBool("KisaAutoResume")) {
+  AutoResumeToggle() : ToggleControl(tr("Use Auto Resume at Stop"), tr("It uses the automatic departure function when stopping while using SCC."), "../assets/icons/shell.png", Params().getBool("KisaAutoResume")) {
     QObject::connect(this, &AutoResumeToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("KisaAutoResume", status);
@@ -202,7 +202,7 @@ class VariableCruiseToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  VariableCruiseToggle() : ToggleControl(tr("Use Cruise Button Spamming"), tr("Use the cruise button while using SCC to assist in acceleration and deceleration."), "../assets/offroad/icon_shell.png", Params().getBool("KisaVariableCruise")) {
+  VariableCruiseToggle() : ToggleControl(tr("Use Cruise Button Spamming"), tr("Use the cruise button while using SCC to assist in acceleration and deceleration."), "../assets/icons/shell.png", Params().getBool("KisaVariableCruise")) {
     QObject::connect(this, &VariableCruiseToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("KisaVariableCruise", status);
@@ -214,7 +214,7 @@ class CruiseGapAdjustToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  CruiseGapAdjustToggle() : ToggleControl(tr("Change Cruise Gap at Stop"), tr("For a quick start when stopping, the cruise gap will be changed to 1 step, and after departure, it will return to the original cruise gap according to certain conditions."), "../assets/offroad/icon_shell.png", Params().getBool("CruiseGapAdjust")) {
+  CruiseGapAdjustToggle() : ToggleControl(tr("Change Cruise Gap at Stop"), tr("For a quick start when stopping, the cruise gap will be changed to 1 step, and after departure, it will return to the original cruise gap according to certain conditions."), "../assets/icons/shell.png", Params().getBool("CruiseGapAdjust")) {
     QObject::connect(this, &CruiseGapAdjustToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("CruiseGapAdjust", status);
@@ -226,7 +226,7 @@ class AutoEnabledToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  AutoEnabledToggle() : ToggleControl(tr("Use Auto Engagement"), tr("If the cruise button status is standby (CRUISE indication only and speed is not specified) in the Disengagement state, activate the automatic Engagement."), "../assets/offroad/icon_shell.png", Params().getBool("AutoEnable")) {
+  AutoEnabledToggle() : ToggleControl(tr("Use Auto Engagement"), tr("If the cruise button status is standby (CRUISE indication only and speed is not specified) in the Disengagement state, activate the automatic Engagement."), "../assets/icons/shell.png", Params().getBool("AutoEnable")) {
     QObject::connect(this, &AutoEnabledToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("AutoEnable", status);
@@ -238,7 +238,7 @@ class CruiseAutoResToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  CruiseAutoResToggle() : ToggleControl(tr("Use Auto RES while Driving"), tr("If the brake is applied while using the SCC and the standby mode is changed (CANCEL is not applicable), set it back to the previous speed when the brake pedal is released/accelerated pedal is operated. It operates when the cruise speed is set and the vehicle speed is more than 30 km/h or the car in front is recognized."), "../assets/offroad/icon_shell.png", Params().getBool("CruiseAutoRes")) {
+  CruiseAutoResToggle() : ToggleControl(tr("Use Auto RES while Driving"), tr("If the brake is applied while using the SCC and the standby mode is changed (CANCEL is not applicable), set it back to the previous speed when the brake pedal is released/accelerated pedal is operated. It operates when the cruise speed is set and the vehicle speed is more than 30 km/h or the car in front is recognized."), "../assets/icons/shell.png", Params().getBool("CruiseAutoRes")) {
     QObject::connect(this, &CruiseAutoResToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("CruiseAutoRes", status);
@@ -250,7 +250,7 @@ class BatteryChargingControlToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  BatteryChargingControlToggle() : ToggleControl(tr("Enable Battery Charging Control"), tr("It uses the battery charge control function."), "../assets/offroad/icon_shell.png", Params().getBool("KisaBatteryChargingControl")) {
+  BatteryChargingControlToggle() : ToggleControl(tr("Enable Battery Charging Control"), tr("It uses the battery charge control function."), "../assets/icons/shell.png", Params().getBool("KisaBatteryChargingControl")) {
     QObject::connect(this, &BatteryChargingControlToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("KisaBatteryChargingControl", status);
@@ -262,7 +262,7 @@ class BlindSpotDetectToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  BlindSpotDetectToggle() : ToggleControl(tr("Show BSM Status"), tr("If a car is detected in the rear, it will be displayed on the screen."), "../assets/offroad/icon_shell.png", Params().getBool("KisaBlindSpotDetect")) {
+  BlindSpotDetectToggle() : ToggleControl(tr("Show BSM Status"), tr("If a car is detected in the rear, it will be displayed on the screen."), "../assets/icons/shell.png", Params().getBool("KisaBlindSpotDetect")) {
     QObject::connect(this, &BlindSpotDetectToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("KisaBlindSpotDetect", status);
@@ -279,7 +279,7 @@ class UFCModeEnabledToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  UFCModeEnabledToggle() : ToggleControl(tr("User-Friendly Control(UFC) Mode"), tr("OP activates with Main Cruise Switch, AutoRES while driving, Seperate Lat/Long and etc"), "../assets/offroad/icon_shell.png", Params().getBool("UFCModeEnabled")) {
+  UFCModeEnabledToggle() : ToggleControl(tr("User-Friendly Control(UFC) Mode"), tr("OP activates with Main Cruise Switch, AutoRES while driving, Seperate Lat/Long and etc"), "../assets/icons/shell.png", Params().getBool("UFCModeEnabled")) {
     QObject::connect(this, &UFCModeEnabledToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("UFCModeEnabled", status);
@@ -291,7 +291,7 @@ class LFAButtonEngagementToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  LFAButtonEngagementToggle() : ToggleControl(tr("Enable LFA Button Engagement"), tr("Use LFA Button to engage Openpilot Lateral"), "../assets/offroad/icon_shell.png", Params().getBool("LFAButtonEngagement")) {
+  LFAButtonEngagementToggle() : ToggleControl(tr("Enable LFA Button Engagement"), tr("Use LFA Button to engage Openpilot Lateral"), "../assets/icons/shell.png", Params().getBool("LFAButtonEngagement")) {
     QObject::connect(this, &LFAButtonEngagementToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("LFAButtonEngagement", status);
@@ -303,7 +303,7 @@ class WhitePandaSupportToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  WhitePandaSupportToggle() : ToggleControl(tr("Support WhitePanda"), tr("Turn on this function if you use WhitePanda."), "../assets/offroad/icon_shell.png", Params().getBool("WhitePandaSupport")) {
+  WhitePandaSupportToggle() : ToggleControl(tr("Support WhitePanda"), tr("Turn on this function if you use WhitePanda."), "../assets/icons/shell.png", Params().getBool("WhitePandaSupport")) {
     QObject::connect(this, &WhitePandaSupportToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("WhitePandaSupport", status);
@@ -315,7 +315,7 @@ class SteerWarningFixToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  SteerWarningFixToggle() : ToggleControl(tr("Ignore of Steering Warning"), tr("Turn on the function when a steering error occurs in the vehicle and the open pilot cannot be executed (some vehicles only). Do not turn on the function if it occurs in a normal error environment while driving."), "../assets/offroad/icon_shell.png", Params().getBool("SteerWarningFix")) {
+  SteerWarningFixToggle() : ToggleControl(tr("Ignore of Steering Warning"), tr("Turn on the function when a steering error occurs in the vehicle and the open pilot cannot be executed (some vehicles only). Do not turn on the function if it occurs in a normal error environment while driving."), "../assets/icons/shell.png", Params().getBool("SteerWarningFix")) {
     QObject::connect(this, &SteerWarningFixToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("SteerWarningFix", status);
@@ -327,7 +327,7 @@ class LiveSteerRatioToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  LiveSteerRatioToggle() : ToggleControl(tr("Use Live SteerRatio"), tr("Live SteerRatio is used instead of variable/fixed SteerRatio."), "../assets/offroad/icon_shell.png", Params().getBool("KisaLiveSteerRatio")) {
+  LiveSteerRatioToggle() : ToggleControl(tr("Use Live SteerRatio"), tr("Live SteerRatio is used instead of variable/fixed SteerRatio."), "../assets/icons/shell.png", Params().getBool("KisaLiveSteerRatio")) {
     QObject::connect(this, &LiveSteerRatioToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("KisaLiveSteerRatio", status);
@@ -339,7 +339,7 @@ class DrivingRecordToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  DrivingRecordToggle() : ToggleControl(tr("Use Auto Screen Record"), tr("Automatically record/stop the screen while driving. Recording begins after departure, and recording ends when the vehicle stops."), "../assets/offroad/icon_shell.png", Params().getBool("KisaDrivingRecord")) {
+  DrivingRecordToggle() : ToggleControl(tr("Use Auto Screen Record"), tr("Automatically record/stop the screen while driving. Recording begins after departure, and recording ends when the vehicle stops."), "../assets/icons/shell.png", Params().getBool("KisaDrivingRecord")) {
     QObject::connect(this, &DrivingRecordToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("KisaDrivingRecord", status);
@@ -356,7 +356,7 @@ class TurnSteeringDisableToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  TurnSteeringDisableToggle() : ToggleControl(tr("Stop Steer Assist on Turn Signals"), tr("When driving below the lane change speed, the automatic steering is temporarily paused while the turn signals on."), "../assets/offroad/icon_shell.png", Params().getBool("KisaTurnSteeringDisable")) {
+  TurnSteeringDisableToggle() : ToggleControl(tr("Stop Steer Assist on Turn Signals"), tr("When driving below the lane change speed, the automatic steering is temporarily paused while the turn signals on."), "../assets/icons/shell.png", Params().getBool("KisaTurnSteeringDisable")) {
     QObject::connect(this, &TurnSteeringDisableToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("KisaTurnSteeringDisable", status);
@@ -380,7 +380,7 @@ class CruiseOverMaxSpeedToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  CruiseOverMaxSpeedToggle() : ToggleControl(tr("Reset MaxSpeed Over CurrentSpeed"), tr("If the current speed exceeds the set speed, synchronize the set speed with the current speed."), "../assets/offroad/icon_shell.png", Params().getBool("CruiseOverMaxSpeed")) {
+  CruiseOverMaxSpeedToggle() : ToggleControl(tr("Reset MaxSpeed Over CurrentSpeed"), tr("If the current speed exceeds the set speed, synchronize the set speed with the current speed."), "../assets/icons/shell.png", Params().getBool("CruiseOverMaxSpeed")) {
     QObject::connect(this, &CruiseOverMaxSpeedToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("CruiseOverMaxSpeed", status);
@@ -392,7 +392,7 @@ class DebugUiOneToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  DebugUiOneToggle() : ToggleControl(tr("DEBUG UI 1"), "", "../assets/offroad/icon_shell.png", Params().getBool("DebugUi1")) {
+  DebugUiOneToggle() : ToggleControl(tr("DEBUG UI 1"), "", "../assets/icons/shell.png", Params().getBool("DebugUi1")) {
     QObject::connect(this, &DebugUiOneToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("DebugUi1", status);
@@ -409,7 +409,7 @@ class DebugUiTwoToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  DebugUiTwoToggle() : ToggleControl(tr("DEBUG UI 2"), "", "../assets/offroad/icon_shell.png", Params().getBool("DebugUi2")) {
+  DebugUiTwoToggle() : ToggleControl(tr("DEBUG UI 2"), "", "../assets/icons/shell.png", Params().getBool("DebugUi2")) {
     QObject::connect(this, &DebugUiTwoToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("DebugUi2", status);
@@ -426,7 +426,7 @@ class DebugUiThreeToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  DebugUiThreeToggle() : ToggleControl(tr("DEBUG UI 3"), "", "../assets/offroad/icon_shell.png", Params().getBool("DebugUi3")) {
+  DebugUiThreeToggle() : ToggleControl(tr("DEBUG UI 3"), "", "../assets/icons/shell.png", Params().getBool("DebugUi3")) {
     QObject::connect(this, &DebugUiThreeToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("DebugUi3", status);
@@ -443,7 +443,7 @@ class LongLogToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  LongLogToggle() : ToggleControl(tr("Show LongControl LOG"), tr("Display logs for long tuning debugs instead of variable cruise logs on the screen."), "../assets/offroad/icon_shell.png", Params().getBool("LongLogDisplay")) {
+  LongLogToggle() : ToggleControl(tr("Show LongControl LOG"), tr("Display logs for long tuning debugs instead of variable cruise logs on the screen."), "../assets/icons/shell.png", Params().getBool("LongLogDisplay")) {
     QObject::connect(this, &LongLogToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("LongLogDisplay", status);
@@ -455,7 +455,7 @@ class PrebuiltToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  PrebuiltToggle() : ToggleControl(tr("Use Smart Prebuilt"), tr("Create a Prebuilt file and speed up booting. When this function is turned on, the booting speed is accelerated using the cache, and if you press the update button in the menu after modifying the code, or if you rebooted with the 'gi' command in the command window, remove it automatically and compile it."), "../assets/offroad/icon_shell.png", Params().getBool("PutPrebuiltOn")) {
+  PrebuiltToggle() : ToggleControl(tr("Use Smart Prebuilt"), tr("Create a Prebuilt file and speed up booting. When this function is turned on, the booting speed is accelerated using the cache, and if you press the update button in the menu after modifying the code, or if you rebooted with the 'gi' command in the command window, remove it automatically and compile it."), "../assets/icons/shell.png", Params().getBool("PutPrebuiltOn")) {
     QObject::connect(this, &PrebuiltToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("PutPrebuiltOn", status);
@@ -470,7 +470,7 @@ class LDWSToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  LDWSToggle() : ToggleControl(tr("Set LDWS Vehicles"), "", "../assets/offroad/icon_shell.png", Params().getBool("LdwsCarFix")) {
+  LDWSToggle() : ToggleControl(tr("Set LDWS Vehicles"), "", "../assets/icons/shell.png", Params().getBool("LdwsCarFix")) {
     QObject::connect(this, &LDWSToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("LdwsCarFix", status);
@@ -482,7 +482,7 @@ class GearDToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  GearDToggle() : ToggleControl(tr("Set DriverGear by Force"), tr("It is used when the gear recognition problem. Basically, CABANA data should be analyzed, but it is temporarily resolved."), "../assets/offroad/icon_shell.png", Params().getBool("JustDoGearD")) {
+  GearDToggle() : ToggleControl(tr("Set DriverGear by Force"), tr("It is used when the gear recognition problem. Basically, CABANA data should be analyzed, but it is temporarily resolved."), "../assets/icons/shell.png", Params().getBool("JustDoGearD")) {
     QObject::connect(this, &GearDToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("JustDoGearD", status);
@@ -494,7 +494,7 @@ class RunNaviOnBootToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  RunNaviOnBootToggle() : ToggleControl(tr("Run Navigation on Boot"), tr("Automatically execute the navigation (waze) when switching to the driving screen after booting."), "../assets/offroad/icon_shell.png", Params().getBool("KisaRunNaviOnBoot")) {
+  RunNaviOnBootToggle() : ToggleControl(tr("Run Navigation on Boot"), tr("Automatically execute the navigation (waze) when switching to the driving screen after booting."), "../assets/icons/shell.png", Params().getBool("KisaRunNaviOnBoot")) {
     QObject::connect(this, &RunNaviOnBootToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("KisaRunNaviOnBoot", status);
@@ -506,7 +506,7 @@ class BattLessToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  BattLessToggle() : ToggleControl(tr("Set BatteryLess Device"), tr("This is a toggle for batteryless Device. Related settings apply."), "../assets/offroad/icon_shell.png", Params().getBool("KisaBattLess")) {
+  BattLessToggle() : ToggleControl(tr("Set BatteryLess Device"), tr("This is a toggle for batteryless Device. Related settings apply."), "../assets/icons/shell.png", Params().getBool("KisaBattLess")) {
     QObject::connect(this, &BattLessToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("KisaBattLess", status);
@@ -518,7 +518,7 @@ class LiveTunePanelToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  LiveTunePanelToggle() : ToggleControl(tr("Use LiveTune and Show UI"), tr("Display the UI related to live tuning on the screen. Various tuning values can be adjusted live on the driving screen. It is reflected in the parameter when adjusting, and the value is maintained even after turning off the toggle and rebooting."), "../assets/offroad/icon_shell.png", Params().getBool("KisaLiveTunePanelEnable")) {
+  LiveTunePanelToggle() : ToggleControl(tr("Use LiveTune and Show UI"), tr("Display the UI related to live tuning on the screen. Various tuning values can be adjusted live on the driving screen. It is reflected in the parameter when adjusting, and the value is maintained even after turning off the toggle and rebooting."), "../assets/icons/shell.png", Params().getBool("KisaLiveTunePanelEnable")) {
     QObject::connect(this, &LiveTunePanelToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("KisaLiveTunePanelEnable", status);
@@ -537,7 +537,7 @@ class StoppingDistAdjToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  StoppingDistAdjToggle() : ToggleControl(tr("Adjust Stopping Distance"), tr("Stop a little further ahead than the radar stop distance. If you approach the car in front of you at a high speed, it may sometimes be difficult to stop enough, so if you are uncomfortable, turn off the function."), "../assets/offroad/icon_shell.png", Params().getBool("StoppingDistAdj")) {
+  StoppingDistAdjToggle() : ToggleControl(tr("Adjust Stopping Distance"), tr("Stop a little further ahead than the radar stop distance. If you approach the car in front of you at a high speed, it may sometimes be difficult to stop enough, so if you are uncomfortable, turn off the function."), "../assets/icons/shell.png", Params().getBool("StoppingDistAdj")) {
     QObject::connect(this, &StoppingDistAdjToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("StoppingDistAdj", status);
@@ -549,7 +549,7 @@ class ShowErrorToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  ShowErrorToggle() : ToggleControl(tr("Show TMUX Error"), tr("Display the error on the Device screen when a process error occurs while driving or off-road."), "../assets/offroad/icon_shell.png", Params().getBool("ShowError")) {
+  ShowErrorToggle() : ToggleControl(tr("Show TMUX Error"), tr("Display the error on the Device screen when a process error occurs while driving or off-road."), "../assets/icons/shell.png", Params().getBool("ShowError")) {
     QObject::connect(this, &ShowErrorToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("ShowError", status);
@@ -566,7 +566,7 @@ class StockNaviSpeedToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  StockNaviSpeedToggle() : ToggleControl(tr("Use Stock SafetyCAM Speed"), tr("When decelerating the safety section, use the safety speed from the vehicle navigation system (limited to some vehicles with the corresponding data)."), "../assets/offroad/icon_shell.png", Params().getBool("StockNaviSpeedEnabled")) {
+  StockNaviSpeedToggle() : ToggleControl(tr("Use Stock SafetyCAM Speed"), tr("When decelerating the safety section, use the safety speed from the vehicle navigation system (limited to some vehicles with the corresponding data)."), "../assets/icons/shell.png", Params().getBool("StockNaviSpeedEnabled")) {
     QObject::connect(this, &StockNaviSpeedToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("StockNaviSpeedEnabled", status);
@@ -578,7 +578,7 @@ class E2ELongToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  E2ELongToggle() : ToggleControl(tr("Enable E2E Long"), tr("Activate E2E Long. It may work unexpectedly. Be careful."), "../assets/offroad/icon_shell.png", Params().getBool("E2ELong")) {
+  E2ELongToggle() : ToggleControl(tr("Enable E2E Long"), tr("Activate E2E Long. It may work unexpectedly. Be careful."), "../assets/icons/shell.png", Params().getBool("E2ELong")) {
     QObject::connect(this, &E2ELongToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("E2ELong", status);
@@ -590,7 +590,7 @@ class StopAtStopSignToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  StopAtStopSignToggle() : ToggleControl(tr("Stop at Stop Sign"), tr("Openpilot tries to stop at stop sign depends on Model."), "../assets/offroad/icon_shell.png", Params().getBool("StopAtStopSign")) {
+  StopAtStopSignToggle() : ToggleControl(tr("Stop at Stop Sign"), tr("Openpilot tries to stop at stop sign depends on Model."), "../assets/icons/shell.png", Params().getBool("StopAtStopSign")) {
     QObject::connect(this, &StopAtStopSignToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("StopAtStopSign", status);
@@ -602,7 +602,7 @@ class GoogleMapEnabledToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  GoogleMapEnabledToggle() : ToggleControl(tr("Use GoogleMap for Mapbox"), tr("Use GoogleMap when you search a destination."), "../assets/offroad/icon_shell.png", Params().getBool("GoogleMapEnabled")) {
+  GoogleMapEnabledToggle() : ToggleControl(tr("Use GoogleMap for Mapbox"), tr("Use GoogleMap when you search a destination."), "../assets/icons/shell.png", Params().getBool("GoogleMapEnabled")) {
     QObject::connect(this, &GoogleMapEnabledToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("GoogleMapEnabled", status);
@@ -614,7 +614,7 @@ class OSMEnabledToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  OSMEnabledToggle() : ToggleControl(tr("Enable OSM"), tr("This enables OSM."), "../assets/offroad/icon_shell.png", Params().getBool("OSMEnable")) {
+  OSMEnabledToggle() : ToggleControl(tr("Enable OSM"), tr("This enables OSM."), "../assets/icons/shell.png", Params().getBool("OSMEnable")) {
     QObject::connect(this, &OSMEnabledToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("OSMEnable", status);
@@ -626,7 +626,7 @@ class OSMSpeedLimitEnabledToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  OSMSpeedLimitEnabledToggle() : ToggleControl(tr("Enable OSM SpeedLimit"), tr("This enables OSM speedlimit."), "../assets/offroad/icon_shell.png", Params().getBool("OSMSpeedLimitEnable")) {
+  OSMSpeedLimitEnabledToggle() : ToggleControl(tr("Enable OSM SpeedLimit"), tr("This enables OSM speedlimit."), "../assets/icons/shell.png", Params().getBool("OSMSpeedLimitEnable")) {
     QObject::connect(this, &OSMSpeedLimitEnabledToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("OSMSpeedLimitEnable", status);
@@ -638,7 +638,7 @@ class IgnoreCanErroronISGToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  IgnoreCanErroronISGToggle() : ToggleControl(tr("Ignore Can Error on ISG"), tr("Turn this on, if can error occurs on ISG operation."), "../assets/offroad/icon_shell.png", Params().getBool("IgnoreCANErroronISG")) {
+  IgnoreCanErroronISGToggle() : ToggleControl(tr("Ignore Can Error on ISG"), tr("Turn this on, if can error occurs on ISG operation."), "../assets/icons/shell.png", Params().getBool("IgnoreCANErroronISG")) {
     QObject::connect(this, &IgnoreCanErroronISGToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("IgnoreCANErroronISG", status);
@@ -650,7 +650,7 @@ class StockLKASEnabledatDisenagedStatusToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  StockLKASEnabledatDisenagedStatusToggle() : ToggleControl(tr("StockLKAS Enabled at Disengagement"), tr("Turn this on, if you want to use Stock LKAS at OP disengaged status. Seems this related to cluster error when OP active because Stock CAN messages over PANDA or not."), "../assets/offroad/icon_shell.png", Params().getBool("StockLKASEnabled")) {
+  StockLKASEnabledatDisenagedStatusToggle() : ToggleControl(tr("StockLKAS Enabled at Disengagement"), tr("Turn this on, if you want to use Stock LKAS at OP disengaged status. Seems this related to cluster error when OP active because Stock CAN messages over PANDA or not."), "../assets/icons/shell.png", Params().getBool("StockLKASEnabled")) {
     QObject::connect(this, &StockLKASEnabledatDisenagedStatusToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("StockLKASEnabled", status);
@@ -662,7 +662,7 @@ class StandstillResumeAltToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  StandstillResumeAltToggle() : ToggleControl(tr("Standstill Resume Alternative"), tr("Turn this on, if auto resume doesn't work at standstill. some cars only(ex. GENESIS). before enable, try to adjust RES message counts above.(reboot required)"), "../assets/offroad/icon_shell.png", Params().getBool("StandstillResumeAlt")) {
+  StandstillResumeAltToggle() : ToggleControl(tr("Standstill Resume Alternative"), tr("Turn this on, if auto resume doesn't work at standstill. some cars only(ex. GENESIS). before enable, try to adjust RES message counts above.(reboot required)"), "../assets/icons/shell.png", Params().getBool("StandstillResumeAlt")) {
     QObject::connect(this, &StandstillResumeAltToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("StandstillResumeAlt", status);
@@ -674,7 +674,7 @@ class MapboxEnabledToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  MapboxEnabledToggle() : ToggleControl(tr("Enable Mapbox"), tr("If you want to use Mapbox, turn on and then connect to device using web browser http://(device ip):8082  Mapbox setting will show up and type mapbox pk and sk token(you can created this on mapbox.com website). If you want to search destinations with googlemap, first, you should create google api key and enable Enable GoogleMap for Mapbox"), "../assets/offroad/icon_shell.png", Params().getBool("MapboxEnabled")) {
+  MapboxEnabledToggle() : ToggleControl(tr("Enable Mapbox"), tr("If you want to use Mapbox, turn on and then connect to device using web browser http://(device ip):8082  Mapbox setting will show up and type mapbox pk and sk token(you can created this on mapbox.com website). If you want to search destinations with googlemap, first, you should create google api key and enable Enable GoogleMap for Mapbox"), "../assets/icons/shell.png", Params().getBool("MapboxEnabled")) {
     QObject::connect(this, &MapboxEnabledToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("MapboxEnabled", status);
@@ -686,7 +686,7 @@ class UseRadarTrackToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  UseRadarTrackToggle() : ToggleControl(tr("Use Radar Track"), tr("Some cars have known radar tracks(from comma) for long control. This uses radar track directly instead of scc can message. Before you go, you must need to run hyundai_enable_radar_points.py in /data/openpilot/selfdrive/debug dir to enable your radar track. (Reboot required)"), "../assets/offroad/icon_shell.png", Params().getBool("UseRadarTrack")) {
+  UseRadarTrackToggle() : ToggleControl(tr("Use Radar Track"), tr("Some cars have known radar tracks(from comma) for long control. This uses radar track directly instead of scc can message. Before you go, you must need to run hyundai_enable_radar_points.py in /data/openpilot/selfdrive/debug dir to enable your radar track. (Reboot required)"), "../assets/icons/shell.png", Params().getBool("UseRadarTrack")) {
     QObject::connect(this, &UseRadarTrackToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("UseRadarTrack", status);
@@ -698,7 +698,7 @@ class UseRadarValue : public ToggleControl {
   Q_OBJECT
 
 public:
-  UseRadarValue() : ToggleControl(tr("Use Radar for lead car"), tr("If the radar detects a lead car, the device uses radar values (distance, relative velocity, etc.) because vision can sometimes be inaccurate."), "../assets/offroad/icon_shell.png", Params().getBool("UseRadarValue")) {
+  UseRadarValue() : ToggleControl(tr("Use Radar for lead car"), tr("If the radar detects a lead car, the device uses radar values (distance, relative velocity, etc.) because vision can sometimes be inaccurate."), "../assets/icons/shell.png", Params().getBool("UseRadarValue")) {
     QObject::connect(this, &UseRadarValue::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("UseRadarValue", status);
@@ -710,7 +710,7 @@ class RadarDisableToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  RadarDisableToggle() : ToggleControl(tr("Disable Radar"), tr("This is pre-requisite for LongControl of HKG. It seems that this affects AEB. So do not use this if you have any concern."), "../assets/offroad/icon_shell.png", Params().getBool("RadarDisable")) {
+  RadarDisableToggle() : ToggleControl(tr("Disable Radar"), tr("This is pre-requisite for LongControl of HKG. It seems that this affects AEB. So do not use this if you have any concern."), "../assets/icons/shell.png", Params().getBool("RadarDisable")) {
     QObject::connect(this, &RadarDisableToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("RadarDisable", status);
@@ -722,7 +722,7 @@ class C2WithCommaPowerToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  C2WithCommaPowerToggle() : ToggleControl(tr("C2 with CommaPower"), tr("This is for C2 users with Comma Power."), "../assets/offroad/icon_shell.png", Params().getBool("C2WithCommaPower")) {
+  C2WithCommaPowerToggle() : ToggleControl(tr("C2 with CommaPower"), tr("This is for C2 users with Comma Power."), "../assets/icons/shell.png", Params().getBool("C2WithCommaPower")) {
     QObject::connect(this, &C2WithCommaPowerToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("C2WithCommaPower", status);
@@ -734,7 +734,7 @@ class CustomTRToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  CustomTRToggle() : ToggleControl(tr("Custom TR Enable"), tr("to use Custom TR not 1.45(comma default)."), "../assets/offroad/icon_shell.png", Params().getBool("CustomTREnabled")) {
+  CustomTRToggle() : ToggleControl(tr("Custom TR Enable"), tr("to use Custom TR not 1.45(comma default)."), "../assets/icons/shell.png", Params().getBool("CustomTREnabled")) {
     QObject::connect(this, &CustomTRToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("CustomTREnabled", status);
@@ -746,7 +746,7 @@ class RoutineDriveOnToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  RoutineDriveOnToggle() : ToggleControl(tr("Routine Drive by RoadName"), tr("This will adjust useful things by roadname. If you want to use, edit the file, /data/params/d/RoadList. modify like this RoadName1,offset1(ex:+0.05),RoadName2,offset2(ex:-0.05),... and the second line RoadName3,speedlimit(ex:30),RoadName4,speedlimit(ex:60),..."), "../assets/offroad/icon_shell.png", Params().getBool("RoutineDriveOn")) {
+  RoutineDriveOnToggle() : ToggleControl(tr("Routine Drive by RoadName"), tr("This will adjust useful things by roadname. If you want to use, edit the file, /data/params/d/RoadList. modify like this RoadName1,offset1(ex:+0.05),RoadName2,offset2(ex:-0.05),... and the second line RoadName3,speedlimit(ex:30),RoadName4,speedlimit(ex:60),..."), "../assets/icons/shell.png", Params().getBool("RoutineDriveOn")) {
     QObject::connect(this, &RoutineDriveOnToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("RoutineDriveOn", status);
@@ -758,7 +758,7 @@ class CloseToRoadEdgeToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  CloseToRoadEdgeToggle() : ToggleControl(tr("Driving Close to RoadEdge"), tr("This will adjust the camera offset to get close to road edge if the car is on the first or last lane."), "../assets/offroad/icon_shell.png", Params().getBool("CloseToRoadEdge")) {
+  CloseToRoadEdgeToggle() : ToggleControl(tr("Driving Close to RoadEdge"), tr("This will adjust the camera offset to get close to road edge if the car is on the first or last lane."), "../assets/icons/shell.png", Params().getBool("CloseToRoadEdge")) {
     QObject::connect(this, &CloseToRoadEdgeToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("CloseToRoadEdge", status);
@@ -770,7 +770,7 @@ class ToAvoidLKASFaultToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  ToAvoidLKASFaultToggle() : ToggleControl(tr("To Avoid LKAS Fault"), tr("to avoid LKAS fault above max angle limit(car specific). This is live value. Find out your maxframe while driving."), "../assets/offroad/icon_shell.png", Params().getBool("AvoidLKASFaultEnabled")) {
+  ToAvoidLKASFaultToggle() : ToggleControl(tr("To Avoid LKAS Fault"), tr("to avoid LKAS fault above max angle limit(car specific). This is live value. Find out your maxframe while driving."), "../assets/icons/shell.png", Params().getBool("AvoidLKASFaultEnabled")) {
     QObject::connect(this, &ToAvoidLKASFaultToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("AvoidLKASFaultEnabled", status);
@@ -782,7 +782,7 @@ class ToAvoidLKASFaultBeyondToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  ToAvoidLKASFaultBeyondToggle() : ToggleControl(tr("To Avoid LKAS Fault with More Steer"), tr("This is just in case you are using other panda setting.(delta updown, maxsteer, rtdelta and etc)."), "../assets/offroad/icon_shell.png", Params().getBool("AvoidLKASFaultBeyond")) {
+  ToAvoidLKASFaultBeyondToggle() : ToggleControl(tr("To Avoid LKAS Fault with More Steer"), tr("This is just in case you are using other panda setting.(delta updown, maxsteer, rtdelta and etc)."), "../assets/icons/shell.png", Params().getBool("AvoidLKASFaultBeyond")) {
     QObject::connect(this, &ToAvoidLKASFaultBeyondToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("AvoidLKASFaultBeyond", status);
@@ -794,7 +794,7 @@ class StockDecelonCamToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  StockDecelonCamToggle() : ToggleControl(tr("Use Stock Decel on SaftySection"), tr("Use stock deceleration on safety section.(the vehicle equipped with Stock Navigation)"), "../assets/offroad/icon_shell.png", Params().getBool("UseStockDecelOnSS")) {
+  StockDecelonCamToggle() : ToggleControl(tr("Use Stock Decel on SaftySection"), tr("Use stock deceleration on safety section.(the vehicle equipped with Stock Navigation)"), "../assets/icons/shell.png", Params().getBool("UseStockDecelOnSS")) {
     QObject::connect(this, &StockDecelonCamToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("UseStockDecelOnSS", status);
@@ -806,7 +806,7 @@ class RPMAnimatedToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  RPMAnimatedToggle() : ToggleControl(tr("RPM Animated"), tr("Show Animated RPM"), "../assets/offroad/icon_shell.png", Params().getBool("AnimatedRPM")) {
+  RPMAnimatedToggle() : ToggleControl(tr("RPM Animated"), tr("Show Animated RPM"), "../assets/icons/shell.png", Params().getBool("AnimatedRPM")) {
     QObject::connect(this, &RPMAnimatedToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("AnimatedRPM", status);
@@ -818,7 +818,7 @@ class NoSmartMDPSToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  NoSmartMDPSToggle() : ToggleControl(tr("No Smart MDPS"), tr("Turn on, if you have no smartmdps or no mdps harness to avoid sending can under certain speed that is not able to use lane keeping."), "../assets/offroad/icon_shell.png", Params().getBool("NoSmartMDPS")) {
+  NoSmartMDPSToggle() : ToggleControl(tr("No Smart MDPS"), tr("Turn on, if you have no smartmdps or no mdps harness to avoid sending can under certain speed that is not able to use lane keeping."), "../assets/icons/shell.png", Params().getBool("NoSmartMDPS")) {
     QObject::connect(this, &NoSmartMDPSToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("NoSmartMDPS", status);
@@ -830,7 +830,7 @@ class SpeedCameraOffsetToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  SpeedCameraOffsetToggle() : ToggleControl(tr("Speed CameraOffset"), tr("This increase offset at low speed and decrease offset at low speed. If you feel car moves to right at low speed."), "../assets/offroad/icon_shell.png", Params().getBool("SpeedCameraOffset")) {
+  SpeedCameraOffsetToggle() : ToggleControl(tr("Speed CameraOffset"), tr("This increase offset at low speed and decrease offset at low speed. If you feel car moves to right at low speed."), "../assets/icons/shell.png", Params().getBool("SpeedCameraOffset")) {
     QObject::connect(this, &SpeedCameraOffsetToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("SpeedCameraOffset", status);
@@ -842,7 +842,7 @@ class SpeedBumpDecelToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  SpeedBumpDecelToggle() : ToggleControl(tr("SpeedBump Deceleration"), tr("Use the deceleration feature on the speed bump. It's an indirect control method. It can be decelerated directly in long control control, but for versatility, indirect control for now."), "../assets/offroad/icon_shell.png", Params().getBool("KISASpeedBump")) {
+  SpeedBumpDecelToggle() : ToggleControl(tr("SpeedBump Deceleration"), tr("Use the deceleration feature on the speed bump. It's an indirect control method. It can be decelerated directly in long control control, but for versatility, indirect control for now."), "../assets/icons/shell.png", Params().getBool("KISASpeedBump")) {
     QObject::connect(this, &SpeedBumpDecelToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("KISASpeedBump", status);
@@ -854,7 +854,7 @@ class KISAEarlyStoppingToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  KISAEarlyStoppingToggle() : ToggleControl(tr("Early Slowdown with Gap"), tr("This feature may help your vehicle to stop early using Cruise Gap with value 4 when your car start to stop from model."), "../assets/offroad/icon_shell.png", Params().getBool("KISAEarlyStop")) {
+  KISAEarlyStoppingToggle() : ToggleControl(tr("Early Slowdown with Gap"), tr("This feature may help your vehicle to stop early using Cruise Gap with value 4 when your car start to stop from model."), "../assets/icons/shell.png", Params().getBool("KISAEarlyStop")) {
     QObject::connect(this, &KISAEarlyStoppingToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("KISAEarlyStop", status);
@@ -866,7 +866,7 @@ class TorqueUseAngle : public ToggleControl {
   Q_OBJECT
 
 public:
-  TorqueUseAngle() : ToggleControl(tr("UseAngle"), tr("Use Steer Angle On/Off"), "../assets/offroad/icon_shell.png", Params().getBool("TorqueUseAngle")) {
+  TorqueUseAngle() : ToggleControl(tr("UseAngle"), tr("Use Steer Angle On/Off"), "../assets/icons/shell.png", Params().getBool("TorqueUseAngle")) {
     QObject::connect(this, &TorqueUseAngle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("TorqueUseAngle", status);
@@ -878,7 +878,7 @@ class TorqueUseLiveFriction : public ToggleControl {
   Q_OBJECT
 
 public:
-  TorqueUseLiveFriction() : ToggleControl(tr("Use LiveTorque"), tr("Use Live Torque"), "../assets/offroad/icon_shell.png", Params().getBool("KisaLiveTorque")) {
+  TorqueUseLiveFriction() : ToggleControl(tr("Use LiveTorque"), tr("Use Live Torque"), "../assets/icons/shell.png", Params().getBool("KisaLiveTorque")) {
     QObject::connect(this, &TorqueUseLiveFriction::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("KisaLiveTorque", status);
@@ -890,7 +890,7 @@ class DepartChimeAtResume : public ToggleControl {
   Q_OBJECT
 
 public:
-  DepartChimeAtResume() : ToggleControl(tr("Depart Chime at Resume"), tr("Use Chime for Resume. This can notify for you to get start while not using SCC."), "../assets/offroad/icon_shell.png", Params().getBool("DepartChimeAtResume")) {
+  DepartChimeAtResume() : ToggleControl(tr("Depart Chime at Resume"), tr("Use Chime for Resume. This can notify for you to get start while not using SCC."), "../assets/icons/shell.png", Params().getBool("DepartChimeAtResume")) {
     QObject::connect(this, &DepartChimeAtResume::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("DepartChimeAtResume", status);
@@ -902,7 +902,7 @@ class CruiseGapBySpdOn : public ToggleControl {
   Q_OBJECT
 
 public:
-  CruiseGapBySpdOn() : ToggleControl(tr("Cruise Gap Change by Speed"), tr("Cruise Gap is changeable by vehicle speed."), "../assets/offroad/icon_shell.png", Params().getBool("CruiseGapBySpdOn")) {
+  CruiseGapBySpdOn() : ToggleControl(tr("Cruise Gap Change by Speed"), tr("Cruise Gap is changeable by vehicle speed."), "../assets/icons/shell.png", Params().getBool("CruiseGapBySpdOn")) {
     QObject::connect(this, &CruiseGapBySpdOn::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("CruiseGapBySpdOn", status);
@@ -914,7 +914,7 @@ class CruiseSetwithRoadLimitSpeed : public ToggleControl {
   Q_OBJECT
 
 public:
-  CruiseSetwithRoadLimitSpeed() : ToggleControl(tr("CruiseSet with RoadLimitSpeed"), tr("Cruise Set with RoadLimitSpeed(Ext Navi)"), "../assets/offroad/icon_shell.png", Params().getBool("CruiseSetwithRoadLimitSpeedEnabled")) {
+  CruiseSetwithRoadLimitSpeed() : ToggleControl(tr("CruiseSet with RoadLimitSpeed"), tr("Cruise Set with RoadLimitSpeed(Ext Navi)"), "../assets/icons/shell.png", Params().getBool("CruiseSetwithRoadLimitSpeedEnabled")) {
     QObject::connect(this, &CruiseSetwithRoadLimitSpeed::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("CruiseSetwithRoadLimitSpeedEnabled", status);
@@ -926,7 +926,7 @@ class KISADebug : public ToggleControl {
   Q_OBJECT
 
 public:
-  KISADebug() : ToggleControl(tr("KISA Debug Mode"), tr("Run KISA Debug Mode"), "../assets/offroad/icon_shell.png", Params().getBool("KISADebug")) {
+  KISADebug() : ToggleControl(tr("KISA Debug Mode"), tr("Run KISA Debug Mode"), "../assets/icons/shell.png", Params().getBool("KISADebug")) {
     QObject::connect(this, &KISADebug::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("KISADebug", status);
@@ -943,7 +943,7 @@ class LowUIProfile : public ToggleControl {
   Q_OBJECT
 
 public:
-  LowUIProfile() : ToggleControl(tr("Low UI Profile"), tr("Low UI Profile to get UI more visible at bottom side."), "../assets/offroad/icon_shell.png", Params().getBool("LowUIProfile")) {
+  LowUIProfile() : ToggleControl(tr("Low UI Profile"), tr("Low UI Profile to get UI more visible at bottom side."), "../assets/icons/shell.png", Params().getBool("LowUIProfile")) {
     QObject::connect(this, &LowUIProfile::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("LowUIProfile", status);
@@ -960,7 +960,7 @@ class EnableLogger : public ToggleControl {
   Q_OBJECT
 
 public:
-  EnableLogger() : ToggleControl(tr("Enable Driving Log Record"), tr("Record the driving log locally for data analysis. Only loggers are activated and not uploaded to the server."), "../assets/offroad/icon_shell.png", Params().getBool("KisaEnableLogger")) {
+  EnableLogger() : ToggleControl(tr("Enable Driving Log Record"), tr("Record the driving log locally for data analysis. Only loggers are activated and not uploaded to the server."), "../assets/icons/shell.png", Params().getBool("KisaEnableLogger")) {
     QObject::connect(this, &EnableLogger::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("KisaEnableLogger", status);
@@ -972,7 +972,7 @@ class EnableUploader : public ToggleControl {
   Q_OBJECT
 
 public:
-  EnableUploader() : ToggleControl(tr("Enable Sending Log to Server"), tr("Activate the upload process to transmit system logs and other driving data to the server. Upload it only off-road."), "../assets/offroad/icon_shell.png", Params().getBool("KisaEnableUploader")) {
+  EnableUploader() : ToggleControl(tr("Enable Sending Log to Server"), tr("Activate the upload process to transmit system logs and other driving data to the server. Upload it only off-road."), "../assets/icons/shell.png", Params().getBool("KisaEnableUploader")) {
     QObject::connect(this, &EnableUploader::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("KisaEnableUploader", status);
@@ -984,7 +984,7 @@ class RegenBrakeFeatureToggle : public ToggleControl {
   Q_OBJECT
 
 public:
-  RegenBrakeFeatureToggle() : ToggleControl(tr("Use RegenBrake Feature"), tr("Advanced regeneration brake features. ST: full stop, AT: deceleration level adjustment with distance, EE: E2E longitudinal assist"), "../assets/offroad/icon_shell.png", Params().getBool("RegenBrakeFeatureOn")) {
+  RegenBrakeFeatureToggle() : ToggleControl(tr("Use RegenBrake Feature"), tr("Advanced regeneration brake features. ST: full stop, AT: deceleration level adjustment with distance, EE: E2E longitudinal assist"), "../assets/icons/shell.png", Params().getBool("RegenBrakeFeatureOn")) {
     QObject::connect(this, &RegenBrakeFeatureToggle::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("RegenBrakeFeatureOn", status);
@@ -996,7 +996,7 @@ class LongAlternative : public ToggleControl {
   Q_OBJECT
 
 public:
-LongAlternative() : ToggleControl(tr("Camera or Modded LongControl"), tr("Turn on if your radar is on bus2(camera or modded(wiring modification) SCC) for longitudinal control."), "../assets/offroad/icon_shell.png", Params().getBool("KISALongAlt")) {
+LongAlternative() : ToggleControl(tr("Camera or Modded LongControl"), tr("Turn on if your radar is on bus2(camera or modded(wiring modification) SCC) for longitudinal control."), "../assets/icons/shell.png", Params().getBool("KISALongAlt")) {
     QObject::connect(this, &LongAlternative::toggleFlipped, [=](int state) {
       bool status = state ? true : false;
       Params().putBool("KISALongAlt", status);

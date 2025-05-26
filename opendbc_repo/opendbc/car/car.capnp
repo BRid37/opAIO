@@ -207,6 +207,7 @@ struct CarState {
   espActive @51 :Bool;
   vehicleSensorsInvalid @52 :Bool;  # invalid steering angle readings, etc.
   lowSpeedAlert @56 :Bool;  # lost steering control due to a dynamic min steering speed
+  blockPcmEnable @60 :Bool;  # whether to allow PCM to enable this frame
 
   # cruise state
   cruiseState @10 :CruiseState;
@@ -238,24 +239,24 @@ struct CarState {
   # process meta
   cumLagMs @50 :Float32;
 
-  tpms @60 :TPMS;
-  radarDRel @61 :Float32;
-  radarVRel @62 :Float32;
-  vSetDis @63 :Float32;
-  cruiseButtons @64 :Float32;
-  cruiseAccStatus @65 :Bool;
-  driverAcc @66 :Bool;
-  autoHold @67 :Bool;    # AutoHold
-  cruiseGapSet @68 :UInt8;
-  safetyDist @69 :Float32;
-  safetySign @70 :Float32;
-  vEgoOP @71 :Float32;  # openpilot speed
-  gearStep @72 :Int8;
-  isMph @73 :Bool;
-  aReqValue @74 :Float32;
-  chargeMeter @75 :Float32;
-  brakeLights @76 :Bool;
-  pauseSpdLimit @77 :Bool;
+  tpms @61 :TPMS;
+  radarDRel @62 :Float32;
+  radarVRel @63 :Float32;
+  vSetDis @64 :Float32;
+  cruiseButtons @65 :Float32;
+  cruiseAccStatus @66 :Bool;
+  driverAcc @67 :Bool;
+  autoHold @68 :Bool;    # AutoHold
+  cruiseGapSet @69 :UInt8;
+  safetyDist @70 :Float32;
+  safetySign @71 :Float32;
+  vEgoOP @72 :Float32;  # openpilot speed
+  gearStep @73 :Int8;
+  isMph @74 :Bool;
+  aReqValue @75 :Float32;
+  chargeMeter @76 :Float32;
+  brakeLights @77 :Bool;
+  pauseSpdLimit @78 :Bool;
 
   struct TPMS {
     unit @0 :Int8;

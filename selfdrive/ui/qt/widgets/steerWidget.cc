@@ -26,8 +26,8 @@ CSteerWidget::CSteerWidget(QWidget *parent) : QFrame(parent)
   hlayout->setSpacing(20);
 
   // left icon 
-  pix_plus =  QPixmap( "../assets/offroad/icon_plus.png" ).scaledToWidth(80, Qt::SmoothTransformation);
-  pix_minus =  QPixmap( "../assets/offroad/icon_minus.png" ).scaledToWidth(80, Qt::SmoothTransformation);
+  pix_plus =  QPixmap( "../assets/icons/plus.png" ).scaledToWidth(80, Qt::SmoothTransformation);
+  pix_minus =  QPixmap( "../assets/icons/minus.png" ).scaledToWidth(80, Qt::SmoothTransformation);
 
 
   icon_label = new QLabel();
@@ -113,7 +113,7 @@ void CSteerWidget::FrameSmooth(QWidget *parent)
     "KisaMaxSteeringAngle",
     tr("Driver to Steer Angle"),
     tr("Improve the edge between the driver and the openpilot."),
-    "../assets/offroad/icon_shell.png"    
+    "../assets/icons/shell.png"    
     );
   pMenu1->SetControl( 10, 180, 5 );
   menu_layout->addWidget( pMenu1 );
@@ -123,7 +123,7 @@ void CSteerWidget::FrameSmooth(QWidget *parent)
     "KisaMaxDriverAngleWait",
     tr("Driver to Steer"),
     tr("Controls smooth torque by the driver  From KisaMaxSteeringAngle. def:0.002(5sec)"),
-    "../assets/offroad/icon_shell.png"    
+    "../assets/icons/shell.png"    
     );
   pMenu2->SetControl( 0, 1, 0.001 );
   pMenu2->SetString( 0, "Not");
@@ -134,7 +134,7 @@ void CSteerWidget::FrameSmooth(QWidget *parent)
     "KisaMaxSteerAngleWait" ,
     tr("Steer Angle"),
     tr("Controls torque by steering angle From KisaMaxSteeringAngle. def:0.001(10sec)"),
-    "../assets/offroad/icon_shell.png"    
+    "../assets/icons/shell.png"    
     );
   pMenu3->SetControl( 0, 1, 0.001 );
   pMenu3->SetString( 0, "Not");
@@ -144,7 +144,7 @@ void CSteerWidget::FrameSmooth(QWidget *parent)
     "KisaDriverAngleWait" ,
     tr("Normal driver to Steer"),
     tr("Controls torque limitation due to normal driver handle intervention. def:0.001(10sec)"),
-    "../assets/offroad/icon_shell.png"
+    "../assets/icons/shell.png"
     );
   pMenu4->SetControl( 0, 1, 0.001 );
   pMenu4->SetString( 0, "Not");
@@ -226,7 +226,7 @@ void CSteerWidget::FrameNormal(QWidget *parent)
     "KisaMaxAngleLimit",
     tr("Max Steering Angle"),
     tr("Set the maximum steering angle of the handle where the openpilot is possible. Please note that some vehicles may experience errors if the angle is set above 90 degrees.")
-    //"../assets/offroad/icon_chevron_right.png"    
+    //"../assets/icons/chevron_right.png"    
     );
   pMenu1->SetControl( 80, 360, 10 );
   pMenu1->SetString( 80, "NoLimit");

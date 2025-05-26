@@ -10,8 +10,8 @@ constexpr int SET_SPEED_NA = 255;
 
 HudRenderer::HudRenderer() {
   const int img_size = (192 / 4) * 3;
-  engage_img = loadPixmap("../assets/img_chffr_wheel.png", {img_size, img_size});
-  experimental_img = loadPixmap("../assets/img_experimental.svg", {img_size + 5, img_size + 5});
+  engage_img = loadPixmap("../assets/icons/chffr_wheel.png", {img_size, img_size});
+  experimental_img = loadPixmap("../assets/icons/experimental.svg", {img_size + 5, img_size + 5});
   gear_img_p = loadPixmap("../assets/addon/img/circle_red_letter-p.svg", {img_size+45, img_size+45});
   gear_img_r = loadPixmap("../assets/addon/img/circle_green_letter-r.svg", {img_size+45, img_size+45});
   gear_img_n = loadPixmap("../assets/addon/img/circle_blue_letter-n.svg", {img_size+45, img_size+45});

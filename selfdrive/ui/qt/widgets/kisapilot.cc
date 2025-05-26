@@ -119,13 +119,13 @@ void  CLateralControlGroup::FrameMULTI(QVBoxLayout *layout)
     layout->addWidget(new MultipleLateralSpeed());
     layout->addWidget(new MultipleLateralAngle());
 
-    layout->addWidget(new AbstractControl("[3.TORQUE]","torque","../assets/offroad/icon_shell.png"));
+    layout->addWidget(new AbstractControl("[3.TORQUE]","torque","../assets/icons/shell.png"));
     FrameTORQUE( layout );
-    layout->addWidget(new AbstractControl("[2.LQR]","lqr","../assets/offroad/icon_shell.png"));
+    layout->addWidget(new AbstractControl("[2.LQR]","lqr","../assets/icons/shell.png"));
     FrameLQR( layout );
-    layout->addWidget(new AbstractControl("[1.INDI]","indi","../assets/offroad/icon_shell.png"));
+    layout->addWidget(new AbstractControl("[1.INDI]","indi","../assets/icons/shell.png"));
     FrameINDI( layout );
-    layout->addWidget(new AbstractControl("[0.PID]","pid","../assets/offroad/icon_shell.png"));
+    layout->addWidget(new AbstractControl("[0.PID]","pid","../assets/icons/shell.png"));
     FramePID( layout );
 }
 
@@ -324,7 +324,7 @@ CPresetWidget::CPresetWidget() : CGroupWidget( tr("Parameter Preset") )
     "KisaMaxSteeringAngle",
     "Driver to Steer Angle",
     "mprove the edge between the driver and the openpilot.",
-    "../assets/offroad/icon_shell.png"    
+    "../assets/icons/shell.png"    
     );
   pMenu1->SetControl( 10, 180, 5 );
   m_pBoxLayout->addWidget( pMenu1 );
@@ -1117,7 +1117,7 @@ void TimeZoneSelectCombo::refresh() {
 }
 
 //UI
-AutoShutdown::AutoShutdown() : AbstractControl(tr("Device AutoShutdown"), tr("Device is automatically turned off after the set time while the engine is turned off (offload) after driving (onload)."), "../assets/offroad/icon_shell.png") {
+AutoShutdown::AutoShutdown() : AbstractControl(tr("Device AutoShutdown"), tr("Device is automatically turned off after the set time while the engine is turned off (offload) after driving (onload)."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -1207,7 +1207,7 @@ void AutoShutdown::refresh() {
   }
 }
 
-VolumeControl::VolumeControl() : AbstractControl(tr("Device Volume Control(%)"), tr("Adjust the volume of Device. Android Default/Manual Settings"), "../assets/offroad/icon_shell.png") {
+VolumeControl::VolumeControl() : AbstractControl(tr("Device Volume Control(%)"), tr("Adjust the volume of Device. Android Default/Manual Settings"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -1275,7 +1275,7 @@ void VolumeControl::refresh() {
   }
 }
 
-BrightnessControl::BrightnessControl() : AbstractControl(tr("Device Brightness Control(%)"), tr("Manually adjust the brightness of the Device screen."), "../assets/offroad/icon_shell.png") {
+BrightnessControl::BrightnessControl() : AbstractControl(tr("Device Brightness Control(%)"), tr("Manually adjust the brightness of the Device screen."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -1341,7 +1341,7 @@ void BrightnessControl::refresh() {
   }
 }
 
-BrightnessOffControl::BrightnessOffControl() : AbstractControl(tr("Brightness at SCR Off(%)"), tr("When using the Device screen off function, the brightness is reduced according to the automatic brightness ratio."), "../assets/offroad/icon_shell.png") {
+BrightnessOffControl::BrightnessOffControl() : AbstractControl(tr("Brightness at SCR Off(%)"), tr("When using the Device screen off function, the brightness is reduced according to the automatic brightness ratio."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -1407,7 +1407,7 @@ void BrightnessOffControl::refresh() {
     label.setText(QString::fromStdString(params.get("KisaUIBrightnessOff")));
   }
 }
-AutoScreenOff::AutoScreenOff() : AbstractControl(tr("Device SCR Off Timer"), tr("Turn off the Device screen or reduce brightness to protect the screen after driving starts. It automatically brightens or turns on when a touch or event occurs."), "../assets/offroad/icon_shell.png") 
+AutoScreenOff::AutoScreenOff() : AbstractControl(tr("Device SCR Off Timer"), tr("Turn off the Device screen or reduce brightness to protect the screen after driving starts. It automatically brightens or turns on when a touch or event occurs."), "../assets/icons/shell.png") 
 {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
@@ -1479,7 +1479,7 @@ void AutoScreenOff::refresh()
     label.setText(QString::fromStdString(params.get("KisaAutoScreenOff")) + tr("min(s)"));
   }
 }
-ChargingMin::ChargingMin() : AbstractControl(tr("BAT MinCharging Value"), tr("Sets the minimum battery charge value."), "../assets/offroad/icon_shell.png") {
+ChargingMin::ChargingMin() : AbstractControl(tr("BAT MinCharging Value"), tr("Sets the minimum battery charge value."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -1538,7 +1538,7 @@ void ChargingMin::refresh() {
   label.setText(QString::fromStdString(params.get("KisaBatteryChargingMin")));
 }
 
-ChargingMax::ChargingMax() : AbstractControl(tr("BAT MaxCharging Value"), tr("Sets the maximum battery charge value."), "../assets/offroad/icon_shell.png") {
+ChargingMax::ChargingMax() : AbstractControl(tr("BAT MaxCharging Value"), tr("Sets the maximum battery charge value."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -1597,7 +1597,7 @@ void ChargingMax::refresh() {
   label.setText(QString::fromStdString(params.get("KisaBatteryChargingMax")));
 }
 
-RecordCount::RecordCount() : AbstractControl(tr("Number of Recorded Files"), tr("Sets the maximum number of recording files. Check file size and max recording count to not exceed your storage."), "../assets/offroad/icon_shell.png") {
+RecordCount::RecordCount() : AbstractControl(tr("Number of Recorded Files"), tr("Sets the maximum number of recording files. Check file size and max recording count to not exceed your storage."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -1656,7 +1656,7 @@ void RecordCount::refresh() {
   label.setText(QString::fromStdString(params.get("RecordingCount")));
 }
 
-MonitoringMode::MonitoringMode() : AbstractControl(tr("Driver Monitoring Mode"), tr("Set the monitoring mode. In the case of preference/prevention of sleepiness and sleepiness prevention, you can send a warning message faster by adjusting (lowering) the threshold value below."), "../assets/offroad/icon_shell.png") {
+MonitoringMode::MonitoringMode() : AbstractControl(tr("Driver Monitoring Mode"), tr("Set the monitoring mode. In the case of preference/prevention of sleepiness and sleepiness prevention, you can send a warning message faster by adjusting (lowering) the threshold value below."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -1720,7 +1720,7 @@ void MonitoringMode::refresh() {
   }
 }
 
-MonitorEyesThreshold::MonitorEyesThreshold() : AbstractControl(tr("E2E EYE Threshold"), tr("Adjust the reference value for the eye detection range. Set the reference value for the value that suits you. When you close your eyes, you should set it lower than the distracted Eyes value. Default: 0.75"), "../assets/offroad/icon_shell.png") {
+MonitorEyesThreshold::MonitorEyesThreshold() : AbstractControl(tr("E2E EYE Threshold"), tr("Adjust the reference value for the eye detection range. Set the reference value for the value that suits you. When you close your eyes, you should set it lower than the distracted Eyes value. Default: 0.75"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -1783,7 +1783,7 @@ void MonitorEyesThreshold::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-NormalEyesThreshold::NormalEyesThreshold() : AbstractControl(tr("Normal EYE Threshold"), tr("Adjust the eye recognition reference value. Lower the value when the recognition rate is low. Default: 0.5"), "../assets/offroad/icon_shell.png") {
+NormalEyesThreshold::NormalEyesThreshold() : AbstractControl(tr("Normal EYE Threshold"), tr("Adjust the eye recognition reference value. Lower the value when the recognition rate is low. Default: 0.5"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -1846,7 +1846,7 @@ void NormalEyesThreshold::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-BlinkThreshold::BlinkThreshold() : AbstractControl(tr("Blink Threshold"), tr("Adjust the recognition value for the degree of blinking. When you close your eyes, check BlinkProb and lower the value. Default: 0.5"), "../assets/offroad/icon_shell.png") {
+BlinkThreshold::BlinkThreshold() : AbstractControl(tr("Blink Threshold"), tr("Adjust the recognition value for the degree of blinking. When you close your eyes, check BlinkProb and lower the value. Default: 0.5"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -1910,7 +1910,7 @@ void BlinkThreshold::refresh() {
 }
 
 //Driving
-CruisemodeSelInit::CruisemodeSelInit() : AbstractControl(tr("Cruise Start Mode"), tr("Set the cruise start mode. OP mode/dist+curve/dist only/curve only/one-way 1 lane/safetycam deceleration Only. op mode:no button speed control, dist+curve:use button speed control in the inter-vehicle distance and curve section, dist only:curve only:curve one-way speed only, one-way speed control"), "../assets/offroad/icon_shell.png") {
+CruisemodeSelInit::CruisemodeSelInit() : AbstractControl(tr("Cruise Start Mode"), tr("Set the cruise start mode. OP mode/dist+curve/dist only/curve only/one-way 1 lane/safetycam deceleration Only. op mode:no button speed control, dist+curve:use button speed control in the inter-vehicle distance and curve section, dist only:curve only:curve one-way speed only, one-way speed control"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -1982,7 +1982,7 @@ void CruisemodeSelInit::refresh() {
   }
 }
 
-LaneChangeSpeed::LaneChangeSpeed() : AbstractControl(tr("LaneChange On/Off/Spd"), tr("On/Off lane change(push (-) btn till Off value) and set the lane changeable speed. This value can be kph or mph."), "../assets/offroad/icon_shell.png") {
+LaneChangeSpeed::LaneChangeSpeed() : AbstractControl(tr("LaneChange On/Off/Spd"), tr("On/Off lane change(push (-) btn till Off value) and set the lane changeable speed. This value can be kph or mph."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -2046,7 +2046,7 @@ void LaneChangeSpeed::refresh() {
   }
 }
 
-LaneChangeDelay::LaneChangeDelay() : AbstractControl(tr("LaneChange Delay"), tr("Set the delay time after turn signal operation before lane change."), "../assets/offroad/icon_shell.png") {
+LaneChangeDelay::LaneChangeDelay() : AbstractControl(tr("LaneChange Delay"), tr("Set the delay time after turn signal operation before lane change."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -2118,7 +2118,7 @@ void LaneChangeDelay::refresh() {
   }
 }
 
-LeftCurvOffset::LeftCurvOffset() : AbstractControl(tr("LeftCurv Offset"), tr("Adjust the position of the vehicle in the curve section. (-value: move the car to the left, +value: move the car to the right)"), "../assets/offroad/icon_shell.png") {
+LeftCurvOffset::LeftCurvOffset() : AbstractControl(tr("LeftCurv Offset"), tr("Adjust the position of the vehicle in the curve section. (-value: move the car to the left, +value: move the car to the right)"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -2177,7 +2177,7 @@ void LeftCurvOffset::refresh() {
   label.setText(QString::fromStdString(params.get("LeftCurvOffsetAdj")));
 }
 
-RightCurvOffset::RightCurvOffset() : AbstractControl(tr("RightCurv Offset"), tr("Adjust the position of the vehicle in the curve section. (-value: move the car to the left, +value: move the car to the right)"), "../assets/offroad/icon_shell.png") {
+RightCurvOffset::RightCurvOffset() : AbstractControl(tr("RightCurv Offset"), tr("Adjust the position of the vehicle in the curve section. (-value: move the car to the left, +value: move the car to the right)"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -2237,7 +2237,7 @@ void RightCurvOffset::refresh() {
 }
 
 
-SteerAngleCorrection::SteerAngleCorrection() : AbstractControl(tr("Str Angle Adjust"), tr("On the straight path, adjust the SteerAngle zero to zero the current steering angle. ex) Set it to 0.5 degrees Celsius for a straight line, and -0.5 degrees Celsius for -0.5 degrees Celsius."), "../assets/offroad/icon_shell.png") {
+SteerAngleCorrection::SteerAngleCorrection() : AbstractControl(tr("Str Angle Adjust"), tr("On the straight path, adjust the SteerAngle zero to zero the current steering angle. ex) Set it to 0.5 degrees Celsius for a straight line, and -0.5 degrees Celsius for -0.5 degrees Celsius."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -2300,7 +2300,7 @@ void SteerAngleCorrection::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-SpeedLimitOffset::SpeedLimitOffset() : AbstractControl(tr("SpeedLimit Offset"), tr("During safetycam deceleration, it decelerates by compensating for the difference between GPS speed and real speed."), "../assets/offroad/icon_shell.png") {
+SpeedLimitOffset::SpeedLimitOffset() : AbstractControl(tr("SpeedLimit Offset"), tr("During safetycam deceleration, it decelerates by compensating for the difference between GPS speed and real speed."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -2391,7 +2391,7 @@ void SpeedLimitOffset::refresh() {
     btn.setText("D");}
   label.setText(QString::fromStdString(params.get("KisaSpeedLimitOffset")));
 }
-RESChoice::RESChoice() : AbstractControl(tr("AutoRES Option"), tr("Sets the auto RES option. 1. Adjust the temporary cruise speed, 2. Adjust the set speed itself according to the presence or absence of a preceding car. 3. Adjust the cruise speed if there is a preceding car, and adjust the set speed if there is no preceding car. Please note that the automatic RES may not work well depending on the conditions."), "../assets/offroad/icon_shell.png") {
+RESChoice::RESChoice() : AbstractControl(tr("AutoRES Option"), tr("Sets the auto RES option. 1. Adjust the temporary cruise speed, 2. Adjust the set speed itself according to the presence or absence of a preceding car. 3. Adjust the cruise speed if there is a preceding car, and adjust the set speed if there is no preceding car. Please note that the automatic RES may not work well depending on the conditions."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -2457,7 +2457,7 @@ void RESChoice::refresh() {
   }
 }
 
-AutoResCondition::AutoResCondition() : AbstractControl(tr("AutoRES Condition"), tr("Sets the automatic RES condition. When the brake is released/operated when the accelerator pedal is operated."), "../assets/offroad/icon_shell.png") {
+AutoResCondition::AutoResCondition() : AbstractControl(tr("AutoRES Condition"), tr("Sets the automatic RES condition. When the brake is released/operated when the accelerator pedal is operated."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -2521,7 +2521,7 @@ void AutoResCondition::refresh() {
   }
 }
 
-AutoResLimitTime::AutoResLimitTime() : AbstractControl(tr("AutoRES Allow(sec)"), tr("Adjust the automatic RES allowance time. Automatic RES operates only within the set time after the cruise is released."), "../assets/offroad/icon_shell.png") {
+AutoResLimitTime::AutoResLimitTime() : AbstractControl(tr("AutoRES Allow(sec)"), tr("Adjust the automatic RES allowance time. Automatic RES operates only within the set time after the cruise is released."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -2585,7 +2585,7 @@ void AutoResLimitTime::refresh() {
   btnplus.setText("+");
 }
 
-AutoEnableSpeed::AutoEnableSpeed() : AbstractControl(tr("Auto Engage Speed"), tr("Set the automatic engage speed."), "../assets/offroad/icon_shell.png") {
+AutoEnableSpeed::AutoEnableSpeed() : AbstractControl(tr("Auto Engage Speed"), tr("Set the automatic engage speed."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -2651,7 +2651,7 @@ void AutoEnableSpeed::refresh() {
   btnplus.setText("+");
 }
 
-CamDecelDistAdd::CamDecelDistAdd() : AbstractControl(tr("SafetyCamDist Adj(%)"), tr("Reduce or increase the deceleration start distance during deceleration of the safety section (+ value: deceleration start from a long distance, -value: deceleration start at a short distance) = interpolation value X interpolation value X reduction/increase ratio according to difference between current speed and cam speed."), "../assets/offroad/icon_shell.png") {
+CamDecelDistAdd::CamDecelDistAdd() : AbstractControl(tr("SafetyCamDist Adj(%)"), tr("Reduce or increase the deceleration start distance during deceleration of the safety section (+ value: deceleration start from a long distance, -value: deceleration start at a short distance) = interpolation value X interpolation value X reduction/increase ratio according to difference between current speed and cam speed."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -2716,7 +2716,7 @@ void CamDecelDistAdd::refresh() {
 }
 
 //튜닝
-CameraOffset::CameraOffset() : AbstractControl(tr("CameraOffset"), tr("Sets the CameraOffset value. (low value: Car to Move Left, high value: Car to Move Right)"), "../assets/offroad/icon_shell.png") {
+CameraOffset::CameraOffset() : AbstractControl(tr("CameraOffset"), tr("Sets the CameraOffset value. (low value: Car to Move Left, high value: Car to Move Right)"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -2779,7 +2779,7 @@ void CameraOffset::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-PathOffset::PathOffset() : AbstractControl(tr("PathOffset"), tr("Sets the PathOffset value. (low value: Car to Move Left, high value: Car to Move Right)"), "../assets/offroad/icon_shell.png") {
+PathOffset::PathOffset() : AbstractControl(tr("PathOffset"), tr("Sets the PathOffset value. (low value: Car to Move Left, high value: Car to Move Right)"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -2842,7 +2842,7 @@ void PathOffset::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-SRBaseControl::SRBaseControl() : AbstractControl(tr("SteerRatio"), tr("Sets the SteerRatio default value."), "../assets/offroad/icon_shell.png") {
+SRBaseControl::SRBaseControl() : AbstractControl(tr("SteerRatio"), tr("Sets the SteerRatio default value."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -2940,7 +2940,7 @@ void SRBaseControl::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-SteerActuatorDelay::SteerActuatorDelay() : AbstractControl(tr("SteerActuatorDelay"), tr("Adjust the SteerActuatorDelay value."), "../assets/offroad/icon_shell.png") {
+SteerActuatorDelay::SteerActuatorDelay() : AbstractControl(tr("SteerActuatorDelay"), tr("Adjust the SteerActuatorDelay value."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -3003,7 +3003,7 @@ void SteerActuatorDelay::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-// SteerRateCost::SteerRateCost() : AbstractControl(tr("SteerRateCost"), tr("Adjust the SteerRateCost value."), "../assets/offroad/icon_shell.png") {
+// SteerRateCost::SteerRateCost() : AbstractControl(tr("SteerRateCost"), tr("Adjust the SteerRateCost value."), "../assets/icons/shell.png") {
 
 //   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
 //   label.setStyleSheet("color: #e0e879");
@@ -3066,7 +3066,7 @@ void SteerActuatorDelay::refresh() {
 //   label.setText(QString::fromStdString(valuefs.toStdString()));
 // }
 
-SteerLimitTimer::SteerLimitTimer() : AbstractControl(tr("SteerLimitTimer"), tr("Adjust the SteerLimitTimer value."), "../assets/offroad/icon_shell.png") {
+SteerLimitTimer::SteerLimitTimer() : AbstractControl(tr("SteerLimitTimer"), tr("Adjust the SteerLimitTimer value."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -3129,7 +3129,7 @@ void SteerLimitTimer::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-TireStiffnessFactor::TireStiffnessFactor() : AbstractControl(tr("TireStiffnessFactor"), tr("Adjust the TireStiffnessFactor value."), "../assets/offroad/icon_shell.png") {
+TireStiffnessFactor::TireStiffnessFactor() : AbstractControl(tr("TireStiffnessFactor"), tr("Adjust the TireStiffnessFactor value."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -3192,7 +3192,7 @@ void TireStiffnessFactor::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-SteerMax::SteerMax() : AbstractControl(tr("SteerMax"), tr("Adjust the SteerMax value."), "../assets/offroad/icon_shell.png") {
+SteerMax::SteerMax() : AbstractControl(tr("SteerMax"), tr("Adjust the SteerMax value."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -3251,7 +3251,7 @@ void SteerMax::refresh() {
   label.setText(QString::fromStdString(params.get("SteerMaxAdj")));
 }
 
-SteerDeltaUp::SteerDeltaUp() : AbstractControl(tr("SteerDeltaUp"), tr("Adjust the SteerDeltaUp value."), "../assets/offroad/icon_shell.png") {
+SteerDeltaUp::SteerDeltaUp() : AbstractControl(tr("SteerDeltaUp"), tr("Adjust the SteerDeltaUp value."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -3310,7 +3310,7 @@ void SteerDeltaUp::refresh() {
   label.setText(QString::fromStdString(params.get("SteerDeltaUpAdj")));
 }
 
-SteerDeltaDown::SteerDeltaDown() : AbstractControl(tr("SteerDeltaDown"), tr("Adjust the SteerDeltaDown value."), "../assets/offroad/icon_shell.png") {
+SteerDeltaDown::SteerDeltaDown() : AbstractControl(tr("SteerDeltaDown"), tr("Adjust the SteerDeltaDown value."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -3369,7 +3369,7 @@ void SteerDeltaDown::refresh() {
   label.setText(QString::fromStdString(params.get("SteerDeltaDownAdj")));
 }
 
-SteerThreshold::SteerThreshold() : AbstractControl(tr("SteerThreshold"), tr("Adjust the SteerThreshold value."), "../assets/offroad/icon_shell.png") {
+SteerThreshold::SteerThreshold() : AbstractControl(tr("SteerThreshold"), tr("Adjust the SteerThreshold value."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -3429,7 +3429,7 @@ void SteerThreshold::refresh() {
 }
 
 //제어
-LateralControl::LateralControl() : AbstractControl(tr("LatControl(Reboot)"), tr("Set the steering control method(PID/INDI/LQR/TORQUE). Reboot Required."), "../assets/offroad/icon_shell.png") {
+LateralControl::LateralControl() : AbstractControl(tr("LatControl(Reboot)"), tr("Set the steering control method(PID/INDI/LQR/TORQUE). Reboot Required."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -3500,7 +3500,7 @@ void LateralControl::refresh()
   label.setText( str );
 }
 
-PidKp::PidKp() : AbstractControl(tr("Kp"), tr("Adjust Kp"), "../assets/offroad/icon_shell.png") {
+PidKp::PidKp() : AbstractControl(tr("Kp"), tr("Adjust Kp"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -3563,7 +3563,7 @@ void PidKp::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-PidKi::PidKi() : AbstractControl(tr("Ki"), tr("Adjust Ki"), "../assets/offroad/icon_shell.png") {
+PidKi::PidKi() : AbstractControl(tr("Ki"), tr("Adjust Ki"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -3626,7 +3626,7 @@ void PidKi::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-PidKd::PidKd() : AbstractControl(tr("Kd"), tr("Adjust Kd"), "../assets/offroad/icon_shell.png") {
+PidKd::PidKd() : AbstractControl(tr("Kd"), tr("Adjust Kd"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -3689,7 +3689,7 @@ void PidKd::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-PidKf::PidKf() : AbstractControl(tr("Kf"), tr("Adjust Kf"), "../assets/offroad/icon_shell.png") {
+PidKf::PidKf() : AbstractControl(tr("Kf"), tr("Adjust Kf"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -3752,7 +3752,7 @@ void PidKf::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-OuterLoopGain::OuterLoopGain() : AbstractControl(tr("OuterLoopGain"), tr("Adjust OuterLoopGain"), "../assets/offroad/icon_shell.png") {
+OuterLoopGain::OuterLoopGain() : AbstractControl(tr("OuterLoopGain"), tr("Adjust OuterLoopGain"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -3815,7 +3815,7 @@ void OuterLoopGain::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-InnerLoopGain::InnerLoopGain() : AbstractControl(tr("InnerLoopGain"), tr("Adjust InnerLoopGain"), "../assets/offroad/icon_shell.png") {
+InnerLoopGain::InnerLoopGain() : AbstractControl(tr("InnerLoopGain"), tr("Adjust InnerLoopGain"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -3878,7 +3878,7 @@ void InnerLoopGain::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-TimeConstant::TimeConstant() : AbstractControl(tr("TimeConstant"), tr("Adjust TimeConstant"), "../assets/offroad/icon_shell.png") {
+TimeConstant::TimeConstant() : AbstractControl(tr("TimeConstant"), tr("Adjust TimeConstant"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -3941,7 +3941,7 @@ void TimeConstant::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-ActuatorEffectiveness::ActuatorEffectiveness() : AbstractControl(tr("ActuatorEffectiveness"), tr("Adjust ActuatorEffectiveness"), "../assets/offroad/icon_shell.png") {
+ActuatorEffectiveness::ActuatorEffectiveness() : AbstractControl(tr("ActuatorEffectiveness"), tr("Adjust ActuatorEffectiveness"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -4004,7 +4004,7 @@ void ActuatorEffectiveness::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-Scale::Scale() : AbstractControl(tr("Scale"), tr("Adjust Scale"), "../assets/offroad/icon_shell.png") {
+Scale::Scale() : AbstractControl(tr("Scale"), tr("Adjust Scale"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -4063,7 +4063,7 @@ void Scale::refresh() {
   label.setText(QString::fromStdString(params.get("Scale")));
 }
 
-LqrKi::LqrKi() : AbstractControl(tr("LqrKi"), tr("Adjust ki"), "../assets/offroad/icon_shell.png") {
+LqrKi::LqrKi() : AbstractControl(tr("LqrKi"), tr("Adjust ki"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -4126,7 +4126,7 @@ void LqrKi::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-DcGain::DcGain() : AbstractControl(tr("DcGain"), tr("Adjust DcGain"), "../assets/offroad/icon_shell.png") {
+DcGain::DcGain() : AbstractControl(tr("DcGain"), tr("Adjust DcGain"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -4189,7 +4189,7 @@ void DcGain::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-TorqueKp::TorqueKp() : AbstractControl(tr("Kp"), tr("Adjust Kp"), "../assets/offroad/icon_shell.png") {
+TorqueKp::TorqueKp() : AbstractControl(tr("Kp"), tr("Adjust Kp"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -4254,7 +4254,7 @@ void TorqueKp::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-TorqueKf::TorqueKf() : AbstractControl(tr("Kf"), tr("Adjust Kf"), "../assets/offroad/icon_shell.png") {
+TorqueKf::TorqueKf() : AbstractControl(tr("Kf"), tr("Adjust Kf"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -4319,7 +4319,7 @@ void TorqueKf::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-TorqueKi::TorqueKi() : AbstractControl(tr("Ki"), tr("Adjust Ki"), "../assets/offroad/icon_shell.png") {
+TorqueKi::TorqueKi() : AbstractControl(tr("Ki"), tr("Adjust Ki"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -4384,7 +4384,7 @@ void TorqueKi::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-TorqueFriction::TorqueFriction() : AbstractControl(tr("Friction"), tr("Adjust Friction"), "../assets/offroad/icon_shell.png") {
+TorqueFriction::TorqueFriction() : AbstractControl(tr("Friction"), tr("Adjust Friction"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -4447,7 +4447,7 @@ void TorqueFriction::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-TorqueMaxLatAccel::TorqueMaxLatAccel() : AbstractControl(tr("MaxLatAccel"), tr("Adjust MaxLatAccel"), "../assets/offroad/icon_shell.png") {
+TorqueMaxLatAccel::TorqueMaxLatAccel() : AbstractControl(tr("MaxLatAccel"), tr("Adjust MaxLatAccel"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -4510,7 +4510,7 @@ void TorqueMaxLatAccel::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-TorqueAngDeadZone::TorqueAngDeadZone() : AbstractControl(tr("AngleDeadZone"), tr("Adjust TorqueAngDeadZone"), "../assets/offroad/icon_shell.png") {
+TorqueAngDeadZone::TorqueAngDeadZone() : AbstractControl(tr("AngleDeadZone"), tr("Adjust TorqueAngDeadZone"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -4791,7 +4791,7 @@ void CruiseGapTR::refresh4() {
   btn4.setText("▲");
 }
 
-DynamicTRGap::DynamicTRGap() : AbstractControl(tr("Use DynamicTR"), tr("Use DynamicTR and assign it to the corresponding gap and adjust TR by speed below."), "../assets/offroad/icon_shell.png") {
+DynamicTRGap::DynamicTRGap() : AbstractControl(tr("Use DynamicTR"), tr("Use DynamicTR and assign it to the corresponding gap and adjust TR by speed below."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -5056,7 +5056,7 @@ void LCTimingFactor::refresh4() {
   btn4.setText("↕");
 }
 
-LCTimingFactorUD::LCTimingFactorUD() : AbstractControl(tr("LaneChange Time (km/h: value)"), tr("When changing lanes, adjust the timing of lane change for each speed. If you want a quick lane change, increase the value and lower the value if you want a slow lane change."), "../assets/offroad/icon_shell.png") {
+LCTimingFactorUD::LCTimingFactorUD() : AbstractControl(tr("LaneChange Time (km/h: value)"), tr("When changing lanes, adjust the timing of lane change for each speed. If you want a quick lane change, increase the value and lower the value if you want a slow lane change."), "../assets/icons/shell.png") {
 
   btn.setStyleSheet(R"(
     padding: 0;
@@ -5265,7 +5265,7 @@ void LCTimingKeepFactor::refresh2() {
 }
 
 
-LCTimingKeepFactorUD::LCTimingKeepFactorUD() : AbstractControl(tr("LaneChange Keeping Time"), tr("Set a time to keep lane change. Low value makes changing time more so that your car move enough to target lane. If car is over to target lane too fast, increase a value."), "../assets/offroad/icon_shell.png") {
+LCTimingKeepFactorUD::LCTimingKeepFactorUD() : AbstractControl(tr("LaneChange Keeping Time"), tr("Set a time to keep lane change. Low value makes changing time more so that your car move enough to target lane. If car is over to target lane too fast, increase a value."), "../assets/icons/shell.png") {
 
   btn.setStyleSheet(R"(
     padding: 0;
@@ -5316,7 +5316,7 @@ void LCTimingKeepFactorUD::refresh() {
   }
 }
 
-LiveSRPercent::LiveSRPercent() : AbstractControl(tr("LiveSR Adjust(%)"), tr("When using LiveSR, the learned value is arbitrarily adjusted (%) and used. -Value:Lower from learned value, +Value:Lower from learned value"), "../assets/offroad/icon_shell.png") {
+LiveSRPercent::LiveSRPercent() : AbstractControl(tr("LiveSR Adjust(%)"), tr("When using LiveSR, the learned value is arbitrarily adjusted (%) and used. -Value:Lower from learned value, +Value:Lower from learned value"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -5380,7 +5380,7 @@ void LiveSRPercent::refresh() {
   btnplus.setText("+");
 }
 
-VCurvSpeedUD::VCurvSpeedUD() : AbstractControl(tr("VisionCurvDecel([CV] [TargetSpeed])"), tr("Adjust the curve deceleration speed according to the model speed(curvature). (interpolation and list value)"), "../assets/offroad/icon_shell.png") {
+VCurvSpeedUD::VCurvSpeedUD() : AbstractControl(tr("VisionCurvDecel([CV] [TargetSpeed])"), tr("Adjust the curve deceleration speed according to the model speed(curvature). (interpolation and list value)"), "../assets/icons/shell.png") {
 }
 
 VCurvSpeed::VCurvSpeed() : AbstractControl("", "", "") {
@@ -5484,7 +5484,7 @@ void VCurvSpeed::refresh() {
   btn.setText(tr("EDIT"));
 }
 
-OCurvSpeedUD::OCurvSpeedUD() : AbstractControl(tr("OSMCurvDecel([TSL] [TargetSpeed])"), tr("Adjust the curve deceleration speed according to turn speed limit of OSM. (interpolation value)"), "../assets/offroad/icon_shell.png") {
+OCurvSpeedUD::OCurvSpeedUD() : AbstractControl(tr("OSMCurvDecel([TSL] [TargetSpeed])"), tr("Adjust the curve deceleration speed according to turn speed limit of OSM. (interpolation value)"), "../assets/icons/shell.png") {
 }
 
 OCurvSpeed::OCurvSpeed() : AbstractControl("", "", "") {
@@ -5556,7 +5556,7 @@ void OCurvSpeed::refresh() {
   btn.setText(tr("EDIT"));
 }
 
-KISANaviSelect::KISANaviSelect() : AbstractControl(tr("Navigation Select"), tr("Select the navigation you want to use.(None/TMap/Mappy/Waze/NaverMap) Refer to Readme.txt in the directory."), "../assets/offroad/icon_shell.png") {
+KISANaviSelect::KISANaviSelect() : AbstractControl(tr("Navigation Select"), tr("Select the navigation you want to use.(None/TMap/Mappy/Waze/NaverMap) Refer to Readme.txt in the directory."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -5620,7 +5620,7 @@ void KISANaviSelect::refresh() {
   }
 }
 
-KISAMapboxStyle::KISAMapboxStyle() : AbstractControl(tr("Mapbox Style"), tr("Set the Mapbox sytle to Comma/KISA/User/Satellite"), "../assets/offroad/icon_shell.png") {
+KISAMapboxStyle::KISAMapboxStyle() : AbstractControl(tr("Mapbox Style"), tr("Set the Mapbox sytle to Comma/KISA/User/Satellite"), "../assets/icons/shell.png") {
   btn1.setStyleSheet(R"(
     padding: 0;
     border-radius: 50px;
@@ -5823,7 +5823,7 @@ void KISAMapboxStyle::refresh() {
   }
 }
 
-RESCountatStandstill::RESCountatStandstill() : AbstractControl(tr("RES Count at Standstill"), tr("Comma Default: 25, this value cannot be acceptable at some cars. So adjust the number if you want to. It generates RES CAN messages when leadcar is moving. If departure is failed, increase the number. In opposite, if CAN error occurs, decrease the number."), "../assets/offroad/icon_shell.png") {
+RESCountatStandstill::RESCountatStandstill() : AbstractControl(tr("RES Count at Standstill"), tr("Comma Default: 25, this value cannot be acceptable at some cars. So adjust the number if you want to. It generates RES CAN messages when leadcar is moving. If departure is failed, increase the number. In opposite, if CAN error occurs, decrease the number."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -5882,7 +5882,7 @@ void RESCountatStandstill::refresh() {
   btnplus.setText("+");
 }
 
-SpeedLimitSignType::SpeedLimitSignType() : AbstractControl(tr("SafetyCam SignType"), tr("Select SafetyCam SignType (Circle/Rectangle)"), "../assets/offroad/icon_shell.png") {
+SpeedLimitSignType::SpeedLimitSignType() : AbstractControl(tr("SafetyCam SignType"), tr("Select SafetyCam SignType (Circle/Rectangle)"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -5946,7 +5946,7 @@ void SpeedLimitSignType::refresh() {
   }
 }
 
-RadarLongHelperOption::RadarLongHelperOption() : AbstractControl(tr("Long Mode"), tr("Vision Only, Radar Only, KISA(Radar+Vision)"), "../assets/offroad/icon_shell.png") {
+RadarLongHelperOption::RadarLongHelperOption() : AbstractControl(tr("Long Mode"), tr("Vision Only, Radar Only, KISA(Radar+Vision)"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -6014,7 +6014,7 @@ void RadarLongHelperOption::refresh() {
 
 
 
-CurvDecelSelect::CurvDecelSelect() : AbstractControl(tr("Curv Decel Option"), tr("None, Vision+OSM, Vision Only, OSM Only"), "../assets/offroad/icon_shell.png") {
+CurvDecelSelect::CurvDecelSelect() : AbstractControl(tr("Curv Decel Option"), tr("None, Vision+OSM, Vision Only, OSM Only"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -6082,7 +6082,7 @@ void CurvDecelSelect::refresh() {
   }
 }
 
-AutoRESDelay::AutoRESDelay() : AbstractControl(tr("AutoRES Delay(sec)"), tr("Give delay time to trigger for AutoRES while driving."), "../assets/offroad/icon_shell.png") {
+AutoRESDelay::AutoRESDelay() : AbstractControl(tr("AutoRES Delay(sec)"), tr("Give delay time to trigger for AutoRES while driving."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -6146,7 +6146,7 @@ void AutoRESDelay::refresh() {
   btnplus.setText("+");
 }
 
-OSMCustomSpeedLimitUD::OSMCustomSpeedLimitUD() : AbstractControl(tr("CustomSpeedLimit([SL] [TargetSpeed])"), tr("Set the offset speed according to speed limit of OSM or Waze. (interpolation value)"), "../assets/offroad/icon_shell.png") {
+OSMCustomSpeedLimitUD::OSMCustomSpeedLimitUD() : AbstractControl(tr("CustomSpeedLimit([SL] [TargetSpeed])"), tr("Set the offset speed according to speed limit of OSM or Waze. (interpolation value)"), "../assets/icons/shell.png") {
 }
 
 OSMCustomSpeedLimit::OSMCustomSpeedLimit() : AbstractControl("", "", "") {
@@ -6218,7 +6218,7 @@ void OSMCustomSpeedLimit::refresh() {
   btn.setText(tr("EDIT"));
 }
 
-DesiredCurvatureLimit::DesiredCurvatureLimit() : AbstractControl(tr("DesiredCurvatureLimit"), tr("Adjust DisiredCurvatureLimit, Default is 0.05(DT_MDL), For HKG, maybe 0.2 is preferred from user's experience. If the steering digs into inside on intersection, upper the value. And then it will limit your scope of steering angle. In case of opposite situation, lower the value. this is multiplier of desired curvature rate not real limit value."), "../assets/offroad/icon_shell.png") {
+DesiredCurvatureLimit::DesiredCurvatureLimit() : AbstractControl(tr("DesiredCurvatureLimit"), tr("Adjust DisiredCurvatureLimit, Default is 0.05(DT_MDL), For HKG, maybe 0.2 is preferred from user's experience. If the steering digs into inside on intersection, upper the value. And then it will limit your scope of steering angle. In case of opposite situation, lower the value. this is multiplier of desired curvature rate not real limit value."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -6316,7 +6316,7 @@ void DesiredCurvatureLimit::refresh() {
   label.setText("＊ " + QString::fromStdString(valuefs.toStdString()));
 }
 
-DynamicTRUD::DynamicTRUD() : AbstractControl(tr("DynamicTR: [Speed] [TRs]"), tr("Set TR of each speeds. (Mid range is interpolation values)"), "../assets/offroad/icon_shell.png") {
+DynamicTRUD::DynamicTRUD() : AbstractControl(tr("DynamicTR: [Speed] [TRs]"), tr("Set TR of each speeds. (Mid range is interpolation values)"), "../assets/icons/shell.png") {
 }
 
 DynamicTRBySpeed::DynamicTRBySpeed() : AbstractControl("", "", "") {
@@ -6388,7 +6388,7 @@ void DynamicTRBySpeed::refresh() {
   btn.setText(tr("EDIT"));
 }
 
-LaneWidth::LaneWidth() : AbstractControl(tr("Set LaneWidth"), tr("Set LaneWidth (default:3.7)"), "../assets/offroad/icon_shell.png") {
+LaneWidth::LaneWidth() : AbstractControl(tr("Set LaneWidth"), tr("Set LaneWidth (default:3.7)"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -6451,7 +6451,7 @@ void LaneWidth::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-SpeedLaneWidthUD::SpeedLaneWidthUD() : AbstractControl(tr("Speed LaneWidth: [Spd(m/s)] [LaneWidth]"), tr("Set LaneWidths by speed. Speed is m/s values not kph or mph. (Mid range is interpolation values)"), "../assets/offroad/icon_shell.png") {
+SpeedLaneWidthUD::SpeedLaneWidthUD() : AbstractControl(tr("Speed LaneWidth: [Spd(m/s)] [LaneWidth]"), tr("Set LaneWidths by speed. Speed is m/s values not kph or mph. (Mid range is interpolation values)"), "../assets/icons/shell.png") {
 }
 
 SpeedLaneWidth::SpeedLaneWidth() : AbstractControl("", "", "") {
@@ -6523,7 +6523,7 @@ void SpeedLaneWidth::refresh() {
   btn.setText(tr("EDIT"));
 }
 
-KISABottomTextView::KISABottomTextView() : AbstractControl(tr("Bottom Text View"), tr("Date/Time/StreetName"), "../assets/offroad/icon_shell.png") {
+KISABottomTextView::KISABottomTextView() : AbstractControl(tr("Bottom Text View"), tr("Date/Time/StreetName"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -6934,7 +6934,7 @@ void RoutineDriveOption::refresh() {
   }
 }
 
-RPMAnimatedMaxValue::RPMAnimatedMaxValue() : AbstractControl(tr("AnimatedRPM Max"), tr("Set Max RPM for animated rpm value."), "../assets/offroad/icon_shell.png") {
+RPMAnimatedMaxValue::RPMAnimatedMaxValue() : AbstractControl(tr("AnimatedRPM Max"), tr("Set Max RPM for animated rpm value."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -7030,7 +7030,7 @@ void UserSpecificFeature::refresh() {
   btn.setText(tr("SET"));
 }
 
-MultipleLatSelect::MultipleLatSelect() : AbstractControl(tr("Multi LateralControl"), tr("Multiple Lateral Tune by Speed/Angle."), "../assets/offroad/icon_shell.png") {
+MultipleLatSelect::MultipleLatSelect() : AbstractControl(tr("Multi LateralControl"), tr("Multiple Lateral Tune by Speed/Angle."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -7588,7 +7588,7 @@ void MultipleLateralAngle::refreshr() {
   labelr.setText(list[1]);
 }
 
-StoppingDist::StoppingDist() : AbstractControl(tr("Stopping Distance(m)"), tr("Car starts to stop under the value."), "../assets/offroad/icon_shell.png") {
+StoppingDist::StoppingDist() : AbstractControl(tr("Stopping Distance(m)"), tr("Car starts to stop under the value."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -7651,7 +7651,7 @@ void StoppingDist::refresh() {
   label.setText(QString::fromStdString(valuefs.toStdString()));
 }
 
-VariableCruiseLevel::VariableCruiseLevel() : AbstractControl(tr("Button Spamming Level"), tr("High values make early stopping and starting, but might be not comfortable. Low values are the opposite."), "../assets/offroad/icon_shell.png") {
+VariableCruiseLevel::VariableCruiseLevel() : AbstractControl(tr("Button Spamming Level"), tr("High values make early stopping and starting, but might be not comfortable. Low values are the opposite."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -7813,7 +7813,7 @@ void ExternalDeviceIP::refresh() {
   }
 }
 
-DoNotDisturbMode::DoNotDisturbMode() : AbstractControl(tr("DoNotDisturb Mode"), tr("Off Event notification, Screen and Sound of Device. You can enable this touching Left-Top Box like a button on onroad screen."), "../assets/offroad/icon_shell.png") {
+DoNotDisturbMode::DoNotDisturbMode() : AbstractControl(tr("DoNotDisturb Mode"), tr("Off Event notification, Screen and Sound of Device. You can enable this touching Left-Top Box like a button on onroad screen."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -8203,7 +8203,7 @@ void CruiseGapBySpd::refresh7() {
   label3.setText(list[2]);
 }
 
-CruiseSetwithRoadLimitSpeedOffset::CruiseSetwithRoadLimitSpeedOffset() : AbstractControl(tr("CruiseSet RoadLimitSpd Ofs"), tr("CruiseSet with RoadLimitSpeed Offset Value. This will add offset to navi road limit speed."), "../assets/offroad/icon_shell.png") {
+CruiseSetwithRoadLimitSpeedOffset::CruiseSetwithRoadLimitSpeedOffset() : AbstractControl(tr("CruiseSet RoadLimitSpd Ofs"), tr("CruiseSet with RoadLimitSpeed Offset Value. This will add offset to navi road limit speed."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -8618,7 +8618,7 @@ void CruiseSpammingLevel::refresh7() {
   label3.setText(list[2]);
 }
 
-KISACruiseGapSet::KISACruiseGapSet() : AbstractControl(tr("Cruise Gap(Init)"), tr("Set initial Cruise Gap for OP Long"), "../assets/offroad/icon_shell.png") {
+KISACruiseGapSet::KISACruiseGapSet() : AbstractControl(tr("Cruise Gap(Init)"), tr("Set initial Cruise Gap for OP Long"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -8686,7 +8686,7 @@ void KISACruiseGapSet::refresh() {
   }
 }
 
-UseLegacyLaneModel::UseLegacyLaneModel() : AbstractControl(tr("Lateral Plan Mode"), tr("1.Model(latest model path), 2.MPC(mpc path from post processing of model, 3.Mix(Model(high curvature), MPC(low curvature), interpolation value)"), "../assets/offroad/icon_shell.png") {
+UseLegacyLaneModel::UseLegacyLaneModel() : AbstractControl(tr("Lateral Plan Mode"), tr("1.Model(latest model path), 2.MPC(mpc path from post processing of model, 3.Mix(Model(high curvature), MPC(low curvature), interpolation value)"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -8752,7 +8752,7 @@ void UseLegacyLaneModel::refresh() {
   }
 }
 
-KISACruiseSpammingInterval::KISACruiseSpammingInterval() : AbstractControl(tr("Cruise Spamming Interval"), tr("Adjust Cruise Spamming Interval if SCC SetSpeed is not changed appropriately. Low values can make SetSpeed quickly, but could make cluster(CAN) error. Default Value: 7"), "../assets/offroad/icon_shell.png") {
+KISACruiseSpammingInterval::KISACruiseSpammingInterval() : AbstractControl(tr("Cruise Spamming Interval"), tr("Adjust Cruise Spamming Interval if SCC SetSpeed is not changed appropriately. Low values can make SetSpeed quickly, but could make cluster(CAN) error. Default Value: 7"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -8811,7 +8811,7 @@ void KISACruiseSpammingInterval::refresh() {
   label.setText(QString::fromStdString(params.get("KISACruiseSpammingInterval")));
 }
 
-KISACruiseSpammingBtnCount::KISACruiseSpammingBtnCount() : AbstractControl(tr("Cruise Spamming Btn Count"), tr("Increase Count if SCC SetSpeed is not changed appropriately, but could make cluster(CAN) error. Default Value: 2"), "../assets/offroad/icon_shell.png") {
+KISACruiseSpammingBtnCount::KISACruiseSpammingBtnCount() : AbstractControl(tr("Cruise Spamming Btn Count"), tr("Increase Count if SCC SetSpeed is not changed appropriately, but could make cluster(CAN) error. Default Value: 2"), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -8982,7 +8982,7 @@ void RegenBrakeFeature::refresh() {
   }
 }
 
-SetSpeedPlus::SetSpeedPlus() : AbstractControl(tr("SetSpeed Changed by Num"), tr("MAX Speed can be adjusted by number. Cruise Set Speed will be set as same with MAX quickly."), "../assets/offroad/icon_shell.png") {
+SetSpeedPlus::SetSpeedPlus() : AbstractControl(tr("SetSpeed Changed by Num"), tr("MAX Speed can be adjusted by number. Cruise Set Speed will be set as same with MAX quickly."), "../assets/icons/shell.png") {
 
   label.setAlignment(Qt::AlignVCenter|Qt::AlignRight);
   label.setStyleSheet("color: #e0e879");
@@ -9046,7 +9046,7 @@ void SetSpeedPlus::refresh() {
   }
 }
 
-TimeFactorModification::TimeFactorModification() : AbstractControl(tr("LocalTime Adjust -> UTC"), tr("Adjusts the time displayed by adding or subtracting time from UTC."), "../assets/offroad/icon_shell.png") {
+TimeFactorModification::TimeFactorModification() : AbstractControl(tr("LocalTime Adjust -> UTC"), tr("Adjusts the time displayed by adding or subtracting time from UTC."), "../assets/icons/shell.png") {
   btn1.setStyleSheet(R"(
     padding: -10;
     border-radius: 35px;

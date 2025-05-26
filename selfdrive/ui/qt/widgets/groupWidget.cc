@@ -24,8 +24,8 @@ CGroupWidget::CGroupWidget( QString  title ) : QFrame(0)
   hlayout->setSpacing(20);
 
   // left icon 
-  pix_plus =  QPixmap( "../assets/offroad/icon_plus.png" ).scaledToWidth(80, Qt::SmoothTransformation);
-  pix_minus =  QPixmap( "../assets/offroad/icon_minus.png" ).scaledToWidth(80, Qt::SmoothTransformation);
+  pix_plus =  QPixmap( "../assets/icons/plus.png" ).scaledToWidth(80, Qt::SmoothTransformation);
+  pix_minus =  QPixmap( "../assets/icons/minus.png" ).scaledToWidth(80, Qt::SmoothTransformation);
 
 
   icon_label = new QLabel();
