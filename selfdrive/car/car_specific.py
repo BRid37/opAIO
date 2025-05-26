@@ -181,12 +181,6 @@ class CarSpecificEvents:
       elif CC.lkasTempDisabledTimer:
         events.add(EventName.lkasEnabled)
 
-      if self.exp_long or self.lfa_button_eng:
-        if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled and any(self.cruise_buttons):
-          events.add(EventName.buttonEnable)
-        elif not CS.cruiseState.enabled and any(self.cruise_buttons):
-          events.add(EventName.buttonCancel)
-
     else:
       events = self.create_common_events(CS, CS_prev)
 
