@@ -36,7 +36,7 @@ uint32_t GET_BYTES(const CANPacket_t *msg, int start, int len) {
   return ret;
 }
 
-const int MAX_WRONG_COUNTERS = 5;
+const int MAX_WRONG_COUNTERS = 10;
 
 // This can be set by the safety hooks
 bool controls_allowed = false;
@@ -316,7 +316,7 @@ void gen_crc_lookup_table_16(uint16_t poly, uint16_t crc_lut[]) {
 
 // 1Hz safety function called by main. Now just a check for lagging safety messages
 void safety_tick(const safety_config *cfg) {
-  const uint8_t MAX_MISSED_MSGS = 10U;
+  const uint8_t MAX_MISSED_MSGS = 20U;
   bool rx_checks_invalid = false;
   uint32_t ts = microsecond_timer_get();
   if (cfg != NULL) {
