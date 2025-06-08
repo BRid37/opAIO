@@ -5,6 +5,7 @@
 
 #define HYUNDAI_CANFD_CRUISE_BUTTON_TX_MSGS(bus) \
   {0x1CF, bus, 8, .check_relay = false},  /* CRUISE_BUTTON */   \
+  {0x2AF, bus, 8, .check_relay = false},  /* STEERING_WHEEL */  \
 
 #define HYUNDAI_CANFD_LKA_STEERING_COMMON_TX_MSGS(a_can, e_can) \
   HYUNDAI_CANFD_CRUISE_BUTTON_TX_MSGS(e_can)                        \
@@ -36,6 +37,7 @@
 #define HYUNDAI_CANFD_STD_BUTTONS_RX_CHECKS(pt_bus)                                                               \
   HYUNDAI_CANFD_COMMON_RX_CHECKS(pt_bus)                                                                          \
   {.msg = {{0x1cf, (pt_bus), 8, .ignore_checksum = true, .max_counter = 0xfU, .frequency = 50U}, { 0 }, { 0 }}},  \
+  {.msg = {{0x2af, (pt_bus), 8, .ignore_checksum = true, .max_counter = 0xfU, .frequency = 10U}, { 0 }, { 0 }}},  \
 
 #define HYUNDAI_CANFD_ALT_BUTTONS_RX_CHECKS(pt_bus)                                                                 \
   HYUNDAI_CANFD_COMMON_RX_CHECKS(pt_bus)                                                                            \
@@ -182,21 +184,21 @@ static bool hyundai_canfd_tx_hook(const CANPacket_t *to_send) {
   }
 
   // cruise buttons check
-  if (addr == 0x1cf) {
-    int button = GET_BYTE(to_send, 2) & 0x7U;
-    bool is_cancel = (button == HYUNDAI_BTN_CANCEL);
-    bool is_resume = (button == HYUNDAI_BTN_RESUME);
-    bool is_set = (button == HYUNDAI_BTN_SET);
-    bool is_gap = (button == HYUNDAI_BTN_GAP);
+  // if (addr == 0x1cf) {
+  //   int button = GET_BYTE(to_send, 2) & 0x7U;
+  //   bool is_cancel = (button == HYUNDAI_BTN_CANCEL);
+  //   bool is_resume = (button == HYUNDAI_BTN_RESUME);
+  //   bool is_set = (button == HYUNDAI_BTN_SET);
+  //   bool is_gap = (button == HYUNDAI_BTN_GAP);
 
-    bool r_pad = GET_BIT(to_send, 25U);
-    bool l_pad = GET_BIT(to_send, 27U);
+  //   bool r_pad = GET_BIT(to_send, 25U);
+  //   bool l_pad = GET_BIT(to_send, 27U);
 
-    bool allowed = (is_cancel && cruise_engaged_prev) || ((is_resume || is_set || is_gap || r_pad || l_pad) && controls_allowed);
-    if (!allowed) {
-      tx = false;
-    }
-  }
+  //   bool allowed = (is_cancel && cruise_engaged_prev) || ((is_resume || is_set || is_gap || r_pad || l_pad) && controls_allowed);
+  //   if (!allowed) {
+  //     tx = false;
+  //   }
+  // }
 
   // UDS: only tester present ("\x02\x3E\x80\x00\x00\x00\x00\x00") allowed on diagnostics address
   if (((addr == 0x730) && hyundai_canfd_lka_steering) || ((addr == 0x7D0) && !hyundai_camera_scc)) {
