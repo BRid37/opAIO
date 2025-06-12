@@ -38,8 +38,6 @@
 #define HYUNDAI_CANFD_STD_BUTTONS_RX_CHECKS(pt_bus)                                                                                            \
   HYUNDAI_CANFD_COMMON_RX_CHECKS(pt_bus)                                                                                                       \
   {.msg = {{0x1cf, (pt_bus), 8, .ignore_checksum = true, .max_counter = 0xfU, .ignore_quality_flag = true, .frequency = 50U}, { 0 }, { 0 }}},  \
-  {.msg = {{0x2af, (pt_bus), 8, .ignore_checksum = true, .max_counter = 0xfU, .ignore_quality_flag = true, .frequency = 10U}, { 0 }, { 0 }}},  \
-  {.msg = {{0x208, (pt_bus), 16, .ignore_checksum = true, .max_counter = 0xffU, .ignore_quality_flag = true, .frequency = 5U}, { 0 }, { 0 }}}, \
 
 #define HYUNDAI_CANFD_ALT_BUTTONS_RX_CHECKS(pt_bus)                                                                                              \
   HYUNDAI_CANFD_COMMON_RX_CHECKS(pt_bus)                                                                                                         \
