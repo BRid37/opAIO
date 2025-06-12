@@ -6,6 +6,7 @@
 #define HYUNDAI_CANFD_CRUISE_BUTTON_TX_MSGS(bus) \
   {0x1CF, bus, 8, .check_relay = false},  /* CRUISE_BUTTON */   \
   {0x2AF, bus, 8, .check_relay = false},  /* STEERING_WHEEL */  \
+  {0x208, bus, 16, .check_relay = false}, /* STEERING_WHEEL2 */ \
 
 #define HYUNDAI_CANFD_LKA_STEERING_COMMON_TX_MSGS(a_can, e_can) \
   HYUNDAI_CANFD_CRUISE_BUTTON_TX_MSGS(e_can)                        \
@@ -38,6 +39,7 @@
   HYUNDAI_CANFD_COMMON_RX_CHECKS(pt_bus)                                                                                                       \
   {.msg = {{0x1cf, (pt_bus), 8, .ignore_checksum = true, .max_counter = 0xfU, .ignore_quality_flag = true, .frequency = 50U}, { 0 }, { 0 }}},  \
   {.msg = {{0x2af, (pt_bus), 8, .ignore_checksum = true, .max_counter = 0xfU, .ignore_quality_flag = true, .frequency = 10U}, { 0 }, { 0 }}},  \
+  {.msg = {{0x208, (pt_bus), 16, .ignore_checksum = true, .max_counter = 0xffU, .ignore_quality_flag = true, .frequency = 5U}, { 0 }, { 0 }}}, \
 
 #define HYUNDAI_CANFD_ALT_BUTTONS_RX_CHECKS(pt_bus)                                                                                              \
   HYUNDAI_CANFD_COMMON_RX_CHECKS(pt_bus)                                                                                                         \

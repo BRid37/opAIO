@@ -60,6 +60,7 @@ class CarState(CarStateBase):
     self.is_metric = False
     self.buttons_counter = 0
     self.wheel_counter = 0
+    self.wheel_counter_alt = 0
 
     self.cruise_info = {}
     self.lfa_info = {}
@@ -893,6 +894,7 @@ class CarState(CarStateBase):
     self.lda_button = cp.vl[self.cruise_btns_msg_canfd]["LDA_BTN"]
     self.buttons_counter = cp.vl[self.cruise_btns_msg_canfd]["COUNTER"]
     self.wheel_counter = cp.vl["STEERING_WHEEL"]["COUNTER"] if self.CP.capacitiveSteeringWheel else -1
+    self.wheel_counter_alt = cp.vl["STEERING_WHEEL_ALT"]["COUNTER"] if self.CP.capacitiveSteeringWheelAlt else -1
     ret.accFaulted = cp.vl["TCS"]["ACCEnable"] != 0  # 0 ACC CONTROL ENABLED, 1-3 ACC CONTROL DISABLED
     ret.cruiseButtons = self.cruise_buttons[-1]
 
@@ -943,6 +945,11 @@ class CarState(CarStateBase):
     if CP.capacitiveSteeringWheel:
       pt_messages += [
         ("STEERING_WHEEL", 10)
+      ]
+
+    if CP.capacitiveSteeringWheelAlt:
+      pt_messages += [
+        ("STEERING_WHEEL_ALT", 5)
       ]
 
     if CP.enableBsm and not CP.adrvControl:

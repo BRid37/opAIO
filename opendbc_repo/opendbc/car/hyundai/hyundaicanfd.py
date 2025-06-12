@@ -327,8 +327,8 @@ def create_steering_wheel(packer, CP, CAN, cnt):
   values = {
     "COUNTER": cnt,
     "WHEEL_TOUCH_LEVEL": 3,
-    "SENSOR_1": 42,
-    "SENSOR_2": 42,
+    "SENSOR_1": 42 if CP.capacitiveSteeringWheel else 30,
+    "SENSOR_2": 42 if CP.capacitiveSteeringWheel else 30,
   }
 
   bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_LKA_STEERING else CAN.CAM

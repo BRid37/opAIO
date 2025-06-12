@@ -656,6 +656,7 @@ struct CarParams {
   evInfo @101 :Bool;
   adrvControl @102 :Bool;
   capacitiveSteeringWheel @103 :Bool;
+  capacitiveSteeringWheelAlt @104 :Bool;
 
   struct SmoothSteerData
   {
