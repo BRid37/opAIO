@@ -1274,10 +1274,10 @@ class CarController(CarControllerBase):
           self.last_button_frame2 = self.frame
           if self.CP.capacitiveSteeringWheel:
             for _ in range(randint(15,20) if not blinker else randint(1,2)):
-              can_sends.append(hyundaicanfd.create_steering_wheel(self.packer, self.CP, self.CAN, 0 if (tc := CS.wheel_counter + choices([0,1], self.weights)[0]) == 15 else tc))
+              can_sends.append(hyundaicanfd.create_steering_wheel(self.packer, self.CP, self.CAN, 0 if (tc := CS.wheel_counter + choices([0,1], self.weights)[0]) >= 15 else tc))
           elif self.CP.capacitiveSteeringWheelAlt:
             for _ in range(randint(8,10) if not blinker else 1):
-              can_sends.append(hyundaicanfd.create_steering_wheel(self.packer, self.CP, self.CAN, 0 if (tc := CS.wheel_counter_alt + choices([0,1], self.weights)[0]) == 255 else tc))
+              can_sends.append(hyundaicanfd.create_steering_wheel(self.packer, self.CP, self.CAN, 0 if (tc := CS.wheel_counter_alt + choices([0,2], self.weights)[0]) >= 255 else tc))
         elif blinker:
           self.refresh_time3 = randint(4, 6) * 0.1
         else:
