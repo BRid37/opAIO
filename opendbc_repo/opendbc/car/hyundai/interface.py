@@ -67,7 +67,6 @@ class CarInterface(CarInterfaceBase):
       ret.isAngleControl = 0xcb in fingerprint[CAN.ECAN] or 0xcb in fingerprint[CAN.ACAN] or 0xcb in fingerprint[cam_can]
       ret.adrvControl = (not lka_steering) and (0x1ea in fingerprint[cam_can])
       ret.capacitiveSteeringWheel = 0x2af in fingerprint[CAN.ECAN] or 0x2af in fingerprint[CAN.ACAN] or 0x2af in fingerprint[cam_can]
-      ret.capacitiveSteeringWheelAlt = 0x208 in fingerprint[CAN.ECAN] or 0x208 in fingerprint[CAN.ACAN] or 0x208 in fingerprint[cam_can]
 
       # Check if the car is hybrid. Only HEV/PHEV cars have 0xFA on E-CAN.
       if 0xFA in fingerprint[CAN.ECAN]:
@@ -144,7 +143,6 @@ class CarInterface(CarInterfaceBase):
       ret.evInfo = 1291 in fingerprint[0]
       ret.adrvControl = False
       ret.capacitiveSteeringWheel = False
-      ret.capacitiveSteeringWheelAlt = False
 
       # Send LFA message on cars with HDA
       if 0x485 in fingerprint[2]:

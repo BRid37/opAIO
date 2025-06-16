@@ -60,7 +60,6 @@ class CarState(CarStateBase):
     self.is_metric = False
     self.buttons_counter = 0
     self.wheel_counter = 0
-    self.wheel_counter_alt = 0
 
     self.cruise_info = {}
     self.lfa_info = {}
@@ -695,8 +694,9 @@ class CarState(CarStateBase):
     if self.CP.brakeAvailable:
       ret.brakeLights = bool(cp.vl["BRAKE"]["BRAKE_LIGHT"])
 
-    ret.doorOpen = cp.vl["DOORS_SEATBELTS"]["DRIVER_DOOR"] == 1
-    ret.seatbeltUnlatched = cp.vl["DOORS_SEATBELTS"]["DRIVER_SEATBELT"] == 0
+    if self.CP.carFingerprint not in (CAR.KIA_EV3,):
+      ret.doorOpen = cp.vl["DOORS_SEATBELTS"]["DRIVER_DOOR"] == 1
+      ret.seatbeltUnlatched = cp.vl["DOORS_SEATBELTS"]["DRIVER_SEATBELT"] == 0
 
     gear = cp.vl[self.gear_msg_canfd]["GEAR"]
     ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(gear))
@@ -740,10 +740,11 @@ class CarState(CarStateBase):
 
     # TODO: alt signal usage may be described by cp.vl['BLINKERS']['USE_ALT_LAMP']
     left_blinker_sig, right_blinker_sig = "LEFT_LAMP", "RIGHT_LAMP"
-    if self.CP.carFingerprint in (CAR.HYUNDAI_KONA_EV_2ND_GEN, CAR.HYUNDAI_IONIQ_5_PE, CAR.KIA_EV9, CAR.KIA_EV6_2025, CAR.GENESIS_GV70_1ST_GEN_PE, CAR.KIA_EV3):
+    if self.CP.carFingerprint in (CAR.HYUNDAI_KONA_EV_2ND_GEN, CAR.HYUNDAI_IONIQ_5_PE, CAR.KIA_EV9, CAR.KIA_EV6_2025, CAR.GENESIS_GV70_1ST_GEN_PE):
       left_blinker_sig, right_blinker_sig = "LEFT_LAMP_ALT", "RIGHT_LAMP_ALT"
-    ret.leftBlinker, ret.rightBlinker = self.update_blinker_from_lamp(50, cp.vl["BLINKERS"][left_blinker_sig],
-                                                                      cp.vl["BLINKERS"][right_blinker_sig])
+    if self.CP.carFingerprint not in (CAR.KIA_EV3,):
+      ret.leftBlinker, ret.rightBlinker = self.update_blinker_from_lamp(50, cp.vl["BLINKERS"][left_blinker_sig],
+                                                                        cp.vl["BLINKERS"][right_blinker_sig])
     if self.CP.enableBsm and not self.CP.adrvControl:
       if self.CP.isAngleControl:
         ret.leftBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["FL_INDICATOR_ALT"] != 0
@@ -894,7 +895,6 @@ class CarState(CarStateBase):
     self.lda_button = cp.vl[self.cruise_btns_msg_canfd]["LDA_BTN"]
     self.buttons_counter = cp.vl[self.cruise_btns_msg_canfd]["COUNTER"]
     self.wheel_counter = cp.vl["STEERING_WHEEL"]["COUNTER"] if self.CP.capacitiveSteeringWheel else -1
-    self.wheel_counter_alt = cp.vl["STEERING_WHEEL_ALT"]["COUNTER"] if self.CP.capacitiveSteeringWheelAlt else -1
     ret.accFaulted = cp.vl["TCS"]["ACCEnable"] != 0  # 0 ACC CONTROL ENABLED, 1-3 ACC CONTROL DISABLED
     ret.cruiseButtons = self.cruise_buttons[-1]
 
@@ -947,11 +947,6 @@ class CarState(CarStateBase):
         ("STEERING_WHEEL", 10)
       ]
 
-    if CP.capacitiveSteeringWheelAlt:
-      pt_messages += [
-        ("STEERING_WHEEL_ALT", 5)
-      ]
-
     if CP.enableBsm and not CP.adrvControl:
       pt_messages += [
         ("BLINDSPOTS_REAR_CORNERS", 20),
@@ -980,6 +975,16 @@ class CarState(CarStateBase):
     if CP.autoHoldAvailable:
       pt_messages += [
         ("ESP_STATUS", 100),
+      ]
+
+    if CP.carFingerprint in (CAR.KIA_EV3,):
+      pt_messages -= [
+        ("BLINKERS", 4),
+        ("DOORS_SEATBELTS", 4),
+        ("ACCELERATOR", 100),
+      ]
+      pt_messages += [
+        ("ACCELERATOR", 50),
       ]
 
     cam_messages = []
