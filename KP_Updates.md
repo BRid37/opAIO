@@ -1,6 +1,6 @@
 KisaPilot Version 0.9.10
 ========================
-* Up to __nightly(2025-06-16)
+* Up to __nightly(2025-06-15)
 * Filet o Fish model, AGNOS 12.4
 * Wheel touch mod on car stock
 
