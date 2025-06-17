@@ -978,11 +978,10 @@ class CarState(CarStateBase):
       ]
 
     if CP.carFingerprint in (CAR.KIA_EV3,):
-      pt_messages -= [
-        ("BLINKERS", 4),
-        ("DOORS_SEATBELTS", 4),
-        ("ACCELERATOR", 100),
-      ]
+      pt_messages.remove(("BLINKERS", 4))
+      pt_messages.remove(("DOORS_SEATBELTS", 4))
+      pt_messages.remove(("ACCELERATOR", 100))
+
       pt_messages += [
         ("ACCELERATOR", 50),
       ]
