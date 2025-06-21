@@ -67,6 +67,7 @@ class CarState(CarStateBase):
     self.ccnc_161 = {}
     self.ccnc_162 = {}
     self.adrv_1ea = {}
+    self.adrv_160 = {}
 
     # On some cars, CLU15->CF_Clu_VehicleSpeed can oscillate faster than the dash updates. Sample at 5 Hz
     self.cluster_speed = 0
@@ -800,6 +801,7 @@ class CarState(CarStateBase):
         self.ccnc_161 = copy.copy(cp_cruise_info.vl["CCNC_0x161"])
         self.ccnc_162 = copy.copy(cp_cruise_info.vl["CCNC_0x161"])
         self.adrv_1ea = copy.copy(cp_cruise_info.vl["ADRV_0x1ea"])
+        self.adrv_160 = copy.copy(cp_cruise_info.vl["ADRV_0x160"])
       if self.lfa_button_eng:
         if self.lfa_buttons[-1]:
           self.prev_lfa_btn_timer = 2
@@ -1010,6 +1012,7 @@ class CarState(CarStateBase):
         ("CCNC_0x161", 20),
         ("CCNC_0x162", 20),
         ("ADRV_0x1ea", 20),
+        ("ADRV_0x160", 20),
       ]
 
     return {
