@@ -195,6 +195,7 @@ typedef struct UIScene {
   int timemod_hours;
   int timemod_minutes;
   float live_lat_delay;
+  int road_spdlimit_offset;
 
   QString model_name;
   QString branch_name;

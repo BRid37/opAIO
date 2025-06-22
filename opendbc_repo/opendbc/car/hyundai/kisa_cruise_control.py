@@ -109,6 +109,7 @@ class KisaCruiseControl():
     self.gap_by_spd_gap4 = False
     self.gap_by_spd_on_sw = False
 
+    self.cruise_road_limitspd_offset = int(self.params.get("CruiseSetwithRoadLimitSpeedOffset", encoding="utf8"))
 
   def button_status(self, CS):
     if not CS.cruise_active or CS.cruise_buttons[-1] != Buttons.NONE: 
@@ -616,6 +617,8 @@ class KisaCruiseControl():
       pass
     elif CS.cruise_active:
       cruiseState_speed = round(self.sm['carState'].vCruise)
+      if not CS.out.cruiseState.enabled and self.sm['liveENaviData'].roadLimitSpeed > 21:
+        cruiseState_speed = self.sm['liveENaviData'].roadLimitSpeed + self.cruise_road_limitspd_offset
       if CS.CP.carFingerprint in CANFD_CAR:
         self.ctrl_gap = self.get_live_gap(CS, spd_gap_on) # gap
       kph_set_vEgo = self.get_navi_speed(self.sm, CS, cruiseState_speed) # camspeed

@@ -1063,7 +1063,14 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   }
 
   // Draw "MAX" text and set speed
-  QString setSpeedStr = (is_cruise_set && set_speed != 255) ? QString::number(std::nearbyint(set_speed)) : "-";
+  QString setSpeedStr = (set_speed < 254 && set_speed > 0) ? QString::number(std::nearbyint(set_speed)) : "-";
+  if (!s->scene.enabled) {
+    if (s->scene.liveENaviData.ekisaroadlimitspeed > 21) {
+      setSpeedStr = QString::number(s->scene.liveENaviData.ekisaroadlimitspeed + s->scene.road_spdlimit_offset);
+    } else if (s->scene.liveENaviData.ewazeroadspeedlimit> 19) {
+      setSpeedStr = QString::number(s->scene.liveENaviData.ewazeroadspeedlimit);
+    }
+  }
   p.setFont(InterFont(70, QFont::Bold));
   p.setPen(whiteColor(200));
   p.drawText(set_speed_rect.adjusted(0, 10, 0, 0), Qt::AlignTop | Qt::AlignHCenter, s->scene.ctrl_speed > 1?QString::number(s->scene.ctrl_speed, 'f', 0):setSpeedStr);

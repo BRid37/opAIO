@@ -398,6 +398,7 @@ void UIState::updateStatus() {
     scene.lfa_button_eng = params.getBool("LFAButtonEngagement");
     scene.timemod_hours = std::stoi(params.get("TimeFactorModHours"));
     scene.timemod_minutes = std::stoi(params.get("TimeFactorModMinutes"));
+    scene.road_spdlimit_offset = std::stoi(params.get("CruiseSetwithRoadLimitSpeedOffset"));
 
     if (scene.autoScreenOff > 0) {
       scene.nTime = scene.autoScreenOff * 60 * UI_FREQ;
