@@ -903,6 +903,9 @@ class CarState(CarStateBase):
     if self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING:
       self.lfa_block_msg = copy.copy(cp_cam.vl["CAM_0x362"] if self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING_ALT
                                           else cp_cam.vl["CAM_0x2a4"])
+      msg_type = cp_cam.vl["CAM_0x362"] if self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING_ALT else cp_cam.vl["CAM_0x2a4"]
+      ret.leftLaneColor = msg_type["LEFT_LANE_COLOR"]
+      ret.rightLaneColor = msg_type["RIGHT_LANE_COLOR"]
 
     if self.lfa_button_eng:
       ret.buttonEvents = [*create_button_events(self.cruise_buttons[-1], prev_cruise_buttons, BUTTONS_DICT),

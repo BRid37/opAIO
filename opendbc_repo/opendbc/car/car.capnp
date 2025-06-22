@@ -257,6 +257,8 @@ struct CarState {
   chargeMeter @76 :Float32;
   brakeLights @77 :Bool;
   pauseSpdLimit @78 :Bool;
+  leftLaneColor @79 :Int8;
+  rightLaneColor @80 :Int8;
 
   struct TPMS {
     unit @0 :Int8;
