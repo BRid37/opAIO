@@ -335,8 +335,7 @@ class Updater:
       set_offroad_alert(alert, False)
 
     now = datetime.datetime.utcnow()
-    if frogpilot_toggles.offline_mode:
-      last_update = now
+    last_update = now
     dt = now - last_update
     build_metadata = get_build_metadata()
     if failed_count > 15 and exception is not None and self.has_internet:
@@ -485,10 +484,6 @@ def main() -> None:
           params.put("InstallDate", datetime.datetime.now().astimezone(ZoneInfo('America/Phoenix')).strftime("%B %d, %Y - %I:%M%p").encode('utf8'))
           install_date_set = True
 
-        if not (frogpilot_toggles.automatic_updates or manual_update_requested):
-          wait_helper.sleep(60*60*24*365*100)
-          continue
-
         update_failed_count += 1
 
         # check for update
@@ -499,13 +494,14 @@ def main() -> None:
         last_fetch = read_time_from_param(params, "UpdaterLastFetchTime")
         timed_out = last_fetch is None or (datetime.datetime.utcnow() - last_fetch > datetime.timedelta(days=3))
         user_requested_fetch = wait_helper.user_request == UserRequest.FETCH
-        if params.get_bool("NetworkMetered") and not timed_out and not user_requested_fetch:
-          cloudlog.info("skipping fetch, connection metered")
-        elif wait_helper.user_request == UserRequest.CHECK:
-          cloudlog.info("skipping fetch, only checking")
-        else:
-          updater.fetch_update(manual_update_requested, frogpilot_toggles)
-          write_time_to_param(params, "UpdaterLastFetchTime")
+        if manual_update_requested or frogpilot_toggles.automatic_updates:
+          if params.get_bool("NetworkMetered") and not timed_out and not user_requested_fetch:
+            cloudlog.info("skipping fetch, connection metered")
+          elif wait_helper.user_request == UserRequest.CHECK:
+            cloudlog.info("skipping fetch, only checking")
+          else:
+            updater.fetch_update(manual_update_requested, frogpilot_toggles)
+            write_time_to_param(params, "UpdaterLastFetchTime")
         update_failed_count = 0
       except subprocess.CalledProcessError as e:
         cloudlog.event(

@@ -37,16 +37,22 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
     if (id == 0) {
       params_memory.putBool("ForceOffroad", true);
       params_memory.putBool("ForceOnroad", false);
+
+      updateFrogPilotToggles();
     } else if (id == 1) {
       params_memory.putBool("ForceOffroad", false);
       params_memory.putBool("ForceOnroad", true);
+
+      updateFrogPilotToggles();
 
       util::sleep_for(1000);
 
       params.put("CarParams", params.get("CarParamsPersistent"));
     } else if (id == 2) {
-      params_memory.remove("ForceOffroad");
-      params_memory.remove("ForceOnroad");
+      params_memory.putBool("ForceOffroad", false);
+      params_memory.putBool("ForceOnroad", false);
+
+      updateFrogPilotToggles();
     }
   });
   forceStartedBtn->setCheckedButton(2);
