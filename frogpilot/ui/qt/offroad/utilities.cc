@@ -37,16 +37,22 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
     if (id == 0) {
       params_memory.putBool("ForceOffroad", true);
       params_memory.putBool("ForceOnroad", false);
+
+      updateFrogPilotToggles();
     } else if (id == 1) {
       params_memory.putBool("ForceOffroad", false);
       params_memory.putBool("ForceOnroad", true);
+
+      updateFrogPilotToggles();
 
       util::sleep_for(1000);
 
       params.put("CarParams", params.get("CarParamsPersistent"));
     } else if (id == 2) {
-      params_memory.remove("ForceOffroad");
-      params_memory.remove("ForceOnroad");
+      params_memory.putBool("ForceOffroad", false);
+      params_memory.putBool("ForceOnroad", false);
+
+      updateFrogPilotToggles();
     }
   });
   forceStartedBtn->setCheckedButton(2);
@@ -109,4 +115,29 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
     }
   });
   addItem(resetTogglesBtn);
+
+  ButtonControl *resetTogglesBtnStock = new ButtonControl(tr("Reset Toggles to Match Stock openpilot"), tr("RESET"), tr("Reset all toggles to match stock openpilot."));
+  QObject::connect(resetTogglesBtnStock, &ButtonControl::clicked, [this, parent, resetTogglesBtnStock]() {
+    if (ConfirmationDialog::confirm(tr("Are you sure you want to reset all toggles to match stock openpilot?"), tr("Reset"), this)) {
+      std::thread([this, parent, resetTogglesBtnStock]() mutable {
+        parent->keepScreenOn = true;
+
+        resetTogglesBtnStock->setEnabled(false);
+        resetTogglesBtnStock->setValue(tr("Resetting..."));
+
+        params.putBool("DoToggleResetStock", true);
+
+        resetTogglesBtnStock->setValue(tr("Reset!"));
+
+        util::sleep_for(2500);
+
+        resetTogglesBtnStock->setValue(tr("Rebooting..."));
+
+        util::sleep_for(2500);
+
+        Hardware::reboot();
+      }).detach();
+    }
+  });
+  addItem(resetTogglesBtnStock);
 }

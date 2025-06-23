@@ -119,6 +119,7 @@ void AnnotatedCameraWidget::updateState(const UIState &s, const FrogPilotUIState
     distance_btn->move(rightHandDM ? width() - UI_BORDER_SIZE - distance_btn->width() - (UI_BORDER_SIZE / 2) : UI_BORDER_SIZE, frogpilot_nvg->dmIconPosition.y() - distance_btn->height() / 2);
     distance_btn->updateState(s.scene, fs.frogpilot_scene);
   }
+  experimental_btn->setVisible(!frogpilot_nvg->bigMapOpen);
   screen_recorder->setVisible(frogpilot_nvg->standstillDuration == 0 && !fs.frogpilot_scene.map_open && !(frogpilot_nvg->signalStyle == "static" && car_state.getRightBlinker()) && frogpilot_toggles.value("screen_recorder").toBool());
 
   frogpilot_nvg->updateState(fs, frogpilot_toggles);

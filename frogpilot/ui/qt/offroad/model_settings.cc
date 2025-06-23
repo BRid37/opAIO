@@ -200,7 +200,7 @@ FrogPilotModelPanel::FrogPilotModelPanel(FrogPilotSettingsWindow *parent) : Frog
             selectableModels.append(modelName);
           }
         }
-        selectableModels.append(modelFileToNameMap.value("kerrygold"));
+        selectableModels.append(modelFileToNameMap.value("tomb-raider"));
         selectableModels.sort();
         selectableModels.prepend(modelFileToNameMap.value(QString::fromStdString(params_default.get("Model"))));
 
@@ -272,8 +272,8 @@ void FrogPilotModelPanel::showEvent(QShowEvent *event) {
     modelFileToNameMapProcessed.insert(availableModels[i], processModelName(availableModelNames[i]));
   }
 
-  modelFileToNameMap.insert("kerrygold", "Kerrygold 👀📡");
-  modelFileToNameMapProcessed.insert("kerrygold", "Kerrygold");
+  modelFileToNameMap.insert("tomb-raider", "Tomb Raider 👀📡");
+  modelFileToNameMapProcessed.insert("tomb-raider", "Tomb Raider");
 
   downloadableModels.clear();
   downloadableModels = availableModelNames;

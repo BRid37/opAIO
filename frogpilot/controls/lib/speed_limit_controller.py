@@ -12,12 +12,11 @@ from datetime import datetime
 import openpilot.system.sentry as sentry
 
 from openpilot.common.conversions import Conversions as CV
-from openpilot.common.params import Params
 from openpilot.common.realtime import DT_MDL
 from openpilot.common.time import system_time_valid
 
 from openpilot.frogpilot.common.frogpilot_utilities import calculate_bearing_offset, calculate_distance_to_point, is_url_pingable
-from openpilot.frogpilot.common.frogpilot_variables import params, params_memory
+from openpilot.frogpilot.common.frogpilot_variables import params, params_cache, params_memory
 
 FREE_MAPBOX_REQUESTS = 100_000
 
@@ -47,7 +46,7 @@ class SpeedLimitController:
     self.mapbox_requests.setdefault("max_requests", FREE_MAPBOX_REQUESTS - (28 * 100))
 
     self.mapbox_host = "https://api.mapbox.com"
-    self.mapbox_token = Params("/cache/params").get("MapboxSecretKey", encoding="utf8")
+    self.mapbox_token = params_cache.get("MapboxSecretKey", encoding="utf8")
 
     self.previous_target = params.get_float("PreviousSpeedLimit")
 
@@ -190,7 +189,7 @@ class SpeedLimitController:
   def handle_limit_change(self, desired_source, desired_target, sm):
     self.speed_limit_changed_timer += DT_MDL
 
-    speed_limit_accepted = (sm["frogpilotCarState"].accelPressed and sm["carControl"].enabled) or params_memory.get_bool("SpeedLimitAccepted")
+    speed_limit_accepted = (sm["frogpilotCarState"].accelPressed and not sm["carControl"].cruiseControl.override) or params_memory.get_bool("SpeedLimitAccepted")
     speed_limit_denied = sm["frogpilotCarState"].decelPressed or (self.speed_limit_changed_timer >= 30)
 
     if speed_limit_accepted:
@@ -227,8 +226,7 @@ class SpeedLimitController:
 
       params.put_float_nonblocking("PreviousSpeedLimit", self.target)
 
-
-  def update_limits(self, dashboard_speed_limit, gps_position, navigation_speed_limit, v_cruise, v_ego, sm):
+  def update_limits(self, dashboard_speed_limit, gps_position, navigation_speed_limit, v_cruise, v_cruise_cluster, v_ego, sm):
     self.update_map_speed_limit(gps_position, v_ego)
 
     limits = {
@@ -282,7 +280,7 @@ class SpeedLimitController:
 
         elif sm["controlsState"].enabled and self.frogpilot_toggles.slc_fallback_set_speed:
           desired_source = "None"
-          desired_target = v_cruise
+          desired_target = v_cruise_cluster
     else:
       self.mapbox_limit = 0
       self.segment_distance = 0
@@ -295,7 +293,7 @@ class SpeedLimitController:
       self.speed_limit_changed_timer = 0
       self.unconfirmed_speed_limit = 0
 
-  def update_override(self, v_cruise, v_ego, sm):
+  def update_override(self, v_cruise, v_cruise_cluster, v_ego, sm):
     self.override_slc = self.overridden_speed > self.target + self.offset > 0
     self.override_slc |= sm["carState"].gasPressed and v_ego > self.target + self.offset > 0
     self.override_slc &= sm["controlsState"].enabled
@@ -303,10 +301,10 @@ class SpeedLimitController:
     if self.override_slc:
       if self.frogpilot_toggles.speed_limit_controller_override_manual:
         if sm["carState"].gasPressed:
-          self.overridden_speed = max(v_ego, self.overridden_speed)
-        self.overridden_speed = float(np.clip(self.overridden_speed, self.target + self.offset, v_cruise))
+          self.overridden_speed = max(sm["carState"].vEgoCluster, self.overridden_speed)
+        self.overridden_speed = float(np.clip(self.overridden_speed, self.target + self.offset, v_cruise_cluster))
       elif self.frogpilot_toggles.speed_limit_controller_override_set_speed:
-        self.overridden_speed = v_cruise
+        self.overridden_speed = v_cruise_cluster
 
       self.source = "None"
     else:
