@@ -82,7 +82,7 @@ class FrogPilotEvents:
     else:
       self.tracking_lead_distance = 0
 
-    if not self.nnff_played and self.startup_seen and sm["controlsState"].alertText1 == "" and len(self.events) == 0 and params.get("NNFFModelName", encoding="utf-8") is not None:
+    if not self.nnff_played and self.startup_seen and sm["controlsState"].alertText1 == "" and len(self.events) == 0 and params.get("NNFFModelName", encoding="utf-8") is not None and frogpilot_toggles.nnff:
       self.events.add(EventName.torqueNNLoad)
 
       self.nnff_played = True
@@ -187,7 +187,7 @@ class FrogPilotEvents:
 
           self.random_event_playing = True
 
-      if not self.vCruise69_played and 70 > max(sm["controlsState"].vCruise, sm["controlsState"].vCruiseCluster) * (1 if frogpilot_toggles.is_metric else CV.KPH_TO_MPH) >= 69:
+      if not self.vCruise69_played and 70 > v_cruise * (CV.MS_TO_KPH if frogpilot_toggles.is_metric else CV.MS_TO_MPH) >= 69:
         self.events.add(EventName.vCruise69)
 
         self.vCruise69_played = True

@@ -133,6 +133,14 @@ void SoftwarePanel::showEvent(QShowEvent *event) {
   installBtn->setEnabled(true);
 
   updateLabels();
+
+  // FrogPilot variables
+  FrogPilotUIState &fs = *frogpilotUIState();
+  FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
+
+  if (frogpilot_scene.online && params.get("UpdaterState") == "idle") {
+    checkForUpdates();
+  }
 }
 
 void SoftwarePanel::updateLabels() {
