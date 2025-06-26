@@ -131,9 +131,21 @@ function launch {
   # KisaPilot Model check
   Model_P=$(stat --printf=%s /data/openpilot/selfdrive/modeld/models/driving_policy.onnx)
   Model_V=$(stat --printf=%s /data/openpilot/selfdrive/modeld/models/driving_vision.onnx)
-  # Model_P_Hash=$(md5sum /data/openpilot/selfdrive/modeld/models/driving_policy.onnx | awk '{print $1}')
-  # Model_V_Hash=$(md5sum /data/openpilot/selfdrive/modeld/models/driving_vision.onnx | awk '{print $1}')
-  MODEL_NAME=$(awk -v p="$Model_P" -v v="$Model_V" '$1==p && $2==v {print $3}' /data/openpilot/selfdrive/assets/addon/model/ModelList)
+  Model_P_Hash=$(md5sum /data/openpilot/selfdrive/modeld/models/driving_policy.onnx | awk '{print $1}')
+  Model_V_Hash=$(md5sum /data/openpilot/selfdrive/modeld/models/driving_vision.onnx | awk '{print $1}')
+  MODEL_NAME=$(awk -v p="$Model_P" -v v="$Model_V" -v ph="$Model_P_Hash" -v vh="$Model_V_Hash" '
+    $1 == p && $2 == v && $4 == ph && $5 == vh {
+      print $3;
+    }
+  ' /data/openpilot/selfdrive/assets/addon/model/ModelList)
+
+  if [ -z "$MODEL_NAME" ]; then
+    MODEL_NAME=$(awk -v p="$Model_P" -v v="$Model_V" '
+      $1 == p && $2 == v {
+        print $3;
+      }
+    ' /data/openpilot/selfdrive/assets/addon/model/ModelList)
+  fi
   if [ -z "$MODEL_NAME" ]; then MODEL_NAME=$(head -n 1 /data/openpilot/selfdrive/assets/addon/model/ModelList | awk '{print $3}'); fi
   echo -en "$MODEL_NAME" > /data/params/d/DrivingModel
 
