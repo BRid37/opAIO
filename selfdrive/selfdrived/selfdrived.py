@@ -329,6 +329,9 @@ class SelfdriveD:
         self.donotdisturb_mode_alert_prev = True
       self.second = 0.0
 
+      if self.sm['controlsState'].standStillTimer != 0 and self.sm['controlsState'].standStillTimer % 60 == 0:
+        self.events.add(EventName.ticktock)
+
     # Handle HW and system malfunctions
     # Order is very intentional here. Be careful when modifying this.
     # All events here should at least have NO_ENTRY and SOFT_DISABLE.

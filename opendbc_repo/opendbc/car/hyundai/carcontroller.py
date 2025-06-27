@@ -232,6 +232,8 @@ class CarController(CarControllerBase):
     self.e2e_standstill_timer = 0
     self.e2e_standstill_timer2 = 0
     self.e2e_standstill_timer_buf = 0
+    self.standstill_manual_start = False
+    self.standstill_manual_start_cnt = 0
 
     self.alpha_long_enabled = self.c_params.get_bool("AlphaLongitudinalEnabled")
     self.experimental_mode = self.c_params.get_bool("ExperimentalMode")
@@ -476,10 +478,13 @@ class CarController(CarControllerBase):
     new_actuators.driverSccSetControl = self.driver_scc_set_control #bool
     new_actuators.autoholdPopupTimer = self.autohold_popup_timer #int
     new_actuators.autoResStarting = self.auto_res_starting #bool
-    new_actuators.e2eStandstill = self.e2e_standstill #bool
+    new_actuators.e2eStandstill = self.e2e_standstill or self.standstill_manual_start #bool
     new_actuators.modeChangeTimer = self.mode_change_timer #int
     new_actuators.lkasTempDisabledTimer = self.lkas_temp_disabled_timer #int
     new_actuators.standStill = True if CS.out.cruiseState.standstill or (self.standstill_status or self.standstill_status_canfd) else False
+
+    if self.standstill_manual_start:
+      self.standstill_manual_start = False
 
     self.frame += 1
     return new_actuators, can_sends
@@ -1078,12 +1083,16 @@ class CarController(CarControllerBase):
           self.acc_activated = True
           self.standstill_status_canfd = False
         resume_on = CS.out.cruiseState.standstill and abs(CS.lead_distance - self.last_lead_distance) >= 0.1 and self.standstill_status_canfd
-        standstill = CS.out.cruiseState.standstill and 10.0 > CS.lead_distance > 0 and CS.out.vEgo <= 1
-        if standstill and self.last_lead_distance == 0:
+        standstill = CS.out.cruiseState.standstill and 10.0 > CS.lead_distance > 0 and CS.out.vEgo <= 0.3
+        if standstill and (self.last_lead_distance == 0 or self.last_lead_distance > CS.lead_distance):
           self.last_lead_distance = CS.lead_distance
           self.standstill_status_canfd = True
           self.refresh_time = 0
         elif resume_on:
+          self.standstill_manual_start_cnt += 1
+          if self.standstill_manual_start_cnt > 10:
+            self.standstill_manual_start_cnt = 0
+            self.standstill_manual_start = True
           self.refresh_time = randint(self.nt_interval, self.nt_interval+2) * 0.01
           if self.CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS:
             # TODO: resume for alt button cars
@@ -1182,8 +1191,12 @@ class CarController(CarControllerBase):
           self.btnsignal = 0
           self.pause_time = 0
           self.refresh_count = 0
-        if self.standstill_status_canfd and CS.out.vEgo > 1:
+        if self.standstill_status_canfd and CS.out.vEgo > 0.3:
           self.standstill_status_canfd = False
+          self.standstill_res_button = False
+          self.standstill_manual_start_cnt = 0
+          self.standstill_manual_start = False
+          self.last_lead_distance = 0
       elif (self.frame - self.last_button_frame) * DT_CTRL > self.refresh_time2 and not CS.acc_active:
         self.last_button_frame = self.frame
         if self.acc_activated:
@@ -1202,7 +1215,9 @@ class CarController(CarControllerBase):
           self.refresh_time2 = 0.25
           self.refresh_count = 0
           self.last_lead_distance = 0
-        if self.standstill_status_canfd and CS.out.vEgo > 1:
+          self.standstill_manual_start_cnt = 0
+          self.standstill_manual_start = False
+        if self.standstill_status_canfd and CS.out.vEgo > 0.3:
           self.standstill_status_canfd = False
 
         if not CS.regen_level_auto and (self.regen_stop or self.regen_dist or self.regen_e2e):
@@ -1233,7 +1248,7 @@ class CarController(CarControllerBase):
               self.regen_stop_pre_activated = False
 
         kisa_cruise_auto_res_condition = False
-        kisa_cruise_auto_res_condition = CS.acc_active_standby and (not self.kisa_cruise_auto_res_condition or CS.out.gasPressed)
+        kisa_cruise_auto_res_condition = CS.acc_active_standby and CS.regen_level < 20 and (not self.kisa_cruise_auto_res_condition or CS.out.gasPressed)
         t_speed = 20 if not CS.is_metric else 30
         if self.model_speed > (60 if not CS.is_metric else 95) and self.cancel_counter == 0 and not CS.cruise_active and not CS.out.brakeLights and round(CS.VSetDis) >= t_speed and \
         (1 < CS.lead_distance < 149 or round(CS.clu_Vanz) > t_speed) and round(CS.clu_Vanz) >= 3 and self.cruise_init and \
@@ -1272,7 +1287,7 @@ class CarController(CarControllerBase):
         blinker = CS.out.leftBlinker or CS.out.rightBlinker
         if (self.frame - self.last_button_frame2) * DT_CTRL > self.refresh_time3:
           self.last_button_frame2 = self.frame
-          for _ in range(randint(15,20) if not blinker else randint(1,2)):
+          for _ in range(randint(10,15) if not blinker else randint(1,2)):
             can_sends.append(hyundaicanfd.create_steering_wheel(self.packer, self.CP, self.CAN, 0 if (tc := CS.wheel_counter + choices([0,1], self.weights)[0]) >= 15 else tc))
         elif blinker:
           self.refresh_time3 = randint(4, 6) * 0.1

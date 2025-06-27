@@ -392,7 +392,7 @@ def navi_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, met
     tr(193) if IS_WAZE else tr(95),
     "",
     AlertStatus.normal, AlertSize.small,
-    Priority.LOW, VisualAlert.none, AudibleAlert.wazeAlert, 1.)
+    Priority.LOW, VisualAlert.none, AudibleAlert.wazeAlert if IS_WAZE else AudibleAlert.none, 1.)
 
 
 
@@ -1236,6 +1236,14 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.dingdong, 3.),
+  },
+
+  EventName.ticktock: {
+    ET.WARNING: Alert(
+      "",
+      "",
+      AlertStatus.normal, AlertSize.none,
+      Priority.LOW, VisualAlert.none, AudibleAlert.ticktock, 2.),
   },
 
 }
