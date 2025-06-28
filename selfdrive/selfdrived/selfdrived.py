@@ -330,7 +330,7 @@ class SelfdriveD:
       self.second = 0.0
 
       if self.sm['controlsState'].standStillTimer != 0 and self.sm['controlsState'].standStillTimer % 60 == 0:
-        self.events.add(EventName.ticktock)
+        self.events.add(EventName.dingding)
 
     # Handle HW and system malfunctions
     # Order is very intentional here. Be careful when modifying this.

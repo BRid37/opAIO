@@ -1238,12 +1238,12 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.LOW, VisualAlert.none, AudibleAlert.dingdong, 3.),
   },
 
-  EventName.ticktock: {
+  EventName.dingding: {
     ET.WARNING: Alert(
       "",
       "",
       AlertStatus.normal, AlertSize.none,
-      Priority.LOW, VisualAlert.none, AudibleAlert.ticktock, 2.),
+      Priority.LOW, VisualAlert.none, AudibleAlert.dingding, 2.),
   },
 
 }

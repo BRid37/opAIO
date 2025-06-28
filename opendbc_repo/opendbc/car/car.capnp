@@ -529,7 +529,7 @@ struct CarControl {
       warning @9;
       dingdong @10;
       wazeAlert @11;
-      ticktock @12;
+      dingding @12;
     }
   }
 

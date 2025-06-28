@@ -162,7 +162,7 @@ struct OnroadEvent @0xc4fa6047f024e718 {
     autoHold @124;
     lkasDisabled @125;
     laneChangeFinish @126;
-    ticktock @127;
+    dingding @127;
   }
 }
 
