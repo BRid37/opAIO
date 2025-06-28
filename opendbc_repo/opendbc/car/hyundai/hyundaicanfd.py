@@ -81,9 +81,10 @@ def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque,
     lfa_values["NEW_SIGNAL_3"] = 0
     lfa_values["NEW_SIGNAL_4"] = 1
     lfa_values["NEW_SIGNAL_5"] = 1
-    lfa_values["NEW_SIGNAL_8"] = 2
-    lfa_values["NEW_SIGNAL_9"] = 1
-    lfa_values["NEW_SIGNAL_10"] = 1
+    if CP.adrvControl:
+      lfa_values["NEW_SIGNAL_8"] = 2
+      lfa_values["NEW_SIGNAL_9"] = 1
+      lfa_values["NEW_SIGNAL_10"] = 1
     ret.append(packer.make_can_msg("LFA", CAN.ECAN, lfa_values))
 
     if CP.adrvControl:
