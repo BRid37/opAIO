@@ -336,7 +336,6 @@ def create_ccnc(packer, CAN, frame, ccnc_161, ccnc_162, adrv_1ea):
 
 
 def create_steering_wheel(packer, CP, CAN, cnt):
-  steering_wheel_msg = "STEERING_WHEEL" if CP.capacitiveSteeringWheel else "STEERING_WHEEL_ALT"
   values = {
     "COUNTER": cnt,
     "WHEEL_TOUCH_LEVEL": 3,
@@ -345,4 +344,4 @@ def create_steering_wheel(packer, CP, CAN, cnt):
   }
 
   bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_LKA_STEERING else CAN.CAM
-  return packer.make_can_msg(steering_wheel_msg, bus, values)
+  return packer.make_can_msg("STEERING_WHEEL", bus, values)

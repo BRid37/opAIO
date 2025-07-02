@@ -371,27 +371,22 @@ class CarController(CarControllerBase):
                                                                          MAX_ANGLE_CONSECUTIVE_FRAMES)
       apply_angle = apply_std_steer_angle_limits(actuators.steeringAngleDeg, self.apply_angle_last, CS.out.vEgoRaw, CS.out.steeringAngleDeg, lat_active, CarControllerParams.ANGLE_LIMITS)
       self.apply_angle_now = apply_angle
-      # apply_angle = np.interp(self.model_speed, [50, 80], [CS.stock_str_angle, apply_angle])
-
-      # Figure out torque value.  On Stock when LKAS is active, this is variable,
-      # but 0 when LKAS is not actively steering, so because we're "tricking" ADAS
-      # into thinking LKAS is always active, we need to make sure we're applying
-      # torque when the driver is not actively steering. The default value chosen
-      # here is based on observations of the stock LKAS system when it's engaged
-      # CS.out.steeringPressed and steeringTorque are based on the
-      # STEERING_COL_TORQUE value
 
       lkas_max_torque = CarControllerParams.LKAS_MAX_TORQUE
       if abs(CS.out.steeringTorque) > 200:
-        self.driver_steering_angle_above_timer -= 1
-        if self.driver_steering_angle_above_timer <= 30:
-          self.driver_steering_angle_above_timer = 30
+        angle_above_timer_step = int(np.interp(self.lkas_max_torque, [150, 250], [1, 10]))
+        self.driver_steering_angle_above_timer -= angle_above_timer_step
+        if self.driver_steering_angle_above_timer <= 20:
+          self.driver_steering_angle_above_timer = 20
       else:
-        self.driver_steering_angle_above_timer += 1
+        angle_above_timer_step2 = int(np.interp(self.lkas_max_torque, [30, 250], [10, 1]))
+        self.driver_steering_angle_above_timer += angle_above_timer_step2 if not CS.wheel_touched else +1
         if self.driver_steering_angle_above_timer >= 150:
           self.driver_steering_angle_above_timer = 150
 
-      ego_weight = np.interp(CS.out.vEgo, [0, 5, 10, 20], [0.2, 0.3, 0.5, 1.0])
+      curv_weight = 1.0 if (CS.out.vEgo * CV.MS_TO_KPH < 40 or CS.out.leftBlinker or CS.out.rightBlinker) else np.interp(self.model_speed, [50, 100, 255], [1.5, 1.0, 0.5])
+      ego_weight = min(1.0, np.interp(CS.out.vEgo * CV.MS_TO_KPH, [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100], [0.2, 0.25, 0.32, 0.45, 0.6, 0.7, 0.8, 0.9, 1.0, 1.0, 1.0]))
+      ego_weight = min(1.0, ego_weight * curv_weight)
 
       if 0 <= self.driver_steering_angle_above_timer < 150:
         self.lkas_max_torque = int(round(lkas_max_torque * (self.driver_steering_angle_above_timer / 150) * ego_weight))
@@ -1090,7 +1085,7 @@ class CarController(CarControllerBase):
           self.refresh_time = 0
         elif resume_on:
           self.standstill_manual_start_cnt += 1
-          if self.standstill_manual_start_cnt > 10:
+          if self.standstill_manual_start_cnt > 4:
             self.standstill_manual_start_cnt = 0
             self.standstill_manual_start = True
           self.refresh_time = randint(self.nt_interval, self.nt_interval+2) * 0.01
@@ -1283,14 +1278,14 @@ class CarController(CarControllerBase):
             self.res_speed_timer = 50
             self.refresh_time2 = randint(10,30) * 0.01
 
-      if self.CP.capacitiveSteeringWheel:
+      if self.CP.capacitiveSteeringWheel and self.btnsignal is None:
         blinker = CS.out.leftBlinker or CS.out.rightBlinker
         if (self.frame - self.last_button_frame2) * DT_CTRL > self.refresh_time3:
           self.last_button_frame2 = self.frame
-          for _ in range(randint(10,15) if not blinker else randint(1,2)):
+          for _ in range(randint(5,10) if not blinker else 1):
             can_sends.append(hyundaicanfd.create_steering_wheel(self.packer, self.CP, self.CAN, 0 if (tc := CS.wheel_counter + choices([0,1], self.weights)[0]) >= 15 else tc))
         elif blinker:
-          self.refresh_time3 = randint(4, 6) * 0.1
+          self.refresh_time3 = randint(8,12) * 0.1
         else:
           self.refresh_time3 = randint(8,12)
 

@@ -17,13 +17,23 @@ class CarControllerParams:
   ACCEL_MIN = -3.5 # m/s
   ACCEL_MAX = 2.0 # m/s
 
-  LKAS_MAX_TORQUE = 180   # max 255, seems related to steer movement speed or power
+  LKAS_MAX_TORQUE = 250   # max 255, seems related to steer movement speed or power
   ANGLE_LIMITS: AngleSteeringLimits = AngleSteeringLimits(
     # ToDo, seen changing at 0.2 deg/frame down, 0.1 deg/frame up at 100Hz, testing with IONIQ5_PE 2025(The New IONIQ5)
     #   CANPacker packs wrong angle output to be decoded by panda
     480,  # deg, reasonable limit
-    ([0., 5., 15.], [7.0, 1.12, 0.21]),
-    ([0., 5., 15.], [7.0, 4.9, 0.56]),
+  (
+    [0 * CV.KPH_TO_MS, 5 * CV.KPH_TO_MS, 10 * CV.KPH_TO_MS, 20 * CV.KPH_TO_MS, 30 * CV.KPH_TO_MS,
+     40 * CV.KPH_TO_MS, 50 * CV.KPH_TO_MS, 60 * CV.KPH_TO_MS, 70 * CV.KPH_TO_MS,
+     80 * CV.KPH_TO_MS],
+    [0.1, 2.0, 0.84, 0.48, 0.30, 0.20, 0.17, 0.144, 0.132, 0.12]  # down
+  ),
+  (
+    [0 * CV.KPH_TO_MS, 5 * CV.KPH_TO_MS, 10 * CV.KPH_TO_MS, 20 * CV.KPH_TO_MS, 30 * CV.KPH_TO_MS,
+     40 * CV.KPH_TO_MS, 50 * CV.KPH_TO_MS, 60 * CV.KPH_TO_MS, 70 * CV.KPH_TO_MS,
+     80 * CV.KPH_TO_MS],
+    [0.1, 2.4, 2.0, 1.0, 0.6, 0.4, 0.3, 0.26, 0.24, 0.22]   # up
+  )
   )
 
   def __init__(self, CP):

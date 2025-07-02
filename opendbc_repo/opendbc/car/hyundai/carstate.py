@@ -60,6 +60,7 @@ class CarState(CarStateBase):
     self.is_metric = False
     self.buttons_counter = 0
     self.wheel_counter = 0
+    self.wheel_touched = False
 
     self.cruise_info = {}
     self.lfa_info = {}
@@ -897,7 +898,9 @@ class CarState(CarStateBase):
     self.main_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["ADAPTIVE_CRUISE_MAIN_BTN"])
     self.lda_button = cp.vl[self.cruise_btns_msg_canfd]["LDA_BTN"]
     self.buttons_counter = cp.vl[self.cruise_btns_msg_canfd]["COUNTER"]
-    self.wheel_counter = cp.vl["STEERING_WHEEL"]["COUNTER"] if self.CP.capacitiveSteeringWheel else -1
+    if self.CP.capacitiveSteeringWheel:
+      self.wheel_counter = cp.vl["STEERING_WHEEL"]["COUNTER"]
+      self.wheel_touched = True if cp.vl["STEERING_WHEEL"]["WHEEL_TOUCH_LEVEL"] > 0 else False
     ret.accFaulted = cp.vl["TCS"]["ACCEnable"] != 0  # 0 ACC CONTROL ENABLED, 1-3 ACC CONTROL DISABLED
     ret.cruiseButtons = self.cruise_buttons[-1]
 
