@@ -31,7 +31,6 @@ BO_ 101 BRAKE: 32 XXX
  SG_ COUNTER : 16|8@1+ (1,0) [0|255] "" XXX
  SG_ BRAKE_POSITION : 40|16@1- (1,0) [0|65535] "" XXX
  SG_ BRAKE_PRESSED : 57|1@1+ (1,0) [0|3] "" XXX
- SG_ BRAKE_LIGHT : 29|1@0+ (1,0) [0|1] "" XXX
 
 BO_ 112 GEAR_ALT_2: 32 XXX
  SG_ CHECKSUM : 0|16@1+ (1,0) [0|65535] "" XXX
@@ -323,7 +322,7 @@ BO_ 373 TCS: 24 XXX
  SG_ ACCEnable : 67|2@0+ (1,0) [0|3] "" XXX
  SG_ ACC_REQ : 68|1@0+ (1,0) [0|1] "" XXX
  SG_ NEW_SIGNAL_5 : 72|1@0+ (1,0) [0|1] "" XXX
- SG_ NEW_SIGNAL_2 : 74|1@0+ (1,0) [0|1] "" XXX
+ SG_ BRAKE_LIGHT : 74|1@0+ (1,0) [0|1] "" XXX
  SG_ NEW_SIGNAL_3 : 76|1@0+ (1,0) [0|1] "" XXX
  SG_ NEW_SIGNAL_1 : 80|1@0+ (1,0) [0|1] "" XXX
  SG_ DriverBraking : 81|1@0+ (1,0) [0|1] "" XXX

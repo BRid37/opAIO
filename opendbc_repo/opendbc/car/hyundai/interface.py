@@ -62,7 +62,6 @@ class CarInterface(CarInterfaceBase):
       ret.lfaHdaAvailable = False
       ret.navAvailable = False
       ret.adrvAvailable = (lka_steering and 0x200 in fingerprint[CAN.ECAN]) or 0x200 in fingerprint[cam_can]
-      ret.brakeAvailable = 0x65 in fingerprint[CAN.ECAN]
       ret.tpmsAvailable = 0x3a0 in fingerprint[CAN.ECAN]
       ret.isAngleControl = 0xcb in fingerprint[CAN.ECAN] or 0xcb in fingerprint[CAN.ACAN] or 0xcb in fingerprint[cam_can]
       ret.adrvControl = (not lka_steering) and (0x1ea in fingerprint[cam_can])
