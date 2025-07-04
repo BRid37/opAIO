@@ -74,12 +74,18 @@ def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque,
       lkas_values["NEW_SIGNAL_3"] = 9
     ret.append(packer.make_can_msg(lkas_msg, CAN.ACAN, lkas_values))
   elif CP.isAngleControl: # non-hda2 angle control or adas direct connected.
+    ang_values = {
+      "LKAS_ANGLE_ACTIVE": 2 if lat_active else 1,
+      "LKAS_ANGLE_CMD": apply_angle if lat_active else 0,
+      "LKAS_ANGLE_MAX_TORQUE": max_torque if lat_active else 0,
+    }
+    ret.append(packer.make_can_msg("LFA_ALT", CAN.ECAN, ang_values))
     lfa_values["LKA_MODE"] = 0
     lfa_values["NEW_SIGNAL_1"] = 3 if lat_active else 0
     lfa_values["TORQUE_REQUEST"] = -1024
+    lfa_values["LKA_ASSIST"] = 1
     lfa_values["STEER_REQ"] = 0
     lfa_values["NEW_SIGNAL_3"] = 0
-    lfa_values["NEW_SIGNAL_4"] = 1
     lfa_values["NEW_SIGNAL_5"] = 1
     if CP.adrvControl:
       lfa_values["NEW_SIGNAL_8"] = 2
@@ -95,14 +101,6 @@ def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque,
       if frame % 5 == 0:
         adrv_1ea_values = copy.copy(adrv_1ea)
         ret.append(packer.make_can_msg("ADRV_0x1ea", CAN.ECAN, adrv_1ea_values))
-
-    # stock angle max 119.9
-    ang_values = {
-      "LKAS_ANGLE_ACTIVE": 2 if lat_active else 1,
-      "LKAS_ANGLE_CMD": np.clip(apply_angle, -110, 110) if lat_active else 0,
-      "LKAS_ANGLE_MAX_TORQUE": max_torque if lat_active else 0,
-    }
-    ret.append(packer.make_can_msg("LFA_ALT", CAN.ECAN, ang_values))
   else:
     lfa_values["LKA_MODE"] = 0
     lfa_values["NEW_SIGNAL_1"] = 3 if lat_active else 0
