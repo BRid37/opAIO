@@ -1219,23 +1219,20 @@ class CarController(CarControllerBase):
           if self.regen_stop:
             if CS.regen_level != 20 and not (CS.out.brakePressed or CS.out.gasPressed) and not self.regen_stop_pre_activated:
               self.regen_stop_timer += 1
-              if self.regen_stop_timer > 10:
+              if self.regen_stop_timer > 5:
                 self.regen_stop_timer = 0
                 self.regen_stop_pre_activated = True
-            elif CS.regen_level != 20 and self.regen_stop_pre_activated and not (CS.out.brakePressed or CS.out.gasPressed) and (self.dRel < 10 or CS.clu_Vanz < 10):
+            elif CS.regen_level != 20 and self.regen_stop_pre_activated and not (CS.out.brakePressed or CS.out.gasPressed) and (self.dRel < 10 or CS.clu_Vanz < 15):
               self.regen_stop_activated = True
-              for _ in range(max(10, self.standstill_res_count)):
-                can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, 0 if (tc := CS.buttons_counter + choices([0,1], self.weights)[0]) == 15 else tc, 0, True, False, True))
+              can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, 0 if (tc := CS.buttons_counter + choices([0,1], self.weights)[0]) == 15 else tc, 0, True, False, True))
               self.refresh_time2 = 1.0
             elif CS.regen_level != 15 and CS.out.gasPressed and self.regen_stop_activated:
               self.regen_stop_pre_activated = False
               if CS.regen_level > 15:
-                for _ in range(max(10, self.standstill_res_count-5)):
-                  can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, 0 if (tc := CS.buttons_counter + choices([0,1], self.weights)[0]) == 15 else tc, 0, True, True, False))
+                can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, 0 if (tc := CS.buttons_counter + choices([0,1], self.weights)[0]) == 15 else tc, 0, True, True, False))
               elif CS.regen_level < 15:
-                for _ in range(max(10, self.standstill_res_count-5)):
-                  can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, 0 if (tc := CS.buttons_counter + choices([0,1], self.weights)[0]) == 15 else tc, 0, True, False, True))
-              self.refresh_time2 = 0.25
+                can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, 0 if (tc := CS.buttons_counter + choices([0,1], self.weights)[0]) == 15 else tc, 0, True, False, True))
+              self.refresh_time2 = 0.5
             elif CS.regen_level == 15:
               self.regen_stop_activated = False
             elif CS.out.brakePressed or CS.out.gasPressed:

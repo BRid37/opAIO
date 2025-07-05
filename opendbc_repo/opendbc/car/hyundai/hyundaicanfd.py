@@ -151,11 +151,12 @@ def create_buttons(packer, CP, CAN, cnt, btn, regen = None, r_pad = None, l_pad 
     "CRUISE_BUTTONS": btn,
   }
 
-  if regen:
-    if r_pad:
-      values["RIGHT_PADDLE"] = r_pad
-    if l_pad:
-      values["LEFT_PADDLE"] = l_pad
+  if regen is True:
+    values["CRUISE_BUTTONS"] = 0
+    if r_pad is True:
+      values["RIGHT_PADDLE"] = 1
+    if l_pad is True:
+      values["LEFT_PADDLE"] = 1
 
   bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_LKA_STEERING else CAN.CAM
   return packer.make_can_msg("CRUISE_BUTTONS", bus, values)
