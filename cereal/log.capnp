@@ -1181,7 +1181,7 @@ struct ModelDataV2 {
   confidence @23: ConfidenceClass;
 
   # Model perceived motion
-  temporalPose @21 :Pose;
+  temporalPoseDEPRECATED @21 :Pose;
 
   # e2e lateral planner
   action @26: Action;
@@ -2675,13 +2675,19 @@ struct DebugAlert {
 struct UserFlag {
 }
 
-struct Microphone {
+struct SoundPressure @0xdc24138990726023 {
   soundPressure @0 :Float32;
 
   # uncalibrated, A-weighted
   soundPressureWeighted @3 :Float32;
   soundPressureWeightedDb @1 :Float32;
-  filteredSoundPressureWeightedDb @2 :Float32;
+
+  filteredSoundPressureWeightedDbDEPRECATED @2 :Float32;
+}
+
+struct AudioData {
+  data @0 :Data;
+  sampleRate @1 :UInt32;
 }
 
 struct Touch {
@@ -2761,7 +2767,8 @@ struct Event {
     livestreamDriverEncodeIdx @119 :EncodeIndex;
 
     # microphone data
-    microphone @103 :Microphone;
+    soundPressure @103 :SoundPressure;
+    rawAudioData @147 :AudioData;
 
     # systems stuff
     androidLog @20 :AndroidLogEntry;
@@ -2830,8 +2837,8 @@ struct Event {
     customReserved18 @144 :Custom.CustomReserved18;
     customReserved19 @145 :Custom.CustomReserved19;
 
-    liveENaviData @147: LiveENaviData;
-    liveMapData @148: LiveMapData;
+    liveENaviData @148: LiveENaviData;
+    liveMapData @149: LiveMapData;
 
     # *********** legacy + deprecated ***********
     model @9 :Legacy.ModelData; # TODO: rename modelV2 and mark this as deprecated

@@ -68,6 +68,13 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
       true,
     },
     {
+      "RecordAudio",
+      tr("Record and Upload Microphone Audio"),
+      tr("Record and store microphone audio while driving. The audio will be included in the dashcam video in comma connect."),
+      "../assets/icons/microphone.png",
+      true,
+    },
+    {
       "IsMetric",
       tr("Use Metric System"),
       tr("Display speed in km/h instead of mph."),
@@ -134,6 +141,15 @@ void TogglesPanel::updateState(const UIState &s) {
 
 void TogglesPanel::expandToggleDescription(const QString &param) {
   toggles[param.toStdString()]->showDescription();
+}
+
+void TogglesPanel::scrollToToggle(const QString &param) {
+  if (auto it = toggles.find(param.toStdString()); it != toggles.end()) {
+    auto scroll_area = qobject_cast<QScrollArea*>(parent()->parent());
+    if (scroll_area) {
+      scroll_area->ensureWidgetVisible(it->second);
+    }
+  }
 }
 
 void TogglesPanel::showEvent(QShowEvent *event) {
@@ -383,11 +399,10 @@ void DevicePanel::updateCalibDescription() {
       // don't add for non-torque cars
       if (torque.getUseParams()) {
         int torque_perc = torque.getCalPerc();
-        desc += is_release ? "\n\n" : " ";
         if (torque_perc < 100) {
-          desc += tr("Steering torque response calibration is %1% complete.").arg(torque_perc);
+          desc += tr(" Steering torque response calibration is %1% complete.").arg(torque_perc);
         } else {
-          desc += tr("Steering torque response calibration is complete.");
+          desc += tr(" Steering torque response calibration is complete.");
         }
       }
     } catch (kj::Exception) {
@@ -447,6 +462,7 @@ void SettingsWindow::setCurrentPanel(int index, const QString &param) {
       }
     } else {
       emit expandToggleDescription(param);
+      emit scrollToToggle(param);
     }
   }
 
@@ -488,6 +504,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
 
   TogglesPanel *toggles = new TogglesPanel(this);
   QObject::connect(this, &SettingsWindow::expandToggleDescription, toggles, &TogglesPanel::expandToggleDescription);
+  QObject::connect(this, &SettingsWindow::scrollToToggle, toggles, &TogglesPanel::scrollToToggle);
 
   auto networking = new Networking(this);
   QObject::connect(uiState()->prime_state, &PrimeState::changed, networking, &Networking::setPrimeType);

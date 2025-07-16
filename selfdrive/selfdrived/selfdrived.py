@@ -456,8 +456,8 @@ class SelfdriveD:
       self.auto_enable(CS)
 
   def data_sample(self):
-    car_state = messaging.recv_one(self.car_state_sock)
-    CS = car_state.carState if car_state else self.CS_prev
+    _car_state = messaging.recv_one(self.car_state_sock)
+    CS = _car_state.carState if _car_state else self.CS_prev
 
     self.sm.update(0)
 

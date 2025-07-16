@@ -798,7 +798,7 @@ class CarState(CarStateBase):
       self.cruise_info = copy.copy(cp_cruise_info.vl["SCC_CONTROL"])
       if self.CP.adrvControl:
         self.lfa_info = copy.copy(cp_cruise_info.vl["LFA"])
-        self.lfa_alt_info = copy.copy(cp_cruise_info.vl["LFA_ALT"])
+        self.lfa_alt_info = copy.copy(cp_cruise_info.vl["ADAS_CMD_35_10ms"])
         self.ccnc_161 = copy.copy(cp_cruise_info.vl["CCNC_0x161"])
         self.ccnc_162 = copy.copy(cp_cruise_info.vl["CCNC_0x161"])
         self.adrv_1ea = copy.copy(cp_cruise_info.vl["ADRV_0x1ea"])
@@ -876,7 +876,7 @@ class CarState(CarStateBase):
         self.driverAcc_time -= 1
       ret.driverAcc = bool(self.driverOverride)
       if self.CP.isAngleControl and self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING :
-        self.stock_str_angle = cp_cam.vl["LKAS_ALT"]["LKAS_ANGLE_CMD"] * -1 if self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING_ALT else 0
+        self.stock_str_angle = cp_cam.vl["LKAS_ALT"]["ADAS_StrAnglReqVal"] * -1 if self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING_ALT else 0
 
     # Manual Speed Limit Assist is a feature that replaces non-adaptive cruise control on EV CAN FD platforms.
     # It limits the vehicle speed, overridable by pressing the accelerator past a certain point.
@@ -899,8 +899,8 @@ class CarState(CarStateBase):
     self.lda_button = cp.vl[self.cruise_btns_msg_canfd]["LDA_BTN"]
     self.buttons_counter = cp.vl[self.cruise_btns_msg_canfd]["COUNTER"]
     if self.CP.capacitiveSteeringWheel:
-      self.wheel_counter = cp.vl["STEERING_WHEEL"]["COUNTER"]
-      self.wheel_touched = True if cp.vl["STEERING_WHEEL"]["WHEEL_TOUCH_LEVEL"] > 0 else False
+      self.wheel_counter = cp.vl["HOD_FD_01_100ms"]["COUNTER"]
+      self.wheel_touched = True if cp.vl["HOD_FD_01_100ms"]["WHEEL_TOUCH_LEVEL"] > 0 else False
     ret.accFaulted = cp.vl["TCS"]["ACCEnable"] != 0  # 0 ACC CONTROL ENABLED, 1-3 ACC CONTROL DISABLED
     ret.cruiseButtons = self.cruise_buttons[-1]
 
@@ -953,7 +953,7 @@ class CarState(CarStateBase):
 
     if CP.capacitiveSteeringWheel:
       pt_messages += [
-        ("STEERING_WHEEL", 10)
+        ("HOD_FD_01_100ms", 10)
       ]
 
     if CP.enableBsm and not CP.adrvControl:
@@ -1010,7 +1010,7 @@ class CarState(CarStateBase):
       cam_messages += [
         ("BLINDSPOTS_REAR_CORNERS", 20),
         ("LFA", 100),
-        ("LFA_ALT", 100),
+        ("ADAS_CMD_35_10ms", 100),
         ("CCNC_0x161", 20),
         ("CCNC_0x162", 20),
         ("ADRV_0x1ea", 20),

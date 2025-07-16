@@ -97,7 +97,7 @@ def register(show_spinner=False) -> str | None:
 
   if dongle_id:
     params.put("DongleId", dongle_id)
-    set_offroad_alert("Offroad_UnofficialHardware", False)
+    set_offroad_alert("Offroad_UnregisteredHardware", False)
   return dongle_id
 
 

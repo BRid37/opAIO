@@ -209,7 +209,7 @@ class Controls:
     actuators.curvature = float(self.desired_curvature)
     steer, steeringAngleDeg, lac_log = self.LaC.update(CC.latActive, CS, self.VM, lp,
                                                        self.steer_limited_by_controls, self.desired_curvature,
-                                                       self.calibrated_pose, curvature_limited, self.desired_curvature_rate)  # TODO what if not available
+                                                       curvature_limited, self.desired_curvature_rate)  # TODO what if not available
     actuators.torque = float(steer)
     actuators.steeringAngleDeg = float(steeringAngleDeg)
     self.desired_angle_deg = actuators.steeringAngleDeg
@@ -238,10 +238,7 @@ class Controls:
 
     CC.cruiseControl.override = CC.enabled and not CC.longActive and self.CP.openpilotLongitudinalControl
     CC.cruiseControl.cancel = CS.cruiseState.enabled and (not CC.enabled or not self.CP.pcmCruise)
-
-    speeds = self.sm['longitudinalPlan'].speeds
-    if len(speeds):
-      CC.cruiseControl.resume = CC.enabled and CS.cruiseState.standstill and speeds[-1] > 0.1
+    CC.cruiseControl.resume = CC.enabled and CS.cruiseState.standstill and not self.sm['longitudinalPlan'].shouldStop
 
     hudControl = CC.hudControl
     hudControl.setSpeed = float(CS.vCruiseCluster * (CV.KPH_TO_MS if self.is_metric else CV.MPH_TO_MS))
@@ -258,6 +255,7 @@ class Controls:
       hudControl.rightLaneDepart = self.sm['driverAssistance'].rightLaneDeparture
 
     m_unit = CV.MS_TO_KPH if self.is_metric else CV.MS_TO_MPH
+    speeds = self.sm['longitudinalPlan'].speeds
     if len(speeds):
       try:
         if CS.vEgo*m_unit < self.cruise_spamming_spd[0]:

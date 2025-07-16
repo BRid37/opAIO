@@ -5,7 +5,7 @@ from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.controls.lib.lateral_mpc_lib.lat_mpc import LateralMpc
 from openpilot.selfdrive.controls.lib.lateral_mpc_lib.lat_mpc import N as LAT_MPC_N
-from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N, MIN_SPEED, get_speed_error
+from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N, MIN_SPEED
 from openpilot.selfdrive.controls.lib.desire_helper import DesireHelper
 import cereal.messaging as messaging
 from cereal import log
@@ -333,7 +333,6 @@ class LateralPlanner:
 
     # clip speed , lateral planning is not possible at 0 speed
     measured_curvature = sm['controlsState'].curvature
-    v_ego_car = sm['carState'].vEgo
 
     # Parse model predictions
     md = sm['modelV2']
@@ -345,7 +344,7 @@ class LateralPlanner:
         self.plan_yaw = np.array(md.orientation.z)
         self.plan_yaw_rate = np.array(md.orientationRate.z)
         self.velocity_xyz = np.column_stack([md.velocity.x, md.velocity.y, md.velocity.z])
-        car_speed = np.linalg.norm(self.velocity_xyz, axis=1) - get_speed_error(md, v_ego_car)
+        car_speed = np.linalg.norm(self.velocity_xyz, axis=1)
         self.v_plan = np.clip(car_speed, MIN_SPEED, np.inf)
         self.v_ego = self.v_plan[0]
 
@@ -357,7 +356,7 @@ class LateralPlanner:
       lane_change_prob = self.l_lane_change_prob + self.r_lane_change_prob
       self.DH.update(sm['carState'], sm['carControl'].latActive, lane_change_prob, sm['controlsState'], md)
 
-      lat_accel_cost = np.interp(self.model_speed, [30, 255], [0.2, 0.0])
+      lat_accel_cost = np.interp(self.model_speed, [30, 120], [0.5, 0.0])
       self.lat_mpc.set_weights(PATH_COST, LATERAL_MOTION_COST,
                               lat_accel_cost, LATERAL_JERK_COST,
                               STEERING_RATE_COST)

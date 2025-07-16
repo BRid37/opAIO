@@ -862,18 +862,6 @@ public:
   }
 };
 
-class TorqueUseAngle : public ToggleControl {
-  Q_OBJECT
-
-public:
-  TorqueUseAngle() : ToggleControl(tr("UseAngle"), tr("Use Steer Angle On/Off"), "../assets/icons/shell.png", Params().getBool("TorqueUseAngle")) {
-    QObject::connect(this, &TorqueUseAngle::toggleFlipped, [=](int state) {
-      bool status = state ? true : false;
-      Params().putBool("TorqueUseAngle", status);
-    });
-  }
-};
-
 class TorqueUseLiveFriction : public ToggleControl {
   Q_OBJECT
 

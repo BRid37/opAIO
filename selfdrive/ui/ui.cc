@@ -201,6 +201,9 @@ static void update_state(UIState *s) {
     scene.started = sm["deviceState"].getDeviceState().getStarted();
   }
 
+  auto params = Params();
+  scene.recording_audio = params.getBool("RecordAudio") && scene.started;
+
   if (sm.updated("lateralPlan")) {
     scene.lateral_plan = sm["lateralPlan"].getLateralPlan();
     auto lp_data = sm["lateralPlan"].getLateralPlan();

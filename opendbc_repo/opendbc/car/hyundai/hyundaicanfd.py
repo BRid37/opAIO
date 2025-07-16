@@ -64,7 +64,7 @@ def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque,
       lkas_values["STEER_REQ"] = 0
       lkas_values["LKA_AVAILABLE"] = 3 if lat_active else 0
       lkas_values["LKAS_ANGLE_ACTIVE"] = 2 if lat_active else 0
-      lkas_values["LKAS_ANGLE_CMD"] = apply_angle if lat_active else 0
+      lkas_values["ADAS_StrAnglReqVal"] = apply_angle if lat_active else 0
       lkas_values["LKAS_ANGLE_MAX_TORQUE"] = max_torque if lat_active else 0
       lkas_values["LKAS_SIGNAL_1"] = 10
       lkas_values["LKAS_SIGNAL_2"] = 1
@@ -76,10 +76,10 @@ def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque,
   elif CP.isAngleControl: # non-hda2 angle control or adas direct connected.
     ang_values = {
       "LKAS_ANGLE_ACTIVE": 2 if lat_active else 1,
-      "LKAS_ANGLE_CMD": apply_angle if lat_active else 0,
+      "ADAS_StrAnglReqVal": apply_angle if lat_active else 0,
       "LKAS_ANGLE_MAX_TORQUE": max_torque if lat_active else 0,
     }
-    ret.append(packer.make_can_msg("LFA_ALT", CAN.ECAN, ang_values))
+    ret.append(packer.make_can_msg("ADAS_CMD_35_10ms", CAN.ECAN, ang_values))
     lfa_values["LKA_MODE"] = 0
     lfa_values["NEW_SIGNAL_1"] = 3 if lat_active else 0
     lfa_values["TORQUE_REQUEST"] = -1024
@@ -340,9 +340,9 @@ def create_steering_wheel(packer, CP, CAN, cnt):
   values = {
     "COUNTER": cnt,
     "WHEEL_TOUCH_LEVEL": 3,
-    "SENSOR_1": 42 if CP.capacitiveSteeringWheel else 30,
-    "SENSOR_2": 42 if CP.capacitiveSteeringWheel else 30,
+    "NEW_SIGNAL_2": 42 if CP.capacitiveSteeringWheel else 30,
+    "NEW_SIGNAL_3": 42 if CP.capacitiveSteeringWheel else 30,
   }
 
   bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_LKA_STEERING else CAN.CAM
-  return packer.make_can_msg("STEERING_WHEEL", bus, values)
+  return packer.make_can_msg("HOD_FD_01_100ms", bus, values)

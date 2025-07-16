@@ -182,7 +182,11 @@ class CarInterfaceBase(ABC):
 
   @staticmethod
   def init(CP: structs.CarParams, can_recv: CanRecvCallable, can_send: CanSendCallable):
-    pass
+    """Used to disable longitudinal ECUs as needed"""
+
+  @staticmethod
+  def deinit(CP: structs.CarParams, can_recv: CanRecvCallable, can_send: CanSendCallable):
+    """Used to re-enable longitudinal ECUs as needed"""
 
   @staticmethod
   def get_steer_feedforward_default(desired_angle, v_ego):
@@ -239,14 +243,13 @@ class CarInterfaceBase(ABC):
     return ret
 
   @staticmethod
-  def configure_torque_tune(candidate: str, tune: structs.CarParams.LateralTuning, steering_angle_deadzone_deg: float = 0.0, use_steering_angle: bool = True):
+  def configure_torque_tune(candidate: str, tune: structs.CarParams.LateralTuning, steering_angle_deadzone_deg: float = 0.0):
     params = get_torque_params()[candidate]
 
     tune.init('torque')
-    tune.torque.useSteeringAngle = use_steering_angle
     tune.torque.kp = 1.0
     tune.torque.kf = 1.0
-    tune.torque.ki = 0.1
+    tune.torque.ki = 0.3
     tune.torque.friction = params['FRICTION']
     tune.torque.latAccelFactor = params['LAT_ACCEL_FACTOR']
     tune.torque.latAccelOffset = 0.0
@@ -254,10 +257,9 @@ class CarInterfaceBase(ABC):
 
     if params is not None:
       if UseLiveTorque:
-        tune.torque.useSteeringAngle = use_steering_angle
         tune.torque.kp = 1.0
         tune.torque.kf = 1.0
-        tune.torque.ki = 0.1
+        tune.torque.ki = 0.3
         tune.torque.friction = params['FRICTION']
         tune.torque.latAccelFactor = params['LAT_ACCEL_FACTOR']
         tune.torque.latAccelOffset = 0.0
@@ -267,10 +269,8 @@ class CarInterfaceBase(ABC):
         TorqueKf = float(Decimal(Params().get("TorqueKf", encoding="utf8")) * Decimal('0.1'))
         TorqueKi = float(Decimal(Params().get("TorqueKi", encoding="utf8")) * Decimal('0.1'))
         TorqueFriction = float(Decimal(Params().get("TorqueFriction", encoding="utf8")) * Decimal('0.01'))
-        TorqueUseAngle = Params().get_bool('TorqueUseAngle')
         TorqueLatAccelFactor = float(Decimal(Params().get("TorqueMaxLatAccel", encoding="utf8")) * Decimal('0.1'))
         TorqueAngDeadZone = float(Decimal(Params().get("TorqueAngDeadZone", encoding="utf8")) * Decimal('0.1'))
-        tune.torque.useSteeringAngle = TorqueUseAngle
         tune.torque.kp = TorqueKp
         tune.torque.kf = TorqueKf
         tune.torque.ki = TorqueKi
@@ -283,10 +283,8 @@ class CarInterfaceBase(ABC):
       TorqueKf = float(Decimal(Params().get("TorqueKf", encoding="utf8")) * Decimal('0.1'))
       TorqueKi = float(Decimal(Params().get("TorqueKi", encoding="utf8")) * Decimal('0.1'))
       TorqueFriction = float(Decimal(Params().get("TorqueFriction", encoding="utf8")) * Decimal('0.01'))
-      TorqueUseAngle = Params().get_bool('TorqueUseAngle')
       TorqueLatAccelFactor = float(Decimal(Params().get("TorqueMaxLatAccel", encoding="utf8")) * Decimal('0.1'))
       TorqueAngDeadZone = float(Decimal(Params().get("TorqueAngDeadZone", encoding="utf8")) * Decimal('0.1'))
-      tune.torque.useSteeringAngle = TorqueUseAngle
       tune.torque.kp = TorqueKp
       tune.torque.kf = TorqueKf
       tune.torque.ki = TorqueKi

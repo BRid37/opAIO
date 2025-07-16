@@ -24,10 +24,11 @@ void Sidebar::drawMetric(QPainter &p, const QPair<QString, QString> &label, QCol
   p.drawText(rect.adjusted(22, 0, 0, 0), Qt::AlignCenter, label.first + "\n" + label.second);
 }
 
-Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(false), settings_pressed(false) {
+Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(false), settings_pressed(false), mic_indicator_pressed(false) {
   home_img = loadPixmap("../assets/images/button_home.png", home_btn.size());
   flag_img = loadPixmap("../assets/images/button_flag.png", home_btn.size());
   settings_img = loadPixmap("../assets/images/button_settings.png", settings_btn.size(), Qt::IgnoreAspectRatio);
+  mic_img = loadPixmap("../assets/icons/microphone.png", QSize(30, 30));
 
   connect(this, &Sidebar::valueChanged, [=] { update(); });
 
@@ -47,12 +48,15 @@ void Sidebar::mousePressEvent(QMouseEvent *event) {
   } else if (settings_btn.contains(event->pos())) {
     settings_pressed = true;
     update();
+  } else if (recording_audio && mic_indicator_btn.contains(event->pos())) {
+    mic_indicator_pressed = true;
+    update();
   }
 }
 
 void Sidebar::mouseReleaseEvent(QMouseEvent *event) {
-  if (flag_pressed || settings_pressed) {
-    flag_pressed = settings_pressed = false;
+  if (flag_pressed || settings_pressed || mic_indicator_pressed) {
+    flag_pressed = settings_pressed = mic_indicator_pressed = false;
     update();
   }
   if (onroad && home_btn.contains(event->pos())) {
@@ -61,6 +65,8 @@ void Sidebar::mouseReleaseEvent(QMouseEvent *event) {
     pm->send("userFlag", msg);
   } else if (settings_btn.contains(event->pos())) {
     emit openSettings();
+  } else if (recording_audio && mic_indicator_btn.contains(event->pos())) {
+    emit openSettings(2, "RecordAudio");
   }
 }
 
@@ -108,6 +114,8 @@ void Sidebar::updateState(const UIState &s) {
     pandaStatus = {{tr("NO"), tr("PANDA")}, danger_color};
   }
   setProperty("pandaStatus", QVariant::fromValue(pandaStatus));
+
+  setProperty("recordingAudio", s.scene.recording_audio);
 }
 
 void Sidebar::paintEvent(QPaintEvent *event) {
@@ -122,6 +130,14 @@ void Sidebar::paintEvent(QPaintEvent *event) {
   p.drawPixmap(settings_btn.x(), settings_btn.y(), settings_img);
   p.setOpacity(onroad && flag_pressed ? 0.65 : 1.0);
   p.drawPixmap(home_btn.x(), home_btn.y(), onroad ? flag_img : home_img);
+  if (recording_audio) {
+    p.setBrush(danger_color);
+    p.setOpacity(mic_indicator_pressed ? 0.65 : 1.0);
+    p.drawRoundedRect(mic_indicator_btn, mic_indicator_btn.height() / 2, mic_indicator_btn.height() / 2);
+    int icon_x = mic_indicator_btn.x() + (mic_indicator_btn.width() - mic_img.width()) / 2;
+    int icon_y = mic_indicator_btn.y() + (mic_indicator_btn.height() - mic_img.height()) / 2;
+    p.drawPixmap(icon_x, icon_y, mic_img);
+  }
   p.setOpacity(1.0);
 
   // network
@@ -135,12 +151,12 @@ void Sidebar::paintEvent(QPaintEvent *event) {
 
   p.setFont(InterFont(35));
   p.setPen(QColor(0xff, 0xff, 0xff));
-  const QRect r = QRect(50, 237, 100, 35);
-  p.drawText(r, Qt::AlignCenter, net_type);
+  const QRect r = QRect(58, 247, width() - 100, 50);
+  p.drawText(r, Qt::AlignLeft | Qt::AlignVCenter, net_type);
 
   p.setFont(InterFont(30, QFont::DemiBold));
   p.setPen(QColor(0xff, 0xff, 0x0));
-  const QRect ip = QRect(35, 293, 220, 70);
+  const QRect ip = QRect(35, 303, 220, 70);
   p.drawText(ip, Qt::AlignHCenter|Qt::AlignTop, ip_address);
 
   p.setFont(InterFont(35));

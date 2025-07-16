@@ -68,7 +68,6 @@ class Soundd:
     self.spl_filter_weighted = FirstOrderFilter(0, 2.5, FILTER_DT, initialized=False)
 
     self.params = Params()
-    self.timer = 0
 
   def load_sounds(self):
     self.loaded_sounds: dict[int, np.ndarray] = {}
@@ -150,7 +149,7 @@ class Soundd:
     # sounddevice must be imported after forking processes
     import sounddevice as sd
 
-    sm = messaging.SubMaster(['selfdriveState', 'microphone'])
+    sm = messaging.SubMaster(['selfdriveState', 'soundPressure'])
 
     with self.get_stream(sd) as stream:
       rk = Ratekeeper(20)
@@ -159,11 +158,9 @@ class Soundd:
       while True:
         sm.update(0)
 
-        self.timer += 1
-        if sm.updated['microphone'] and self.current_alert == AudibleAlert.none and self.timer > 20: # only update volume filter when not playing alert
-          self.spl_filter_weighted.update(sm["microphone"].soundPressureWeightedDb)
+        if sm.updated['soundPressure'] and self.current_alert == AudibleAlert.none: # only update volume filter when not playing alert
+          self.spl_filter_weighted.update(sm["soundPressure"].soundPressureWeightedDb)
           self.current_volume = self.calculate_volume(float(self.spl_filter_weighted.x))
-          self.timer = 0
 
         self.get_audible_alert(sm)
 

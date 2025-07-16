@@ -1,5 +1,4 @@
 import numpy as np
-from cereal import log
 from opendbc.car.vehicle_model import ACCELERATION_DUE_TO_GRAVITY
 from openpilot.common.realtime import DT_CTRL, DT_MDL
 
@@ -42,14 +41,6 @@ def clip_curvature(v_ego, prev_curvature, new_curvature, roll):
   return float(new_curvature), limited_accel or limited_max_curv
 
 
-def get_speed_error(modelV2: log.ModelDataV2, v_ego: float) -> float:
-  # ToDo: Try relative error, and absolute speed
-  if len(modelV2.temporalPose.trans):
-    vel_err = np.clip(modelV2.temporalPose.trans[0] - v_ego, -MAX_VEL_ERR, MAX_VEL_ERR)
-    return float(vel_err)
-  return 0.0
-
-
 def get_accel_from_plan(speeds, accels, t_idxs, action_t=DT_MDL, vEgoStopping=0.05):
   if len(speeds) == len(t_idxs):
     v_now = speeds[0]
@@ -74,7 +65,6 @@ def get_curvature_from_plan(yaws, yaw_rates, t_idxs, vego, action_t):
   psi_target = np.interp(action_t, t_idxs, yaws)
   psi_rate = yaw_rates[0]
   return curv_from_psis(psi_target, psi_rate, vego, action_t)
-
 
 def get_lag_adjusted_curvature(CP, v_ego, psis, curvatures, curvature_rates, live_lat_delay):
   if len(psis) != CONTROL_N:

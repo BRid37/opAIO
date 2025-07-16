@@ -32,7 +32,6 @@ class LatControlTorque(LatControl):
     self.pid = PIDController(self.torque_params.kp, self.torque_params.ki,
                              k_f=self.torque_params.kf, pos_limit=self.steer_max, neg_limit=-self.steer_max)
     self.torque_from_lateral_accel = CI.torque_from_lateral_accel()
-    self.use_steering_angle = self.torque_params.useSteeringAngle
     self.steering_angle_deadzone_deg = self.torque_params.steeringAngleDeadzoneDeg
 
     self.friction = self.torque_params.friction
@@ -54,7 +53,6 @@ class LatControlTorque(LatControl):
       self.kf = float(Decimal(self.params.get("TorqueKf", encoding="utf8")) * Decimal('0.1'))
       self.ki = float(Decimal(self.params.get("TorqueKi", encoding="utf8")) * Decimal('0.1'))
       self.friction = float(Decimal(self.params.get("TorqueFriction", encoding="utf8")) * Decimal('0.001'))
-      self.use_steering_angle = self.params.get_bool('TorqueUseAngle')
       self.steering_angle_deadzone_deg = float(Decimal(self.params.get("TorqueAngDeadZone", encoding="utf8")) * Decimal('0.1'))
       self.pid = PIDController(self.kp, self.ki,
                               k_f=self.kf, pos_limit=self.steer_max, neg_limit=-self.steer_max)
@@ -71,7 +69,7 @@ class LatControlTorque(LatControl):
       self.torque_params.latAccelOffset = latAccelOffset
       self.torque_params.friction = self.friction
 
-  def update(self, active, CS, VM, params, steer_limited_by_controls, desired_curvature, calibrated_pose, curvature_limited, desired_curvature_rate):
+  def update(self, active, CS, VM, params, steer_limited_by_controls, desired_curvature, curvature_limited, desired_curvature_rate):
     self.lt_timer += 1
     if self.lt_timer > 100:
       self.lt_timer = 0
@@ -85,16 +83,9 @@ class LatControlTorque(LatControl):
       output_torque = 0.0
       pid_log.active = False
     else:
-      actual_curvature_vm = -VM.calc_curvature(math.radians(CS.steeringAngleDeg - params.angleOffsetDeg), CS.vEgo, params.roll)
+      actual_curvature = -VM.calc_curvature(math.radians(CS.steeringAngleDeg - params.angleOffsetDeg), CS.vEgo, params.roll)
       roll_compensation = params.roll * ACCELERATION_DUE_TO_GRAVITY
-      if self.use_steering_angle:
-        actual_curvature = actual_curvature_vm
-        curvature_deadzone = abs(VM.calc_curvature(math.radians(self.steering_angle_deadzone_deg), CS.vEgo, 0.0))
-      else:
-        assert calibrated_pose is not None
-        actual_curvature_pose = calibrated_pose.angular_velocity.yaw / CS.vEgo
-        actual_curvature = np.interp(CS.vEgo, [2.0, 5.0], [actual_curvature_vm, actual_curvature_pose])
-        curvature_deadzone = 0.0
+      curvature_deadzone = abs(VM.calc_curvature(math.radians(self.steering_angle_deadzone_deg), CS.vEgo, 0.0))
       desired_lateral_accel = desired_curvature * CS.vEgo ** 2
 
       # desired rate is the desired rate of change in the setpoint, not the absolute desired curvature
