@@ -185,7 +185,7 @@ def setup_frogpilot(build_metadata):
     shutil.copy2(source, destination)
 
   boot_logo_location = Path("/usr/comma/bg.jpg")
-  frogpilot_boot_logo = Path(__file__).parents[1] / "assets/other_images/frogpilot_boot_logo.png"
+  frogpilot_boot_logo = Path(__file__).parents[1] / "assets/other_images/H.png"
   if not filecmp.cmp(frogpilot_boot_logo, boot_logo_location, shallow=False):
     stock_mount_options = subprocess.run(["findmnt", "-no", "OPTIONS", "/"], capture_output=True, text=True).stdout.strip()
 
