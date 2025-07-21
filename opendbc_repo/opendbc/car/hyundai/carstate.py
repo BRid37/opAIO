@@ -58,17 +58,19 @@ class CarState(CarStateBase):
     self.cruise_btns_msg_canfd = "CRUISE_BUTTONS_ALT" if CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS else \
                                  "CRUISE_BUTTONS"
     self.is_metric = False
-    self.buttons_counter = 0
     self.wheel_counter = 0
     self.wheel_touched = False
 
     self.cruise_info = {}
+    self.cruise_btn_info = {}
     self.lfa_info = {}
     self.lfa_alt_info = {}
     self.ccnc_161 = {}
     self.ccnc_162 = {}
     self.adrv_1ea = {}
     self.adrv_160 = {}
+    self.csw_info = {}
+    self.mdps_info = {}
 
     # On some cars, CLU15->CF_Clu_VehicleSpeed can oscillate faster than the dash updates. Sample at 5 Hz
     self.cluster_speed = 0
@@ -796,6 +798,7 @@ class CarState(CarStateBase):
       ret.vSetDis = self.VSetDis
       self.cruiseState_standstill = ret.cruiseState.standstill
       self.cruise_info = copy.copy(cp_cruise_info.vl["SCC_CONTROL"])
+      self.cruise_btn_info = copy.copy(cp.vl[self.cruise_btns_msg_canfd])
       if self.CP.adrvControl:
         self.lfa_info = copy.copy(cp_cruise_info.vl["LFA"])
         self.lfa_alt_info = copy.copy(cp_cruise_info.vl["ADAS_CMD_35_10ms"])
@@ -803,6 +806,8 @@ class CarState(CarStateBase):
         self.ccnc_162 = copy.copy(cp_cruise_info.vl["CCNC_0x161"])
         self.adrv_1ea = copy.copy(cp_cruise_info.vl["ADRV_0x1ea"])
         self.adrv_160 = copy.copy(cp_cruise_info.vl["ADRV_0x160"])
+        self.mdps_info = copy.copy(cp.vl["MDPS"])
+
       if self.lfa_button_eng:
         if self.lfa_buttons[-1]:
           self.prev_lfa_btn_timer = 2
@@ -897,10 +902,9 @@ class CarState(CarStateBase):
     self.cruise_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["CRUISE_BUTTONS"])
     self.main_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["ADAPTIVE_CRUISE_MAIN_BTN"])
     self.lda_button = cp.vl[self.cruise_btns_msg_canfd]["LDA_BTN"]
-    self.buttons_counter = cp.vl[self.cruise_btns_msg_canfd]["COUNTER"]
     if self.CP.capacitiveSteeringWheel:
-      self.wheel_counter = cp.vl["HOD_FD_01_100ms"]["COUNTER"]
-      self.wheel_touched = True if cp.vl["HOD_FD_01_100ms"]["WHEEL_TOUCH_LEVEL"] > 0 else False
+      self.csw_info = copy.copy(cp.vl["HOD_FD_01_100ms"])
+      self.wheel_touched = True if cp.vl["HOD_FD_01_100ms"]["HOD_Dir_Status"] > 0 else False
     ret.accFaulted = cp.vl["TCS"]["ACCEnable"] != 0  # 0 ACC CONTROL ENABLED, 1-3 ACC CONTROL DISABLED
     ret.cruiseButtons = self.cruise_buttons[-1]
 
@@ -947,6 +951,14 @@ class CarState(CarStateBase):
       ]
 
     if not (CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS):
+      pt_messages += [
+        ("CRUISE_BUTTONS", 50)
+      ]
+    elif CP.adrvControl:
+      pt_messages += [
+        ("CRUISE_BUTTONS", 50)
+      ]
+    elif CP.isAngleControl and not CP.adrvControl:
       pt_messages += [
         ("CRUISE_BUTTONS", 50)
       ]

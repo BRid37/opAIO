@@ -55,11 +55,26 @@ BO_ 203 ADAS_CMD_35_10ms: 24 CGW_CCU
  SG_ ADAS_ActvACISta : 24|4@1+ (1,0) [0|0] "" GW_RGW,MDPS,SFA
  SG_ ADAS_ActvACILvl2Sta : 28|4@1+ (1,0) [0|0] "" ESC,FCU_C,GW_RGW,MDPS,SFA,VPC_C
  SG_ ADAS_StrAnglReqVal : 32|14@1- (0.1,0) [0|119.9] "Deg" GW_RGW,MDPS,SFA
- SG_ ADAS_ACIAnglTqRedcGainVal : 48|8@1+ (0.004,0) [0|1] "" GW_RGW,MDPS,SFA
  SG_ FCA_ESA_ActvSta : 56|2@1+ (1,0) [0|0] "" GW_RGW,MDPS,SFA
  SG_ FCA_ESA_TqBstGainVal : 64|8@1+ (0.004,0) [0|0] "" GW_RGW,MDPS,SFA
- SG_ LKAS_ANGLE_ACTIVE : 29|2@0+ (1,0) [0|1] "" XXX
  SG_ LKAS_ANGLE_MAX_TORQUE : 55|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_1 : 47|2@0+ (1,0) [0|3] "" XXX
+ SG_ NEW_SIGNAL_2 : 63|6@0+ (1,0) [0|63] "" XXX
+ SG_ NEW_SIGNAL_3 : 79|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_4 : 87|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_5 : 95|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_6 : 103|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_7 : 111|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_8 : 119|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_9 : 127|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_10 : 135|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_11 : 143|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_12 : 151|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_13 : 159|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_14 : 167|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_15 : 175|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_16 : 183|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_17 : 191|8@0+ (1,0) [0|255] "" XXX
 
 BO_ 234 MDPS: 24 XXX
  SG_ CHECKSUM : 0|16@1+ (1,0) [0|65535] "" XXX
@@ -101,7 +116,6 @@ BO_ 272 LKAS_ALT: 32 XXX
  SG_ LKAS_ANGLE_ACTIVE : 77|2@0+ (1,0) [0|3] "" XXX
  SG_ HAS_LANE_SAFETY : 80|1@0+ (1,0) [0|1] "" XXX
  SG_ ADAS_StrAnglReqVal : 82|14@1- (0.1,0) [0|176.7] "Deg" GW_RGW,MDPS,SFA
- SG_ ADAS_ACIAnglTqRedcGainVal : 96|8@1+ (0.004,0) [0|1] "" GW_RGW,MDPS,SFA
  SG_ LKAS_ANGLE_MAX_TORQUE : 96|8@1+ (1,0) [0|255] "" XXX
  SG_ NEW_SIGNAL_3 : 111|8@0+ (1,0) [0|255] "" XXX
  SG_ LKA_AWAY_SIGNAL_1 : 105|2@0+ (1,0) [0|3] "" XXX
@@ -162,6 +176,10 @@ BO_ 298 LFA: 16 ADRV
  SG_ HAS_LANE_SAFETY : 80|1@0+ (1,0) [0|1] "" XXX
  SG_ NEW_SIGNAL_3 : 111|8@0+ (1,0) [0|255] "" XXX
  SG_ NEW_SIGNAL_5 : 73|1@0+ (1,0) [0|1] "" XXX
+ SG_ LKAS_ANGLE_ACTIVE : 77|2@0+ (1,0) [0|3] "" XXX
+ SG_ LKAS_ANGLE_MAX_TORQUE : 96|8@1+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_6 : 75|4@0+ (1,0) [0|15] "" XXX
+ SG_ LKAS_ANGLE_CMD : 82|14@1- (-0.1,0) [0|511] "" XXX
 
 BO_ 304 GEAR_SHIFTER: 16 XXX
  SG_ CHECKSUM : 0|16@1+ (1,0) [0|65535] "" XXX
@@ -186,8 +204,6 @@ BO_ 352 ADRV_0x160: 16 ADRV
  SG_ NEW_SIGNAL_5 : 104|8@1+ (1,0) [0|255] "" XXX
  SG_ NEW_SIGNAL_6 : 112|8@1+ (1,0) [0|255] "" XXX
  SG_ NEW_SIGNAL_7 : 120|8@1+ (1,0) [0|255] "" XXX
-
-
 
 BO_ 353 CCNC_0x161: 32 CCNC
  SG_ CHECKSUM : 0|16@1+ (1,0) [0|65535] "" XXX
@@ -448,6 +464,14 @@ BO_ 463 CRUISE_BUTTONS: 8 XXX
  SG_ RIGHT_PADDLE : 25|1@1+ (1,0) [0|1] "" XXX
  SG_ LEFT_PADDLE : 27|1@1+ (1,0) [0|1] "" XXX
  SG_ SET_ME_1 : 29|1@1+ (1,0) [0|1] "" XXX
+ SG_ NEW_SIGNAL_1 : 11|4@0+ (1,0) [0|15] "" XXX
+ SG_ NEW_SIGNAL_2 : 22|1@0+ (1,0) [0|1] "" XXX
+ SG_ NEW_SIGNAL_3 : 20|1@0+ (1,0) [0|1] "" XXX
+ SG_ NEW_SIGNAL_4 : 31|2@0+ (1,0) [0|3] "" XXX
+ SG_ NEW_SIGNAL_5 : 28|1@0+ (1,0) [0|1] "" XXX
+ SG_ NEW_SIGNAL_6 : 26|1@0+ (1,0) [0|1] "" XXX
+ SG_ NEW_SIGNAL_7 : 24|1@0+ (1,0) [0|1] "" XXX
+ SG_ NEW_SIGNAL_8 : 39|32@0+ (1,0) [0|4294967295] "" XXX
 
 BO_ 474 ADRV_0x1da: 32 ADRV
  SG_ CHECKSUM : 0|16@1+ (1,0) [0|65535] "" XXX
@@ -597,7 +621,11 @@ BO_ 687 HOD_FD_01_100ms: 8 XXX
  SG_ NEW_SIGNAL_2 : 32|8@1+ (1,0) [0|255] "" XXX
  SG_ NEW_SIGNAL_3 : 40|8@1+ (1,0) [0|255] "" XXX
  SG_ HOD_Option : 48|2@1+ (1,0) [0|255] "" XXX
- SG_ WHEEL_TOUCH_LEVEL : 16|3@1+ (1,0) [0|4] "" XXX
+ SG_ NEW_SIGNAL_1 : 11|4@0+ (1,0) [0|15] "" XXX
+ SG_ NEW_SIGNAL_4 : 23|5@0+ (1,0) [0|31] "" XXX
+ SG_ NEW_SIGNAL_5 : 31|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_6 : 55|6@0+ (1,0) [0|63] "" XXX
+ SG_ NEW_SIGNAL_7 : 63|8@0+ (1,0) [0|255] "" XXX
 
 BO_ 698 FR_CMR_04_40ms: 32 FR_CMR
  SG_ FR_CMR_Crc4Val : 0|16@1+ (1,0) [0|65535] "" Dummy
@@ -756,13 +784,11 @@ CM_ SG_ 101 BRAKE_POSITION "User applied brake pedal position, max is ~700. Sign
 CM_ SG_ 203 ADAS_ActvACISta "ADAS Active AngleControlInterface State";
 CM_ SG_ 203 ADAS_ActvACILvl2Sta "ADAS Active AngleControlInterface Level 2 State";
 CM_ SG_ 203 ADAS_StrAnglReqVal "(LFA) ADAS Steering Angle Request Value; Capped at 119.9;";
-CM_ SG_ 203 ADAS_ACIAnglTqRedcGainVal "(LFA) ADAS AngleControlInterface Angle Torque Reduction Gain Value";
 CM_ SG_ 203 FCA_ESA_ActvSta "FCA_ESA Active State";
 CM_ SG_ 203 FCA_ESA_TqBstGainVal "FCA_ESA Torque Boost Gain Value";
 CM_ BO_ 272 "Alternative LKAS message, used on cars such as 2023 Ioniq 6, 2nd gen Kona. Matches LKAS except size is 32 bytes";
 CM_ SG_ 272 LKA_AVAILABLE "Angle control cars: 3 when LKA is generally available, goes to 0 during changes with LFA";
 CM_ SG_ 272 ADAS_StrAnglReqVal "(LKAS) ADAS Steering Angle Request Value; Capped at 176.7; tracks MDPS->STEERING_ANGLE when not engaged, not STEERING_SENSORS->STEERING_ANGLE";
-CM_ SG_ 272 ADAS_ACIAnglTqRedcGainVal "(LKAS) ADAS AngleControlInterface Angle Torque Reduction Gain Value";
 CM_ SG_ 298 NEW_SIGNAL_4 "todo: figure out why always set to 9";
 CM_ SG_ 352 SET_ME_9 "has something to do with AEB settings";
 CM_ SG_ 373 ACCEnable "Likely a copy of CAN's TCS13->ACCEnable";
@@ -789,7 +815,6 @@ VAL_ 112 GEAR 0 "P" 5 "D" 6 "N" 7 "R";
 VAL_ 203 ADAS_ActvACISta 0 "INIT" 1 "INACTIVE" 2 "ACTIVE35(ACTIVE)" 3 "ACTIVE33(Redundancy)" 4 "RESERVED" 5 "RESERVED" 6 "RESERVED" 7 "RESERVED" 8 "RESERVED" 9 "RESERVED" 10 "RESERVED" 11 "RESERVED" 12 "RESERVED" 13 "RESERVED" 14 "RESERVED" 15 "RESERVED";
 VAL_ 203 ADAS_ActvACILvl2Sta 0 "INIT" 1 "INACTIVE" 2 "ACTIVE35(ACTIVE)" 3 "RESERVED" 4 "RESERVED" 5 "RESERVED" 6 "RESERVED" 7 "RESERVED" 8 "RESERVED" 9 "RESERVED" 10 "RESERVED" 11 "RESERVED" 12 "RESERVED" 13 "RESERVED" 14 "RESERVED" 15 "RESERVED";
 VAL_ 203 ADAS_StrAnglReqVal 0 "0x0x000~0x3FFF:Real Values" 16383 "0x0x000~0x3FFF:Real Values";
-VAL_ 203 ADAS_ACIAnglTqRedcGainVal 0 "0x0x00~0xFA:Real Values" 250 "0x0x00~0xFA:Real Values" 251 "RESERVED" 252 "RESERVED" 253 "RESERVED" 254 "RESERVED" 255 "RESERVED";
 VAL_ 203 FCA_ESA_ActvSta 0 "Inactive" 1 "Active" 2 "RESERVED" 3 "RESERVED";
 VAL_ 203 FCA_ESA_TqBstGainVal 0 "0x0x00~0xFA:Real Values" 250 "0x0x00~0xFA:Real Values" 251 "RESERVED" 252 "RESERVED" 253 "RESERVED" 254 "RESERVED" 255 "RESERVED";
 VAL_ 234 LKA_FAULT 0 "ok" 1 "lka fault";
