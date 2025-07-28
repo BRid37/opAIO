@@ -333,7 +333,7 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, c
 
   // paint path
   QLinearGradient bg(0, height(), 0, 0);
-  if (sm["controlsState"].getControlsState().getExperimentalMode() || frogpilot_toggles.value("acceleration_path").toBool() || frogpilot_toggles.value("rainbow_path").toBool()) {
+  if (sm["controlsState"].getControlsState().getExperimentalMode() || fpsm["frogpilotPlan"].getFrogpilotPlan().getExperimentalMode() || frogpilot_toggles.value("acceleration_path").toBool() || frogpilot_toggles.value("rainbow_path").toBool()) {
     // The first half of track_vertices are the points for the right side of the path
     // and the indices match the positions of accel from uiPlan
     const auto &acceleration = sm["uiPlan"].getUiPlan().getAccel();
@@ -392,7 +392,7 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, c
   } else if ((sm["carState"].getCarState().getLeftBlindspot() || sm["carState"].getCarState().getRightBlindspot()) && frogpilot_toggles.value("blind_spot_path").toBool()) {
     frogpilot_nvg->paintBlindSpotPath(painter, sm["carState"].getCarState(), frogpilot_scene);
   }
-  frogpilot_nvg->paintPathEdges(painter, fpsm["navInstruction"].getNavInstruction(), scene, frogpilot_scene, sm);
+  frogpilot_nvg->paintPathEdges(painter, fpsm["navInstruction"].getNavInstruction(), fpsm["frogpilotPlan"].getFrogpilotPlan(), scene, frogpilot_scene, sm);
 
   painter.restore();
 }
@@ -459,13 +459,11 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::RadarState
   const float v_rel = lead_data.getVRel();
 
   float fillAlpha = 0;
-  if (frogpilotPlan.getTrackingLead() || adjacent) {
-    fillAlpha = 255 * (1.0 - (d_rel / leadBuff));
-    if (v_rel < 0) {
-      fillAlpha += 255 * (-1 * (v_rel / speedBuff));
-    }
-    fillAlpha = std::clamp(fillAlpha, 0.f, 255.f);
+  fillAlpha = 255 * (1.0 - (d_rel / leadBuff));
+  if (v_rel < 0) {
+    fillAlpha += 255 * (-1 * (v_rel / speedBuff));
   }
+  fillAlpha = std::clamp(fillAlpha, 0.f, 255.f);
 
   float sz = std::clamp((25 * 30) / (d_rel / 3 + 30), 15.0f, 30.0f) * 2.35;
   float x = std::clamp((float)vd.x(), 0.f, width() - sz / 2);
@@ -475,11 +473,7 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::RadarState
   float g_yo = sz / 10;
 
   QPointF glow[] = {{x + (sz * 1.35) + g_xo, y + sz + g_yo}, {x, y - g_yo}, {x - (sz * 1.35) - g_xo, y + sz + g_yo}};
-  if (lead_data.getFarLead()) {
-    painter.setBrush(QColor(0, 255, 255, 255));
-  } else {
-    painter.setBrush(QColor(218, 202, 37, 255));
-  }
+  painter.setBrush(QColor(218, 202, 37, 255));
   painter.drawPolygon(glow, std::size(glow));
 
   // chevron
@@ -538,7 +532,7 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
       } else if (v_ego > 15) {
         wide_cam_requested = false;
       }
-      wide_cam_requested = wide_cam_requested && sm["controlsState"].getControlsState().getExperimentalMode();
+      wide_cam_requested = wide_cam_requested && (sm["controlsState"].getControlsState().getExperimentalMode() || fpsm["frogpilotPlan"].getFrogpilotPlan().getExperimentalMode());
       // for replay of old routes, never go to widecam
       wide_cam_requested = wide_cam_requested && s->scene.calibration_wide_valid;
     }
@@ -559,7 +553,7 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
     painter.endNativePainting();
   }
 
-  painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
+  painter.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
   painter.setPen(Qt::NoPen);
 
   if (s->scene.world_objects_visible) {
@@ -568,19 +562,22 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
 
     if (s->scene.longitudinal_control && sm.rcv_frame("radarState") > s->scene.started_frame && !frogpilot_toggles.value("hide_lead_marker").toBool()) {
       auto radar_state = sm["radarState"].getRadarState();
+      auto frogpilot_radar_state = fpsm["frogpilotRadarState"].getFrogpilotRadarState();
       update_leads(s, radar_state, model.getPosition());
+      update_leads_frogpilot(s, frogpilot_radar_state, model.getPosition());
       auto lead_one = radar_state.getLeadOne();
+      auto lead_one_frogpilot = frogpilot_radar_state.getLeadOne();
       auto lead_two = radar_state.getLeadTwo();
-      auto lead_left = radar_state.getLeadLeft();
-      auto lead_right = radar_state.getLeadRight();
+      auto lead_left = frogpilot_radar_state.getLeadLeft();
+      auto lead_right = frogpilot_radar_state.getLeadRight();
       if (lead_left.getStatus()) {
-        drawLead(painter, lead_left, frogpilotPlan, s->scene.lead_vertices[2], frogpilot_nvg->blueColor(), fs, true);
+        drawLead(painter, reinterpret_cast<const cereal::RadarState::LeadData::Reader &>(lead_left), frogpilotPlan, s->scene.lead_vertices[2], frogpilot_nvg->blueColor(), fs, true);
       }
       if (lead_right.getStatus()) {
-        drawLead(painter, lead_right, frogpilotPlan, s->scene.lead_vertices[3], frogpilot_nvg->purpleColor(), fs, true);
+        drawLead(painter, reinterpret_cast<const cereal::RadarState::LeadData::Reader &>(lead_right), frogpilotPlan, s->scene.lead_vertices[3], frogpilot_nvg->purpleColor(), fs, true);
       }
-      if (lead_one.getStatus()) {
-        drawLead(painter, lead_one, frogpilotPlan, s->scene.lead_vertices[0], fs->frogpilot_scene.lead_marker_color, fs);
+      if (lead_one_frogpilot.getStatus() && frogpilotPlan.getTrackingLead()) {
+        drawLead(painter, reinterpret_cast<const cereal::RadarState::LeadData::Reader &>(lead_one_frogpilot), frogpilotPlan, s->scene.lead_vertices[0], lead_one.getStatus() ? fs->frogpilot_scene.lead_marker_color : whiteColor(), fs);
       } else {
         frogpilot_nvg->leadTextRect = QRect();
       }

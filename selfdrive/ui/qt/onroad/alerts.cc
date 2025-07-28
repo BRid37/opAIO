@@ -6,7 +6,7 @@
 #include "selfdrive/ui/qt/util.h"
 
 void OnroadAlerts::updateState(const UIState &s, const FrogPilotUIState &fs) {
-  Alert a = getAlert(*(s.sm), s.scene.started_frame, fs.frogpilot_toggles);
+  Alert a = getAlert(*(s.sm), *(fs.sm), s.scene.started_frame, fs.frogpilot_toggles);
   if (!alert.equal(a)) {
     if (alert.status == cereal::ControlsState::AlertStatus::NORMAL && fs.frogpilot_toggles.value("hide_alerts").toBool()) {
       clear();
@@ -25,8 +25,9 @@ void OnroadAlerts::clear() {
   update();
 }
 
-OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started_frame, QJsonObject &frogpilot_toggles) {
+OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, const SubMaster &fpsm, uint64_t started_frame, QJsonObject &frogpilot_toggles) {
   const cereal::ControlsState::Reader &cs = sm["controlsState"].getControlsState();
+  const cereal::FrogPilotControlsState::Reader &fpcs = fpsm["frogpilotControlsState"].getFrogpilotControlsState();
   const uint64_t controls_frame = sm.rcv_frame("controlsState");
 
   Alert a = {};
@@ -37,18 +38,23 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started
            tr("Please post the \"Error Log\" in the FrogPilot Discord!"),
            "openpilotCrashedRandomEvent",
            cereal::ControlsState::AlertSize::MID,
-           cereal::ControlsState::AlertStatus::NORMAL};
+           cereal::ControlsState::AlertStatus::CRITICAL};
     } else {
       a = {tr("openpilot crashed"),
            tr("Please post the \"Error Log\" in the FrogPilot Discord!"),
            "openpilotCrashed",
            cereal::ControlsState::AlertSize::MID,
-           cereal::ControlsState::AlertStatus::NORMAL};
+           cereal::ControlsState::AlertStatus::CRITICAL};
     }
     return a;
   } else if (controls_frame >= started_frame) {  // Don't get old alert.
     a = {cs.getAlertText1().cStr(), cs.getAlertText2().cStr(),
          cs.getAlertType().cStr(), cs.getAlertSize(), cs.getAlertStatus()};
+
+    if (a.size == cereal::ControlsState::AlertSize::NONE) {
+      a = {fpcs.getAlertText1().cStr(), fpcs.getAlertText2().cStr(),
+           fpcs.getAlertType().cStr(), static_cast<cereal::ControlsState::AlertSize>(fpcs.getAlertSize()), static_cast<cereal::ControlsState::AlertStatus>(fpcs.getAlertStatus())};
+    }
   }
 
   if (!sm.updated("controlsState") && (sm.frame - started_frame) > 5 * UI_FREQ && !frogpilot_toggles.value("force_onroad").toBool()) {
@@ -96,6 +102,7 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
     margin = 0;
     radius = 0;
   }
+  alertHeight -= margin;
   QRect r = QRect(0 + margin, height() - h + margin, width() - margin*2, h - margin*2);
 
   QPainter p(this);
@@ -103,7 +110,7 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
   // draw background + gradient
   p.setPen(Qt::NoPen);
   p.setCompositionMode(QPainter::CompositionMode_SourceOver);
-  p.setBrush(QBrush(alert_colors[alert.status]));
+  p.setBrush(QBrush(frogpilot_alert_colors[static_cast<cereal::FrogPilotControlsState::AlertStatus>(alert.status)]));
   p.drawRoundedRect(r, radius, radius);
 
   QLinearGradient g(0, r.y(), 0, r.bottom());

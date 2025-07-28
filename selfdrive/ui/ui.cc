@@ -45,8 +45,19 @@ int get_path_length_idx(const cereal::XYZTData::Reader &line, const float path_h
 }
 
 void update_leads(UIState *s, const cereal::RadarState::Reader &radar_state, const cereal::XYZTData::Reader &line) {
+  for (int i = 0; i < 2; ++i) {
+    const auto &lead_data = (i == 0) ? radar_state.getLeadOne() : radar_state.getLeadTwo();
+    if (lead_data.getStatus()) {
+      float z = line.getZ()[get_path_length_idx(line, lead_data.getDRel())];
+      calib_frame_to_full_frame(s, lead_data.getDRel(), -lead_data.getYRel(), z + 1.22, &s->scene.lead_vertices[i]);
+    }
+  }
+}
+
+void update_leads_frogpilot(UIState *s, const cereal::FrogPilotRadarState::Reader &frogpilot_radar_state, const cereal::XYZTData::Reader &line) {
   for (int i = 0; i < 4; ++i) {
-    auto lead_data = (i == 0) ? radar_state.getLeadOne() : (i == 1) ? radar_state.getLeadTwo() : (i == 2) ? radar_state.getLeadLeft() : radar_state.getLeadRight();
+    if (i == 1) continue;
+    auto lead_data = (i == 0) ? frogpilot_radar_state.getLeadOne() : (i == 2) ? frogpilot_radar_state.getLeadLeft() : frogpilot_radar_state.getLeadRight();
     if (lead_data.getStatus()) {
       float z = line.getZ()[get_path_length_idx(line, lead_data.getDRel())];
       calib_frame_to_full_frame(s, lead_data.getDRel(), -lead_data.getYRel(), z + 1.22, &s->scene.lead_vertices[i]);
@@ -145,6 +156,12 @@ void update_model(UIState *s, FrogPilotUIState *fs,
   if (lead_one.getStatus()) {
     const float lead_d = lead_one.getDRel() * 2.;
     max_distance = std::clamp((float)(lead_d - fmin(lead_d * 0.35, 10.)), 0.0f, max_distance);
+  } else {
+    auto frogpilot_lead_one = (*fs->sm)["frogpilotRadarState"].getFrogpilotRadarState().getLeadOne();
+    if (frogpilot_lead_one.getStatus()) {
+      const float lead_d = frogpilot_lead_one.getDRel() * 2.;
+      max_distance = std::clamp((float)(lead_d - fmin(lead_d * 0.35, 10.)), 0.0f, max_distance);
+    }
   }
   max_idx = get_path_length_idx(plan_position, max_distance);
   update_line_data(s, plan_position, frogpilot_toggles.value("model_ui").toBool() ? path_width * (1 - (frogpilot_toggles.value("path_edge_width").toDouble() / 100.0f)) : 0.9, 1.22, &scene.track_vertices, max_idx, false);

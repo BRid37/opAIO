@@ -11,12 +11,12 @@ import urllib.request
 from pathlib import Path
 
 from openpilot.frogpilot.common.frogpilot_utilities import is_url_pingable
-from openpilot.frogpilot.common.frogpilot_variables import MAPD_PATH, params_memory
+from openpilot.frogpilot.common.frogpilot_variables import MAPD_PATH, RESOURCES_REPO, params_memory
 
 VERSION = "v2"
 
-GITHUB_VERSION_URL = f"https://github.com/FrogAi/FrogPilot-Resources/raw/Versions/mapd_version_{VERSION}.json"
-GITLAB_VERSION_URL = f"https://gitlab.com/FrogAi/FrogPilot-Resources/-/raw/Versions/mapd_version_{VERSION}.json"
+GITHUB_VERSION_URL = f"https://github.com/{RESOURCES_REPO}/raw/Versions/mapd_version_{VERSION}.json"
+GITLAB_VERSION_URL = f"https://gitlab.com/{RESOURCES_REPO}/-/raw/Versions/mapd_version_{VERSION}.json"
 
 VERSION_PATH = Path("/data/media/0/osm/mapd_version")
 
@@ -30,7 +30,7 @@ def download():
 
   urls = [
     f"https://github.com/pfeiferj/openpilot-mapd/releases/download/{latest_version}/mapd",
-    f"https://gitlab.com/FrogAi/FrogPilot-Resources/-/raw/Mapd/{latest_version}"
+    f"https://gitlab.com/{RESOURCES_REPO}/-/raw/Mapd/{latest_version}"
   ]
 
   for url in urls:

@@ -22,7 +22,7 @@ from openpilot.frogpilot.assets.model_manager import ModelManager
 from openpilot.frogpilot.assets.theme_manager import HOLIDAY_THEME_PATH, ThemeManager
 from openpilot.frogpilot.common.frogpilot_utilities import delete_file, run_cmd, use_konik_server
 from openpilot.frogpilot.common.frogpilot_variables import (
-  ERROR_LOGS_PATH, EXCLUDED_KEYS, KONIK_LOGS_PATH, MODELS_PATH, SCREEN_RECORDINGS_PATH,
+  ERROR_LOGS_PATH, EXCLUDED_KEYS, HD_LOGS_PATH, KONIK_LOGS_PATH, MODELS_PATH, SCREEN_RECORDINGS_PATH,
   THEME_SAVE_PATH, FrogPilotVariables, frogpilot_default_params, get_frogpilot_toggles, params
 )
 
@@ -158,6 +158,7 @@ def frogpilot_boot_functions(build_metadata, params_cache):
 
 def setup_frogpilot(build_metadata):
   ERROR_LOGS_PATH.mkdir(parents=True, exist_ok=True)
+  HD_LOGS_PATH.mkdir(parents=True, exist_ok=True)
   KONIK_LOGS_PATH.mkdir(parents=True, exist_ok=True)
   MODELS_PATH.mkdir(parents=True, exist_ok=True)
   SCREEN_RECORDINGS_PATH.mkdir(parents=True, exist_ok=True)

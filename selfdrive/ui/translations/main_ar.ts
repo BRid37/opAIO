@@ -15,10 +15,6 @@
         <source>Reboot and Update</source>
         <translation>إعادة التشغيل والتحديث</translation>
     </message>
-    <message>
-        <source>Disable Internet Check</source>
-        <translation type="gpt-4o-generated">تعطيل فحص الإنترنت</translation>
-    </message>
 </context>
 <context>
     <name>AdvancedNetworking</name>
@@ -890,12 +886,12 @@
         <translation type="gpt-4o-generated">ثوانٍ</translation>
     </message>
     <message>
-        <source>Disable Internet Requirement</source>
-        <translation type="gpt-4o-generated">تعطيل متطلبات الإنترنت</translation>
+        <source>High Bitrate Recording</source>
+        <translation type="gpt-4o-generated">تسجيل بمعدل بت مرتفع</translation>
     </message>
     <message>
-        <source>Allow the device to work indefinitely without an internet connection.</source>
-        <translation type="gpt-4o-generated">السماح للجهاز بالعمل إلى أجل غير مسمى بدون اتصال بالإنترنت.</translation>
+        <source>Record driving footage at double the standard bitrate for improved video quality in driving logs.</source>
+        <translation type="gpt-4o-generated">تسجيل لقطات القيادة بمعدل بتات مضاعف عن المعدل القياسي لتحسين جودة الفيديو في سجلات القيادة.</translation>
     </message>
 </context>
 <context>
@@ -1171,6 +1167,18 @@
     <message>
         <source> km/h</source>
         <translation type="gpt-4o-generated">km/h</translation>
+    </message>
+    <message>
+        <source>Turn Signal Only</source>
+        <translation type="gpt-4o-generated">إشارة الانعطاف فقط</translation>
+    </message>
+    <message>
+        <source>Force Torque Controller</source>
+        <translation type="gpt-4o-generated">متحكم القوة والعزم</translation>
+    </message>
+    <message>
+        <source>Use a steadier steering method that holds lane center more firmly, especially through curves and in crosswinds.</source>
+        <translation type="gpt-4o-generated">استخدم طريقة توجيه أكثر ثباتًا تحافظ على مركز الحارة بشكل أكثر إحكامًا، خاصةً عند المنحنيات وفي الرياح الجانبية.</translation>
     </message>
 </context>
 <context>
@@ -1652,56 +1660,28 @@
         <translation type="gpt-4o-generated">إزاحات بالنسبة للحد الأقصى للسرعة المعلنة لتجربة قيادة أكثر "إنسانية".</translation>
     </message>
     <message>
-        <source>Speed Limit Offset (0–24 mph)</source>
-        <translation type="gpt-4o-generated">إزاحة حد السرعة (0–24 ميل/ساعة)</translation>
-    </message>
-    <message>
         <source>Target speed offset applied for posted limits between 0 and 24 mph.</source>
         <translation type="gpt-4o-generated">تم تطبيق تعويض السرعة المستهدفة للحدود المنشورة بين 0 و24 ميل في الساعة.</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (25–34 mph)</source>
-        <translation type="gpt-4o-generated">إزاحة حد السرعة (25-34 ميل في الساعة)</translation>
     </message>
     <message>
         <source>Target speed offset applied for posted limits between 25 and 34 mph.</source>
         <translation type="gpt-4o-generated">تم تطبيق تعويض السرعة المستهدفة للحدود المعلنة بين 25 و34 ميل في الساعة.</translation>
     </message>
     <message>
-        <source>Speed Limit Offset (35–44 mph)</source>
-        <translation type="gpt-4o-generated">إزاحة حد السرعة (35–44 ميل في الساعة)</translation>
-    </message>
-    <message>
         <source>Target speed offset applied for posted limits between 35 and 44 mph.</source>
         <translation type="gpt-4o-generated">تم تطبيق تعويض السرعة المستهدفة للحدود المعلنة بين 35 و44 ميل في الساعة.</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (45–54 mph)</source>
-        <translation type="gpt-4o-generated">إزاحة حد السرعة (45-54 ميل في الساعة)</translation>
     </message>
     <message>
         <source>Target speed offset applied for posted limits between 45 and 54 mph.</source>
         <translation type="gpt-4o-generated">تم تطبيق تعويض السرعة المستهدفة للحدود المنشورة بين 45 و54 ميل في الساعة.</translation>
     </message>
     <message>
-        <source>Speed Limit Offset (55–64 mph)</source>
-        <translation type="gpt-4o-generated">إزاحة حد السرعة (55-64 ميل في الساعة)</translation>
-    </message>
-    <message>
         <source>Target speed offset applied for posted limits between 55 and 64 mph.</source>
         <translation type="gpt-4o-generated">تم تطبيق تعويض السرعة المستهدفة للحدود المنشورة بين 55 و64 ميل في الساعة.</translation>
     </message>
     <message>
-        <source>Speed Limit Offset (65–74 mph)</source>
-        <translation type="gpt-4o-generated">إزاحة حد السرعة (65–74 ميل/ساعة)</translation>
-    </message>
-    <message>
         <source>Target speed offset applied for posted limits between 65 and 74 mph.</source>
         <translation type="gpt-4o-generated">تم تطبيق تعويض السرعة المستهدفة للحدود المنشورة بين 65 و74 ميل في الساعة.</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (75–99 mph)</source>
-        <translation type="gpt-4o-generated">إزاحة حد السرعة (75–99 ميل في الساعة)</translation>
     </message>
     <message>
         <source>Target speed offset applied for posted limits between 75 and 99 mph.</source>
@@ -1912,34 +1892,6 @@
         <translation type="gpt-4o-generated">km/h</translation>
     </message>
     <message>
-        <source>Speed Limit Offset (0–29 km/h)</source>
-        <translation type="gpt-4o-generated">إزاحة حد السرعة (0–29 كم/س)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (30–49 km/h)</source>
-        <translation type="gpt-4o-generated">إزاحة حد السرعة (30-49 كم/س)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (50–59 km/h)</source>
-        <translation type="gpt-4o-generated">إزاحة حد السرعة (50-59 كم/س)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (60–79 km/h)</source>
-        <translation type="gpt-4o-generated">إزاحة حد السرعة (60–79 كم/ساعة)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (80–99 km/h)</source>
-        <translation type="gpt-4o-generated">إزاحة حد السرعة (80–99 كم/س)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (100–119 km/h)</source>
-        <translation type="gpt-4o-generated">إزاحة حد السرعة (100-119 كم/س)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (120–140 km/h)</source>
-        <translation type="gpt-4o-generated">إزاحة حد السرعة (120–140 كم/س)</translation>
-    </message>
-    <message>
         <source>Target speed offset applied for posted limits between 0 and 29 km/h.</source>
         <translation type="gpt-4o-generated">تم تطبيق تعويض السرعة المستهدفة للحدود المنشورة بين 0 و29 كم/ساعة.</translation>
     </message>
@@ -1968,56 +1920,180 @@
         <translation type="gpt-4o-generated">تم تطبيق تعويض السرعة المستهدفة للحدود المنشورة بين 120 و140 كم/س.</translation>
     </message>
     <message>
-        <source>Curve Speed Control</source>
-        <translation type="gpt-4o-generated">التحكم في سرعة المنحنى</translation>
+        <source>Advanced Longitudinal Tuning</source>
+        <translation type="gpt-4o-generated">الضبط الطولي المتقدم</translation>
     </message>
     <message>
-        <source>Automatically slow down for upcoming curves using downloaded maps or the driving model.</source>
-        <translation type="gpt-4o-generated">استخدم الخرائط المحملة أو نموذج القيادة لتقليل السرعة تلقائيًا عند الاقتراب من المنحنيات.</translation>
+        <source>Advanced settings for customizing how openpilot handles acceleration and braking.</source>
+        <translation type="gpt-4o-generated">إعدادات متقدمة لتخصيص كيفية تعامل openpilot مع التسارع والفرملة.</translation>
     </message>
     <message>
-        <source>Curve Detection Method</source>
-        <translation type="gpt-4o-generated">طريقة اكتشاف المنحنى</translation>
+        <source>Actuator Delay (Default: %1)</source>
+        <translation type="gpt-4o-generated">تأخير المشغل (الافتراضي: %1)</translation>
     </message>
     <message>
-        <source>How curves are detected. &lt;b&gt;Map-Based&lt;/b&gt; uses downloaded map data to identify curves and determine the appropriate speed in which to handle them at, while &lt;b&gt;Vision&lt;/b&gt; relies solely on the driving model.</source>
-        <translation type="gpt-4o-generated">كيف يتم اكتشاف المنحنيات. &lt;b&gt;المستند إلى الخريطة&lt;/b&gt; يستخدم بيانات الخريطة المحملة لتحديد المنحنيات وتحديد السرعة المناسبة للتعامل معها، بينما يعتمد &lt;b&gt;الرؤية&lt;/b&gt; فقط على نموذج القيادة.</translation>
+        <source>Actuator Delay</source>
+        <translation type="gpt-4o-generated">تأخير المشغل</translation>
     </message>
     <message>
-        <source>Curve Detection Failsafe</source>
-        <translation type="gpt-4o-generated">فشل اكتشاف المنحنى</translation>
+        <source>Delay before throttle or brake takes effect. Higher values smooth slow actuators but can feel laggy; lower values react quicker but may overshoot.</source>
+        <translation type="gpt-4o-generated">تأخير قبل أن يبدأ تأثير الخنق أو الفرامل. القيم الأعلى تجعل المحركات البطيئة أكثر سلاسة ولكن قد تشعر بالتأخير؛ القيم الأقل تتفاعل بشكل أسرع ولكن قد تتجاوز الهدف.</translation>
     </message>
     <message>
-        <source>Only trigger &lt;b&gt;Curve Speed Control&lt;/b&gt; if a curve is detected with the model while using the &lt;b&gt;Map-Based&lt;/b&gt; method. Useful to help prevent false positives.</source>
-        <translation type="gpt-4o-generated">قم بتفعيل &lt;b&gt;التحكم في سرعة المنحنى&lt;/b&gt; فقط إذا تم اكتشاف منحنى باستخدام النموذج أثناء استخدام طريقة &lt;b&gt;المعتمدة على الخريطة&lt;/b&gt;. مفيد للمساعدة في منع الإيجابيات الكاذبة.</translation>
+        <source>Start Acceleration (Default: %1)</source>
+        <translation type="gpt-4o-generated">بدء التسارع (الافتراضي: %1)</translation>
     </message>
     <message>
-        <source>Curve Detection Sensitivity</source>
-        <translation type="gpt-4o-generated">حساسية اكتشاف المنحنى</translation>
+        <source>Start Acceleration</source>
+        <translation type="gpt-4o-generated">بدء التسارع</translation>
     </message>
     <message>
-        <source>How sensitive openpilot is when detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently.</source>
-        <translation type="gpt-4o-generated">مدى حساسية openpilot عند اكتشاف المنحنيات. القيم الأعلى تؤدي إلى استجابات مبكرة مع خطر التفعيل بشكل متكرر، بينما القيم الأقل تزيد الثقة مع خطر التفعيل بشكل غير متكرر.</translation>
+        <source>Extra acceleration applied when pulling away from a stop. Increase for snappier launches at the cost of smoothness; decrease for gentler starts.</source>
+        <translation type="gpt-4o-generated">تسارع إضافي يتم تطبيقه عند الانطلاق من التوقف. زيادة للحصول على انطلاقات أكثر حدة على حساب السلاسة؛ تقليل للحصول على بدايات أكثر لطفًا.</translation>
     </message>
     <message>
-        <source>Curve Speed Aggressiveness</source>
-        <translation type="gpt-4o-generated">حدة سرعة المنحنى</translation>
+        <source>Start Speed (Default: %1)</source>
+        <translation type="gpt-4o-generated">سرعة البدء (الافتراضي: %1)</translation>
     </message>
     <message>
-        <source>How aggressive openpilot is when navigating through curves. Higher values result in faster turns but may reduce comfort or stability, while lower values result in slower, smoother turns at the risk of being overly cautious.</source>
-        <translation type="gpt-4o-generated">مدى عدوانية openpilot عند التنقل عبر المنحنيات. تؤدي القيم الأعلى إلى انعطافات أسرع ولكن قد تقلل من الراحة أو الاستقرار، بينما تؤدي القيم الأقل إلى انعطافات أبطأ وأكثر سلاسة مع خطر أن تكون مفرطة في الحذر.</translation>
+        <source>Start Speed</source>
+        <translation type="gpt-4o-generated">بدء السرعة</translation>
     </message>
     <message>
-        <source>Map Based</source>
-        <translation type="gpt-4o-generated">مبني على الخريطة</translation>
+        <source>Speed where openpilot begins to exit the stopped state. Higher values avoid creeping but may feel sluggish; lower values move sooner but risk creeping.</source>
+        <translation type="gpt-4o-generated">السرعة التي يبدأ فيها openpilot بالخروج من حالة التوقف. القيم الأعلى تتجنب الزحف ولكن قد تشعر بالبطء؛ القيم الأدنى تتحرك في وقت أقرب ولكنها تخاطر بالزحف.</translation>
     </message>
     <message>
-        <source>Vision</source>
-        <translation type="gpt-4o-generated">رؤية</translation>
+        <source>Stop Acceleration (Default: %1)</source>
+        <translation type="gpt-4o-generated">إيقاف التسارع (الافتراضي: %1)</translation>
     </message>
     <message>
-        <source>The &lt;b&gt;Map Based&lt;/b&gt; option is only available when some &lt;b&gt;Map Data&lt;/b&gt; has been downloaded!</source>
-        <translation type="gpt-4o-generated">خيار &lt;b&gt;المستند إلى الخريطة&lt;/b&gt; متاح فقط عند تنزيل بعض &lt;b&gt;بيانات الخريطة&lt;/b&gt;!</translation>
+        <source>Stop Acceleration</source>
+        <translation type="gpt-4o-generated">إيقاف التسارع</translation>
+    </message>
+    <message>
+        <source>Brake force applied to hold the vehicle still. Larger values prevent creeping on hills but might jerk to a stop. Smaller values can feel smoother but may allow rolling.</source>
+        <translation type="gpt-4o-generated">يتم تطبيق قوة الفرامل لإبقاء المركبة ثابتة. القيم الأكبر تمنع الزحف على التلال ولكن قد تؤدي إلى توقف مفاجئ. القيم الأصغر قد تكون أكثر سلاسة ولكن قد تسمح بالتدحرج.</translation>
+    </message>
+    <message>
+        <source>Stopping Rate (Default: %1)</source>
+        <translation type="gpt-4o-generated">معدل الإيقاف (الافتراضي: %1)</translation>
+    </message>
+    <message>
+        <source>Stopping Rate</source>
+        <translation type="gpt-4o-generated">معدل التوقف</translation>
+    </message>
+    <message>
+        <source>How quickly braking ramps up when stopping. Faster rates shorten stopping distance but can be harsh; slower rates are smoother but need more room.</source>
+        <translation type="gpt-4o-generated">مدى سرعة زيادة الكبح عند التوقف. معدلات أسرع تقصر مسافة التوقف ولكن يمكن أن تكون قاسية؛ معدلات أبطأ تكون أكثر سلاسة ولكن تحتاج إلى مساحة أكبر.</translation>
+    </message>
+    <message>
+        <source>Stop Speed (Default: %1)</source>
+        <translation type="gpt-4o-generated">إيقاف السرعة (الافتراضي: %1)</translation>
+    </message>
+    <message>
+        <source>Stop Speed</source>
+        <translation type="gpt-4o-generated">إيقاف السرعة</translation>
+    </message>
+    <message>
+        <source>Speed where openpilot beings to enter the stopped state. Higher values brake earlier for smoother stops but might stop too soon; lower values wait longer and can overshoot.</source>
+        <translation type="gpt-4o-generated">السرعة التي يبدأ فيها openpilot بالدخول في حالة التوقف. القيم الأعلى تكبح في وقت مبكر لتوقفات أكثر سلاسة ولكن قد تتوقف في وقت مبكر جدًا؛ القيم الأدنى تنتظر لفترة أطول وقد تتجاوز النقطة المحددة.</translation>
+    </message>
+    <message>
+        <source>Curve Speed Controller</source>
+        <translation type="gpt-4o-generated">متحكم سرعة المنحنى</translation>
+    </message>
+    <message>
+        <source>Automatically slows down for upcoming curves using data from your own driving, adapting to curves just like you would.</source>
+        <translation type="gpt-4o-generated">يتباطأ تلقائيًا عند الاقتراب من المنحنيات باستخدام بيانات قيادتك الخاصة، ويتكيف مع المنحنيات تمامًا كما تفعل.</translation>
+    </message>
+    <message>
+        <source>Calibrated Lateral Acceleration</source>
+        <translation type="gpt-4o-generated">التسارع الجانبي المعاير</translation>
+    </message>
+    <message>
+        <source>Displays the learned lateral acceleration target based on your driving.</source>
+        <translation type="gpt-4o-generated">يعرض هدف التسارع الجانبي المكتسب بناءً على قيادتك.</translation>
+    </message>
+    <message>
+        <source>Calibration Progress</source>
+        <translation type="gpt-4o-generated">تقدم المعايرة</translation>
+    </message>
+    <message>
+        <source>How much driving data has been collected to personalize the vehicle's curve handling behavior.</source>
+        <translation type="gpt-4o-generated">كمية بيانات القيادة التي تم جمعها لتخصيص سلوك التعامل مع المنحنيات في السيارة.</translation>
+    </message>
+    <message>
+        <source>Reset Curve Data</source>
+        <translation type="gpt-4o-generated">إعادة تعيين بيانات المنحنى</translation>
+    </message>
+    <message>
+        <source>Reset collected user data for &lt;b&gt;Curve Speed Control&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">إعادة تعيين البيانات المجمعة لمراقبة سرعة المنحنى.</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset your curvature data?</source>
+        <translation type="gpt-4o-generated">هل أنت متأكد أنك تريد إعادة تعيين بيانات الانحناء بالكامل؟</translation>
+    </message>
+    <message>
+        <source>Speed Offset (0–24 mph)</source>
+        <translation type="gpt-4o-generated">إزاحة السرعة (0–24 ميل/ساعة)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (25–34 mph)</source>
+        <translation type="gpt-4o-generated">إزاحة السرعة (25-34 ميل/ساعة)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (35–44 mph)</source>
+        <translation type="gpt-4o-generated">إزاحة السرعة (35–44 ميل/ساعة)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (45–54 mph)</source>
+        <translation type="gpt-4o-generated">إزاحة السرعة (45-54 ميل/ساعة)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (55–64 mph)</source>
+        <translation type="gpt-4o-generated">إزاحة السرعة (55-64 ميل/ساعة)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (65–74 mph)</source>
+        <translation type="gpt-4o-generated">إزاحة السرعة (65–74 ميل/ساعة)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (75–99 mph)</source>
+        <translation type="gpt-4o-generated">إزاحة السرعة (75–99 ميل/ساعة)</translation>
+    </message>
+    <message>
+        <source>Only For Detected Lanes</source>
+        <translation type="gpt-4o-generated">فقط للمسارات المكتشفة</translation>
+    </message>
+    <message>
+        <source>Speed Offset (0–29 km/h)</source>
+        <translation type="gpt-4o-generated">إزاحة السرعة (0-29 كم/س)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (30–49 km/h)</source>
+        <translation type="gpt-4o-generated">فرق السرعة (30-49 كم/س)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (50–59 km/h)</source>
+        <translation type="gpt-4o-generated">فرق السرعة (50-59 كم/س)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (60–79 km/h)</source>
+        <translation type="gpt-4o-generated">إزاحة السرعة (60-79 كم/س)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (80–99 km/h)</source>
+        <translation type="gpt-4o-generated">إزاحة السرعة (80-99 كم/س)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (100–119 km/h)</source>
+        <translation type="gpt-4o-generated">إزاحة السرعة (100-119 كم/س)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (120–140 km/h)</source>
+        <translation type="gpt-4o-generated">إزاحة السرعة (120-140 كم/س)</translation>
     </message>
 </context>
 <context>
@@ -2205,6 +2281,10 @@
         <source>CANCELLED</source>
         <translation type="gpt-4o-generated">أُلغي</translation>
     </message>
+    <message>
+        <source>Offline...</source>
+        <translation type="gpt-4o-generated">غير متصل...</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotModelPanel</name>
@@ -2372,6 +2452,50 @@
         <source>The "Model Randomizer" only works with downloaded models. Do you want to download all the driving models?</source>
         <translation type="gpt-4o-generated">يعمل "Model Randomizer" فقط مع النماذج التي تم تنزيلها. هل تريد تنزيل جميع نماذج القيادة؟</translation>
     </message>
+    <message>
+        <source>Update Tinygrad</source>
+        <translation type="gpt-4o-generated">تحديث Tinygrad</translation>
+    </message>
+    <message>
+        <source>Update the Tinygrad model process to support the latest models.</source>
+        <translation type="gpt-4o-generated">تحديث عملية نموذج Tinygrad لدعم النماذج الأحدث.</translation>
+    </message>
+    <message>
+        <source>UPDATE</source>
+        <translation type="gpt-4o-generated">تحديث</translation>
+    </message>
+    <message>
+        <source>Cancelling...</source>
+        <translation type="gpt-4o-generated">إلغاء...</translation>
+    </message>
+    <message>
+        <source>This will redownload and recompile all of your Tinygrad models, so only proceed if you won't be driving for the next 30+ minutes!</source>
+        <translation type="gpt-4o-generated">سيؤدي ذلك إلى إعادة تنزيل وإعادة تجميع جميع نماذج Tinygrad الخاصة بك، لذا تابع فقط إذا كنت لن تقود السيارة خلال الـ 30 دقيقة القادمة!</translation>
+    </message>
+    <message>
+        <source>Updating...</source>
+        <translation type="gpt-4o-generated">جارٍ التحديث...</translation>
+    </message>
+    <message>
+        <source>Offline...</source>
+        <translation type="gpt-4o-generated">غير متصل...</translation>
+    </message>
+    <message>
+        <source>Update available!</source>
+        <translation type="gpt-4o-generated">تحديث متاح!</translation>
+    </message>
+    <message>
+        <source>Up to date!</source>
+        <translation type="gpt-4o-generated">محدث!</translation>
+    </message>
+    <message>
+        <source>Updated!</source>
+        <translation type="gpt-4o-generated">محدث!</translation>
+    </message>
+    <message>
+        <source>This model requires a compilation process that will take a few minutes. Do you wish to continue?</source>
+        <translation type="gpt-4o-generated">يتطلب هذا النموذج عملية تجميع ستستغرق بضع دقائق. هل ترغب في المتابعة؟</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotNavigationPanel</name>
@@ -2402,10 +2526,6 @@
     <message>
         <source>Manage Your Settings At</source>
         <translation type="gpt-4o-generated">إدارة إعداداتك في</translation>
-    </message>
-    <message>
-        <source>Device Offline</source>
-        <translation type="gpt-4o-generated">الجهاز غير متصل بالإنترنت</translation>
     </message>
     <message>
         <source>MapBox</source>
@@ -2488,16 +2608,8 @@
         <translation type="gpt-4o-generated">إلغاء</translation>
     </message>
     <message>
-        <source>Update Speed Limits</source>
-        <translation type="gpt-4o-generated">تحديث حدود السرعة</translation>
-    </message>
-    <message>
         <source>Speed Limit Filler</source>
         <translation type="gpt-4o-generated">حشو حد السرعة</translation>
-    </message>
-    <message>
-        <source>Automatically collect missing speed limits from your dashboard (if supported), &lt;b&gt;Mapbox&lt;/b&gt;, and &lt;b&gt;Navigate-on-openpilot&lt;/b&gt; while driving.&lt;br&gt;&lt;br&gt;Tap &lt;b&gt;Update Speed Limits&lt;/b&gt; at home (good Wi-Fi, 12V power) to process your recent drives.&lt;br&gt;&lt;br&gt;Download the data from &lt;b&gt;Fleet Manager&lt;/b&gt; → &lt;b&gt;Tools&lt;/b&gt; → &lt;b&gt;Download Speed Limits&lt;/b&gt;, then upload it to &lt;b&gt;SpeedLimitFiller.frogpilot.download&lt;/b&gt; to review and submit.&lt;br&gt;&lt;br&gt;For a full walkthrough, check the &lt;b&gt;#speed-limit-filler&lt;/b&gt; channel in the &lt;b&gt;FrogPilot Discord&lt;/b&gt;!</source>
-        <translation type="gpt-4o-generated">جمع حدود السرعة المفقودة تلقائيًا من لوحة القيادة الخاصة بك (إذا كانت مدعومة)، &lt;b&gt;Mapbox&lt;/b&gt;، و&lt;b&gt;Navigate-on-openpilot&lt;/b&gt; أثناء القيادة.&lt;br&gt;&lt;br&gt;اضغط على &lt;b&gt;تحديث حدود السرعة&lt;/b&gt; في المنزل (اتصال واي فاي جيد، طاقة 12 فولت) لمعالجة رحلاتك الأخيرة.&lt;br&gt;&lt;br&gt;قم بتنزيل البيانات من &lt;b&gt;Fleet Manager&lt;/b&gt; → &lt;b&gt;Tools&lt;/b&gt; → &lt;b&gt;Download Speed Limits&lt;/b&gt;، ثم قم بتحميلها إلى &lt;b&gt;SpeedLimitFiller.frogpilot.download&lt;/b&gt; للمراجعة والتقديم.&lt;br&gt;&lt;br&gt;للحصول على شرح كامل، تحقق من قناة &lt;b&gt;#speed-limit-filler&lt;/b&gt; في &lt;b&gt;FrogPilot Discord&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you want to cancel the speed limit update process?</source>
@@ -2514,6 +2626,26 @@ It will reset in %1 hours and %2 minutes.</source>
     <message>
         <source>This process will take awhile, so it's advised to start when you're done driving with a stable Wi-Fi connection. Do you wish to proceed?</source>
         <translation type="gpt-4o-generated">ستستغرق هذه العملية بعض الوقت، لذا يُنصح بالبدء عندما تنتهي من القيادة مع اتصال Wi-Fi مستقر. هل ترغب في المتابعة؟</translation>
+    </message>
+    <message>
+        <source>Manually Update Speed Limits</source>
+        <translation type="gpt-4o-generated">تحديث حدود السرعة يدويًا</translation>
+    </message>
+    <message>
+        <source>Automatically collect missing or incorrect speed limits from your dashboard (if supported), &lt;b&gt;Mapbox&lt;/b&gt;, and &lt;b&gt;Navigate-on-openpilot&lt;/b&gt; while driving.&lt;br&gt;&lt;br&gt;When the car is turned off and connected to Wi-Fi, your speed limit data is automatically processed into a compiled file formatted for the tool located at &lt;b&gt;SpeedLimitFiller.frogpilot.download&lt;/b&gt;.&lt;br&gt;&lt;br&gt;You can grab the processed file from &lt;b&gt;The Pond&lt;/b&gt; via the &lt;b&gt;Download Speed Limits&lt;/b&gt; menu.&lt;br&gt;&lt;br&gt;Want a more thorough walkthrough? Check out the &lt;b&gt;#speed-limit-filler&lt;/b&gt; channel in the &lt;b&gt;FrogPilot Discord&lt;/b&gt;!</source>
+        <translation type="gpt-4o-generated">جمع حدود السرعة المفقودة أو غير الصحيحة تلقائيًا من لوحة القيادة الخاصة بك (إذا كانت مدعومة)، &lt;b&gt;Mapbox&lt;/b&gt;، و&lt;b&gt;Navigate-on-openpilot&lt;/b&gt; أثناء القيادة.&lt;br&gt;&lt;br&gt;عندما يتم إطفاء السيارة وتكون متصلة بشبكة Wi-Fi، تتم معالجة بيانات حدود السرعة الخاصة بك تلقائيًا في ملف مجمع مهيأ للأداة الموجودة في &lt;b&gt;SpeedLimitFiller.frogpilot.download&lt;/b&gt;.&lt;br&gt;&lt;br&gt;يمكنك الحصول على الملف المعالج من &lt;b&gt;The Pond&lt;/b&gt; عبر قائمة &lt;b&gt;Download Speed Limits&lt;/b&gt;.&lt;br&gt;&lt;br&gt;تريد شرحًا أكثر تفصيلًا؟ تحقق من قناة &lt;b&gt;#speed-limit-filler&lt;/b&gt; في &lt;b&gt;FrogPilot Discord&lt;/b&gt;!</translation>
+    </message>
+    <message>
+        <source>Cancelled...</source>
+        <translation type="gpt-4o-generated">ملغى...</translation>
+    </message>
+    <message>
+        <source>Completed!</source>
+        <translation type="gpt-4o-generated">مكتمل!</translation>
+    </message>
+    <message>
+        <source>Offline...</source>
+        <translation type="gpt-4o-generated">غير متصل...</translation>
     </message>
 </context>
 <context>
@@ -2779,6 +2911,10 @@ Developer - Unlocks highly customizable settings for seasoned enthusiasts</sourc
         <source>Auto</source>
         <translation type="gpt-4o-generated">تلقائي</translation>
     </message>
+    <message>
+        <source>Test</source>
+        <translation type="gpt-4o-generated">اختبار</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotThemesPanel</name>
@@ -2833,10 +2969,6 @@ Want to submit your own sounds? Share them in the "custom-themes" channel on the
     <message>
         <source>The steering wheel icon in the top right of the driving screen.</source>
         <translation type="gpt-4o-generated">رمز عجلة القيادة في الزاوية العلوية اليمنى من شاشة القيادة.</translation>
-    </message>
-    <message>
-        <source>Turn Signal Animation</source>
-        <translation type="gpt-4o-generated">إشارة الانعطاف المتحركة</translation>
     </message>
     <message>
         <source>Themed turn signal animations.
@@ -3042,6 +3174,14 @@ Want to submit your own animations? Share them in the "custom-themes" channel on
         <source>Are you sure you want to completely reset your startup message?</source>
         <translation type="gpt-4o-generated">هل أنت متأكد أنك تريد إعادة تعيين رسالة بدء التشغيل بالكامل؟</translation>
     </message>
+    <message>
+        <source>Turn Signal</source>
+        <translation type="gpt-4o-generated">إشارة الانعطاف</translation>
+    </message>
+    <message>
+        <source>Offline...</source>
+        <translation type="gpt-4o-generated">غير متصل...</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotUtilitiesPanel</name>
@@ -3122,26 +3262,6 @@ Want to submit your own animations? Share them in the "custom-themes" channel on
         <translation type="gpt-4o-generated">رأيت تنبيهًا يقول "openpilot crashed"</translation>
     </message>
     <message>
-        <source>I'm noticing harsh acceleration</source>
-        <translation type="gpt-4o-generated">ألاحظ تسارعًا حادًا</translation>
-    </message>
-    <message>
-        <source>I'm noticing harsh braking</source>
-        <translation type="gpt-4o-generated">ألاحظ فرملة قاسية</translation>
-    </message>
-    <message>
-        <source>I'm noticing unusual steering</source>
-        <translation type="gpt-4o-generated">ألاحظ توجيهًا غير عادي</translation>
-    </message>
-    <message>
-        <source>My car isn't staying in its lane</source>
-        <translation type="gpt-4o-generated">سيارتي لا تبقى في مسارها</translation>
-    </message>
-    <message>
-        <source>Something else</source>
-        <translation type="gpt-4o-generated">شيء آخر</translation>
-    </message>
-    <message>
         <source>What's going on?</source>
         <translation type="gpt-4o-generated">ما الذي يحدث؟</translation>
     </message>
@@ -3204,6 +3324,70 @@ Want to submit your own animations? Share them in the "custom-themes" channel on
     <message>
         <source>Ensure your device has an internet connection before sending a report!</source>
         <translation type="gpt-4o-generated">تأكد من أن جهازك متصل بالإنترنت قبل إرسال التقرير!</translation>
+    </message>
+    <message>
+        <source>Acceleration feels too harsh or jerky</source>
+        <translation type="gpt-4o-generated">يشعر التسارع بأنه قاسي أو متقطع.</translation>
+    </message>
+    <message>
+        <source>An alert confused me and I didn’t know what it meant</source>
+        <translation type="gpt-4o-generated">أربكني تنبيه ولم أعرف ماذا يعني</translation>
+    </message>
+    <message>
+        <source>Braking is too sudden or uncomfortable</source>
+        <translation type="gpt-4o-generated">الفرملة مفاجئة جدًا أو غير مريحة</translation>
+    </message>
+    <message>
+        <source>I’m not sure if this is normal or a bug:</source>
+        <translation type="gpt-4o-generated">لست متأكدًا مما إذا كان هذا طبيعيًا أم خطأ:</translation>
+    </message>
+    <message>
+        <source>Lane changes don’t work properly or feel unsafe</source>
+        <translation type="gpt-4o-generated">تغيير المسارات لا يعمل بشكل صحيح أو يشعر بعدم الأمان</translation>
+    </message>
+    <message>
+        <source>My screen froze or got stuck on loading</source>
+        <translation type="gpt-4o-generated">تجمدت شاشتي أو توقفت عند التحميل</translation>
+    </message>
+    <message>
+        <source>My steering wheel buttons aren’t working</source>
+        <translation type="gpt-4o-generated">أزرار عجلة القيادة لا تعمل</translation>
+    </message>
+    <message>
+        <source>openpilot disengages when I don't expect it</source>
+        <translation type="gpt-4o-generated">يتوقف openpilot عن العمل عندما لا أتوقع ذلك</translation>
+    </message>
+    <message>
+        <source>openpilot doesn’t resume after I stop</source>
+        <translation type="gpt-4o-generated">لا يستأنف openpilot بعد أن أتوقف</translation>
+    </message>
+    <message>
+        <source>openpilot doesn't react to stopped vehicles ahead</source>
+        <translation type="gpt-4o-generated">لا يتفاعل openpilot مع المركبات المتوقفة أمامه</translation>
+    </message>
+    <message>
+        <source>openpilot feels sluggish or slow to respond</source>
+        <translation type="gpt-4o-generated">يشعر openpilot بالبطء أو الاستجابة البطيئة</translation>
+    </message>
+    <message>
+        <source>Steering feels twitchy or unnatural</source>
+        <translation type="gpt-4o-generated">التوجيه يبدو متذبذبًا أو غير طبيعي</translation>
+    </message>
+    <message>
+        <source>The car doesn’t follow curves well</source>
+        <translation type="gpt-4o-generated">السيارة لا تتبع المنحنيات بشكل جيد</translation>
+    </message>
+    <message>
+        <source>The car isn’t staying centered in its lane</source>
+        <translation type="gpt-4o-generated">السيارة لا تبقى في وسط مسارها</translation>
+    </message>
+    <message>
+        <source>The speed or display info looks wrong</source>
+        <translation type="gpt-4o-generated">تبدو سرعة أو معلومات العرض غير صحيحة</translation>
+    </message>
+    <message>
+        <source>Something else (please describe)</source>
+        <translation type="gpt-4o-generated">شيء آخر (يرجى الوصف)</translation>
     </message>
 </context>
 <context>
@@ -3700,10 +3884,6 @@ Want to submit your own animations? Share them in the "custom-themes" channel on
         <translation type="gpt-4o-generated">عرض المسار</translation>
     </message>
     <message>
-        <source>The width of the driving path on the driving screen.&lt;br&gt;&lt;br&gt;Default &lt;b&gt;(6.1 feet / 1.9 meters)&lt;/b&gt; matches the width of a &lt;b&gt;2019 Lexus ES 350&lt;/b&gt;.</source>
-        <translation type="gpt-4o-generated">عرض مسار القيادة على شاشة القيادة.&lt;br&gt;&lt;br&gt;الافتراضي &lt;b&gt;(6.1 قدم / 1.9 متر)&lt;/b&gt; يطابق عرض &lt;b&gt;لكزس ES 350 2019&lt;/b&gt;.</translation>
-    </message>
-    <message>
         <source>Road Edges Width</source>
         <translation type="gpt-4o-generated">عرض حواف الطريق</translation>
     </message>
@@ -4059,6 +4239,14 @@ Want to submit your own animations? Share them in the "custom-themes" channel on
         <source>Sidebar Metrics</source>
         <translation type="gpt-4o-generated">مقاييس الشريط الجانبي</translation>
     </message>
+    <message>
+        <source>The width of the driving path on the driving screen.&lt;br&gt;&lt;br&gt;Default &lt;b&gt;(6.1 feet)&lt;/b&gt; matches the width of a &lt;b&gt;2019 Lexus ES 350&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">عرض مسار القيادة على شاشة القيادة.&lt;br&gt;&lt;br&gt;الافتراضي &lt;b&gt;(6.1 قدم)&lt;/b&gt; يتطابق مع عرض &lt;b&gt;لكزس ES 350 2019&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>The width of the driving path on the driving screen.&lt;br&gt;&lt;br&gt;Default &lt;b&gt;(1.9 meters)&lt;/b&gt; matches the width of a &lt;b&gt;2019 Lexus ES 350&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">عرض مسار القيادة على شاشة القيادة.&lt;br&gt;&lt;br&gt;الافتراضي &lt;b&gt;(1.9 متر)&lt;/b&gt; يتطابق مع عرض &lt;b&gt;لكزس ES 350 2019&lt;/b&gt;.</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotWheelPanel</name>
@@ -4199,6 +4387,57 @@ Want to submit your own animations? Share them in the "custom-themes" channel on
     <message>
         <source>Waiting for route</source>
         <translation>بانتظار الطريق</translation>
+    </message>
+</context>
+<context>
+    <name>ModelReview</name>
+    <message>
+        <source>How would you rate that drive?</source>
+        <translation type="gpt-4o-generated">كيف تقيم تلك القيادة؟</translation>
+    </message>
+    <message>
+        <source>Blacklist this model</source>
+        <translation type="gpt-4o-generated">ضع هذا النموذج في القائمة السوداء</translation>
+    </message>
+    <message>
+        <source>The model used during that drive was:</source>
+        <translation type="gpt-4o-generated">النموذج المستخدم خلال تلك القيادة كان:</translation>
+    </message>
+    <message>
+        <source>Current Model Score: 0</source>
+        <translation type="gpt-4o-generated">الدرجة الحالية للنموذج: 0</translation>
+    </message>
+    <message>
+        <source>Current Model Rank: 0</source>
+        <translation type="gpt-4o-generated">الترتيب الحالي للنموذج: 0</translation>
+    </message>
+    <message>
+        <source>Total Model Drives: 0</source>
+        <translation type="gpt-4o-generated">إجمالي محركات النموذج: 0</translation>
+    </message>
+    <message>
+        <source>Total Overall Model Drives: 0</source>
+        <translation type="gpt-4o-generated">إجمالي محركات النموذج الكلي: 0</translation>
+    </message>
+    <message>
+        <source>Total Model Drives: %1</source>
+        <translation type="gpt-4o-generated">إجمالي محركات النموذج: %1</translation>
+    </message>
+    <message>
+        <source>Current Model Rank: %1</source>
+        <translation type="gpt-4o-generated">الترتيب الحالي للنموذج: %1</translation>
+    </message>
+    <message>
+        <source>Current Model Score: %1</source>
+        <translation type="gpt-4o-generated">الدرجة الحالية للنموذج: %1</translation>
+    </message>
+    <message>
+        <source>Total Overall Drives: %1</source>
+        <translation type="gpt-4o-generated">إجمالي محركات الأقراص: %1</translation>
+    </message>
+    <message>
+        <source>Model successfully blacklisted!</source>
+        <translation type="gpt-4o-generated">تم إدراج النموذج في القائمة السوداء بنجاح!</translation>
     </message>
 </context>
 <context>
@@ -4409,10 +4648,6 @@ Want to submit your own animations? Share them in the "custom-themes" channel on
 <context>
     <name>QObject</name>
     <message>
-        <source>Reboot</source>
-        <translation>إعادة التشغيل</translation>
-    </message>
-    <message>
         <source>Exit</source>
         <translation>إغلاق</translation>
     </message>
@@ -4472,6 +4707,10 @@ Want to submit your own animations? Share them in the "custom-themes" channel on
     <message>
         <source>FrogPilot</source>
         <translation type="gpt-4o-generated">FrogPilot</translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation type="gpt-4o-generated">استعادة</translation>
     </message>
 </context>
 <context>

@@ -10,19 +10,103 @@ using Car = import "car.capnp";
 # cereal, so use these if you want custom events in your fork.
 
 # you can rename the struct, but don't change the identifier
-struct FrogPilotCarParams @0x81c2f05a394cf4af {
+struct FrogPilotCarControl {
+  hudControl @0 :HUDControl;
+
+  struct HUDControl {
+    audibleAlert @0 :AudibleAlert;
+
+    enum AudibleAlert {
+      none @0;
+
+      engage @1;
+      disengage @2;
+      refuse @3;
+
+      warningSoft @4;
+      warningImmediate @5;
+
+      prompt @6;
+      promptRepeat @7;
+      promptDistracted @8;
+
+      angry @9;
+      continued @10;
+      dejaVu @11;
+      doc @12;
+      fart @13;
+      firefox @14;
+      goat @15;
+      hal9000 @16;
+      mail @17;
+      nessie @18;
+      noice @19;
+      startup @20;
+      thisIsFine @21;
+      uwu @22;
+    }
+  }
+}
+
+struct FrogPilotCarEvent @0x81c2f05a394cf4af {
+  name @0 :EventName;
+
+  enable @1 :Bool;
+  noEntry @2 :Bool;
+  warning @3 :Bool;
+  userDisable @4 :Bool;
+  softDisable @5 :Bool;
+  immediateDisable @6 :Bool;
+  preEnable @7 :Bool;
+  permanent @8 :Bool;
+  overrideLateral @10 :Bool;
+  overrideLongitudinal @9 :Bool;
+
+  enum EventName @0xaedffd8f31e7b55d {
+    accel30 @0;
+    accel35 @1;
+    accel40 @2;
+    blockUser @3;
+    customStartupAlert @4;
+    dejaVuCurve @5;
+    firefoxSteerSaturated @6;
+    forcingStop @7;
+    goatSteerSaturated @8;
+    greenLight @9;
+    hal9000 @10;
+    holidayActive @11;
+    laneChangeBlockedLoud @12;
+    leadDeparting @13;
+    noLaneAvailable @14;
+    openpilotCrashed @15;
+    openpilotCrashedRandomEvent @16;
+    pedalInterceptorNoBrake @17;
+    speedLimitChanged @18;
+    thisIsFineSteerSaturated @19;
+    toBeContinued @20;
+    torqueNNLoad @21;
+    trafficModeActive @22;
+    trafficModeInactive @23;
+    turningLeft @24;
+    turningRight @25;
+    vCruise69 @26;
+    yourFrogTriedToKillMe @27;
+    youveGotMail @28;
+  }
+}
+
+struct FrogPilotCarParams @0xf35cc4560bbf6ec2 {
   fpFlags @0 :UInt32;
   isHDA2 @1 :Bool;
   openpilotLongitudinalControlDisabled @2 :Bool;
+
+  lateralTuning :union {
+    pid @3 :Car.CarParams.LateralPIDTuning;
+    torque @4 :Car.CarParams.LateralTorqueTuning;
+  }
 }
 
-struct FrogPilotCarState @0xaedffd8f31e7b55d {
-  struct ButtonEvent {
-    enum Type {
-      lkas @0;
-    }
-  }
-
+struct FrogPilotCarState @0xda96579883444c35 {
   accelPressed @0 :Bool;
   alwaysOnLateralAllowed @1 :Bool;
   alwaysOnLateralEnabled @2 :Bool;
@@ -38,67 +122,124 @@ struct FrogPilotCarState @0xaedffd8f31e7b55d {
   pauseLongitudinal @12 :Bool;
   sportGear @13 :Bool;
   trafficModeEnabled @14 :Bool;
+
+  struct ButtonEvent {
+    enum Type {
+      lkas @0;
+    }
+  }
 }
 
-struct FrogPilotDeviceState @0xf35cc4560bbf6ec2 {
+struct FrogPilotControlsState @0x80ae746ee2596b11 {
+  alertStatus @0 :AlertStatus;
+  alertText1 @1 :Text;
+  alertText2 @2 :Text;
+  alertSize @3 :AlertSize;
+  alertBlinkingRate @4 :Float32;
+  alertType @5 :Text;
+  alertSound @6 :Car.CarControl.HUDControl.AudibleAlert;
+  lateralControlState @7 :LateralTorqueState;
+
+  enum AlertSize {
+    none @0;    # don't display the alert
+    small @1;   # small box
+    mid @2;     # mid screen
+    full @3;    # full screen
+  }
+
+  enum AlertStatus {
+    normal @0;       # low priority alert for user's convenience
+    userPrompt @1;   # mid priority alert that might require user intervention
+    critical @2;     # high priority alert that needs immediate user intervention
+    frogpilot @3;    # FrogPilot startup alert
+  }
+
+  struct LateralTorqueState {
+    nnLog @0 :List(Float32);
+  }
+}
+
+struct FrogPilotDeviceState @0xa5cd762cd951a455 {
   freeSpace @0 :Int16;
   usedSpace @1 :Int16;
 }
 
-struct FrogPilotNavigation @0xda96579883444c35 {
+struct FrogPilotModelDataV2 @0xf98d843bfd7004a3 {
+  turnDirection @0 :TurnDirection;
+
+  enum TurnDirection {
+    none @0;
+    turnLeft @1;
+    turnRight @2;
+  }
+}
+
+struct FrogPilotNavigation @0xf416ec09499d9d19 {
   approachingIntersection @0 :Bool;
   approachingTurn @1 :Bool;
   navigationSpeedLimit @2 :Float32;
 }
 
-struct FrogPilotPlan @0x80ae746ee2596b11 {
+struct FrogPilotPlan @0xa1680744031fdb2d {
   accelerationJerk @0 :Float32;
   accelerationJerkStock @1 :Float32;
-  dangerJerk @2 :Float32;
-  desiredFollowDistance @3 :Int64;
-  experimentalMode @4 :Bool;
-  trackingLead @5 :Bool;
-  forcingStop @6 :Bool;
-  forcingStopLength @7 :Float32;
-  frogpilotEvents @8 :List(Car.CarEvent);
-  lateralCheck @9 :Bool;
-  laneWidthLeft @10 :Float32;
-  laneWidthRight @11 :Float32;
-  maxAcceleration @12 :Float32;
-  minAcceleration @13 :Float32;
-  mtscSpeed @14 :Float32;
-  redLight @15 :Bool;
-  roadCurvature @16 :Float32;
-  slcMapSpeedLimit @17 :Float32;
-  slcMapboxSpeedLimit @18 :Float32;
-  slcNextSpeedLimit @19 :Float32;
-  slcOverriddenSpeed @20 :Float32;
-  slcSpeedLimit @21 :Float32;
-  slcSpeedLimitOffset @22 :Float32;
-  slcSpeedLimitSource @23 :Text;
-  speedJerk @24 :Float32;
-  speedJerkStock @25 :Float32;
-  speedLimitChanged @26 :Bool;
-  tFollow @27 :Float32;
-  themeUpdated @28 :Bool;
-  togglesUpdated @29 :Bool;
-  unconfirmedSlcSpeedLimit @30 :Float32;
-  vCruise @31 :Float32;
-  vtscControllingCurve @32 :Bool;
-  vtscSpeed @33 :Float32;
+  cscControllingSpeed @2 :Bool;
+  cscSpeed @3 :Float32;
+  cscTraining @4 :Bool;
+  dangerJerk @5 :Float32;
+  desiredFollowDistance @6 :Int64;
+  experimentalMode @7 :Bool;
+  followingLead @8 :Bool;
+  forcingStop @9 :Bool;
+  forcingStopLength @10 :Float32;
+  frogpilotEvents @11 :List(FrogPilotCarEvent);
+  lateralCheck @12 :Bool;
+  laneWidthLeft @13 :Float32;
+  laneWidthRight @14 :Float32;
+  maxAcceleration @15 :Float32;
+  minAcceleration @16 :Float32;
+  redLight @17 :Bool;
+  roadCurvature @18 :Float32;
+  slcMapSpeedLimit @19 :Float32;
+  slcMapboxSpeedLimit @20 :Float32;
+  slcNextSpeedLimit @21 :Float32;
+  slcOverriddenSpeed @22 :Float32;
+  slcSpeedLimit @23 :Float32;
+  slcSpeedLimitOffset @24 :Float32;
+  slcSpeedLimitSource @25 :Text;
+  speedJerk @26 :Float32;
+  speedJerkStock @27 :Float32;
+  speedLimitChanged @28 :Bool;
+  tFollow @29 :Float32;
+  themeUpdated @30 :Bool;
+  togglesUpdated @31 :Bool;
+  trackingLead @32 :Bool;
+  unconfirmedSlcSpeedLimit @33 :Float32;
+  vCruise @34 :Float32;
 }
 
-struct CustomReserved5 @0xa5cd762cd951a455 {
-}
+struct FrogPilotRadarState @0xcb9fd56c7057593a {
+  leadOne @0 :LeadData;
+  leadLeft @1 :LeadData;
+  leadRight @2 :LeadData;
 
-struct CustomReserved6 @0xf98d843bfd7004a3 {
-}
+  struct LeadData {
+    dRel @0 :Float32;
+    yRel @1 :Float32;
+    vRel @2 :Float32;
+    aRel @3 :Float32;
+    vLead @4 :Float32;
+    dPath @6 :Float32;
+    vLat @7 :Float32;
+    vLeadK @8 :Float32;
+    aLeadK @9 :Float32;
+    fcw @10 :Bool;
+    status @11 :Bool;
+    aLeadTau @12 :Float32;
+    modelProb @13 :Float32;
+    radar @14 :Bool;
+    radarTrackId @15 :Int32 = -1;
 
-struct CustomReserved7 @0xb86e6369214c01c8 {
-}
-
-struct CustomReserved8 @0xf416ec09499d9d19 {
-}
-
-struct CustomReserved9 @0xa1680744031fdb2d {
+    aLeadDEPRECATED @5 :Float32;
+  }
 }
