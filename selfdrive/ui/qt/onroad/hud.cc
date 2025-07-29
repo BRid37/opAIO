@@ -696,7 +696,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
       sl_opacity = 1;
     }
 
-    if (s->scene.limitSpeedCamera > 18 || (s->scene.limitSpeedCameraDist != 0 && (s->scene.navi_select == 2 || s->scene.navi_select == 4))) {
+    if (s->scene.limitSpeedCamera > 21 || (s->scene.limitSpeedCameraDist != 0 && (s->scene.navi_select == 2 || s->scene.navi_select == 4))) {
       if (s->scene.speedlimit_signtype) {
         p.setBrush(whiteColor(255/sl_opacity));
         p.drawRoundedRect(rect_si, 8, 8);
