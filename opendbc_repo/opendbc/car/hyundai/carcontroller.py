@@ -269,6 +269,7 @@ class CarController(CarControllerBase):
     self.acc_activated = False
     self.refresh_time3 = 10
     self.btn_reset = False
+    self.lfa_init = False
 
     self.regenbrake = self.c_params.get_bool("RegenBrakeFeatureOn")
     rgn_option_list = list(self.c_params.get("RegenBrakeFeature", encoding="utf8"))
@@ -1039,6 +1040,12 @@ class CarController(CarControllerBase):
     lka_steering = self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING
     lka_steering_long = lka_steering and self.CP.openpilotLongitudinalControl
 
+    # lfa init
+    if not self.lfa_init:
+      self.lfa_init = True
+      for _ in range(22):
+        can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, CS.cruise_btn_info, 0, False, True))
+
     # steering control
     can_sends.extend(hyundaicanfd.create_steering_messages(self.packer, self.CP, self.CAN, CC.enabled, apply_steer_req, apply_torque, 
                                                             apply_angle, lkas_max_torque, self.frame, CS.adrv_160, CS.adrv_1ea, CS.lfa_alt_info, CS.mdps_info, CS.lfa_info, CS.csw_info, CS.ccnc_161))
@@ -1090,6 +1097,9 @@ class CarController(CarControllerBase):
           if self.CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS:
             # TODO: resume for alt button cars
             pass
+          elif self.standstill_res_button:
+            self.standstill_res_button = False
+            can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, CS.cruise_btn_info, 0, True))
           else:
             for _ in range(self.standstill_res_count):
               can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, CS.cruise_btn_info, Buttons.RES_ACCEL))
@@ -1229,14 +1239,14 @@ class CarController(CarControllerBase):
                 self.regen_stop_pre_activated = True
             elif CS.regen_level != 20 and self.regen_stop_pre_activated and not (CS.out.brakePressed or CS.out.gasPressed) and (self.dRel < 10 or CS.clu_Vanz < 15):
               self.regen_stop_activated = True
-              can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, CS.cruise_btn_info, 0, False, True, False, True))
+              can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, CS.cruise_btn_info, 0, False, False, True, False, True))
               self.refresh_time2 = 1.0
             elif CS.regen_level != 15 and CS.out.gasPressed and self.regen_stop_activated:
               self.regen_stop_pre_activated = False
               if CS.regen_level > 15:
-                can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, CS.cruise_btn_info, 0, False, True, True, False))
+                can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, CS.cruise_btn_info, 0, False, False, True, True, False))
               elif CS.regen_level < 15:
-                can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, CS.cruise_btn_info, 0, False, True, False, True))
+                can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, CS.cruise_btn_info, 0, False, False, True, False, True))
               self.refresh_time2 = 0.5
             elif CS.regen_level == 15:
               self.regen_stop_activated = False

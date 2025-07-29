@@ -195,10 +195,19 @@ def create_suppress_lfa(packer, CAN, lfa_block_msg, lka_steering_alt, enabled):
   values["RIGHT_LANE_LINE"] = 0 if enabled else 3
   return packer.make_can_msg(suppress_msg, CAN.ACAN, values)
 
-def create_buttons(packer, CP, CAN, cruise_btn_info, btn, reset = None, regen = None, r_pad = None, l_pad = None):
+def create_buttons(packer, CP, CAN, cruise_btn_info, btn, reset = None, lda_btn = None, regen = None, r_pad = None, l_pad = None):
   if reset:
     values = cruise_btn_info
     bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_LKA_STEERING else CAN.CAM
+  elif lda_btn:
+    values = cruise_btn_info
+    values["LDA_BTN"] = 1
+    values["SET_ME_1"] = 1
+    values["COUNTER"] = (values["COUNTER"] + 1) % 0x10
+    bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_LKA_STEERING else CAN.CAM
+    values["_CHECKSUM"] = 0
+    dat = packer.make_can_msg("CRUISE_BUTTONS", bus, values)[1]
+    values["_CHECKSUM"] = hyundai_crc8(dat[1:8])
   else:
     values = cruise_btn_info
     values["CRUISE_BUTTONS"] = btn
