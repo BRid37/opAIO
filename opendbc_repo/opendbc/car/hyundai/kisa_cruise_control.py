@@ -440,7 +440,7 @@ class KisaCruiseControl():
       elif CS.out.brakeLights and CS.out.vEgo == 0 and CS.cruise_set_mode in (1,2,4):
         self.faststart = True
         self.t_interval = randint(self.t_interval2+3, self.t_interval2+5) if not CS.is_metric else randint(self.t_interval2, self.t_interval2+2)
-        var_speed = min(navi_speed, 30 if not CS.is_metric else 50)
+        var_speed = min(navi_speed, 30 if not CS.is_metric else 45)
       elif self.onSpeedBumpControl2 and not self.lead_0.status:
         var_speed = min(navi_speed, 30 if not CS.is_metric else 60)
         self.t_interval = randint(self.t_interval2+3, self.t_interval2+5) if not CS.is_metric else randint(self.t_interval2, self.t_interval2+2)
@@ -448,7 +448,7 @@ class KisaCruiseControl():
         var_speed = min(navi_speed, 20 if not CS.is_metric else 30)
         self.t_interval = randint(self.t_interval2+3, self.t_interval2+5) if not CS.is_metric else randint(self.t_interval2, self.t_interval2+2)
       elif self.faststart and round(self.sm['controlsState'].vFuture) <= (25 if not CS.is_metric else 40):
-        var_speed = min(navi_speed, 30 if not CS.is_metric else 50)
+        var_speed = min(navi_speed, 30 if not CS.is_metric else 45)
       elif (self.lead_0.status or self.lead_1.status) and round(self.sm['controlsState'].vFuture) >= (min_control_speed-(4 if not CS.is_metric else 7)) and CS.cruise_set_mode in (1,2,4):
         self.faststart = False
         # dRel = CS.lead_distance if 0 < CS.lead_distance < 149 and not self.cut_in_run_timer else int(self.lead_0.dRel)
@@ -467,7 +467,7 @@ class KisaCruiseControl():
           var_speed = min(round(self.sm['controlsState'].vFutureA), navi_speed)
         elif vRel > (-3 if not CS.is_metric else -5):
           var_speed = min(round(self.sm['controlsState'].vFuture) + max(0, int(dRel*(0.11 if not CS.is_metric else 0.16)+vRel)), navi_speed)
-          ttime = randint(60, 80) if not CS.is_metric else randint(30, 50)
+          ttime = randint(50, 70) if not CS.is_metric else randint(25, 45)
           self.t_interval = int(np.interp(dRel, [15, 50], [self.t_interval2, ttime])) if not (self.onSpeedControl or self.curvSpeedControl or self.cut_in) else randint(self.t_interval2+3, self.t_interval2+5) if not CS.is_metric else randint(self.t_interval2, self.t_interval2+2)
           self.cutInControl = False
         else:
@@ -488,7 +488,7 @@ class KisaCruiseControl():
       else:
         self.faststart = False
         var_speed = navi_speed
-        ttime = randint(60, 80) if not CS.is_metric else randint(30, 50)
+        ttime = randint(50, 70) if not CS.is_metric else randint(25, 45)
         self.t_interval = ttime if not (self.onSpeedControl or self.curvSpeedControl or self.cut_in) else randint(self.t_interval2+3, self.t_interval2+5) if not CS.is_metric else randint(self.t_interval2, self.t_interval2+2)
         self.cutInControl = False
     else:

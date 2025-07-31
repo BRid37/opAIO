@@ -1156,7 +1156,7 @@ class CarController(CarControllerBase):
               self.cruise_set_now = round(CS.VSetDis)
               self.pause_time = self.pause_time + 1 if self.cruise_set_now == self.cruise_set_prev else 0
               self.cruise_set_prev = self.cruise_set_now
-              pause_time = np.interp(self.KCC.t_interval, [8, 80], [50, 100])
+              pause_time = np.interp(self.KCC.t_interval, [7, 70], [45, 100])
               if self.pause_time > pause_time:
                 self.last_button_frame = self.frame
                 self.cruise_speed_adjusting = False
