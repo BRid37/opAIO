@@ -95,6 +95,7 @@ def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque,
       if frame % 1000 < 40:
         values["STEERING_COL_TORQUE"] += 220
       ret.append(packer.make_can_msg("MDPS", CAN.CAM, values))
+
       if frame % 10 == 0 and CP.capacitiveSteeringWheel:
         values = csw_info
         if frame % 1000 < 40:
@@ -105,6 +106,7 @@ def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque,
           dat = packer.make_can_msg("HOD_FD_01_100ms", 0, values)[1]
           values["_CHECKSUM"] = hyundai_crc8(dat[1:8])
         ret.append(packer.make_can_msg("HOD_FD_01_100ms", CAN.CAM, values))
+
       ang_values = lfa_alt
       if not emergency_steering:
         ang_values["ADAS_ActvACILvl2Sta"] = 2 if lat_active else 1
@@ -145,10 +147,10 @@ def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque,
       lfa_values["NEW_SIGNAL_3"] = 0
       lfa_values["NEW_SIGNAL_5"] = 1
       ret.append(packer.make_can_msg("LFA", CAN.ECAN, lfa_values))
-  
+
       ang_values = {
-        "LKAS_ANGLE_ACTIVE": 2 if lat_active else 1,
-        "ADAS_StrAnglReqVal": apply_angle if lat_active else 0,
+        "ADAS_ActvACILvl2Sta": 2 if lat_active else 1,
+        "ADAS_StrAnglReqVal": np.clip(apply_angle, -119.9, 119.9) if lat_active else 0,
         "LKAS_ANGLE_MAX_TORQUE": max_torque if lat_active else 0,
       }
       ret.append(packer.make_can_msg("ADAS_CMD_35_10ms", CAN.ECAN, ang_values))
