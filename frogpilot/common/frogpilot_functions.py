@@ -85,7 +85,7 @@ def cleanup_backups(directory, limit, compressed=False):
 
 def backup_frogpilot(build_metadata):
   backup_path = Path("/data/backups")
-  maximum_backups = 3
+  maximum_backups = 0
   cleanup_backups(backup_path, maximum_backups, compressed=True)
 
   _, _, free = shutil.disk_usage(backup_path)
@@ -111,7 +111,7 @@ def backup_toggles(params_cache):
       changes_found = key not in EXCLUDED_KEYS
 
   backup_path = Path("/data/toggle_backups")
-  maximum_backups = 5
+  maximum_backups = 0
 
   cleanup_backups(backup_path, maximum_backups)
 
