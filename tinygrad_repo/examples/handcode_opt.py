@@ -2,12 +2,14 @@ from extra.models.resnet import ResNet50
 from extra.mcts_search import mcts_search
 from examples.mlperf.helpers import get_mlperf_bert_model
 from tinygrad import Tensor, Device, dtypes, nn
-from tinygrad.codegen.kernel import Kernel
-from tinygrad.ops import Ops, sym_infer
+from tinygrad.opt.kernel import Kernel
+from tinygrad.opt.heuristic import hand_coded_optimizations
+from tinygrad.uop.ops import Ops, sym_infer
 from tinygrad.device import Compiled
-from tinygrad.engine.search import beam_search, bufs_from_lin
+from tinygrad.opt.search import beam_search, bufs_from_lin
 from tinygrad.helpers import DEBUG, ansilen, getenv, colored, TRACEMETA
 from extra.optimization.helpers import time_linearizer
+from tinygrad.engine.realize import get_program
 
 def get_sched_resnet():
   mdl = ResNet50()
@@ -83,7 +85,7 @@ if __name__ == "__main__":
 
     # always try hand coded opt
     lin = Kernel(si.ast, opts=device.renderer)
-    lin.hand_coded_optimizations()
+    lin.apply_opts(hand_coded_optimizations(lin))
     lins.append((lin, "HC"))
 
     # maybe try tensor cores
@@ -107,7 +109,7 @@ if __name__ == "__main__":
     choices = []
     for lin, nm in lins:
       tm = time_linearizer(lin, rawbufs, allow_test_size=False, cnt=10, disable_cache=True)
-      ops = (prg:=lin.to_program()).estimates.ops
+      ops = (prg:=get_program(lin.get_optimized_ast(), lin.opts)).estimates.ops
       gflops = sym_infer(ops, {k:k.min for k in lin.ast.variables()})*1e-9/tm
       choices.append((tm, gflops, lin, prg, nm))
 
@@ -120,7 +122,7 @@ if __name__ == "__main__":
     if getenv("SRC"):
       print(si.ast)
       print(lin.applied_opts)
-      print(lin.to_program().src)
+      print(get_program(lin.get_optimized_ast(), lin.opts).src)
     total_tm += tm
     running_gflops += gflops * tm
     if (key := str([str(m) for m in si.metadata])) not in usage: usage[key] = (0, 0)

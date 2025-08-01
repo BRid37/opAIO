@@ -1,16 +1,17 @@
-from typing import cast, Iterator
-import math, functools, dataclasses
+from typing import cast
+import math, dataclasses
 from tinygrad.dtype import dtypes, sum_acc_dtype
-from tinygrad.ops import UOp, PatternMatcher, UPat, Ops, all_metadata
+from tinygrad.uop.ops import UOp, PatternMatcher, UPat, Ops, all_metadata
 from tinygrad.helpers import argsort
 
 def reduce_gradient(ctx:UOp, ret:UOp):
-  if ret.arg[0] == Ops.ADD: return (ctx.expand(ret.src[0].shape),)
+  def to_inp_shape(x): return x.reshape(x.shape+(1,)*(len(ret.src[0].shape)-len(x.shape))).expand(ret.src[0].shape)
+  if ret.arg[0] == Ops.ADD: return (to_inp_shape(ctx),)
   if ret.arg[0] == Ops.MAX:
-    max_is_1s = ret.src[0].ne(ret.expand(ret.src[0].shape)).ne(ret.src[0].const_like(1).cast(dtypes.bool)).cast(ctx.dtype)
-    div = max_is_1s.r(Ops.ADD, ret.arg[1]).expand(ret.src[0].shape)
-    return ((max_is_1s/div) * ctx.expand(ret.src[0].shape),)
-  if ret.arg[0] == Ops.MUL: return ((ctx * ret).expand(ret.src[0].shape) / ret.src[0],)
+    max_is_1s = ret.src[0].ne(to_inp_shape(ret)).ne(ret.src[0].const_like(1).cast(dtypes.bool)).cast(ctx.dtype)
+    div = to_inp_shape(max_is_1s.r(Ops.ADD, ret.arg[1]))
+    return ((max_is_1s/div) * to_inp_shape(ctx),)
+  if ret.arg[0] == Ops.MUL: return (to_inp_shape(ctx * ret) / ret.src[0],)
 
 # ctx is grad_output
 pm_gradient = PatternMatcher([
@@ -30,7 +31,7 @@ pm_gradient = PatternMatcher([
   (UPat(Ops.MUL, name="ret"), lambda ctx, ret: (ret.src[1]*ctx, ret.src[0]*ctx)),
   (UPat(Ops.WHERE, name="ret"), lambda ctx, ret: (None, ret.src[0].where(ctx, ctx.const_like(0)), ret.src[0].where(ctx.const_like(0), ctx))),
   (UPat(Ops.REDUCE_AXIS, name="ret"), reduce_gradient),
-  (UPat(Ops.CONTIGUOUS), lambda ctx: (ctx,)),
+  (UPat((Ops.CONTIGUOUS, Ops.FUSE)), lambda ctx: (ctx,)),
   (UPat(Ops.CONTIGUOUS_BACKWARD), lambda ctx: (ctx.contiguous(),)),
   (UPat(Ops.RESHAPE, name="ret"), lambda ctx, ret: (ctx.reshape(ret.src[0].shape),)),
   (UPat(Ops.PERMUTE, name="ret"), lambda ctx, ret: (ctx.permute(argsort(ret.arg)),)),
@@ -45,18 +46,12 @@ pm_gradient = PatternMatcher([
   (UPat(Ops.BITCAST), lambda ctx: (None,)),
 ])
 
-# copied from tensor.py, get relevant toposort of gradients
 def _deepwalk(root:UOp, targets:set[UOp]) -> list[UOp]:
-  @functools.lru_cache(None)
-  def is_in_target_path(x:UOp) -> bool: return any(u in targets or is_in_target_path(u) for u in x.src)
-  def _walk(node:UOp, visited:set[UOp]) -> Iterator[UOp]:
-    visited.add(node)
-    if node.op is Ops.DETACH: return
-    if is_in_target_path(node):
-      for i in node.src:
-        if i not in visited: yield from _walk(i, visited)
-      yield node
-  return list(_walk(root, set()))
+  # compute the target path (top down)
+  in_target_path: dict[UOp, bool] = {}
+  for u in root.toposort(): in_target_path[u] = any(x in targets or in_target_path[x] for x in u.src)
+  # don't flow through DETACH/ASSIGN or anything not in target path
+  return list(root.toposort(lambda node: node.op not in {Ops.DETACH, Ops.ASSIGN} and in_target_path[node]))
 
 def compute_gradient(root:UOp, root_grad:UOp, targets:set[UOp]) -> dict[UOp, UOp]:
   grads = {root: root_grad}
@@ -69,5 +64,5 @@ def compute_gradient(root:UOp, root_grad:UOp, targets:set[UOp]) -> dict[UOp, UOp
       if v is None: continue
       if k in grads: grads[k] = grads[k] + v
       else: grads[k] = v
-      if (forward_metadata:=all_metadata.get(t0)) is not None: all_metadata[v] = dataclasses.replace(forward_metadata, backward=True)
+      if len(forward_metadata:=all_metadata.get(t0, ())): all_metadata[v] = tuple(dataclasses.replace(x, backward=True) for x in forward_metadata)
   return grads

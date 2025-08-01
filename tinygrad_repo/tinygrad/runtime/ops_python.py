@@ -2,14 +2,14 @@
 # a python uops emulator
 # works to test the tensor cores, and all the uops in general
 # this is the (living) definition of uops
-from typing import Optional, Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 import pickle, base64, itertools, time, struct, sys
 from tinygrad.dtype import DType, dtypes, ImageDType, PtrDType, truncate
 from tinygrad.helpers import all_same, getenv, flatten, get_single_element
 from tinygrad.device import Compiled, Compiler, Allocator
-from tinygrad.ops import exec_alu, Ops, UOp, GroupOp
+from tinygrad.opt import tc
+from tinygrad.uop.ops import exec_alu, Ops, UOp, GroupOp
 from tinygrad.renderer import Renderer
-from tinygrad.renderer.cstyle import CUDARenderer, MetalRenderer, AMDRenderer, IntelRenderer, ClangRenderer
 
 def _load(m, i):
   if i is None: return 0.0
@@ -17,8 +17,8 @@ def _load(m, i):
   return m[i]
 
 def load(inp, j=0):
-  if len(inp) == 3: return [_load(m, x+j if x is not None else None) if gate else default for (m,x),default,gate in zip(*inp)]
-  return [_load(m, x+j if x is not None else None) for m,x in inp[0]]
+  if len(inp) == 2: return [_load(m, x+j if x is not None else None) if gate else default for (m,x,gate),default in zip(*inp)]
+  return [_load(m, x+j if x is not None else None) for m,x,_ in inp[0]]
 
 def _store(m, i, v):
   if i < 0 or i >= len(m): raise IndexError(f"store out of bounds, size is {len(m)}, access is {i}, value is {v}")
@@ -26,7 +26,7 @@ def _store(m, i, v):
 
 class PythonProgram:
   def __init__(self, name:str, lib:bytes):
-    self.uops: list[tuple[Ops, Optional[DType], list[int], Any]] = pickle.loads(lib)
+    self.uops: list[tuple[Ops, DType|None, list[int], Any]] = pickle.loads(lib)
   def __call__(self, *bufs, global_size:tuple[int,int,int]=(1,1,1), local_size:tuple[int,int,int]=(1,1,1), vals:tuple[int, ...]=(), wait=False):
     st = time.perf_counter()
     warp = list(itertools.product(*[range(x) for x in local_size[::-1]]))
@@ -40,79 +40,73 @@ class PythonProgram:
       loop_ends: dict[int, int] = {}
       while i < len(self.uops):
         uop, dtype, idp, arg = self.uops[i]
-        void_ops = {Ops.STORE, Ops.ENDRANGE, Ops.BARRIER, Ops.IF, Ops.ENDIF, Ops.NAME}
-        if uop is Ops.DEFINE_ACC: idp = [idp[0]]
+        void_ops = {Ops.ENDRANGE, Ops.BARRIER, Ops.IF, Ops.ENDIF, Ops.SINK, Ops.NOOP, Ops.STORE}
         inp = [ul[v] for v in idp if self.uops[v][0] not in void_ops]
         dtp = [dl[v] for v in idp if self.uops[v][0] not in void_ops]
         if getenv("TRACE"): print(i, uop, dtype, arg, inp, dtp)
-        if uop is Ops.STORE:
-          if len(inp) == 2: inp.append([True] * len(inp[0]))  # set the gate to True
-          if dtp[1].count > 1:
-            for j,val in enumerate(inp[1]):
-              for (m,o),v,g in zip(inp[0], val, inp[2]):
-                if g: _store(m, o+j, v)
-          else:
-            for (m,o),v,g in zip(*inp):
-              if g: _store(m, o, v)
-          i += 1
-          continue
         if uop is Ops.ENDRANGE:
           loop_ends[idp[0]] = i
           i = idp[0]
           continue
-        if uop in (Ops.BARRIER, Ops.IF, Ops.ENDIF, Ops.NAME):
+        if uop in (Ops.BARRIER, Ops.IF, Ops.ENDIF, Ops.SINK, Ops.NOOP):
           # in the python emulator, the warp is always in sync
           i += 1
           continue
         assert dtype is not None, f"{uop} is missing a dtype"
         dl[i] = dtype
-        if uop in {Ops.DEFINE_GLOBAL, Ops.DEFINE_LOCAL}:
+        if uop is Ops.STORE:
+          for j,val in enumerate(inp[1] if dtp[1].count > 1 else [inp[1]]):
+            for (m,o,g),v in zip(inp[0], val):
+              if g: _store(m, o+j, v)
+          i += 1
+          continue
+        if uop in {Ops.DEFINE_GLOBAL, Ops.DEFINE_LOCAL, Ops.DEFINE_REG}:
           assert dtype.fmt is not None and isinstance(dtype, PtrDType)
           if TYPE_CHECKING or sys.version_info < (3, 12): assert dtype.fmt != "e"
-          buf = memoryview(bytearray(dtype.size*dtype.itemsize)) if uop is Ops.DEFINE_LOCAL else pbufs.pop(0)
-          ul[i] = [buf.cast(dtype.fmt)] * warp_size
+          if uop is Ops.DEFINE_REG:
+            # REGs are per thread
+            ul[i] = [memoryview(bytearray(dtype.size*dtype.itemsize)).cast(dtype.fmt) for _ in range(warp_size)]
+          else:
+            buf = memoryview(bytearray(dtype.size*dtype.itemsize)) if uop is not Ops.DEFINE_GLOBAL else pbufs.pop(0)
+            ul[i] = [buf.cast(dtype.fmt)] * warp_size
         elif uop is Ops.DEFINE_VAR:
           ul[i] = [pvals.pop(0)] * warp_size
         elif uop is Ops.SPECIAL:
           if arg[0][0] == 'g': ul[i] = [idxs[2-int(arg[0][-1])]] * warp_size
           elif arg[0][0] == 'l': ul[i] = [x[2-int(arg[0][-1])] for x in warp]
         elif uop is Ops.CONST: ul[i] = [arg] * warp_size
-        elif uop is Ops.DEFINE_ACC:
-          ul[i] = [[inp[0][0][0]] * warp_size for _ in range(dtype.count)] if dtype.count > 1 else [inp[0][0]] * warp_size
         elif uop is Ops.INDEX:
-          ret = []
+          ret:list = []
           if isinstance(dtp[0], ImageDType):
             for m,ox,oy in zip(inp[0], inp[1][0], inp[1][1]):
               if ox < 0 or ox >= dtp[0].shape[1] or oy < 0 or oy >= dtp[0].shape[0]: ret.append((m, None))
               else: ret.append((m, ox*4 + oy*dtp[0].shape[1]*4))
           else:
             for m,o in zip(inp[0], inp[1]): ret.append((m,o))
-          ul[i] = ret
+          ul[i] = [(m,o,g) for (m,o),g in zip(ret, inp[2] if len(inp) == 3 else [True]*len(ret))] # set the gate last
         elif uop is Ops.CAST and isinstance(dtype, PtrDType):
           ul[i] = inp[0]
         elif uop is Ops.RANGE:
-          if i not in ul: ul[i] = [inp[0][0]] * warp_size
+          if i not in ul: ul[i] = [0] * warp_size
           else:
             for j in range(len(ul[i])):
               ul[i][j] += 1
-            if ul[i][0] == inp[1][0]:
+            if ul[i][0] == inp[0][0]:
               del ul[i]
               i = loop_ends[i] + 1
               continue
         elif uop is Ops.VECTORIZE: ul[i] = inp
-        elif uop in {Ops.CAST, Ops.BITCAST}:
+        elif uop is Ops.BITCAST:
           assert dtp[0].fmt and dtype.fmt
           pack_format, unpack_format = str(warp_size) + dtp[0].fmt, str(warp_size) + dtype.fmt
-          if uop is Ops.BITCAST: ul[i] = list(struct.unpack(unpack_format, struct.pack(pack_format, *inp[0])))
-          else: ul[i] = [truncate.get(dtype, lambda dt: dt)(dtypes.as_const(x, dtype)) for x in inp[0]]
+          ul[i] = list(struct.unpack(unpack_format, struct.pack(pack_format, *inp[0])))
+        elif uop is Ops.CAST:
+          ul[i] = [truncate.get(dtype, lambda dt: dt)(dtypes.as_const(x, dtype)) for x in inp[0]]
         elif uop is Ops.LOAD:
           if dtype.count > 1:
             ul[i] = [load([inp[i][j] if i != 0 and dtp[i].count > 1 else inp[i] for i in range(len(inp))], j) for j in range(dtype.count)]
           else:
             ul[i] = load(inp)
-        elif uop is Ops.ASSIGN:
-          for j in range(len(inp[0])): inp[0][j] = inp[1][j]
-          ul[i] = inp[0]
         elif uop is Ops.GEP: ul[i] = inp[0][get_single_element(arg)]
         elif uop is Ops.WMMA:
           # here are the models for the WMMA instruction on the different hardware
@@ -136,6 +130,16 @@ class PythonProgram:
             # (i, j), C, D (2 elements on 32 threads): row major same as A/B
             def c_map(lane, elem): return (elem + ((lane%2)*2) + ((lane//8)%2)*4, ((lane//2)%4) + (lane//16)*4)
             ul[i] = wmma_helper(32, 8, 2, 2, 2, a_b_elem, a_b_elem, c_map)
+          elif arg[4] == "AMD" and arg[5] == 64:
+            def a_elem(x, k, row, goff): return x[k%4][goff + (k//4)*16 + row]
+            def b_elem(x, col, k, goff): return a_elem(x, k, col, goff) # pylint: disable=arguments-out-of-order
+            def c_map(lane, elem): return (lane%16, (lane//16)*4 + elem)
+            ul[i] = wmma_helper(64, 16, 4, 4, 4, a_elem, b_elem, c_map)
+          elif arg[4] == "AMD" and len(inp[0]) == 8: # RDNA4
+            def a_elem(x, k, row, goff): return x[k - [0, 4, 4, 8][k//4]][goff + row + [0, 16, 0, 16][k//4]]
+            def b_elem(x, col, k, goff): return a_elem(x, k, col, goff)
+            def c_map(lane, elem): return (lane%16, (lane//16)*8 + elem)
+            ul[i] = wmma_helper(32, 16, 8, 8, 8, a_elem, b_elem, c_map)
           elif arg[4] == "AMD":
             # A (16 elements on 32 threads): col major, lane 16-32 == lane 0-15
             def a_elem(x, k, row, goff):
@@ -189,12 +193,14 @@ class PythonProgram:
 class PythonRenderer(Renderer):
   device = "PYTHON"
   def __init__(self):
-    if getenv("EMULATE_METAL"): self.device, self.tensor_cores = "METAL", MetalRenderer.tensor_cores
-    if getenv("EMULATE_AMD"): self.device, self.tensor_cores = "AMD", AMDRenderer.tensor_cores
-    if getenv("EMULATE_CUDA"): self.device, self.tensor_cores = "CUDA", CUDARenderer.tc_sm80
-    if getenv("EMULATE_CUDA_SM75"): self.device, self.tensor_cores = "CUDA", CUDARenderer.tc_sm75
-    if getenv("EMULATE_INTEL"): self.device, self.suffix, self.tensor_cores = "INTEL", "INTEL", IntelRenderer.tensor_cores
-    if getenv("EMULATE_AMX"): self.device, self.tensor_cores = "CPU", ClangRenderer.tensor_cores
+    if getenv("EMULATE_METAL"): self.device, self.tensor_cores = "METAL", tc.metal
+    if getenv("EMULATE_AMD"): self.device, self.tensor_cores = "AMD", tc.amd_rdna3
+    if getenv("EMULATE_AMD_MFMA"): self.device, self.tensor_cores = "AMD", tc.amd_cdna
+    if getenv("EMULATE_AMD_RDNA4"): self.device, self.tensor_cores = "AMD", tc.amd_rdna4
+    if getenv("EMULATE_CUDA"): self.device, self.tensor_cores = "CUDA", tc.cuda_sm80
+    if getenv("EMULATE_CUDA_SM75"): self.device, self.tensor_cores = "CUDA", tc.cuda_sm75
+    if getenv("EMULATE_INTEL"): self.device, self.suffix, self.tensor_cores = "INTEL", "INTEL", tc.intel
+    if getenv("EMULATE_AMX"): self.device, self.tensor_cores = "CPU", tc.amx
 
   def render(self, uops:list[UOp]) -> str:
     lops = [(u.op, u.dtype, [uops.index(v) for v in u.src], u.arg) for u in uops]
@@ -203,10 +209,10 @@ class PythonRenderer(Renderer):
 class PythonCompiler(Compiler):
   def compile(self, src:str) -> bytes: return base64.b64decode(src)
 
-class PythonAllocator(Allocator):
+class PythonAllocator(Allocator['PythonDevice']):
   def _alloc(self, size, options): return memoryview(bytearray(size))
   def _copyin(self, dest, src:memoryview): dest[:] = src
   def _copyout(self, dest:memoryview, src): dest[:] = src
 
 class PythonDevice(Compiled):
-  def __init__(self, device:str): super().__init__(device, PythonAllocator(), PythonRenderer(), PythonCompiler(), PythonProgram)
+  def __init__(self, device:str): super().__init__(device, PythonAllocator(self), PythonRenderer(), PythonCompiler(), PythonProgram)

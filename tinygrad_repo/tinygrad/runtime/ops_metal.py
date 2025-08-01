@@ -1,7 +1,7 @@
 import os, pathlib, struct, ctypes, tempfile, functools, contextlib, decimal, platform
-from typing import Any, Union, cast
-from tinygrad.helpers import prod, to_mv, getenv, round_up, cache_dir, T, init_c_struct_t, PROFILE
-from tinygrad.device import Compiled, Compiler, CompileError, LRUAllocator, cpu_profile, ProfileDeviceEvent, ProfileRangeEvent
+from typing import Any, cast
+from tinygrad.helpers import prod, to_mv, getenv, round_up, cache_dir, T, init_c_struct_t, PROFILE, ProfileRangeEvent, cpu_profile
+from tinygrad.device import Compiled, Compiler, CompileError, LRUAllocator, ProfileDeviceEvent
 from tinygrad.renderer.cstyle import MetalRenderer
 
 class objc_id(ctypes.c_void_p): # This prevents ctypes from converting response to plain int, and dict.fromkeys() can use it to dedup
@@ -35,7 +35,7 @@ libobjc.sel_registerName.restype = objc_id
 libmetal.MTLCreateSystemDefaultDevice.restype = objc_instance
 libdispatch.dispatch_data_create.restype = objc_instance
 
-@functools.lru_cache(None)
+@functools.cache
 def msg(selector: str, restype: type[T] = objc_id):  # type: ignore [assignment]
   resname = libobjc.sel_registerName(selector.encode())
   sender = libobjc["objc_msgSend"] # Using attribute access returns a new reference so setting restype is safe
@@ -43,11 +43,12 @@ def msg(selector: str, restype: type[T] = objc_id):  # type: ignore [assignment]
   def _msg(ptr: objc_id, *args: Any) -> T: return sender(ptr, resname, *args)
   return _msg
 
-@functools.lru_cache(None)
+@functools.cache
 def to_ns_str(s: str): return msg("stringWithUTF8String:", objc_instance)(libobjc.objc_getClass(b"NSString"), s.encode())
 def from_ns_str(s): return bytes(msg("UTF8String", ctypes.c_char_p)(s)).decode()
 
-def to_struct(*t: int, _type: type = ctypes.c_ulong): return init_c_struct_t(tuple([(f"field{i}", _type) for i in range(len(t))]))(*t)
+def to_struct(*t: int, _type: type[ctypes._SimpleCData] = ctypes.c_ulong):
+  return init_c_struct_t(tuple([(f"field{i}", _type) for i in range(len(t))]))(*t)
 
 def wait_check(cbuf: Any):
   msg("waitUntilCompleted")(cbuf)
@@ -73,14 +74,17 @@ class MetalDevice(Compiled):
     Compiled.profile_events += [ProfileDeviceEvent(device)]
 
     from tinygrad.runtime.graph.metal import MetalGraph
+    # NOTE: GitHub CI macOS runners use paravirtualized metal which is broken with graph.
+    # This can be reproduced locally with any virtualization software (like utm) that can create macOS VMs with apple's own virtualization framework.
     super().__init__(device, MetalAllocator(self), MetalRenderer(), MetalCompiler() if getenv("METAL_DIRECT", 1) else Compiler(),
-                     functools.partial(MetalProgram, self), MetalGraph)
+                     functools.partial(MetalProgram, self), MetalGraph if 'virtual' not in from_ns_str(msg('name')(self.sysdevice)).lower() else None)
 
   def synchronize(self):
     for cbuf in self.mtl_buffers_in_flight:
       wait_check(cbuf)
       st, en = decimal.Decimal(cmdbuf_st_time(cbuf)) * 1000000, decimal.Decimal(cmdbuf_en_time(cbuf)) * 1000000
-      if PROFILE and (lb:=cmdbuf_label(cbuf)) is not None:
+      # NOTE: command buffers from MetalGraph are not profiled here
+      if PROFILE and (lb:=cmdbuf_label(cbuf)) is not None and not lb.startswith("batched"):
         Compiled.profile_events += [ProfileRangeEvent(self.device, lb, st, en, is_copy=lb.startswith("COPY"))]
     self.mtl_buffers_in_flight.clear()
 
@@ -97,7 +101,7 @@ class MetalCompiler(Compiler):
   # This means that MTLCompiler's llvm will create it's own instances of global state because RTLD_LOCAL doesn't export symbols, but if RTLD_GLOBAL
   # library is loaded first then RTLD_LOCAL library will just use it's symbols. On linux there is RTLD_DEEPBIND to prevent that, but on macos there
   # doesn't seem to be anything we can do.
-  with contextlib.suppress(FileNotFoundError):
+  with contextlib.suppress(FileNotFoundError, ModuleNotFoundError):
     import tinygrad.runtime.autogen.llvm # noqa: F401
   support = ctypes.CDLL("/System/Library/PrivateFrameworks/MTLCompiler.framework/MTLCompiler")
   support.MTLCodeGenServiceCreate.restype = ctypes.c_void_p
@@ -107,7 +111,7 @@ class MetalCompiler(Compiler):
     super().__init__("compile_metal_direct")
   def __reduce__(self): return (MetalCompiler,()) # force pickle to create new instance for each multiprocessing fork
   def compile(self, src:str) -> bytes:
-    ret: Union[Exception, bytes] = CompileError("MTLCodeGenServiceBuildRequest returned without calling the callback")
+    ret: Exception|bytes = CompileError("MTLCodeGenServiceBuildRequest returned without calling the callback")
     @ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_int32, ctypes.c_void_p, ctypes.c_size_t, ctypes.c_char_p)
     def callback(blockptr, error, dataPtr, dataLen, errorMessage):
       nonlocal ret
@@ -187,10 +191,7 @@ class MetalProgram:
 class MetalBuffer:
   def __init__(self, buf:Any, size:int, offset=0): self.buf, self.size, self.offset = buf, size, offset
 
-class MetalAllocator(LRUAllocator):
-  def __init__(self, dev:MetalDevice):
-    self.dev:MetalDevice = dev
-    super().__init__()
+class MetalAllocator(LRUAllocator[MetalDevice]):
   def _alloc(self, size:int, options) -> MetalBuffer:
     if options.external_ptr: return MetalBuffer(objc_id(options.external_ptr), size)
 
@@ -198,7 +199,8 @@ class MetalAllocator(LRUAllocator):
     ret = msg("newBufferWithLength:options:", objc_id)(self.dev.sysdevice, ctypes.c_ulong(size), MTLResourceOptions.MTLResourceStorageModeShared)
     if ret.value is None: raise MemoryError(f"Metal OOM while allocating {size=}")
     return MetalBuffer(ret, size)
-  def _free(self, opaque:MetalBuffer, options): msg("release")(opaque.buf)
+  def _free(self, opaque:MetalBuffer, options):
+    if msg is not None and libobjc is not None: msg("release")(opaque.buf)
   def _transfer(self, dest:MetalBuffer, src:MetalBuffer, sz:int, src_dev:MetalDevice, dest_dev:MetalDevice):
     dest_dev.synchronize()
     src_command_buffer = msg("commandBuffer", objc_instance)(src_dev.mtl_queue)
