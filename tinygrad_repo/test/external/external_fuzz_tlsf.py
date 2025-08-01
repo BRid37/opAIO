@@ -1,7 +1,7 @@
 import random
 from typing import Dict, Optional
-from tinygrad.helpers import getenv
-from tinygrad.runtime.support.memory import TLSFAllocator
+
+from tinygrad.runtime.support.allocator import TLSFAllocator
 
 class AllocatorFuzzer:
   def __init__(self, total_size):
@@ -30,8 +30,6 @@ class AllocatorFuzzer:
     return True
 
   def random_alloc(self) -> Optional[int]:
-    if self.total_size - self.alloc_payload < self.min_alloc_size: return None
-
     size = random.randint(self.min_alloc_size, min(self.max_alloc_size, self.total_size - self.alloc_payload))
 
     try:
@@ -64,7 +62,7 @@ class AllocatorFuzzer:
     return True
 
   def run(self):
-    for i in range(getenv("ITERS", 100000)):
+    for i in range(10000000):
       if (random.random() < self.alloc_probability or not self.allocations): self.random_alloc()
       else: self.random_free()
 
@@ -74,8 +72,5 @@ class AllocatorFuzzer:
     print("Fuzzing completed successfully!")
 
 if __name__ == "__main__":
-  SEED = getenv("SEED", 42)
-  random.seed(SEED)
-
   fuzzer = AllocatorFuzzer(1 << 30)
   fuzzer.run()

@@ -1,7 +1,6 @@
-import struct
+import struct, tinygrad.runtime.autogen.libc as libc
 from dataclasses import dataclass
 from tinygrad.helpers import getbits, i2u
-import tinygrad.runtime.autogen.libc as libc
 
 @dataclass(frozen=True)
 class ElfSection: name:str; header:libc.Elf64_Shdr; content:bytes # noqa: E702

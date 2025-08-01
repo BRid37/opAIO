@@ -10,8 +10,9 @@ class LR_Scheduler:
 
   def get_lr(self): pass
 
-  def schedule_step(self) -> list[Tensor]: return [self.epoch_counter.assign(self.epoch_counter + 1), self.optimizer.lr.assign(self.get_lr())]
-  def step(self) -> None: Tensor.realize(*self.schedule_step())
+  def step(self) -> None:
+    self.epoch_counter.assign(self.epoch_counter + 1).realize()
+    self.optimizer.lr.assign(self.get_lr()).realize()
 
 class LRSchedulerGroup:
   def __init__(self, *schedulers: LR_Scheduler): self.schedulers = schedulers

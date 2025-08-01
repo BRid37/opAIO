@@ -3,7 +3,6 @@ from typing import Any
 import numpy as np
 from collections import defaultdict
 from extra.optimization.helpers import load_worlds, ast_str_to_lin, kern_str_to_lin
-from tinygrad.engine.realize import get_program
 
 # We need to insert ioctl before opening devices.
 if os.getenv("VALIDATE_HCQ", 0) != 0:
@@ -21,12 +20,12 @@ if os.getenv("VALIDATE_HCQ", 0) != 0:
 
 from tinygrad import Tensor, Device, dtypes
 from tinygrad.tensor import _to_np_dtype
-from tinygrad.opt.kernel import Kernel
-from tinygrad.opt.kernel import Opt, OptOps
-from tinygrad.opt.search import get_kernel_actions, bufs_from_lin
+from tinygrad.codegen.kernel import Kernel
+from tinygrad.codegen.kernel import Opt, OptOps
+from tinygrad.engine.search import get_kernel_actions, bufs_from_lin
 from tinygrad.engine.realize import CompiledRunner
 from tinygrad.helpers import getenv, from_mv, prod, colored, Context, DEBUG, Timing
-from tinygrad.uop.ops import UOp, Ops
+from tinygrad.ops import UOp, Ops
 from tinygrad.device import is_dtype_supported
 
 def on_linearizer_will_run(): pass
@@ -54,6 +53,8 @@ if getenv("VALIDATE_HCQ"):
 def tuplize_uops(uops:list[UOp]) -> tuple:
   return tuple([(x.op, x.dtype, tuple(uops.index(x) for x in x.src), x.arg) for x in uops])
 
+device = Device[Device.DEFAULT]
+
 def get_fuzz_rawbufs(lin):
   rawbufs = bufs_from_lin(lin)
 
@@ -74,7 +75,7 @@ def get_fuzz_rawbufs(lin):
         data = np.random.uniform(-1, 1, size=rawbuf.size).astype(dtype=_to_np_dtype(rawbuf.dtype))
       else:
         data = np.random.uniform(-10, 10, size=rawbuf.size).astype(dtype=_to_np_dtype(rawbuf.dtype))
-      rawbuf.copyin(Tensor(data, device=lin.opts.device).realize().uop.base.realized.as_buffer())
+      rawbuf.copyin(Tensor(data, device=lin.opts.device).realize().lazydata.base.realized.as_buffer())
   return rawbufs
 
 def get_fuzz_rawbuf_like(old_rawbuf, zero=False, copy=False, size=None, force_device=None):
@@ -94,7 +95,7 @@ def run_linearizer(lin: Kernel, rawbufs=None, var_vals=None) -> tuple[str, Any]:
 
   # TODO: images needs required_optimization
   try:
-    prg = CompiledRunner(get_program(lin.get_optimized_ast(), lin.opts))
+    prg = CompiledRunner(lin.to_program())
   except KeyboardInterrupt: raise
   except Exception:
     traceback.print_exc()
@@ -115,7 +116,7 @@ def run_linearizer(lin: Kernel, rawbufs=None, var_vals=None) -> tuple[str, Any]:
 
 def compare_linearizer(lin: Kernel, rawbufs=None, var_vals=None, ground_truth=None, rtol=1e-2, atol=1e-2):
   # TODO: for bfloat16 it compiles linearizer, but it does not run because numpy cannot generate bf16 buffer.
-  has_bf16 = any(b.dtype.base == dtypes.bfloat16 for b in lin.bufs)
+  has_bf16 = any(b.dtype.base == dtypes.bfloat16 for b in lin.membufs)
 
   # TODO: raise specific fuzzing errors instead of str, and propagate the error message
   try:
@@ -133,6 +134,7 @@ def compare_linearizer(lin: Kernel, rawbufs=None, var_vals=None, ground_truth=No
 
   if ground_truth is None and not has_bf16:
     unoptimized = Kernel(lin.ast)
+    unoptimized.required_optimizations()
     if run_linearizer(unoptimized, rawbufs, var_vals)[0] != "PASS":
       return ("BASELINE_ERROR", rawbufs, var_vals, ground_truth, None)
     ground_truth = np.frombuffer(rawbufs[0].as_buffer(), _to_np_dtype(rawbufs[0].dtype)).copy()
@@ -207,7 +209,7 @@ def fuzz_linearizer(lin: Kernel, rtol=1e-2, atol=1e-2, opts_list=None):
         if not FUZZ_ALL_ACTIONS and test_lin.applied_opts: print(f"applied opts: {test_lin.applied_opts}")
 
         # stop if kernel uops repeat
-        try: tuops = tuplize_uops(get_program(test_lin.get_optimized_ast(), test_lin.opts).uops)
+        try: tuops = tuplize_uops(test_lin.linearize().uops)
         except KeyboardInterrupt: raise
         except BaseException as e:
           print(test_lin.ast)

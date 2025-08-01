@@ -18,7 +18,6 @@
 ::: tinygrad.Tensor.repeat_interleave
 ::: tinygrad.Tensor.split
 ::: tinygrad.Tensor.chunk
-::: tinygrad.Tensor.unfold
 ::: tinygrad.Tensor.meshgrid
 ::: tinygrad.Tensor.squeeze
 ::: tinygrad.Tensor.unsqueeze
@@ -26,6 +25,5 @@
 ::: tinygrad.Tensor.transpose
 ::: tinygrad.Tensor.flatten
 ::: tinygrad.Tensor.unflatten
-::: tinygrad.Tensor.diag
 ::: tinygrad.Tensor.roll
 ::: tinygrad.Tensor.rearrange

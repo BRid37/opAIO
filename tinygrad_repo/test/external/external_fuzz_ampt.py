@@ -1,5 +1,4 @@
 import random
-from typing import Optional
 from tinygrad.helpers import round_up
 from tinygrad.runtime.support.am.amdev import AMPageTableTraverseContext
 from test.external.external_test_am import helper_read_entry_components, FakeAM
@@ -30,7 +29,7 @@ class AMPTFuzzer:
         self.d.vram[pte['paddr']] = pattern # Mark this page
         assert pte['valid'] == 1
 
-        # If page has contiguous fragment, all range should be this valid memory
+        # If page has contigous fragment, all range should be this valid memory
         frags_cnt = pte['fragment']
         contig_range = (1 << (frags_cnt + 12))
         start_vaddr = _vaddr & ~(contig_range - 1)
@@ -60,7 +59,7 @@ class AMPTFuzzer:
 
     return True
 
-  def random_alloc(self) -> Optional[int]:
+  def random_alloc(self):
     if self.total_size - self.alloc_payload < self.min_alloc_size: return None
 
     size = random.randint(self.min_alloc_size, min(self.max_alloc_size, self.total_size - self.alloc_payload))
@@ -73,7 +72,7 @@ class AMPTFuzzer:
 
     pattern = self.generate_pattern(ptr, size)
     pages = self.fill_memory(ptr, size, pattern)
-    self.allocations[ptr.va_addr] = (size, pattern, pages, ptr)
+    self.allocations[ptr] = (size, pattern, pages)
     self.alloc_payload += size
     print(f"Allocated {size} bytes at {ptr.va_addr:x}, pattern: {pattern:02x}")
     return ptr
@@ -82,15 +81,15 @@ class AMPTFuzzer:
     if not self.allocations: return False
 
     ptr = random.choice(list(self.allocations.keys()))
-    size, pattern, pages, vm = self.allocations[ptr]
+    size, pattern, pages = self.allocations[ptr]
 
     # Verify pattern before freeing
     if not self.verify_memory(pages, pattern):
-      raise RuntimeError(f"Memory corruption detected at {vm.va_addr:x}!")
+      raise RuntimeError(f"Memory corruption detected at {ptr.va_addr:x}!")
 
-    print(f"Freeing {size} bytes at {vm.va_addr:x}, pattern verified: {pattern:02x}")
+    print(f"Freeing {size} bytes at {ptr.va_addr:x}, pattern verified: {pattern:02x}")
     self.alloc_payload -= size
-    self.d.mm.vfree(vm)
+    self.d.mm.vfree(ptr)
     del self.allocations[ptr]
     return True
 

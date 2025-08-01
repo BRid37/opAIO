@@ -13,22 +13,19 @@ testing_minimal = [
   "pytest",
   "pytest-xdist",
   "hypothesis",
-  "z3-solver",
-  "ml_dtypes"
 ]
 
 setup(name='tinygrad',
-      version='0.10.3',
+      version='0.10.2',
       description='You like pytorch? You like micrograd? You love tinygrad! <3',
       author='George Hotz',
       license='MIT',
       long_description=long_description,
       long_description_content_type='text/markdown',
       packages = ['tinygrad', 'tinygrad.runtime.autogen', 'tinygrad.runtime.autogen.am', 'tinygrad.codegen', 'tinygrad.nn',
-                  'tinygrad.renderer', 'tinygrad.engine', 'tinygrad.viz', 'tinygrad.runtime', 'tinygrad.runtime.support', 'tinygrad.schedule',
-                  'tinygrad.runtime.support.am', 'tinygrad.runtime.graph', 'tinygrad.shape', 'tinygrad.uop', 'tinygrad.opt',
-                  'tinygrad.runtime.support.nv', 'tinygrad.apps'],
-      package_data = {'tinygrad': ['py.typed'], 'tinygrad.viz': ['index.html', 'assets/**/*', 'js/*']},
+                  'tinygrad.renderer', 'tinygrad.engine', 'tinygrad.viz', 'tinygrad.runtime', 'tinygrad.runtime.support',
+                  'tinygrad.runtime.support.am', 'tinygrad.runtime.graph', 'tinygrad.shape'],
+      package_data = {'tinygrad': ['py.typed'], 'tinygrad.viz': ['index.html', 'perfetto.html', 'assets/**/*', 'lib/**/*']},
       classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License"
@@ -44,18 +41,18 @@ setup(name='tinygrad',
             "typing-extensions",
             "pre-commit",
             "ruff",
-            "numpy",
+            "types-tqdm",
         ],
-        #'mlperf': ["mlperf-logging @ git+https://github.com/mlperf/logging.git@5.0.0-rc3"],
+        #'mlperf': ["mlperf-logging @ git+https://github.com/mlperf/logging.git@4.1.0-rc3"],
         'testing_minimal': testing_minimal,
         'testing_unit': testing_minimal + [
             "tqdm",
             "safetensors",
-            "tabulate",  # for sz.py
+            "tabulate"  # for sz.py
         ],
         'testing': testing_minimal + [
             "pillow",
-            "onnx==1.18.0",
+            "onnx==1.16.0",
             "onnx2torch",
             "onnxruntime",
             "opencv-python",
@@ -71,11 +68,7 @@ setup(name='tinygrad',
             "nibabel",
             "bottle",
             "ggml-python",
-            "capstone",
-            "pycocotools",
-            "boto3",
-            "pandas",
-            "influxdb3-python"
+            "capstone"
         ],
         'docs': [
             "mkdocs",
@@ -85,6 +78,10 @@ setup(name='tinygrad',
             "markdown-exec[ansi]",
             "black",
             "numpy",
+        ],
+        'testing_tf': [
+            "tensorflow==2.15.1",
+            "tensorflow_addons",
         ],
       },
       include_package_data=True)

@@ -2,11 +2,11 @@ import unittest, itertools, math
 from typing import Any
 from tinygrad import Tensor, Device, dtypes
 from tinygrad.dtype import DType
-from tinygrad.uop.ops import Ops, UOp
-from tinygrad.codegen import full_rewrite_to_sink
+from tinygrad.ops import Ops, UOp
+from tinygrad.helpers import CI
+from tinygrad.codegen.devectorizer import full_graph_rewrite
 import numpy as np
 from tinygrad.device import is_dtype_supported
-from test.helpers import not_support_multi_device
 
 def _check_ast_count(desired_count:int, t:Tensor):
   # NOTE: this has side effect because everything can be scheduled only once
@@ -81,10 +81,8 @@ class TestBinaryOpsConstFolding(unittest.TestCase):
   def test_div_tensor_one(self):
     _check_ast_count(0, Tensor([1.0, 2, 3, 4]) / Tensor.ones(4))
 
-  @unittest.expectedFailure  # TODO: fix
   def test_idiv_literal_one(self):
     _check_ast_count(0, Tensor([1, 2, 3, 4]) // 1)
-  @unittest.expectedFailure  # TODO: fix
   def test_idiv_tensor_one(self):
     _check_ast_count(0, Tensor([1, 2, 3, 4]) // Tensor.ones(4, dtype=dtypes.int32))
 
@@ -107,7 +105,7 @@ class TestBitcastConstFolding(unittest.TestCase):
     def t(cases: dict[DType, Any]):
       for (from_dt, from_v), (to_dt, to_v) in itertools.product(cases.items(), cases.items()):
         if not math.isnan(from_v):
-          r = full_rewrite_to_sink(UOp.const(from_dt, from_v).bitcast(to_dt).sink()).src[0]
+          r = full_graph_rewrite(UOp.const(from_dt, from_v).bitcast(to_dt).sink()).src[0]
           self.assertEqual(r.op, Ops.CONST, msg:=f"{from_dt} -> {to_dt} ({from_v} -> {to_v})")
           self.assertEqual(r.dtype, to_dt, msg)
           np.testing.assert_equal(r.arg, to_v, msg)
@@ -130,7 +128,7 @@ class TestBitcastConstFolding(unittest.TestCase):
     t({dtypes.int64: 4598983288165178391, dtypes.uint64: 4598983288165178391, dtypes.float64: 0.29485681936461233})
 
   def test_vec_bitcast(self):
-    r = full_rewrite_to_sink(UOp.const(dtypes.int32.vec(3), (-1, -2**31, 75)).bitcast(dtypes.uint32.vec(3)).sink()).src[0]
+    r = full_graph_rewrite(UOp.const(dtypes.int32.vec(3), (-1, -2**31, 75)).bitcast(dtypes.uint32.vec(3)).sink()).src[0]
     self.assertEqual(r.op, Ops.VECTORIZE)
     self.assertEqual(r.dtype, dtypes.uint32.vec(3))
     self.assertEqual(tuple(x.arg for x in r.src), (2**32-1, 2**31, 75))
@@ -174,9 +172,9 @@ class TestMovedConstFolding(unittest.TestCase):
     if is_dtype_supported(dtypes.uint16):
       _check_ast_count(0, Tensor.full(4, fill_value=-1).pad(((1, 1),)).cast(dtypes.uint16))
       np.testing.assert_equal(Tensor.full(4, fill_value=-1).pad(((1, 1),)).cast(dtypes.uint16).numpy(), [0, 65535, 65535, 65535, 65535, 0])
-    # folded
+    # not folded
     if is_dtype_supported(dtypes.int64):
-      _check_ast_count(0, Tensor.ones(4).pad(((1, 1),)).cast(dtypes.int64))
+      _check_ast_count(1, Tensor.ones(4).pad(((1, 1),)).cast(dtypes.int64))
       np.testing.assert_equal(Tensor.ones(4).pad(((1, 1),)).cast(dtypes.int64).numpy(), [0, 1, 1, 1, 1, 0])
 
 class TestReduceOpsConstFolding(unittest.TestCase):
@@ -221,7 +219,7 @@ class TestReduceOpsConstFolding(unittest.TestCase):
     # contiguous folded const can still schedule
     a = Tensor.empty(1, 0).sum().contiguous()
     _check_ast_count(2, a+2)
-    self.assertIs(a.uop.base.op, Ops.BUFFER)
+    self.assertIs(a.lazydata.base.op, Ops.BUFFER)
     np.testing.assert_equal((Tensor.empty(1, 0).sum().contiguous()+2).numpy(), 2)
     # otherwise we just fuse it
     _check_ast_count(1, (Tensor.empty(1, 0).sum()+2).contiguous())
@@ -248,11 +246,11 @@ class TestReduceOpsConstFolding(unittest.TestCase):
         t = Tensor.ones(16, dtype=dt).reshape(4, 4)
         assert t.sum().dtype == t.contiguous().sum().dtype
 
-@unittest.skipIf(not_support_multi_device(), "no multi")
+@unittest.skipIf(CI and Device.DEFAULT in {"GPU", "CUDA", "METAL"}, "no GPU CI")
 class TestMultiConstFolding(unittest.TestCase):
   def test_multi_const_folding_literal(self):
     ds = tuple(f"{Device.DEFAULT}:{i}" for i in range(4))
-    t = Tensor.arange(16).float().to(ds).realize()
+    t = Tensor.arange(16).float().realize().to(ds)
 
     # non const folding case creates one ast on each shard
     _check_ast_count(4, t + 1)
@@ -275,11 +273,13 @@ class TestMultiConstFolding(unittest.TestCase):
     _check_ast_count(0, t ** 1)
     _check_ast_count(0, 1 ** t)
 
+  # failing because multi calls .contiguous() on every single sharded uop
+  @unittest.expectedFailure
   def test_multi_const_folding_tensor(self):
     ds = tuple(f"{Device.DEFAULT}:{i}" for i in range(4))
-    t = Tensor.arange(16).float().to(ds).realize()
-    zero = Tensor.zeros(16).to(ds).realize()
-    one = Tensor.ones(16).to(ds).realize()
+    t = Tensor.arange(16).float().realize().to(ds)
+    zero = Tensor.zeros(16).realize().to(ds)
+    one = Tensor.ones(16).realize().to(ds)
 
     # const folded
     _check_ast_count(0, t + zero)
@@ -292,11 +292,12 @@ class TestMultiConstFolding(unittest.TestCase):
     np.testing.assert_equal((t * zero).numpy(), [0] * 16)
     np.testing.assert_equal((t * one).numpy(), np.arange(16))
 
+  @unittest.expectedFailure
   def test_multi_todo_pow(self):
     ds = tuple(f"{Device.DEFAULT}:{i}" for i in range(4))
-    t = Tensor.arange(16).float().to(ds).realize()
-    zero = Tensor.zeros(16).to(ds).realize()
-    one = Tensor.ones(16).to(ds).realize()
+    t = Tensor.arange(16).float().realize().to(ds)
+    zero = Tensor.zeros(16).realize().to(ds)
+    one = Tensor.ones(16).realize().to(ds)
 
     # TODO: fix pow folding
     _check_ast_count(0, t ** zero)

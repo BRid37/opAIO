@@ -1,6 +1,5 @@
 import unittest
 from tinygrad import Tensor, TinyJit, Variable, dtypes
-from tinygrad.helpers import Context
 import numpy as np
 
 class TestSetitem(unittest.TestCase):
@@ -26,16 +25,6 @@ class TestSetitem(unittest.TestCase):
       n[slc] = val.numpy() if isinstance(val, Tensor) else val
       np.testing.assert_allclose(t.numpy(), n)
 
-  def test_padded_setitem(self):
-    t = Tensor.arange(10)
-    t[4:1:-2] = 11
-    self.assertListEqual(t.tolist(), [0, 1, 11, 3, 11, 5, 6, 7, 8, 9])
-
-  def test_setitem_inplace_mul(self):
-    t = Tensor.arange(10).realize()
-    t[:3] *= 10
-    self.assertListEqual(t.tolist(), [0, 10, 20, 3, 4, 5, 6, 7, 8, 9])
-
   def test_setitem_into_unrealized(self):
     t = Tensor.arange(4).reshape(2, 2)
     t[1] = 5
@@ -50,7 +39,7 @@ class TestSetitem(unittest.TestCase):
 
   def test_setitem_into_noncontiguous(self):
     t = Tensor.ones(4)
-    self.assertFalse(t.uop.st.contiguous)
+    self.assertFalse(t.lazydata.st.contiguous)
     with self.assertRaises(RuntimeError): t[1] = 5
 
   @unittest.skip("TODO: flaky")
@@ -132,21 +121,20 @@ class TestSetitem(unittest.TestCase):
       np.testing.assert_allclose(t.numpy(), n)
 
   def test_jit_setitem_variable_offset(self):
-    with Context(IGNORE_OOB=1):
-      @TinyJit
-      def f(t:Tensor, a:Tensor, v:Variable):
-        t.shrink(((v,v+1), None)).assign(a).realize()
+    @TinyJit
+    def f(t:Tensor, a:Tensor, v:Variable):
+      t.shrink(((v,v+1), None)).assign(a).realize()
 
-      t = Tensor.zeros(6, 6).contiguous().realize()
-      n = np.zeros((6, 6))
+    t = Tensor.zeros(6, 6).contiguous().realize()
+    n = np.zeros((6, 6))
 
-      for i in range(6):
-        v = Variable("v", 0, 6).bind(i)
-        a = Tensor.full((1, 6), fill_value=i+1, dtype=dtypes.float).contiguous()
-        n[i, :] = i+1
-        f(t, a, v)
-        np.testing.assert_allclose(t.numpy(), n)
-      np.testing.assert_allclose(t.numpy(), [[1,1,1,1,1,1],[2,2,2,2,2,2],[3,3,3,3,3,3],[4,4,4,4,4,4],[5,5,5,5,5,5],[6,6,6,6,6,6]])
+    for i in range(6):
+      v = Variable("v", 0, 6).bind(i)
+      a = Tensor.full((1, 6), fill_value=i+1, dtype=dtypes.float).contiguous()
+      n[i, :] = i+1
+      f(t, a, v)
+      np.testing.assert_allclose(t.numpy(), n)
+    np.testing.assert_allclose(t.numpy(), [[1,1,1,1,1,1],[2,2,2,2,2,2],[3,3,3,3,3,3],[4,4,4,4,4,4],[5,5,5,5,5,5],[6,6,6,6,6,6]])
 
   def test_setitem_overlapping_inplace1(self):
     t = Tensor([[3.0], [2.0], [1.0]]).contiguous()
@@ -175,13 +163,6 @@ class TestWithGrad(unittest.TestCase):
     x = Tensor.rand(8, requires_grad=True)
     with self.assertRaises(NotImplementedError):
       z[:3] = x
-
-class TestSetitemLoop(unittest.TestCase):
-  def test_arange(self):
-    N = 10
-    cmp = Tensor.empty(N)
-    for i in range(N): cmp[i] = i
-    self.assertListEqual(Tensor.arange(N).tolist(), cmp.tolist())
 
 if __name__ == '__main__':
   unittest.main()

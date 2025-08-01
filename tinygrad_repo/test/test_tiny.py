@@ -73,23 +73,21 @@ class TestTiny(unittest.TestCase):
 
   def test_symbolic(self):
     i = Variable('i', 1, 10)
-    with Context(IGNORE_OOB=1):
-      for s in [2,5]:
-        ret = Tensor.ones(s).contiguous().reshape(i.bind(s)) + 1
-        self.assertListEqual(ret.reshape(s).tolist(), [2.0]*s)
+    for s in [2,5]:
+      ret = Tensor.ones(s).contiguous().reshape(i.bind(s)) + 1
+      self.assertListEqual(ret.reshape(s).tolist(), [2.0]*s)
 
   def test_symbolic_reduce(self):
     i = Variable('i', 1, 10)
-    with Context(IGNORE_OOB=1):
-      for s in [2,5]:
-        ret = Tensor.ones(s).contiguous().reshape(i.bind(s)).sum()
-        self.assertEqual(ret.item(), s)
+    for s in [2,5]:
+      ret = Tensor.ones(s).contiguous().reshape(i.bind(s)).sum()
+      self.assertEqual(ret.item(), s)
 
   # *** a model ***
 
   # TODO: this is failing because of how swizzling rewrites the ShapeTracker of the final STORE
   @unittest.skipIf(IMAGE>0 or (CI and Device.DEFAULT == "DSP"), "failing because of make things that can't be images not images")
-  def test_mnist(self):
+  def test_mnist_model(self):
     layers = [
       nn.Conv2d(1, 32, 5), Tensor.relu,
       nn.Conv2d(32, 32, 5), Tensor.relu,
@@ -100,7 +98,7 @@ class TestTiny(unittest.TestCase):
       lambda x: x.flatten(1), nn.Linear(576, 10)]
 
     # replace random weights with ones
-    Tensor.realize(*[p.replace(Tensor.ones_like(p).contiguous()) for p in nn.state.get_parameters(layers)])
+    for p in nn.state.get_parameters(layers): p.replace(Tensor.ones_like(p).contiguous()).realize()
 
     # run model inference
     probs = Tensor.rand(1, 1, 28, 28).sequential(layers).tolist()
@@ -117,3 +115,4 @@ class TestTiny(unittest.TestCase):
 
 if __name__ == '__main__':
   unittest.main()
+

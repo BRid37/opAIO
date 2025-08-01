@@ -6,7 +6,7 @@
 # POINTER_SIZE is: 8
 # LONGDOUBLE_SIZE is: 16
 #
-import ctypes, tinygrad.runtime.support.webgpu as webgpu_support
+import ctypes, ctypes.util
 
 
 class AsDictMixin:
@@ -144,17 +144,8 @@ def char_pointer_cast(string, encoding='utf-8'):
 
 
 
-class FunctionFactoryStub:
-    def __getattr__(self, _):
-      return ctypes.CFUNCTYPE(lambda y:y)
-
-# libraries['webgpu'] explanation
-# As you did not list (-l libraryname.so) a library that exports this function
-# This is a non-working stub instead.
-# You can either re-run clan2py with -l /path/to/library.so
-# Or manually fix this by comment the ctypes.CDLL loading
 _libraries = {}
-_libraries['webgpu'] = ctypes.CDLL(webgpu_support.WEBGPU_PATH) #  ctypes.CDLL('webgpu')
+_libraries['libwebgpu_dawn.so'] = ctypes.CDLL(ctypes.util.find_library('webgpu_dawn'))
 
 
 WGPUFlags = ctypes.c_uint64
@@ -4231,1577 +4222,1577 @@ WGPUProcTextureViewSetLabel = ctypes.CFUNCTYPE(None, ctypes.POINTER(struct_WGPUT
 WGPUProcTextureViewAddRef = ctypes.CFUNCTYPE(None, ctypes.POINTER(struct_WGPUTextureViewImpl))
 WGPUProcTextureViewRelease = ctypes.CFUNCTYPE(None, ctypes.POINTER(struct_WGPUTextureViewImpl))
 try:
-    wgpuAdapterInfoFreeMembers = _libraries['webgpu'].wgpuAdapterInfoFreeMembers
+    wgpuAdapterInfoFreeMembers = _libraries['libwebgpu_dawn.so'].wgpuAdapterInfoFreeMembers
     wgpuAdapterInfoFreeMembers.restype = None
     wgpuAdapterInfoFreeMembers.argtypes = [WGPUAdapterInfo]
 except AttributeError:
     pass
 try:
-    wgpuAdapterPropertiesMemoryHeapsFreeMembers = _libraries['webgpu'].wgpuAdapterPropertiesMemoryHeapsFreeMembers
+    wgpuAdapterPropertiesMemoryHeapsFreeMembers = _libraries['libwebgpu_dawn.so'].wgpuAdapterPropertiesMemoryHeapsFreeMembers
     wgpuAdapterPropertiesMemoryHeapsFreeMembers.restype = None
     wgpuAdapterPropertiesMemoryHeapsFreeMembers.argtypes = [WGPUAdapterPropertiesMemoryHeaps]
 except AttributeError:
     pass
 try:
-    wgpuCreateInstance = _libraries['webgpu'].wgpuCreateInstance
+    wgpuCreateInstance = _libraries['libwebgpu_dawn.so'].wgpuCreateInstance
     wgpuCreateInstance.restype = WGPUInstance
     wgpuCreateInstance.argtypes = [ctypes.POINTER(struct_WGPUInstanceDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDrmFormatCapabilitiesFreeMembers = _libraries['webgpu'].wgpuDrmFormatCapabilitiesFreeMembers
+    wgpuDrmFormatCapabilitiesFreeMembers = _libraries['libwebgpu_dawn.so'].wgpuDrmFormatCapabilitiesFreeMembers
     wgpuDrmFormatCapabilitiesFreeMembers.restype = None
     wgpuDrmFormatCapabilitiesFreeMembers.argtypes = [WGPUDrmFormatCapabilities]
 except AttributeError:
     pass
 try:
-    wgpuGetInstanceFeatures = _libraries['webgpu'].wgpuGetInstanceFeatures
+    wgpuGetInstanceFeatures = _libraries['libwebgpu_dawn.so'].wgpuGetInstanceFeatures
     wgpuGetInstanceFeatures.restype = WGPUStatus
     wgpuGetInstanceFeatures.argtypes = [ctypes.POINTER(struct_WGPUInstanceFeatures)]
 except AttributeError:
     pass
 try:
-    wgpuGetProcAddress = _libraries['webgpu'].wgpuGetProcAddress
+    wgpuGetProcAddress = _libraries['libwebgpu_dawn.so'].wgpuGetProcAddress
     wgpuGetProcAddress.restype = WGPUProc
     wgpuGetProcAddress.argtypes = [WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuSharedBufferMemoryEndAccessStateFreeMembers = _libraries['webgpu'].wgpuSharedBufferMemoryEndAccessStateFreeMembers
+    wgpuSharedBufferMemoryEndAccessStateFreeMembers = _libraries['libwebgpu_dawn.so'].wgpuSharedBufferMemoryEndAccessStateFreeMembers
     wgpuSharedBufferMemoryEndAccessStateFreeMembers.restype = None
     wgpuSharedBufferMemoryEndAccessStateFreeMembers.argtypes = [WGPUSharedBufferMemoryEndAccessState]
 except AttributeError:
     pass
 try:
-    wgpuSharedTextureMemoryEndAccessStateFreeMembers = _libraries['webgpu'].wgpuSharedTextureMemoryEndAccessStateFreeMembers
+    wgpuSharedTextureMemoryEndAccessStateFreeMembers = _libraries['libwebgpu_dawn.so'].wgpuSharedTextureMemoryEndAccessStateFreeMembers
     wgpuSharedTextureMemoryEndAccessStateFreeMembers.restype = None
     wgpuSharedTextureMemoryEndAccessStateFreeMembers.argtypes = [WGPUSharedTextureMemoryEndAccessState]
 except AttributeError:
     pass
 try:
-    wgpuSupportedFeaturesFreeMembers = _libraries['webgpu'].wgpuSupportedFeaturesFreeMembers
+    wgpuSupportedFeaturesFreeMembers = _libraries['libwebgpu_dawn.so'].wgpuSupportedFeaturesFreeMembers
     wgpuSupportedFeaturesFreeMembers.restype = None
     wgpuSupportedFeaturesFreeMembers.argtypes = [WGPUSupportedFeatures]
 except AttributeError:
     pass
 try:
-    wgpuSurfaceCapabilitiesFreeMembers = _libraries['webgpu'].wgpuSurfaceCapabilitiesFreeMembers
+    wgpuSurfaceCapabilitiesFreeMembers = _libraries['libwebgpu_dawn.so'].wgpuSurfaceCapabilitiesFreeMembers
     wgpuSurfaceCapabilitiesFreeMembers.restype = None
     wgpuSurfaceCapabilitiesFreeMembers.argtypes = [WGPUSurfaceCapabilities]
 except AttributeError:
     pass
 try:
-    wgpuAdapterCreateDevice = _libraries['webgpu'].wgpuAdapterCreateDevice
+    wgpuAdapterCreateDevice = _libraries['libwebgpu_dawn.so'].wgpuAdapterCreateDevice
     wgpuAdapterCreateDevice.restype = WGPUDevice
     wgpuAdapterCreateDevice.argtypes = [WGPUAdapter, ctypes.POINTER(struct_WGPUDeviceDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuAdapterGetFeatures = _libraries['webgpu'].wgpuAdapterGetFeatures
+    wgpuAdapterGetFeatures = _libraries['libwebgpu_dawn.so'].wgpuAdapterGetFeatures
     wgpuAdapterGetFeatures.restype = None
     wgpuAdapterGetFeatures.argtypes = [WGPUAdapter, ctypes.POINTER(struct_WGPUSupportedFeatures)]
 except AttributeError:
     pass
 try:
-    wgpuAdapterGetFormatCapabilities = _libraries['webgpu'].wgpuAdapterGetFormatCapabilities
+    wgpuAdapterGetFormatCapabilities = _libraries['libwebgpu_dawn.so'].wgpuAdapterGetFormatCapabilities
     wgpuAdapterGetFormatCapabilities.restype = WGPUStatus
     wgpuAdapterGetFormatCapabilities.argtypes = [WGPUAdapter, WGPUTextureFormat, ctypes.POINTER(struct_WGPUFormatCapabilities)]
 except AttributeError:
     pass
 try:
-    wgpuAdapterGetInfo = _libraries['webgpu'].wgpuAdapterGetInfo
+    wgpuAdapterGetInfo = _libraries['libwebgpu_dawn.so'].wgpuAdapterGetInfo
     wgpuAdapterGetInfo.restype = WGPUStatus
     wgpuAdapterGetInfo.argtypes = [WGPUAdapter, ctypes.POINTER(struct_WGPUAdapterInfo)]
 except AttributeError:
     pass
 try:
-    wgpuAdapterGetInstance = _libraries['webgpu'].wgpuAdapterGetInstance
+    wgpuAdapterGetInstance = _libraries['libwebgpu_dawn.so'].wgpuAdapterGetInstance
     wgpuAdapterGetInstance.restype = WGPUInstance
     wgpuAdapterGetInstance.argtypes = [WGPUAdapter]
 except AttributeError:
     pass
 try:
-    wgpuAdapterGetLimits = _libraries['webgpu'].wgpuAdapterGetLimits
+    wgpuAdapterGetLimits = _libraries['libwebgpu_dawn.so'].wgpuAdapterGetLimits
     wgpuAdapterGetLimits.restype = WGPUStatus
     wgpuAdapterGetLimits.argtypes = [WGPUAdapter, ctypes.POINTER(struct_WGPUSupportedLimits)]
 except AttributeError:
     pass
 try:
-    wgpuAdapterHasFeature = _libraries['webgpu'].wgpuAdapterHasFeature
+    wgpuAdapterHasFeature = _libraries['libwebgpu_dawn.so'].wgpuAdapterHasFeature
     wgpuAdapterHasFeature.restype = WGPUBool
     wgpuAdapterHasFeature.argtypes = [WGPUAdapter, WGPUFeatureName]
 except AttributeError:
     pass
 try:
-    wgpuAdapterRequestDevice = _libraries['webgpu'].wgpuAdapterRequestDevice
+    wgpuAdapterRequestDevice = _libraries['libwebgpu_dawn.so'].wgpuAdapterRequestDevice
     wgpuAdapterRequestDevice.restype = None
     wgpuAdapterRequestDevice.argtypes = [WGPUAdapter, ctypes.POINTER(struct_WGPUDeviceDescriptor), WGPURequestDeviceCallback, ctypes.POINTER(None)]
 except AttributeError:
     pass
 try:
-    wgpuAdapterRequestDevice2 = _libraries['webgpu'].wgpuAdapterRequestDevice2
+    wgpuAdapterRequestDevice2 = _libraries['libwebgpu_dawn.so'].wgpuAdapterRequestDevice2
     wgpuAdapterRequestDevice2.restype = WGPUFuture
     wgpuAdapterRequestDevice2.argtypes = [WGPUAdapter, ctypes.POINTER(struct_WGPUDeviceDescriptor), WGPURequestDeviceCallbackInfo2]
 except AttributeError:
     pass
 try:
-    wgpuAdapterRequestDeviceF = _libraries['webgpu'].wgpuAdapterRequestDeviceF
+    wgpuAdapterRequestDeviceF = _libraries['libwebgpu_dawn.so'].wgpuAdapterRequestDeviceF
     wgpuAdapterRequestDeviceF.restype = WGPUFuture
     wgpuAdapterRequestDeviceF.argtypes = [WGPUAdapter, ctypes.POINTER(struct_WGPUDeviceDescriptor), WGPURequestDeviceCallbackInfo]
 except AttributeError:
     pass
 try:
-    wgpuAdapterAddRef = _libraries['webgpu'].wgpuAdapterAddRef
+    wgpuAdapterAddRef = _libraries['libwebgpu_dawn.so'].wgpuAdapterAddRef
     wgpuAdapterAddRef.restype = None
     wgpuAdapterAddRef.argtypes = [WGPUAdapter]
 except AttributeError:
     pass
 try:
-    wgpuAdapterRelease = _libraries['webgpu'].wgpuAdapterRelease
+    wgpuAdapterRelease = _libraries['libwebgpu_dawn.so'].wgpuAdapterRelease
     wgpuAdapterRelease.restype = None
     wgpuAdapterRelease.argtypes = [WGPUAdapter]
 except AttributeError:
     pass
 try:
-    wgpuBindGroupSetLabel = _libraries['webgpu'].wgpuBindGroupSetLabel
+    wgpuBindGroupSetLabel = _libraries['libwebgpu_dawn.so'].wgpuBindGroupSetLabel
     wgpuBindGroupSetLabel.restype = None
     wgpuBindGroupSetLabel.argtypes = [WGPUBindGroup, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuBindGroupAddRef = _libraries['webgpu'].wgpuBindGroupAddRef
+    wgpuBindGroupAddRef = _libraries['libwebgpu_dawn.so'].wgpuBindGroupAddRef
     wgpuBindGroupAddRef.restype = None
     wgpuBindGroupAddRef.argtypes = [WGPUBindGroup]
 except AttributeError:
     pass
 try:
-    wgpuBindGroupRelease = _libraries['webgpu'].wgpuBindGroupRelease
+    wgpuBindGroupRelease = _libraries['libwebgpu_dawn.so'].wgpuBindGroupRelease
     wgpuBindGroupRelease.restype = None
     wgpuBindGroupRelease.argtypes = [WGPUBindGroup]
 except AttributeError:
     pass
 try:
-    wgpuBindGroupLayoutSetLabel = _libraries['webgpu'].wgpuBindGroupLayoutSetLabel
+    wgpuBindGroupLayoutSetLabel = _libraries['libwebgpu_dawn.so'].wgpuBindGroupLayoutSetLabel
     wgpuBindGroupLayoutSetLabel.restype = None
     wgpuBindGroupLayoutSetLabel.argtypes = [WGPUBindGroupLayout, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuBindGroupLayoutAddRef = _libraries['webgpu'].wgpuBindGroupLayoutAddRef
+    wgpuBindGroupLayoutAddRef = _libraries['libwebgpu_dawn.so'].wgpuBindGroupLayoutAddRef
     wgpuBindGroupLayoutAddRef.restype = None
     wgpuBindGroupLayoutAddRef.argtypes = [WGPUBindGroupLayout]
 except AttributeError:
     pass
 try:
-    wgpuBindGroupLayoutRelease = _libraries['webgpu'].wgpuBindGroupLayoutRelease
+    wgpuBindGroupLayoutRelease = _libraries['libwebgpu_dawn.so'].wgpuBindGroupLayoutRelease
     wgpuBindGroupLayoutRelease.restype = None
     wgpuBindGroupLayoutRelease.argtypes = [WGPUBindGroupLayout]
 except AttributeError:
     pass
 try:
-    wgpuBufferDestroy = _libraries['webgpu'].wgpuBufferDestroy
+    wgpuBufferDestroy = _libraries['libwebgpu_dawn.so'].wgpuBufferDestroy
     wgpuBufferDestroy.restype = None
     wgpuBufferDestroy.argtypes = [WGPUBuffer]
 except AttributeError:
     pass
 size_t = ctypes.c_uint64
 try:
-    wgpuBufferGetConstMappedRange = _libraries['webgpu'].wgpuBufferGetConstMappedRange
+    wgpuBufferGetConstMappedRange = _libraries['libwebgpu_dawn.so'].wgpuBufferGetConstMappedRange
     wgpuBufferGetConstMappedRange.restype = ctypes.POINTER(None)
     wgpuBufferGetConstMappedRange.argtypes = [WGPUBuffer, size_t, size_t]
 except AttributeError:
     pass
 try:
-    wgpuBufferGetMapState = _libraries['webgpu'].wgpuBufferGetMapState
+    wgpuBufferGetMapState = _libraries['libwebgpu_dawn.so'].wgpuBufferGetMapState
     wgpuBufferGetMapState.restype = WGPUBufferMapState
     wgpuBufferGetMapState.argtypes = [WGPUBuffer]
 except AttributeError:
     pass
 try:
-    wgpuBufferGetMappedRange = _libraries['webgpu'].wgpuBufferGetMappedRange
+    wgpuBufferGetMappedRange = _libraries['libwebgpu_dawn.so'].wgpuBufferGetMappedRange
     wgpuBufferGetMappedRange.restype = ctypes.POINTER(None)
     wgpuBufferGetMappedRange.argtypes = [WGPUBuffer, size_t, size_t]
 except AttributeError:
     pass
 uint64_t = ctypes.c_uint64
 try:
-    wgpuBufferGetSize = _libraries['webgpu'].wgpuBufferGetSize
+    wgpuBufferGetSize = _libraries['libwebgpu_dawn.so'].wgpuBufferGetSize
     wgpuBufferGetSize.restype = uint64_t
     wgpuBufferGetSize.argtypes = [WGPUBuffer]
 except AttributeError:
     pass
 try:
-    wgpuBufferGetUsage = _libraries['webgpu'].wgpuBufferGetUsage
+    wgpuBufferGetUsage = _libraries['libwebgpu_dawn.so'].wgpuBufferGetUsage
     wgpuBufferGetUsage.restype = WGPUBufferUsage
     wgpuBufferGetUsage.argtypes = [WGPUBuffer]
 except AttributeError:
     pass
 try:
-    wgpuBufferMapAsync = _libraries['webgpu'].wgpuBufferMapAsync
+    wgpuBufferMapAsync = _libraries['libwebgpu_dawn.so'].wgpuBufferMapAsync
     wgpuBufferMapAsync.restype = None
     wgpuBufferMapAsync.argtypes = [WGPUBuffer, WGPUMapMode, size_t, size_t, WGPUBufferMapCallback, ctypes.POINTER(None)]
 except AttributeError:
     pass
 try:
-    wgpuBufferMapAsync2 = _libraries['webgpu'].wgpuBufferMapAsync2
+    wgpuBufferMapAsync2 = _libraries['libwebgpu_dawn.so'].wgpuBufferMapAsync2
     wgpuBufferMapAsync2.restype = WGPUFuture
     wgpuBufferMapAsync2.argtypes = [WGPUBuffer, WGPUMapMode, size_t, size_t, WGPUBufferMapCallbackInfo2]
 except AttributeError:
     pass
 try:
-    wgpuBufferMapAsyncF = _libraries['webgpu'].wgpuBufferMapAsyncF
+    wgpuBufferMapAsyncF = _libraries['libwebgpu_dawn.so'].wgpuBufferMapAsyncF
     wgpuBufferMapAsyncF.restype = WGPUFuture
     wgpuBufferMapAsyncF.argtypes = [WGPUBuffer, WGPUMapMode, size_t, size_t, WGPUBufferMapCallbackInfo]
 except AttributeError:
     pass
 try:
-    wgpuBufferSetLabel = _libraries['webgpu'].wgpuBufferSetLabel
+    wgpuBufferSetLabel = _libraries['libwebgpu_dawn.so'].wgpuBufferSetLabel
     wgpuBufferSetLabel.restype = None
     wgpuBufferSetLabel.argtypes = [WGPUBuffer, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuBufferUnmap = _libraries['webgpu'].wgpuBufferUnmap
+    wgpuBufferUnmap = _libraries['libwebgpu_dawn.so'].wgpuBufferUnmap
     wgpuBufferUnmap.restype = None
     wgpuBufferUnmap.argtypes = [WGPUBuffer]
 except AttributeError:
     pass
 try:
-    wgpuBufferAddRef = _libraries['webgpu'].wgpuBufferAddRef
+    wgpuBufferAddRef = _libraries['libwebgpu_dawn.so'].wgpuBufferAddRef
     wgpuBufferAddRef.restype = None
     wgpuBufferAddRef.argtypes = [WGPUBuffer]
 except AttributeError:
     pass
 try:
-    wgpuBufferRelease = _libraries['webgpu'].wgpuBufferRelease
+    wgpuBufferRelease = _libraries['libwebgpu_dawn.so'].wgpuBufferRelease
     wgpuBufferRelease.restype = None
     wgpuBufferRelease.argtypes = [WGPUBuffer]
 except AttributeError:
     pass
 try:
-    wgpuCommandBufferSetLabel = _libraries['webgpu'].wgpuCommandBufferSetLabel
+    wgpuCommandBufferSetLabel = _libraries['libwebgpu_dawn.so'].wgpuCommandBufferSetLabel
     wgpuCommandBufferSetLabel.restype = None
     wgpuCommandBufferSetLabel.argtypes = [WGPUCommandBuffer, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuCommandBufferAddRef = _libraries['webgpu'].wgpuCommandBufferAddRef
+    wgpuCommandBufferAddRef = _libraries['libwebgpu_dawn.so'].wgpuCommandBufferAddRef
     wgpuCommandBufferAddRef.restype = None
     wgpuCommandBufferAddRef.argtypes = [WGPUCommandBuffer]
 except AttributeError:
     pass
 try:
-    wgpuCommandBufferRelease = _libraries['webgpu'].wgpuCommandBufferRelease
+    wgpuCommandBufferRelease = _libraries['libwebgpu_dawn.so'].wgpuCommandBufferRelease
     wgpuCommandBufferRelease.restype = None
     wgpuCommandBufferRelease.argtypes = [WGPUCommandBuffer]
 except AttributeError:
     pass
 try:
-    wgpuCommandEncoderBeginComputePass = _libraries['webgpu'].wgpuCommandEncoderBeginComputePass
+    wgpuCommandEncoderBeginComputePass = _libraries['libwebgpu_dawn.so'].wgpuCommandEncoderBeginComputePass
     wgpuCommandEncoderBeginComputePass.restype = WGPUComputePassEncoder
     wgpuCommandEncoderBeginComputePass.argtypes = [WGPUCommandEncoder, ctypes.POINTER(struct_WGPUComputePassDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuCommandEncoderBeginRenderPass = _libraries['webgpu'].wgpuCommandEncoderBeginRenderPass
+    wgpuCommandEncoderBeginRenderPass = _libraries['libwebgpu_dawn.so'].wgpuCommandEncoderBeginRenderPass
     wgpuCommandEncoderBeginRenderPass.restype = WGPURenderPassEncoder
     wgpuCommandEncoderBeginRenderPass.argtypes = [WGPUCommandEncoder, ctypes.POINTER(struct_WGPURenderPassDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuCommandEncoderClearBuffer = _libraries['webgpu'].wgpuCommandEncoderClearBuffer
+    wgpuCommandEncoderClearBuffer = _libraries['libwebgpu_dawn.so'].wgpuCommandEncoderClearBuffer
     wgpuCommandEncoderClearBuffer.restype = None
     wgpuCommandEncoderClearBuffer.argtypes = [WGPUCommandEncoder, WGPUBuffer, uint64_t, uint64_t]
 except AttributeError:
     pass
 try:
-    wgpuCommandEncoderCopyBufferToBuffer = _libraries['webgpu'].wgpuCommandEncoderCopyBufferToBuffer
+    wgpuCommandEncoderCopyBufferToBuffer = _libraries['libwebgpu_dawn.so'].wgpuCommandEncoderCopyBufferToBuffer
     wgpuCommandEncoderCopyBufferToBuffer.restype = None
     wgpuCommandEncoderCopyBufferToBuffer.argtypes = [WGPUCommandEncoder, WGPUBuffer, uint64_t, WGPUBuffer, uint64_t, uint64_t]
 except AttributeError:
     pass
 try:
-    wgpuCommandEncoderCopyBufferToTexture = _libraries['webgpu'].wgpuCommandEncoderCopyBufferToTexture
+    wgpuCommandEncoderCopyBufferToTexture = _libraries['libwebgpu_dawn.so'].wgpuCommandEncoderCopyBufferToTexture
     wgpuCommandEncoderCopyBufferToTexture.restype = None
     wgpuCommandEncoderCopyBufferToTexture.argtypes = [WGPUCommandEncoder, ctypes.POINTER(struct_WGPUImageCopyBuffer), ctypes.POINTER(struct_WGPUImageCopyTexture), ctypes.POINTER(struct_WGPUExtent3D)]
 except AttributeError:
     pass
 try:
-    wgpuCommandEncoderCopyTextureToBuffer = _libraries['webgpu'].wgpuCommandEncoderCopyTextureToBuffer
+    wgpuCommandEncoderCopyTextureToBuffer = _libraries['libwebgpu_dawn.so'].wgpuCommandEncoderCopyTextureToBuffer
     wgpuCommandEncoderCopyTextureToBuffer.restype = None
     wgpuCommandEncoderCopyTextureToBuffer.argtypes = [WGPUCommandEncoder, ctypes.POINTER(struct_WGPUImageCopyTexture), ctypes.POINTER(struct_WGPUImageCopyBuffer), ctypes.POINTER(struct_WGPUExtent3D)]
 except AttributeError:
     pass
 try:
-    wgpuCommandEncoderCopyTextureToTexture = _libraries['webgpu'].wgpuCommandEncoderCopyTextureToTexture
+    wgpuCommandEncoderCopyTextureToTexture = _libraries['libwebgpu_dawn.so'].wgpuCommandEncoderCopyTextureToTexture
     wgpuCommandEncoderCopyTextureToTexture.restype = None
     wgpuCommandEncoderCopyTextureToTexture.argtypes = [WGPUCommandEncoder, ctypes.POINTER(struct_WGPUImageCopyTexture), ctypes.POINTER(struct_WGPUImageCopyTexture), ctypes.POINTER(struct_WGPUExtent3D)]
 except AttributeError:
     pass
 try:
-    wgpuCommandEncoderFinish = _libraries['webgpu'].wgpuCommandEncoderFinish
+    wgpuCommandEncoderFinish = _libraries['libwebgpu_dawn.so'].wgpuCommandEncoderFinish
     wgpuCommandEncoderFinish.restype = WGPUCommandBuffer
     wgpuCommandEncoderFinish.argtypes = [WGPUCommandEncoder, ctypes.POINTER(struct_WGPUCommandBufferDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuCommandEncoderInjectValidationError = _libraries['webgpu'].wgpuCommandEncoderInjectValidationError
+    wgpuCommandEncoderInjectValidationError = _libraries['libwebgpu_dawn.so'].wgpuCommandEncoderInjectValidationError
     wgpuCommandEncoderInjectValidationError.restype = None
     wgpuCommandEncoderInjectValidationError.argtypes = [WGPUCommandEncoder, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuCommandEncoderInsertDebugMarker = _libraries['webgpu'].wgpuCommandEncoderInsertDebugMarker
+    wgpuCommandEncoderInsertDebugMarker = _libraries['libwebgpu_dawn.so'].wgpuCommandEncoderInsertDebugMarker
     wgpuCommandEncoderInsertDebugMarker.restype = None
     wgpuCommandEncoderInsertDebugMarker.argtypes = [WGPUCommandEncoder, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuCommandEncoderPopDebugGroup = _libraries['webgpu'].wgpuCommandEncoderPopDebugGroup
+    wgpuCommandEncoderPopDebugGroup = _libraries['libwebgpu_dawn.so'].wgpuCommandEncoderPopDebugGroup
     wgpuCommandEncoderPopDebugGroup.restype = None
     wgpuCommandEncoderPopDebugGroup.argtypes = [WGPUCommandEncoder]
 except AttributeError:
     pass
 try:
-    wgpuCommandEncoderPushDebugGroup = _libraries['webgpu'].wgpuCommandEncoderPushDebugGroup
+    wgpuCommandEncoderPushDebugGroup = _libraries['libwebgpu_dawn.so'].wgpuCommandEncoderPushDebugGroup
     wgpuCommandEncoderPushDebugGroup.restype = None
     wgpuCommandEncoderPushDebugGroup.argtypes = [WGPUCommandEncoder, WGPUStringView]
 except AttributeError:
     pass
 uint32_t = ctypes.c_uint32
 try:
-    wgpuCommandEncoderResolveQuerySet = _libraries['webgpu'].wgpuCommandEncoderResolveQuerySet
+    wgpuCommandEncoderResolveQuerySet = _libraries['libwebgpu_dawn.so'].wgpuCommandEncoderResolveQuerySet
     wgpuCommandEncoderResolveQuerySet.restype = None
     wgpuCommandEncoderResolveQuerySet.argtypes = [WGPUCommandEncoder, WGPUQuerySet, uint32_t, uint32_t, WGPUBuffer, uint64_t]
 except AttributeError:
     pass
 try:
-    wgpuCommandEncoderSetLabel = _libraries['webgpu'].wgpuCommandEncoderSetLabel
+    wgpuCommandEncoderSetLabel = _libraries['libwebgpu_dawn.so'].wgpuCommandEncoderSetLabel
     wgpuCommandEncoderSetLabel.restype = None
     wgpuCommandEncoderSetLabel.argtypes = [WGPUCommandEncoder, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuCommandEncoderWriteBuffer = _libraries['webgpu'].wgpuCommandEncoderWriteBuffer
+    wgpuCommandEncoderWriteBuffer = _libraries['libwebgpu_dawn.so'].wgpuCommandEncoderWriteBuffer
     wgpuCommandEncoderWriteBuffer.restype = None
     wgpuCommandEncoderWriteBuffer.argtypes = [WGPUCommandEncoder, WGPUBuffer, uint64_t, ctypes.POINTER(ctypes.c_ubyte), uint64_t]
 except AttributeError:
     pass
 try:
-    wgpuCommandEncoderWriteTimestamp = _libraries['webgpu'].wgpuCommandEncoderWriteTimestamp
+    wgpuCommandEncoderWriteTimestamp = _libraries['libwebgpu_dawn.so'].wgpuCommandEncoderWriteTimestamp
     wgpuCommandEncoderWriteTimestamp.restype = None
     wgpuCommandEncoderWriteTimestamp.argtypes = [WGPUCommandEncoder, WGPUQuerySet, uint32_t]
 except AttributeError:
     pass
 try:
-    wgpuCommandEncoderAddRef = _libraries['webgpu'].wgpuCommandEncoderAddRef
+    wgpuCommandEncoderAddRef = _libraries['libwebgpu_dawn.so'].wgpuCommandEncoderAddRef
     wgpuCommandEncoderAddRef.restype = None
     wgpuCommandEncoderAddRef.argtypes = [WGPUCommandEncoder]
 except AttributeError:
     pass
 try:
-    wgpuCommandEncoderRelease = _libraries['webgpu'].wgpuCommandEncoderRelease
+    wgpuCommandEncoderRelease = _libraries['libwebgpu_dawn.so'].wgpuCommandEncoderRelease
     wgpuCommandEncoderRelease.restype = None
     wgpuCommandEncoderRelease.argtypes = [WGPUCommandEncoder]
 except AttributeError:
     pass
 try:
-    wgpuComputePassEncoderDispatchWorkgroups = _libraries['webgpu'].wgpuComputePassEncoderDispatchWorkgroups
+    wgpuComputePassEncoderDispatchWorkgroups = _libraries['libwebgpu_dawn.so'].wgpuComputePassEncoderDispatchWorkgroups
     wgpuComputePassEncoderDispatchWorkgroups.restype = None
     wgpuComputePassEncoderDispatchWorkgroups.argtypes = [WGPUComputePassEncoder, uint32_t, uint32_t, uint32_t]
 except AttributeError:
     pass
 try:
-    wgpuComputePassEncoderDispatchWorkgroupsIndirect = _libraries['webgpu'].wgpuComputePassEncoderDispatchWorkgroupsIndirect
+    wgpuComputePassEncoderDispatchWorkgroupsIndirect = _libraries['libwebgpu_dawn.so'].wgpuComputePassEncoderDispatchWorkgroupsIndirect
     wgpuComputePassEncoderDispatchWorkgroupsIndirect.restype = None
     wgpuComputePassEncoderDispatchWorkgroupsIndirect.argtypes = [WGPUComputePassEncoder, WGPUBuffer, uint64_t]
 except AttributeError:
     pass
 try:
-    wgpuComputePassEncoderEnd = _libraries['webgpu'].wgpuComputePassEncoderEnd
+    wgpuComputePassEncoderEnd = _libraries['libwebgpu_dawn.so'].wgpuComputePassEncoderEnd
     wgpuComputePassEncoderEnd.restype = None
     wgpuComputePassEncoderEnd.argtypes = [WGPUComputePassEncoder]
 except AttributeError:
     pass
 try:
-    wgpuComputePassEncoderInsertDebugMarker = _libraries['webgpu'].wgpuComputePassEncoderInsertDebugMarker
+    wgpuComputePassEncoderInsertDebugMarker = _libraries['libwebgpu_dawn.so'].wgpuComputePassEncoderInsertDebugMarker
     wgpuComputePassEncoderInsertDebugMarker.restype = None
     wgpuComputePassEncoderInsertDebugMarker.argtypes = [WGPUComputePassEncoder, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuComputePassEncoderPopDebugGroup = _libraries['webgpu'].wgpuComputePassEncoderPopDebugGroup
+    wgpuComputePassEncoderPopDebugGroup = _libraries['libwebgpu_dawn.so'].wgpuComputePassEncoderPopDebugGroup
     wgpuComputePassEncoderPopDebugGroup.restype = None
     wgpuComputePassEncoderPopDebugGroup.argtypes = [WGPUComputePassEncoder]
 except AttributeError:
     pass
 try:
-    wgpuComputePassEncoderPushDebugGroup = _libraries['webgpu'].wgpuComputePassEncoderPushDebugGroup
+    wgpuComputePassEncoderPushDebugGroup = _libraries['libwebgpu_dawn.so'].wgpuComputePassEncoderPushDebugGroup
     wgpuComputePassEncoderPushDebugGroup.restype = None
     wgpuComputePassEncoderPushDebugGroup.argtypes = [WGPUComputePassEncoder, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuComputePassEncoderSetBindGroup = _libraries['webgpu'].wgpuComputePassEncoderSetBindGroup
+    wgpuComputePassEncoderSetBindGroup = _libraries['libwebgpu_dawn.so'].wgpuComputePassEncoderSetBindGroup
     wgpuComputePassEncoderSetBindGroup.restype = None
     wgpuComputePassEncoderSetBindGroup.argtypes = [WGPUComputePassEncoder, uint32_t, WGPUBindGroup, size_t, ctypes.POINTER(ctypes.c_uint32)]
 except AttributeError:
     pass
 try:
-    wgpuComputePassEncoderSetLabel = _libraries['webgpu'].wgpuComputePassEncoderSetLabel
+    wgpuComputePassEncoderSetLabel = _libraries['libwebgpu_dawn.so'].wgpuComputePassEncoderSetLabel
     wgpuComputePassEncoderSetLabel.restype = None
     wgpuComputePassEncoderSetLabel.argtypes = [WGPUComputePassEncoder, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuComputePassEncoderSetPipeline = _libraries['webgpu'].wgpuComputePassEncoderSetPipeline
+    wgpuComputePassEncoderSetPipeline = _libraries['libwebgpu_dawn.so'].wgpuComputePassEncoderSetPipeline
     wgpuComputePassEncoderSetPipeline.restype = None
     wgpuComputePassEncoderSetPipeline.argtypes = [WGPUComputePassEncoder, WGPUComputePipeline]
 except AttributeError:
     pass
 try:
-    wgpuComputePassEncoderWriteTimestamp = _libraries['webgpu'].wgpuComputePassEncoderWriteTimestamp
+    wgpuComputePassEncoderWriteTimestamp = _libraries['libwebgpu_dawn.so'].wgpuComputePassEncoderWriteTimestamp
     wgpuComputePassEncoderWriteTimestamp.restype = None
     wgpuComputePassEncoderWriteTimestamp.argtypes = [WGPUComputePassEncoder, WGPUQuerySet, uint32_t]
 except AttributeError:
     pass
 try:
-    wgpuComputePassEncoderAddRef = _libraries['webgpu'].wgpuComputePassEncoderAddRef
+    wgpuComputePassEncoderAddRef = _libraries['libwebgpu_dawn.so'].wgpuComputePassEncoderAddRef
     wgpuComputePassEncoderAddRef.restype = None
     wgpuComputePassEncoderAddRef.argtypes = [WGPUComputePassEncoder]
 except AttributeError:
     pass
 try:
-    wgpuComputePassEncoderRelease = _libraries['webgpu'].wgpuComputePassEncoderRelease
+    wgpuComputePassEncoderRelease = _libraries['libwebgpu_dawn.so'].wgpuComputePassEncoderRelease
     wgpuComputePassEncoderRelease.restype = None
     wgpuComputePassEncoderRelease.argtypes = [WGPUComputePassEncoder]
 except AttributeError:
     pass
 try:
-    wgpuComputePipelineGetBindGroupLayout = _libraries['webgpu'].wgpuComputePipelineGetBindGroupLayout
+    wgpuComputePipelineGetBindGroupLayout = _libraries['libwebgpu_dawn.so'].wgpuComputePipelineGetBindGroupLayout
     wgpuComputePipelineGetBindGroupLayout.restype = WGPUBindGroupLayout
     wgpuComputePipelineGetBindGroupLayout.argtypes = [WGPUComputePipeline, uint32_t]
 except AttributeError:
     pass
 try:
-    wgpuComputePipelineSetLabel = _libraries['webgpu'].wgpuComputePipelineSetLabel
+    wgpuComputePipelineSetLabel = _libraries['libwebgpu_dawn.so'].wgpuComputePipelineSetLabel
     wgpuComputePipelineSetLabel.restype = None
     wgpuComputePipelineSetLabel.argtypes = [WGPUComputePipeline, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuComputePipelineAddRef = _libraries['webgpu'].wgpuComputePipelineAddRef
+    wgpuComputePipelineAddRef = _libraries['libwebgpu_dawn.so'].wgpuComputePipelineAddRef
     wgpuComputePipelineAddRef.restype = None
     wgpuComputePipelineAddRef.argtypes = [WGPUComputePipeline]
 except AttributeError:
     pass
 try:
-    wgpuComputePipelineRelease = _libraries['webgpu'].wgpuComputePipelineRelease
+    wgpuComputePipelineRelease = _libraries['libwebgpu_dawn.so'].wgpuComputePipelineRelease
     wgpuComputePipelineRelease.restype = None
     wgpuComputePipelineRelease.argtypes = [WGPUComputePipeline]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateBindGroup = _libraries['webgpu'].wgpuDeviceCreateBindGroup
+    wgpuDeviceCreateBindGroup = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateBindGroup
     wgpuDeviceCreateBindGroup.restype = WGPUBindGroup
     wgpuDeviceCreateBindGroup.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUBindGroupDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateBindGroupLayout = _libraries['webgpu'].wgpuDeviceCreateBindGroupLayout
+    wgpuDeviceCreateBindGroupLayout = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateBindGroupLayout
     wgpuDeviceCreateBindGroupLayout.restype = WGPUBindGroupLayout
     wgpuDeviceCreateBindGroupLayout.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUBindGroupLayoutDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateBuffer = _libraries['webgpu'].wgpuDeviceCreateBuffer
+    wgpuDeviceCreateBuffer = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateBuffer
     wgpuDeviceCreateBuffer.restype = WGPUBuffer
     wgpuDeviceCreateBuffer.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUBufferDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateCommandEncoder = _libraries['webgpu'].wgpuDeviceCreateCommandEncoder
+    wgpuDeviceCreateCommandEncoder = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateCommandEncoder
     wgpuDeviceCreateCommandEncoder.restype = WGPUCommandEncoder
     wgpuDeviceCreateCommandEncoder.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUCommandEncoderDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateComputePipeline = _libraries['webgpu'].wgpuDeviceCreateComputePipeline
+    wgpuDeviceCreateComputePipeline = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateComputePipeline
     wgpuDeviceCreateComputePipeline.restype = WGPUComputePipeline
     wgpuDeviceCreateComputePipeline.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUComputePipelineDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateComputePipelineAsync = _libraries['webgpu'].wgpuDeviceCreateComputePipelineAsync
+    wgpuDeviceCreateComputePipelineAsync = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateComputePipelineAsync
     wgpuDeviceCreateComputePipelineAsync.restype = None
     wgpuDeviceCreateComputePipelineAsync.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUComputePipelineDescriptor), WGPUCreateComputePipelineAsyncCallback, ctypes.POINTER(None)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateComputePipelineAsync2 = _libraries['webgpu'].wgpuDeviceCreateComputePipelineAsync2
+    wgpuDeviceCreateComputePipelineAsync2 = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateComputePipelineAsync2
     wgpuDeviceCreateComputePipelineAsync2.restype = WGPUFuture
     wgpuDeviceCreateComputePipelineAsync2.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUComputePipelineDescriptor), WGPUCreateComputePipelineAsyncCallbackInfo2]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateComputePipelineAsyncF = _libraries['webgpu'].wgpuDeviceCreateComputePipelineAsyncF
+    wgpuDeviceCreateComputePipelineAsyncF = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateComputePipelineAsyncF
     wgpuDeviceCreateComputePipelineAsyncF.restype = WGPUFuture
     wgpuDeviceCreateComputePipelineAsyncF.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUComputePipelineDescriptor), WGPUCreateComputePipelineAsyncCallbackInfo]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateErrorBuffer = _libraries['webgpu'].wgpuDeviceCreateErrorBuffer
+    wgpuDeviceCreateErrorBuffer = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateErrorBuffer
     wgpuDeviceCreateErrorBuffer.restype = WGPUBuffer
     wgpuDeviceCreateErrorBuffer.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUBufferDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateErrorExternalTexture = _libraries['webgpu'].wgpuDeviceCreateErrorExternalTexture
+    wgpuDeviceCreateErrorExternalTexture = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateErrorExternalTexture
     wgpuDeviceCreateErrorExternalTexture.restype = WGPUExternalTexture
     wgpuDeviceCreateErrorExternalTexture.argtypes = [WGPUDevice]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateErrorShaderModule = _libraries['webgpu'].wgpuDeviceCreateErrorShaderModule
+    wgpuDeviceCreateErrorShaderModule = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateErrorShaderModule
     wgpuDeviceCreateErrorShaderModule.restype = WGPUShaderModule
     wgpuDeviceCreateErrorShaderModule.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUShaderModuleDescriptor), WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateErrorTexture = _libraries['webgpu'].wgpuDeviceCreateErrorTexture
+    wgpuDeviceCreateErrorTexture = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateErrorTexture
     wgpuDeviceCreateErrorTexture.restype = WGPUTexture
     wgpuDeviceCreateErrorTexture.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUTextureDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateExternalTexture = _libraries['webgpu'].wgpuDeviceCreateExternalTexture
+    wgpuDeviceCreateExternalTexture = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateExternalTexture
     wgpuDeviceCreateExternalTexture.restype = WGPUExternalTexture
     wgpuDeviceCreateExternalTexture.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUExternalTextureDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreatePipelineLayout = _libraries['webgpu'].wgpuDeviceCreatePipelineLayout
+    wgpuDeviceCreatePipelineLayout = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreatePipelineLayout
     wgpuDeviceCreatePipelineLayout.restype = WGPUPipelineLayout
     wgpuDeviceCreatePipelineLayout.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUPipelineLayoutDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateQuerySet = _libraries['webgpu'].wgpuDeviceCreateQuerySet
+    wgpuDeviceCreateQuerySet = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateQuerySet
     wgpuDeviceCreateQuerySet.restype = WGPUQuerySet
     wgpuDeviceCreateQuerySet.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUQuerySetDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateRenderBundleEncoder = _libraries['webgpu'].wgpuDeviceCreateRenderBundleEncoder
+    wgpuDeviceCreateRenderBundleEncoder = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateRenderBundleEncoder
     wgpuDeviceCreateRenderBundleEncoder.restype = WGPURenderBundleEncoder
     wgpuDeviceCreateRenderBundleEncoder.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPURenderBundleEncoderDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateRenderPipeline = _libraries['webgpu'].wgpuDeviceCreateRenderPipeline
+    wgpuDeviceCreateRenderPipeline = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateRenderPipeline
     wgpuDeviceCreateRenderPipeline.restype = WGPURenderPipeline
     wgpuDeviceCreateRenderPipeline.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPURenderPipelineDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateRenderPipelineAsync = _libraries['webgpu'].wgpuDeviceCreateRenderPipelineAsync
+    wgpuDeviceCreateRenderPipelineAsync = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateRenderPipelineAsync
     wgpuDeviceCreateRenderPipelineAsync.restype = None
     wgpuDeviceCreateRenderPipelineAsync.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPURenderPipelineDescriptor), WGPUCreateRenderPipelineAsyncCallback, ctypes.POINTER(None)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateRenderPipelineAsync2 = _libraries['webgpu'].wgpuDeviceCreateRenderPipelineAsync2
+    wgpuDeviceCreateRenderPipelineAsync2 = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateRenderPipelineAsync2
     wgpuDeviceCreateRenderPipelineAsync2.restype = WGPUFuture
     wgpuDeviceCreateRenderPipelineAsync2.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPURenderPipelineDescriptor), WGPUCreateRenderPipelineAsyncCallbackInfo2]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateRenderPipelineAsyncF = _libraries['webgpu'].wgpuDeviceCreateRenderPipelineAsyncF
+    wgpuDeviceCreateRenderPipelineAsyncF = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateRenderPipelineAsyncF
     wgpuDeviceCreateRenderPipelineAsyncF.restype = WGPUFuture
     wgpuDeviceCreateRenderPipelineAsyncF.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPURenderPipelineDescriptor), WGPUCreateRenderPipelineAsyncCallbackInfo]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateSampler = _libraries['webgpu'].wgpuDeviceCreateSampler
+    wgpuDeviceCreateSampler = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateSampler
     wgpuDeviceCreateSampler.restype = WGPUSampler
     wgpuDeviceCreateSampler.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUSamplerDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateShaderModule = _libraries['webgpu'].wgpuDeviceCreateShaderModule
+    wgpuDeviceCreateShaderModule = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateShaderModule
     wgpuDeviceCreateShaderModule.restype = WGPUShaderModule
     wgpuDeviceCreateShaderModule.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUShaderModuleDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceCreateTexture = _libraries['webgpu'].wgpuDeviceCreateTexture
+    wgpuDeviceCreateTexture = _libraries['libwebgpu_dawn.so'].wgpuDeviceCreateTexture
     wgpuDeviceCreateTexture.restype = WGPUTexture
     wgpuDeviceCreateTexture.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUTextureDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceDestroy = _libraries['webgpu'].wgpuDeviceDestroy
+    wgpuDeviceDestroy = _libraries['libwebgpu_dawn.so'].wgpuDeviceDestroy
     wgpuDeviceDestroy.restype = None
     wgpuDeviceDestroy.argtypes = [WGPUDevice]
 except AttributeError:
     pass
 try:
-    wgpuDeviceForceLoss = _libraries['webgpu'].wgpuDeviceForceLoss
+    wgpuDeviceForceLoss = _libraries['libwebgpu_dawn.so'].wgpuDeviceForceLoss
     wgpuDeviceForceLoss.restype = None
     wgpuDeviceForceLoss.argtypes = [WGPUDevice, WGPUDeviceLostReason, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuDeviceGetAHardwareBufferProperties = _libraries['webgpu'].wgpuDeviceGetAHardwareBufferProperties
+    wgpuDeviceGetAHardwareBufferProperties = _libraries['libwebgpu_dawn.so'].wgpuDeviceGetAHardwareBufferProperties
     wgpuDeviceGetAHardwareBufferProperties.restype = WGPUStatus
     wgpuDeviceGetAHardwareBufferProperties.argtypes = [WGPUDevice, ctypes.POINTER(None), ctypes.POINTER(struct_WGPUAHardwareBufferProperties)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceGetAdapter = _libraries['webgpu'].wgpuDeviceGetAdapter
+    wgpuDeviceGetAdapter = _libraries['libwebgpu_dawn.so'].wgpuDeviceGetAdapter
     wgpuDeviceGetAdapter.restype = WGPUAdapter
     wgpuDeviceGetAdapter.argtypes = [WGPUDevice]
 except AttributeError:
     pass
 try:
-    wgpuDeviceGetAdapterInfo = _libraries['webgpu'].wgpuDeviceGetAdapterInfo
+    wgpuDeviceGetAdapterInfo = _libraries['libwebgpu_dawn.so'].wgpuDeviceGetAdapterInfo
     wgpuDeviceGetAdapterInfo.restype = WGPUStatus
     wgpuDeviceGetAdapterInfo.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUAdapterInfo)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceGetFeatures = _libraries['webgpu'].wgpuDeviceGetFeatures
+    wgpuDeviceGetFeatures = _libraries['libwebgpu_dawn.so'].wgpuDeviceGetFeatures
     wgpuDeviceGetFeatures.restype = None
     wgpuDeviceGetFeatures.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUSupportedFeatures)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceGetLimits = _libraries['webgpu'].wgpuDeviceGetLimits
+    wgpuDeviceGetLimits = _libraries['libwebgpu_dawn.so'].wgpuDeviceGetLimits
     wgpuDeviceGetLimits.restype = WGPUStatus
     wgpuDeviceGetLimits.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUSupportedLimits)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceGetLostFuture = _libraries['webgpu'].wgpuDeviceGetLostFuture
+    wgpuDeviceGetLostFuture = _libraries['libwebgpu_dawn.so'].wgpuDeviceGetLostFuture
     wgpuDeviceGetLostFuture.restype = WGPUFuture
     wgpuDeviceGetLostFuture.argtypes = [WGPUDevice]
 except AttributeError:
     pass
 try:
-    wgpuDeviceGetQueue = _libraries['webgpu'].wgpuDeviceGetQueue
+    wgpuDeviceGetQueue = _libraries['libwebgpu_dawn.so'].wgpuDeviceGetQueue
     wgpuDeviceGetQueue.restype = WGPUQueue
     wgpuDeviceGetQueue.argtypes = [WGPUDevice]
 except AttributeError:
     pass
 try:
-    wgpuDeviceHasFeature = _libraries['webgpu'].wgpuDeviceHasFeature
+    wgpuDeviceHasFeature = _libraries['libwebgpu_dawn.so'].wgpuDeviceHasFeature
     wgpuDeviceHasFeature.restype = WGPUBool
     wgpuDeviceHasFeature.argtypes = [WGPUDevice, WGPUFeatureName]
 except AttributeError:
     pass
 try:
-    wgpuDeviceImportSharedBufferMemory = _libraries['webgpu'].wgpuDeviceImportSharedBufferMemory
+    wgpuDeviceImportSharedBufferMemory = _libraries['libwebgpu_dawn.so'].wgpuDeviceImportSharedBufferMemory
     wgpuDeviceImportSharedBufferMemory.restype = WGPUSharedBufferMemory
     wgpuDeviceImportSharedBufferMemory.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUSharedBufferMemoryDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceImportSharedFence = _libraries['webgpu'].wgpuDeviceImportSharedFence
+    wgpuDeviceImportSharedFence = _libraries['libwebgpu_dawn.so'].wgpuDeviceImportSharedFence
     wgpuDeviceImportSharedFence.restype = WGPUSharedFence
     wgpuDeviceImportSharedFence.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUSharedFenceDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceImportSharedTextureMemory = _libraries['webgpu'].wgpuDeviceImportSharedTextureMemory
+    wgpuDeviceImportSharedTextureMemory = _libraries['libwebgpu_dawn.so'].wgpuDeviceImportSharedTextureMemory
     wgpuDeviceImportSharedTextureMemory.restype = WGPUSharedTextureMemory
     wgpuDeviceImportSharedTextureMemory.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUSharedTextureMemoryDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceInjectError = _libraries['webgpu'].wgpuDeviceInjectError
+    wgpuDeviceInjectError = _libraries['libwebgpu_dawn.so'].wgpuDeviceInjectError
     wgpuDeviceInjectError.restype = None
     wgpuDeviceInjectError.argtypes = [WGPUDevice, WGPUErrorType, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuDevicePopErrorScope = _libraries['webgpu'].wgpuDevicePopErrorScope
+    wgpuDevicePopErrorScope = _libraries['libwebgpu_dawn.so'].wgpuDevicePopErrorScope
     wgpuDevicePopErrorScope.restype = None
     wgpuDevicePopErrorScope.argtypes = [WGPUDevice, WGPUErrorCallback, ctypes.POINTER(None)]
 except AttributeError:
     pass
 try:
-    wgpuDevicePopErrorScope2 = _libraries['webgpu'].wgpuDevicePopErrorScope2
+    wgpuDevicePopErrorScope2 = _libraries['libwebgpu_dawn.so'].wgpuDevicePopErrorScope2
     wgpuDevicePopErrorScope2.restype = WGPUFuture
     wgpuDevicePopErrorScope2.argtypes = [WGPUDevice, WGPUPopErrorScopeCallbackInfo2]
 except AttributeError:
     pass
 try:
-    wgpuDevicePopErrorScopeF = _libraries['webgpu'].wgpuDevicePopErrorScopeF
+    wgpuDevicePopErrorScopeF = _libraries['libwebgpu_dawn.so'].wgpuDevicePopErrorScopeF
     wgpuDevicePopErrorScopeF.restype = WGPUFuture
     wgpuDevicePopErrorScopeF.argtypes = [WGPUDevice, WGPUPopErrorScopeCallbackInfo]
 except AttributeError:
     pass
 try:
-    wgpuDevicePushErrorScope = _libraries['webgpu'].wgpuDevicePushErrorScope
+    wgpuDevicePushErrorScope = _libraries['libwebgpu_dawn.so'].wgpuDevicePushErrorScope
     wgpuDevicePushErrorScope.restype = None
     wgpuDevicePushErrorScope.argtypes = [WGPUDevice, WGPUErrorFilter]
 except AttributeError:
     pass
 try:
-    wgpuDeviceSetLabel = _libraries['webgpu'].wgpuDeviceSetLabel
+    wgpuDeviceSetLabel = _libraries['libwebgpu_dawn.so'].wgpuDeviceSetLabel
     wgpuDeviceSetLabel.restype = None
     wgpuDeviceSetLabel.argtypes = [WGPUDevice, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuDeviceSetLoggingCallback = _libraries['webgpu'].wgpuDeviceSetLoggingCallback
+    wgpuDeviceSetLoggingCallback = _libraries['libwebgpu_dawn.so'].wgpuDeviceSetLoggingCallback
     wgpuDeviceSetLoggingCallback.restype = None
     wgpuDeviceSetLoggingCallback.argtypes = [WGPUDevice, WGPULoggingCallback, ctypes.POINTER(None)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceTick = _libraries['webgpu'].wgpuDeviceTick
+    wgpuDeviceTick = _libraries['libwebgpu_dawn.so'].wgpuDeviceTick
     wgpuDeviceTick.restype = None
     wgpuDeviceTick.argtypes = [WGPUDevice]
 except AttributeError:
     pass
 try:
-    wgpuDeviceValidateTextureDescriptor = _libraries['webgpu'].wgpuDeviceValidateTextureDescriptor
+    wgpuDeviceValidateTextureDescriptor = _libraries['libwebgpu_dawn.so'].wgpuDeviceValidateTextureDescriptor
     wgpuDeviceValidateTextureDescriptor.restype = None
     wgpuDeviceValidateTextureDescriptor.argtypes = [WGPUDevice, ctypes.POINTER(struct_WGPUTextureDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuDeviceAddRef = _libraries['webgpu'].wgpuDeviceAddRef
+    wgpuDeviceAddRef = _libraries['libwebgpu_dawn.so'].wgpuDeviceAddRef
     wgpuDeviceAddRef.restype = None
     wgpuDeviceAddRef.argtypes = [WGPUDevice]
 except AttributeError:
     pass
 try:
-    wgpuDeviceRelease = _libraries['webgpu'].wgpuDeviceRelease
+    wgpuDeviceRelease = _libraries['libwebgpu_dawn.so'].wgpuDeviceRelease
     wgpuDeviceRelease.restype = None
     wgpuDeviceRelease.argtypes = [WGPUDevice]
 except AttributeError:
     pass
 try:
-    wgpuExternalTextureDestroy = _libraries['webgpu'].wgpuExternalTextureDestroy
+    wgpuExternalTextureDestroy = _libraries['libwebgpu_dawn.so'].wgpuExternalTextureDestroy
     wgpuExternalTextureDestroy.restype = None
     wgpuExternalTextureDestroy.argtypes = [WGPUExternalTexture]
 except AttributeError:
     pass
 try:
-    wgpuExternalTextureExpire = _libraries['webgpu'].wgpuExternalTextureExpire
+    wgpuExternalTextureExpire = _libraries['libwebgpu_dawn.so'].wgpuExternalTextureExpire
     wgpuExternalTextureExpire.restype = None
     wgpuExternalTextureExpire.argtypes = [WGPUExternalTexture]
 except AttributeError:
     pass
 try:
-    wgpuExternalTextureRefresh = _libraries['webgpu'].wgpuExternalTextureRefresh
+    wgpuExternalTextureRefresh = _libraries['libwebgpu_dawn.so'].wgpuExternalTextureRefresh
     wgpuExternalTextureRefresh.restype = None
     wgpuExternalTextureRefresh.argtypes = [WGPUExternalTexture]
 except AttributeError:
     pass
 try:
-    wgpuExternalTextureSetLabel = _libraries['webgpu'].wgpuExternalTextureSetLabel
+    wgpuExternalTextureSetLabel = _libraries['libwebgpu_dawn.so'].wgpuExternalTextureSetLabel
     wgpuExternalTextureSetLabel.restype = None
     wgpuExternalTextureSetLabel.argtypes = [WGPUExternalTexture, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuExternalTextureAddRef = _libraries['webgpu'].wgpuExternalTextureAddRef
+    wgpuExternalTextureAddRef = _libraries['libwebgpu_dawn.so'].wgpuExternalTextureAddRef
     wgpuExternalTextureAddRef.restype = None
     wgpuExternalTextureAddRef.argtypes = [WGPUExternalTexture]
 except AttributeError:
     pass
 try:
-    wgpuExternalTextureRelease = _libraries['webgpu'].wgpuExternalTextureRelease
+    wgpuExternalTextureRelease = _libraries['libwebgpu_dawn.so'].wgpuExternalTextureRelease
     wgpuExternalTextureRelease.restype = None
     wgpuExternalTextureRelease.argtypes = [WGPUExternalTexture]
 except AttributeError:
     pass
 try:
-    wgpuInstanceCreateSurface = _libraries['webgpu'].wgpuInstanceCreateSurface
+    wgpuInstanceCreateSurface = _libraries['libwebgpu_dawn.so'].wgpuInstanceCreateSurface
     wgpuInstanceCreateSurface.restype = WGPUSurface
     wgpuInstanceCreateSurface.argtypes = [WGPUInstance, ctypes.POINTER(struct_WGPUSurfaceDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuInstanceEnumerateWGSLLanguageFeatures = _libraries['webgpu'].wgpuInstanceEnumerateWGSLLanguageFeatures
+    wgpuInstanceEnumerateWGSLLanguageFeatures = _libraries['libwebgpu_dawn.so'].wgpuInstanceEnumerateWGSLLanguageFeatures
     wgpuInstanceEnumerateWGSLLanguageFeatures.restype = size_t
     wgpuInstanceEnumerateWGSLLanguageFeatures.argtypes = [WGPUInstance, ctypes.POINTER(WGPUWGSLFeatureName)]
 except AttributeError:
     pass
 try:
-    wgpuInstanceHasWGSLLanguageFeature = _libraries['webgpu'].wgpuInstanceHasWGSLLanguageFeature
+    wgpuInstanceHasWGSLLanguageFeature = _libraries['libwebgpu_dawn.so'].wgpuInstanceHasWGSLLanguageFeature
     wgpuInstanceHasWGSLLanguageFeature.restype = WGPUBool
     wgpuInstanceHasWGSLLanguageFeature.argtypes = [WGPUInstance, WGPUWGSLFeatureName]
 except AttributeError:
     pass
 try:
-    wgpuInstanceProcessEvents = _libraries['webgpu'].wgpuInstanceProcessEvents
+    wgpuInstanceProcessEvents = _libraries['libwebgpu_dawn.so'].wgpuInstanceProcessEvents
     wgpuInstanceProcessEvents.restype = None
     wgpuInstanceProcessEvents.argtypes = [WGPUInstance]
 except AttributeError:
     pass
 try:
-    wgpuInstanceRequestAdapter = _libraries['webgpu'].wgpuInstanceRequestAdapter
+    wgpuInstanceRequestAdapter = _libraries['libwebgpu_dawn.so'].wgpuInstanceRequestAdapter
     wgpuInstanceRequestAdapter.restype = None
     wgpuInstanceRequestAdapter.argtypes = [WGPUInstance, ctypes.POINTER(struct_WGPURequestAdapterOptions), WGPURequestAdapterCallback, ctypes.POINTER(None)]
 except AttributeError:
     pass
 try:
-    wgpuInstanceRequestAdapter2 = _libraries['webgpu'].wgpuInstanceRequestAdapter2
+    wgpuInstanceRequestAdapter2 = _libraries['libwebgpu_dawn.so'].wgpuInstanceRequestAdapter2
     wgpuInstanceRequestAdapter2.restype = WGPUFuture
     wgpuInstanceRequestAdapter2.argtypes = [WGPUInstance, ctypes.POINTER(struct_WGPURequestAdapterOptions), WGPURequestAdapterCallbackInfo2]
 except AttributeError:
     pass
 try:
-    wgpuInstanceRequestAdapterF = _libraries['webgpu'].wgpuInstanceRequestAdapterF
+    wgpuInstanceRequestAdapterF = _libraries['libwebgpu_dawn.so'].wgpuInstanceRequestAdapterF
     wgpuInstanceRequestAdapterF.restype = WGPUFuture
     wgpuInstanceRequestAdapterF.argtypes = [WGPUInstance, ctypes.POINTER(struct_WGPURequestAdapterOptions), WGPURequestAdapterCallbackInfo]
 except AttributeError:
     pass
 try:
-    wgpuInstanceWaitAny = _libraries['webgpu'].wgpuInstanceWaitAny
+    wgpuInstanceWaitAny = _libraries['libwebgpu_dawn.so'].wgpuInstanceWaitAny
     wgpuInstanceWaitAny.restype = WGPUWaitStatus
     wgpuInstanceWaitAny.argtypes = [WGPUInstance, size_t, ctypes.POINTER(struct_WGPUFutureWaitInfo), uint64_t]
 except AttributeError:
     pass
 try:
-    wgpuInstanceAddRef = _libraries['webgpu'].wgpuInstanceAddRef
+    wgpuInstanceAddRef = _libraries['libwebgpu_dawn.so'].wgpuInstanceAddRef
     wgpuInstanceAddRef.restype = None
     wgpuInstanceAddRef.argtypes = [WGPUInstance]
 except AttributeError:
     pass
 try:
-    wgpuInstanceRelease = _libraries['webgpu'].wgpuInstanceRelease
+    wgpuInstanceRelease = _libraries['libwebgpu_dawn.so'].wgpuInstanceRelease
     wgpuInstanceRelease.restype = None
     wgpuInstanceRelease.argtypes = [WGPUInstance]
 except AttributeError:
     pass
 try:
-    wgpuPipelineLayoutSetLabel = _libraries['webgpu'].wgpuPipelineLayoutSetLabel
+    wgpuPipelineLayoutSetLabel = _libraries['libwebgpu_dawn.so'].wgpuPipelineLayoutSetLabel
     wgpuPipelineLayoutSetLabel.restype = None
     wgpuPipelineLayoutSetLabel.argtypes = [WGPUPipelineLayout, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuPipelineLayoutAddRef = _libraries['webgpu'].wgpuPipelineLayoutAddRef
+    wgpuPipelineLayoutAddRef = _libraries['libwebgpu_dawn.so'].wgpuPipelineLayoutAddRef
     wgpuPipelineLayoutAddRef.restype = None
     wgpuPipelineLayoutAddRef.argtypes = [WGPUPipelineLayout]
 except AttributeError:
     pass
 try:
-    wgpuPipelineLayoutRelease = _libraries['webgpu'].wgpuPipelineLayoutRelease
+    wgpuPipelineLayoutRelease = _libraries['libwebgpu_dawn.so'].wgpuPipelineLayoutRelease
     wgpuPipelineLayoutRelease.restype = None
     wgpuPipelineLayoutRelease.argtypes = [WGPUPipelineLayout]
 except AttributeError:
     pass
 try:
-    wgpuQuerySetDestroy = _libraries['webgpu'].wgpuQuerySetDestroy
+    wgpuQuerySetDestroy = _libraries['libwebgpu_dawn.so'].wgpuQuerySetDestroy
     wgpuQuerySetDestroy.restype = None
     wgpuQuerySetDestroy.argtypes = [WGPUQuerySet]
 except AttributeError:
     pass
 try:
-    wgpuQuerySetGetCount = _libraries['webgpu'].wgpuQuerySetGetCount
+    wgpuQuerySetGetCount = _libraries['libwebgpu_dawn.so'].wgpuQuerySetGetCount
     wgpuQuerySetGetCount.restype = uint32_t
     wgpuQuerySetGetCount.argtypes = [WGPUQuerySet]
 except AttributeError:
     pass
 try:
-    wgpuQuerySetGetType = _libraries['webgpu'].wgpuQuerySetGetType
+    wgpuQuerySetGetType = _libraries['libwebgpu_dawn.so'].wgpuQuerySetGetType
     wgpuQuerySetGetType.restype = WGPUQueryType
     wgpuQuerySetGetType.argtypes = [WGPUQuerySet]
 except AttributeError:
     pass
 try:
-    wgpuQuerySetSetLabel = _libraries['webgpu'].wgpuQuerySetSetLabel
+    wgpuQuerySetSetLabel = _libraries['libwebgpu_dawn.so'].wgpuQuerySetSetLabel
     wgpuQuerySetSetLabel.restype = None
     wgpuQuerySetSetLabel.argtypes = [WGPUQuerySet, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuQuerySetAddRef = _libraries['webgpu'].wgpuQuerySetAddRef
+    wgpuQuerySetAddRef = _libraries['libwebgpu_dawn.so'].wgpuQuerySetAddRef
     wgpuQuerySetAddRef.restype = None
     wgpuQuerySetAddRef.argtypes = [WGPUQuerySet]
 except AttributeError:
     pass
 try:
-    wgpuQuerySetRelease = _libraries['webgpu'].wgpuQuerySetRelease
+    wgpuQuerySetRelease = _libraries['libwebgpu_dawn.so'].wgpuQuerySetRelease
     wgpuQuerySetRelease.restype = None
     wgpuQuerySetRelease.argtypes = [WGPUQuerySet]
 except AttributeError:
     pass
 try:
-    wgpuQueueCopyExternalTextureForBrowser = _libraries['webgpu'].wgpuQueueCopyExternalTextureForBrowser
+    wgpuQueueCopyExternalTextureForBrowser = _libraries['libwebgpu_dawn.so'].wgpuQueueCopyExternalTextureForBrowser
     wgpuQueueCopyExternalTextureForBrowser.restype = None
     wgpuQueueCopyExternalTextureForBrowser.argtypes = [WGPUQueue, ctypes.POINTER(struct_WGPUImageCopyExternalTexture), ctypes.POINTER(struct_WGPUImageCopyTexture), ctypes.POINTER(struct_WGPUExtent3D), ctypes.POINTER(struct_WGPUCopyTextureForBrowserOptions)]
 except AttributeError:
     pass
 try:
-    wgpuQueueCopyTextureForBrowser = _libraries['webgpu'].wgpuQueueCopyTextureForBrowser
+    wgpuQueueCopyTextureForBrowser = _libraries['libwebgpu_dawn.so'].wgpuQueueCopyTextureForBrowser
     wgpuQueueCopyTextureForBrowser.restype = None
     wgpuQueueCopyTextureForBrowser.argtypes = [WGPUQueue, ctypes.POINTER(struct_WGPUImageCopyTexture), ctypes.POINTER(struct_WGPUImageCopyTexture), ctypes.POINTER(struct_WGPUExtent3D), ctypes.POINTER(struct_WGPUCopyTextureForBrowserOptions)]
 except AttributeError:
     pass
 try:
-    wgpuQueueOnSubmittedWorkDone = _libraries['webgpu'].wgpuQueueOnSubmittedWorkDone
+    wgpuQueueOnSubmittedWorkDone = _libraries['libwebgpu_dawn.so'].wgpuQueueOnSubmittedWorkDone
     wgpuQueueOnSubmittedWorkDone.restype = None
     wgpuQueueOnSubmittedWorkDone.argtypes = [WGPUQueue, WGPUQueueWorkDoneCallback, ctypes.POINTER(None)]
 except AttributeError:
     pass
 try:
-    wgpuQueueOnSubmittedWorkDone2 = _libraries['webgpu'].wgpuQueueOnSubmittedWorkDone2
+    wgpuQueueOnSubmittedWorkDone2 = _libraries['libwebgpu_dawn.so'].wgpuQueueOnSubmittedWorkDone2
     wgpuQueueOnSubmittedWorkDone2.restype = WGPUFuture
     wgpuQueueOnSubmittedWorkDone2.argtypes = [WGPUQueue, WGPUQueueWorkDoneCallbackInfo2]
 except AttributeError:
     pass
 try:
-    wgpuQueueOnSubmittedWorkDoneF = _libraries['webgpu'].wgpuQueueOnSubmittedWorkDoneF
+    wgpuQueueOnSubmittedWorkDoneF = _libraries['libwebgpu_dawn.so'].wgpuQueueOnSubmittedWorkDoneF
     wgpuQueueOnSubmittedWorkDoneF.restype = WGPUFuture
     wgpuQueueOnSubmittedWorkDoneF.argtypes = [WGPUQueue, WGPUQueueWorkDoneCallbackInfo]
 except AttributeError:
     pass
 try:
-    wgpuQueueSetLabel = _libraries['webgpu'].wgpuQueueSetLabel
+    wgpuQueueSetLabel = _libraries['libwebgpu_dawn.so'].wgpuQueueSetLabel
     wgpuQueueSetLabel.restype = None
     wgpuQueueSetLabel.argtypes = [WGPUQueue, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuQueueSubmit = _libraries['webgpu'].wgpuQueueSubmit
+    wgpuQueueSubmit = _libraries['libwebgpu_dawn.so'].wgpuQueueSubmit
     wgpuQueueSubmit.restype = None
     wgpuQueueSubmit.argtypes = [WGPUQueue, size_t, ctypes.POINTER(ctypes.POINTER(struct_WGPUCommandBufferImpl))]
 except AttributeError:
     pass
 try:
-    wgpuQueueWriteBuffer = _libraries['webgpu'].wgpuQueueWriteBuffer
+    wgpuQueueWriteBuffer = _libraries['libwebgpu_dawn.so'].wgpuQueueWriteBuffer
     wgpuQueueWriteBuffer.restype = None
     wgpuQueueWriteBuffer.argtypes = [WGPUQueue, WGPUBuffer, uint64_t, ctypes.POINTER(None), size_t]
 except AttributeError:
     pass
 try:
-    wgpuQueueWriteTexture = _libraries['webgpu'].wgpuQueueWriteTexture
+    wgpuQueueWriteTexture = _libraries['libwebgpu_dawn.so'].wgpuQueueWriteTexture
     wgpuQueueWriteTexture.restype = None
     wgpuQueueWriteTexture.argtypes = [WGPUQueue, ctypes.POINTER(struct_WGPUImageCopyTexture), ctypes.POINTER(None), size_t, ctypes.POINTER(struct_WGPUTextureDataLayout), ctypes.POINTER(struct_WGPUExtent3D)]
 except AttributeError:
     pass
 try:
-    wgpuQueueAddRef = _libraries['webgpu'].wgpuQueueAddRef
+    wgpuQueueAddRef = _libraries['libwebgpu_dawn.so'].wgpuQueueAddRef
     wgpuQueueAddRef.restype = None
     wgpuQueueAddRef.argtypes = [WGPUQueue]
 except AttributeError:
     pass
 try:
-    wgpuQueueRelease = _libraries['webgpu'].wgpuQueueRelease
+    wgpuQueueRelease = _libraries['libwebgpu_dawn.so'].wgpuQueueRelease
     wgpuQueueRelease.restype = None
     wgpuQueueRelease.argtypes = [WGPUQueue]
 except AttributeError:
     pass
 try:
-    wgpuRenderBundleSetLabel = _libraries['webgpu'].wgpuRenderBundleSetLabel
+    wgpuRenderBundleSetLabel = _libraries['libwebgpu_dawn.so'].wgpuRenderBundleSetLabel
     wgpuRenderBundleSetLabel.restype = None
     wgpuRenderBundleSetLabel.argtypes = [WGPURenderBundle, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuRenderBundleAddRef = _libraries['webgpu'].wgpuRenderBundleAddRef
+    wgpuRenderBundleAddRef = _libraries['libwebgpu_dawn.so'].wgpuRenderBundleAddRef
     wgpuRenderBundleAddRef.restype = None
     wgpuRenderBundleAddRef.argtypes = [WGPURenderBundle]
 except AttributeError:
     pass
 try:
-    wgpuRenderBundleRelease = _libraries['webgpu'].wgpuRenderBundleRelease
+    wgpuRenderBundleRelease = _libraries['libwebgpu_dawn.so'].wgpuRenderBundleRelease
     wgpuRenderBundleRelease.restype = None
     wgpuRenderBundleRelease.argtypes = [WGPURenderBundle]
 except AttributeError:
     pass
 try:
-    wgpuRenderBundleEncoderDraw = _libraries['webgpu'].wgpuRenderBundleEncoderDraw
+    wgpuRenderBundleEncoderDraw = _libraries['libwebgpu_dawn.so'].wgpuRenderBundleEncoderDraw
     wgpuRenderBundleEncoderDraw.restype = None
     wgpuRenderBundleEncoderDraw.argtypes = [WGPURenderBundleEncoder, uint32_t, uint32_t, uint32_t, uint32_t]
 except AttributeError:
     pass
 int32_t = ctypes.c_int32
 try:
-    wgpuRenderBundleEncoderDrawIndexed = _libraries['webgpu'].wgpuRenderBundleEncoderDrawIndexed
+    wgpuRenderBundleEncoderDrawIndexed = _libraries['libwebgpu_dawn.so'].wgpuRenderBundleEncoderDrawIndexed
     wgpuRenderBundleEncoderDrawIndexed.restype = None
     wgpuRenderBundleEncoderDrawIndexed.argtypes = [WGPURenderBundleEncoder, uint32_t, uint32_t, uint32_t, int32_t, uint32_t]
 except AttributeError:
     pass
 try:
-    wgpuRenderBundleEncoderDrawIndexedIndirect = _libraries['webgpu'].wgpuRenderBundleEncoderDrawIndexedIndirect
+    wgpuRenderBundleEncoderDrawIndexedIndirect = _libraries['libwebgpu_dawn.so'].wgpuRenderBundleEncoderDrawIndexedIndirect
     wgpuRenderBundleEncoderDrawIndexedIndirect.restype = None
     wgpuRenderBundleEncoderDrawIndexedIndirect.argtypes = [WGPURenderBundleEncoder, WGPUBuffer, uint64_t]
 except AttributeError:
     pass
 try:
-    wgpuRenderBundleEncoderDrawIndirect = _libraries['webgpu'].wgpuRenderBundleEncoderDrawIndirect
+    wgpuRenderBundleEncoderDrawIndirect = _libraries['libwebgpu_dawn.so'].wgpuRenderBundleEncoderDrawIndirect
     wgpuRenderBundleEncoderDrawIndirect.restype = None
     wgpuRenderBundleEncoderDrawIndirect.argtypes = [WGPURenderBundleEncoder, WGPUBuffer, uint64_t]
 except AttributeError:
     pass
 try:
-    wgpuRenderBundleEncoderFinish = _libraries['webgpu'].wgpuRenderBundleEncoderFinish
+    wgpuRenderBundleEncoderFinish = _libraries['libwebgpu_dawn.so'].wgpuRenderBundleEncoderFinish
     wgpuRenderBundleEncoderFinish.restype = WGPURenderBundle
     wgpuRenderBundleEncoderFinish.argtypes = [WGPURenderBundleEncoder, ctypes.POINTER(struct_WGPURenderBundleDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuRenderBundleEncoderInsertDebugMarker = _libraries['webgpu'].wgpuRenderBundleEncoderInsertDebugMarker
+    wgpuRenderBundleEncoderInsertDebugMarker = _libraries['libwebgpu_dawn.so'].wgpuRenderBundleEncoderInsertDebugMarker
     wgpuRenderBundleEncoderInsertDebugMarker.restype = None
     wgpuRenderBundleEncoderInsertDebugMarker.argtypes = [WGPURenderBundleEncoder, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuRenderBundleEncoderPopDebugGroup = _libraries['webgpu'].wgpuRenderBundleEncoderPopDebugGroup
+    wgpuRenderBundleEncoderPopDebugGroup = _libraries['libwebgpu_dawn.so'].wgpuRenderBundleEncoderPopDebugGroup
     wgpuRenderBundleEncoderPopDebugGroup.restype = None
     wgpuRenderBundleEncoderPopDebugGroup.argtypes = [WGPURenderBundleEncoder]
 except AttributeError:
     pass
 try:
-    wgpuRenderBundleEncoderPushDebugGroup = _libraries['webgpu'].wgpuRenderBundleEncoderPushDebugGroup
+    wgpuRenderBundleEncoderPushDebugGroup = _libraries['libwebgpu_dawn.so'].wgpuRenderBundleEncoderPushDebugGroup
     wgpuRenderBundleEncoderPushDebugGroup.restype = None
     wgpuRenderBundleEncoderPushDebugGroup.argtypes = [WGPURenderBundleEncoder, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuRenderBundleEncoderSetBindGroup = _libraries['webgpu'].wgpuRenderBundleEncoderSetBindGroup
+    wgpuRenderBundleEncoderSetBindGroup = _libraries['libwebgpu_dawn.so'].wgpuRenderBundleEncoderSetBindGroup
     wgpuRenderBundleEncoderSetBindGroup.restype = None
     wgpuRenderBundleEncoderSetBindGroup.argtypes = [WGPURenderBundleEncoder, uint32_t, WGPUBindGroup, size_t, ctypes.POINTER(ctypes.c_uint32)]
 except AttributeError:
     pass
 try:
-    wgpuRenderBundleEncoderSetIndexBuffer = _libraries['webgpu'].wgpuRenderBundleEncoderSetIndexBuffer
+    wgpuRenderBundleEncoderSetIndexBuffer = _libraries['libwebgpu_dawn.so'].wgpuRenderBundleEncoderSetIndexBuffer
     wgpuRenderBundleEncoderSetIndexBuffer.restype = None
     wgpuRenderBundleEncoderSetIndexBuffer.argtypes = [WGPURenderBundleEncoder, WGPUBuffer, WGPUIndexFormat, uint64_t, uint64_t]
 except AttributeError:
     pass
 try:
-    wgpuRenderBundleEncoderSetLabel = _libraries['webgpu'].wgpuRenderBundleEncoderSetLabel
+    wgpuRenderBundleEncoderSetLabel = _libraries['libwebgpu_dawn.so'].wgpuRenderBundleEncoderSetLabel
     wgpuRenderBundleEncoderSetLabel.restype = None
     wgpuRenderBundleEncoderSetLabel.argtypes = [WGPURenderBundleEncoder, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuRenderBundleEncoderSetPipeline = _libraries['webgpu'].wgpuRenderBundleEncoderSetPipeline
+    wgpuRenderBundleEncoderSetPipeline = _libraries['libwebgpu_dawn.so'].wgpuRenderBundleEncoderSetPipeline
     wgpuRenderBundleEncoderSetPipeline.restype = None
     wgpuRenderBundleEncoderSetPipeline.argtypes = [WGPURenderBundleEncoder, WGPURenderPipeline]
 except AttributeError:
     pass
 try:
-    wgpuRenderBundleEncoderSetVertexBuffer = _libraries['webgpu'].wgpuRenderBundleEncoderSetVertexBuffer
+    wgpuRenderBundleEncoderSetVertexBuffer = _libraries['libwebgpu_dawn.so'].wgpuRenderBundleEncoderSetVertexBuffer
     wgpuRenderBundleEncoderSetVertexBuffer.restype = None
     wgpuRenderBundleEncoderSetVertexBuffer.argtypes = [WGPURenderBundleEncoder, uint32_t, WGPUBuffer, uint64_t, uint64_t]
 except AttributeError:
     pass
 try:
-    wgpuRenderBundleEncoderAddRef = _libraries['webgpu'].wgpuRenderBundleEncoderAddRef
+    wgpuRenderBundleEncoderAddRef = _libraries['libwebgpu_dawn.so'].wgpuRenderBundleEncoderAddRef
     wgpuRenderBundleEncoderAddRef.restype = None
     wgpuRenderBundleEncoderAddRef.argtypes = [WGPURenderBundleEncoder]
 except AttributeError:
     pass
 try:
-    wgpuRenderBundleEncoderRelease = _libraries['webgpu'].wgpuRenderBundleEncoderRelease
+    wgpuRenderBundleEncoderRelease = _libraries['libwebgpu_dawn.so'].wgpuRenderBundleEncoderRelease
     wgpuRenderBundleEncoderRelease.restype = None
     wgpuRenderBundleEncoderRelease.argtypes = [WGPURenderBundleEncoder]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderBeginOcclusionQuery = _libraries['webgpu'].wgpuRenderPassEncoderBeginOcclusionQuery
+    wgpuRenderPassEncoderBeginOcclusionQuery = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderBeginOcclusionQuery
     wgpuRenderPassEncoderBeginOcclusionQuery.restype = None
     wgpuRenderPassEncoderBeginOcclusionQuery.argtypes = [WGPURenderPassEncoder, uint32_t]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderDraw = _libraries['webgpu'].wgpuRenderPassEncoderDraw
+    wgpuRenderPassEncoderDraw = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderDraw
     wgpuRenderPassEncoderDraw.restype = None
     wgpuRenderPassEncoderDraw.argtypes = [WGPURenderPassEncoder, uint32_t, uint32_t, uint32_t, uint32_t]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderDrawIndexed = _libraries['webgpu'].wgpuRenderPassEncoderDrawIndexed
+    wgpuRenderPassEncoderDrawIndexed = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderDrawIndexed
     wgpuRenderPassEncoderDrawIndexed.restype = None
     wgpuRenderPassEncoderDrawIndexed.argtypes = [WGPURenderPassEncoder, uint32_t, uint32_t, uint32_t, int32_t, uint32_t]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderDrawIndexedIndirect = _libraries['webgpu'].wgpuRenderPassEncoderDrawIndexedIndirect
+    wgpuRenderPassEncoderDrawIndexedIndirect = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderDrawIndexedIndirect
     wgpuRenderPassEncoderDrawIndexedIndirect.restype = None
     wgpuRenderPassEncoderDrawIndexedIndirect.argtypes = [WGPURenderPassEncoder, WGPUBuffer, uint64_t]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderDrawIndirect = _libraries['webgpu'].wgpuRenderPassEncoderDrawIndirect
+    wgpuRenderPassEncoderDrawIndirect = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderDrawIndirect
     wgpuRenderPassEncoderDrawIndirect.restype = None
     wgpuRenderPassEncoderDrawIndirect.argtypes = [WGPURenderPassEncoder, WGPUBuffer, uint64_t]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderEnd = _libraries['webgpu'].wgpuRenderPassEncoderEnd
+    wgpuRenderPassEncoderEnd = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderEnd
     wgpuRenderPassEncoderEnd.restype = None
     wgpuRenderPassEncoderEnd.argtypes = [WGPURenderPassEncoder]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderEndOcclusionQuery = _libraries['webgpu'].wgpuRenderPassEncoderEndOcclusionQuery
+    wgpuRenderPassEncoderEndOcclusionQuery = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderEndOcclusionQuery
     wgpuRenderPassEncoderEndOcclusionQuery.restype = None
     wgpuRenderPassEncoderEndOcclusionQuery.argtypes = [WGPURenderPassEncoder]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderExecuteBundles = _libraries['webgpu'].wgpuRenderPassEncoderExecuteBundles
+    wgpuRenderPassEncoderExecuteBundles = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderExecuteBundles
     wgpuRenderPassEncoderExecuteBundles.restype = None
     wgpuRenderPassEncoderExecuteBundles.argtypes = [WGPURenderPassEncoder, size_t, ctypes.POINTER(ctypes.POINTER(struct_WGPURenderBundleImpl))]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderInsertDebugMarker = _libraries['webgpu'].wgpuRenderPassEncoderInsertDebugMarker
+    wgpuRenderPassEncoderInsertDebugMarker = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderInsertDebugMarker
     wgpuRenderPassEncoderInsertDebugMarker.restype = None
     wgpuRenderPassEncoderInsertDebugMarker.argtypes = [WGPURenderPassEncoder, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderMultiDrawIndexedIndirect = _libraries['webgpu'].wgpuRenderPassEncoderMultiDrawIndexedIndirect
+    wgpuRenderPassEncoderMultiDrawIndexedIndirect = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderMultiDrawIndexedIndirect
     wgpuRenderPassEncoderMultiDrawIndexedIndirect.restype = None
     wgpuRenderPassEncoderMultiDrawIndexedIndirect.argtypes = [WGPURenderPassEncoder, WGPUBuffer, uint64_t, uint32_t, WGPUBuffer, uint64_t]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderMultiDrawIndirect = _libraries['webgpu'].wgpuRenderPassEncoderMultiDrawIndirect
+    wgpuRenderPassEncoderMultiDrawIndirect = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderMultiDrawIndirect
     wgpuRenderPassEncoderMultiDrawIndirect.restype = None
     wgpuRenderPassEncoderMultiDrawIndirect.argtypes = [WGPURenderPassEncoder, WGPUBuffer, uint64_t, uint32_t, WGPUBuffer, uint64_t]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderPixelLocalStorageBarrier = _libraries['webgpu'].wgpuRenderPassEncoderPixelLocalStorageBarrier
+    wgpuRenderPassEncoderPixelLocalStorageBarrier = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderPixelLocalStorageBarrier
     wgpuRenderPassEncoderPixelLocalStorageBarrier.restype = None
     wgpuRenderPassEncoderPixelLocalStorageBarrier.argtypes = [WGPURenderPassEncoder]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderPopDebugGroup = _libraries['webgpu'].wgpuRenderPassEncoderPopDebugGroup
+    wgpuRenderPassEncoderPopDebugGroup = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderPopDebugGroup
     wgpuRenderPassEncoderPopDebugGroup.restype = None
     wgpuRenderPassEncoderPopDebugGroup.argtypes = [WGPURenderPassEncoder]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderPushDebugGroup = _libraries['webgpu'].wgpuRenderPassEncoderPushDebugGroup
+    wgpuRenderPassEncoderPushDebugGroup = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderPushDebugGroup
     wgpuRenderPassEncoderPushDebugGroup.restype = None
     wgpuRenderPassEncoderPushDebugGroup.argtypes = [WGPURenderPassEncoder, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderSetBindGroup = _libraries['webgpu'].wgpuRenderPassEncoderSetBindGroup
+    wgpuRenderPassEncoderSetBindGroup = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderSetBindGroup
     wgpuRenderPassEncoderSetBindGroup.restype = None
     wgpuRenderPassEncoderSetBindGroup.argtypes = [WGPURenderPassEncoder, uint32_t, WGPUBindGroup, size_t, ctypes.POINTER(ctypes.c_uint32)]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderSetBlendConstant = _libraries['webgpu'].wgpuRenderPassEncoderSetBlendConstant
+    wgpuRenderPassEncoderSetBlendConstant = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderSetBlendConstant
     wgpuRenderPassEncoderSetBlendConstant.restype = None
     wgpuRenderPassEncoderSetBlendConstant.argtypes = [WGPURenderPassEncoder, ctypes.POINTER(struct_WGPUColor)]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderSetIndexBuffer = _libraries['webgpu'].wgpuRenderPassEncoderSetIndexBuffer
+    wgpuRenderPassEncoderSetIndexBuffer = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderSetIndexBuffer
     wgpuRenderPassEncoderSetIndexBuffer.restype = None
     wgpuRenderPassEncoderSetIndexBuffer.argtypes = [WGPURenderPassEncoder, WGPUBuffer, WGPUIndexFormat, uint64_t, uint64_t]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderSetLabel = _libraries['webgpu'].wgpuRenderPassEncoderSetLabel
+    wgpuRenderPassEncoderSetLabel = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderSetLabel
     wgpuRenderPassEncoderSetLabel.restype = None
     wgpuRenderPassEncoderSetLabel.argtypes = [WGPURenderPassEncoder, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderSetPipeline = _libraries['webgpu'].wgpuRenderPassEncoderSetPipeline
+    wgpuRenderPassEncoderSetPipeline = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderSetPipeline
     wgpuRenderPassEncoderSetPipeline.restype = None
     wgpuRenderPassEncoderSetPipeline.argtypes = [WGPURenderPassEncoder, WGPURenderPipeline]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderSetScissorRect = _libraries['webgpu'].wgpuRenderPassEncoderSetScissorRect
+    wgpuRenderPassEncoderSetScissorRect = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderSetScissorRect
     wgpuRenderPassEncoderSetScissorRect.restype = None
     wgpuRenderPassEncoderSetScissorRect.argtypes = [WGPURenderPassEncoder, uint32_t, uint32_t, uint32_t, uint32_t]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderSetStencilReference = _libraries['webgpu'].wgpuRenderPassEncoderSetStencilReference
+    wgpuRenderPassEncoderSetStencilReference = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderSetStencilReference
     wgpuRenderPassEncoderSetStencilReference.restype = None
     wgpuRenderPassEncoderSetStencilReference.argtypes = [WGPURenderPassEncoder, uint32_t]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderSetVertexBuffer = _libraries['webgpu'].wgpuRenderPassEncoderSetVertexBuffer
+    wgpuRenderPassEncoderSetVertexBuffer = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderSetVertexBuffer
     wgpuRenderPassEncoderSetVertexBuffer.restype = None
     wgpuRenderPassEncoderSetVertexBuffer.argtypes = [WGPURenderPassEncoder, uint32_t, WGPUBuffer, uint64_t, uint64_t]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderSetViewport = _libraries['webgpu'].wgpuRenderPassEncoderSetViewport
+    wgpuRenderPassEncoderSetViewport = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderSetViewport
     wgpuRenderPassEncoderSetViewport.restype = None
     wgpuRenderPassEncoderSetViewport.argtypes = [WGPURenderPassEncoder, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderWriteTimestamp = _libraries['webgpu'].wgpuRenderPassEncoderWriteTimestamp
+    wgpuRenderPassEncoderWriteTimestamp = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderWriteTimestamp
     wgpuRenderPassEncoderWriteTimestamp.restype = None
     wgpuRenderPassEncoderWriteTimestamp.argtypes = [WGPURenderPassEncoder, WGPUQuerySet, uint32_t]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderAddRef = _libraries['webgpu'].wgpuRenderPassEncoderAddRef
+    wgpuRenderPassEncoderAddRef = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderAddRef
     wgpuRenderPassEncoderAddRef.restype = None
     wgpuRenderPassEncoderAddRef.argtypes = [WGPURenderPassEncoder]
 except AttributeError:
     pass
 try:
-    wgpuRenderPassEncoderRelease = _libraries['webgpu'].wgpuRenderPassEncoderRelease
+    wgpuRenderPassEncoderRelease = _libraries['libwebgpu_dawn.so'].wgpuRenderPassEncoderRelease
     wgpuRenderPassEncoderRelease.restype = None
     wgpuRenderPassEncoderRelease.argtypes = [WGPURenderPassEncoder]
 except AttributeError:
     pass
 try:
-    wgpuRenderPipelineGetBindGroupLayout = _libraries['webgpu'].wgpuRenderPipelineGetBindGroupLayout
+    wgpuRenderPipelineGetBindGroupLayout = _libraries['libwebgpu_dawn.so'].wgpuRenderPipelineGetBindGroupLayout
     wgpuRenderPipelineGetBindGroupLayout.restype = WGPUBindGroupLayout
     wgpuRenderPipelineGetBindGroupLayout.argtypes = [WGPURenderPipeline, uint32_t]
 except AttributeError:
     pass
 try:
-    wgpuRenderPipelineSetLabel = _libraries['webgpu'].wgpuRenderPipelineSetLabel
+    wgpuRenderPipelineSetLabel = _libraries['libwebgpu_dawn.so'].wgpuRenderPipelineSetLabel
     wgpuRenderPipelineSetLabel.restype = None
     wgpuRenderPipelineSetLabel.argtypes = [WGPURenderPipeline, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuRenderPipelineAddRef = _libraries['webgpu'].wgpuRenderPipelineAddRef
+    wgpuRenderPipelineAddRef = _libraries['libwebgpu_dawn.so'].wgpuRenderPipelineAddRef
     wgpuRenderPipelineAddRef.restype = None
     wgpuRenderPipelineAddRef.argtypes = [WGPURenderPipeline]
 except AttributeError:
     pass
 try:
-    wgpuRenderPipelineRelease = _libraries['webgpu'].wgpuRenderPipelineRelease
+    wgpuRenderPipelineRelease = _libraries['libwebgpu_dawn.so'].wgpuRenderPipelineRelease
     wgpuRenderPipelineRelease.restype = None
     wgpuRenderPipelineRelease.argtypes = [WGPURenderPipeline]
 except AttributeError:
     pass
 try:
-    wgpuSamplerSetLabel = _libraries['webgpu'].wgpuSamplerSetLabel
+    wgpuSamplerSetLabel = _libraries['libwebgpu_dawn.so'].wgpuSamplerSetLabel
     wgpuSamplerSetLabel.restype = None
     wgpuSamplerSetLabel.argtypes = [WGPUSampler, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuSamplerAddRef = _libraries['webgpu'].wgpuSamplerAddRef
+    wgpuSamplerAddRef = _libraries['libwebgpu_dawn.so'].wgpuSamplerAddRef
     wgpuSamplerAddRef.restype = None
     wgpuSamplerAddRef.argtypes = [WGPUSampler]
 except AttributeError:
     pass
 try:
-    wgpuSamplerRelease = _libraries['webgpu'].wgpuSamplerRelease
+    wgpuSamplerRelease = _libraries['libwebgpu_dawn.so'].wgpuSamplerRelease
     wgpuSamplerRelease.restype = None
     wgpuSamplerRelease.argtypes = [WGPUSampler]
 except AttributeError:
     pass
 try:
-    wgpuShaderModuleGetCompilationInfo = _libraries['webgpu'].wgpuShaderModuleGetCompilationInfo
+    wgpuShaderModuleGetCompilationInfo = _libraries['libwebgpu_dawn.so'].wgpuShaderModuleGetCompilationInfo
     wgpuShaderModuleGetCompilationInfo.restype = None
     wgpuShaderModuleGetCompilationInfo.argtypes = [WGPUShaderModule, WGPUCompilationInfoCallback, ctypes.POINTER(None)]
 except AttributeError:
     pass
 try:
-    wgpuShaderModuleGetCompilationInfo2 = _libraries['webgpu'].wgpuShaderModuleGetCompilationInfo2
+    wgpuShaderModuleGetCompilationInfo2 = _libraries['libwebgpu_dawn.so'].wgpuShaderModuleGetCompilationInfo2
     wgpuShaderModuleGetCompilationInfo2.restype = WGPUFuture
     wgpuShaderModuleGetCompilationInfo2.argtypes = [WGPUShaderModule, WGPUCompilationInfoCallbackInfo2]
 except AttributeError:
     pass
 try:
-    wgpuShaderModuleGetCompilationInfoF = _libraries['webgpu'].wgpuShaderModuleGetCompilationInfoF
+    wgpuShaderModuleGetCompilationInfoF = _libraries['libwebgpu_dawn.so'].wgpuShaderModuleGetCompilationInfoF
     wgpuShaderModuleGetCompilationInfoF.restype = WGPUFuture
     wgpuShaderModuleGetCompilationInfoF.argtypes = [WGPUShaderModule, WGPUCompilationInfoCallbackInfo]
 except AttributeError:
     pass
 try:
-    wgpuShaderModuleSetLabel = _libraries['webgpu'].wgpuShaderModuleSetLabel
+    wgpuShaderModuleSetLabel = _libraries['libwebgpu_dawn.so'].wgpuShaderModuleSetLabel
     wgpuShaderModuleSetLabel.restype = None
     wgpuShaderModuleSetLabel.argtypes = [WGPUShaderModule, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuShaderModuleAddRef = _libraries['webgpu'].wgpuShaderModuleAddRef
+    wgpuShaderModuleAddRef = _libraries['libwebgpu_dawn.so'].wgpuShaderModuleAddRef
     wgpuShaderModuleAddRef.restype = None
     wgpuShaderModuleAddRef.argtypes = [WGPUShaderModule]
 except AttributeError:
     pass
 try:
-    wgpuShaderModuleRelease = _libraries['webgpu'].wgpuShaderModuleRelease
+    wgpuShaderModuleRelease = _libraries['libwebgpu_dawn.so'].wgpuShaderModuleRelease
     wgpuShaderModuleRelease.restype = None
     wgpuShaderModuleRelease.argtypes = [WGPUShaderModule]
 except AttributeError:
     pass
 try:
-    wgpuSharedBufferMemoryBeginAccess = _libraries['webgpu'].wgpuSharedBufferMemoryBeginAccess
+    wgpuSharedBufferMemoryBeginAccess = _libraries['libwebgpu_dawn.so'].wgpuSharedBufferMemoryBeginAccess
     wgpuSharedBufferMemoryBeginAccess.restype = WGPUStatus
     wgpuSharedBufferMemoryBeginAccess.argtypes = [WGPUSharedBufferMemory, WGPUBuffer, ctypes.POINTER(struct_WGPUSharedBufferMemoryBeginAccessDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuSharedBufferMemoryCreateBuffer = _libraries['webgpu'].wgpuSharedBufferMemoryCreateBuffer
+    wgpuSharedBufferMemoryCreateBuffer = _libraries['libwebgpu_dawn.so'].wgpuSharedBufferMemoryCreateBuffer
     wgpuSharedBufferMemoryCreateBuffer.restype = WGPUBuffer
     wgpuSharedBufferMemoryCreateBuffer.argtypes = [WGPUSharedBufferMemory, ctypes.POINTER(struct_WGPUBufferDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuSharedBufferMemoryEndAccess = _libraries['webgpu'].wgpuSharedBufferMemoryEndAccess
+    wgpuSharedBufferMemoryEndAccess = _libraries['libwebgpu_dawn.so'].wgpuSharedBufferMemoryEndAccess
     wgpuSharedBufferMemoryEndAccess.restype = WGPUStatus
     wgpuSharedBufferMemoryEndAccess.argtypes = [WGPUSharedBufferMemory, WGPUBuffer, ctypes.POINTER(struct_WGPUSharedBufferMemoryEndAccessState)]
 except AttributeError:
     pass
 try:
-    wgpuSharedBufferMemoryGetProperties = _libraries['webgpu'].wgpuSharedBufferMemoryGetProperties
+    wgpuSharedBufferMemoryGetProperties = _libraries['libwebgpu_dawn.so'].wgpuSharedBufferMemoryGetProperties
     wgpuSharedBufferMemoryGetProperties.restype = WGPUStatus
     wgpuSharedBufferMemoryGetProperties.argtypes = [WGPUSharedBufferMemory, ctypes.POINTER(struct_WGPUSharedBufferMemoryProperties)]
 except AttributeError:
     pass
 try:
-    wgpuSharedBufferMemoryIsDeviceLost = _libraries['webgpu'].wgpuSharedBufferMemoryIsDeviceLost
+    wgpuSharedBufferMemoryIsDeviceLost = _libraries['libwebgpu_dawn.so'].wgpuSharedBufferMemoryIsDeviceLost
     wgpuSharedBufferMemoryIsDeviceLost.restype = WGPUBool
     wgpuSharedBufferMemoryIsDeviceLost.argtypes = [WGPUSharedBufferMemory]
 except AttributeError:
     pass
 try:
-    wgpuSharedBufferMemorySetLabel = _libraries['webgpu'].wgpuSharedBufferMemorySetLabel
+    wgpuSharedBufferMemorySetLabel = _libraries['libwebgpu_dawn.so'].wgpuSharedBufferMemorySetLabel
     wgpuSharedBufferMemorySetLabel.restype = None
     wgpuSharedBufferMemorySetLabel.argtypes = [WGPUSharedBufferMemory, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuSharedBufferMemoryAddRef = _libraries['webgpu'].wgpuSharedBufferMemoryAddRef
+    wgpuSharedBufferMemoryAddRef = _libraries['libwebgpu_dawn.so'].wgpuSharedBufferMemoryAddRef
     wgpuSharedBufferMemoryAddRef.restype = None
     wgpuSharedBufferMemoryAddRef.argtypes = [WGPUSharedBufferMemory]
 except AttributeError:
     pass
 try:
-    wgpuSharedBufferMemoryRelease = _libraries['webgpu'].wgpuSharedBufferMemoryRelease
+    wgpuSharedBufferMemoryRelease = _libraries['libwebgpu_dawn.so'].wgpuSharedBufferMemoryRelease
     wgpuSharedBufferMemoryRelease.restype = None
     wgpuSharedBufferMemoryRelease.argtypes = [WGPUSharedBufferMemory]
 except AttributeError:
     pass
 try:
-    wgpuSharedFenceExportInfo = _libraries['webgpu'].wgpuSharedFenceExportInfo
+    wgpuSharedFenceExportInfo = _libraries['libwebgpu_dawn.so'].wgpuSharedFenceExportInfo
     wgpuSharedFenceExportInfo.restype = None
     wgpuSharedFenceExportInfo.argtypes = [WGPUSharedFence, ctypes.POINTER(struct_WGPUSharedFenceExportInfo)]
 except AttributeError:
     pass
 try:
-    wgpuSharedFenceAddRef = _libraries['webgpu'].wgpuSharedFenceAddRef
+    wgpuSharedFenceAddRef = _libraries['libwebgpu_dawn.so'].wgpuSharedFenceAddRef
     wgpuSharedFenceAddRef.restype = None
     wgpuSharedFenceAddRef.argtypes = [WGPUSharedFence]
 except AttributeError:
     pass
 try:
-    wgpuSharedFenceRelease = _libraries['webgpu'].wgpuSharedFenceRelease
+    wgpuSharedFenceRelease = _libraries['libwebgpu_dawn.so'].wgpuSharedFenceRelease
     wgpuSharedFenceRelease.restype = None
     wgpuSharedFenceRelease.argtypes = [WGPUSharedFence]
 except AttributeError:
     pass
 try:
-    wgpuSharedTextureMemoryBeginAccess = _libraries['webgpu'].wgpuSharedTextureMemoryBeginAccess
+    wgpuSharedTextureMemoryBeginAccess = _libraries['libwebgpu_dawn.so'].wgpuSharedTextureMemoryBeginAccess
     wgpuSharedTextureMemoryBeginAccess.restype = WGPUStatus
     wgpuSharedTextureMemoryBeginAccess.argtypes = [WGPUSharedTextureMemory, WGPUTexture, ctypes.POINTER(struct_WGPUSharedTextureMemoryBeginAccessDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuSharedTextureMemoryCreateTexture = _libraries['webgpu'].wgpuSharedTextureMemoryCreateTexture
+    wgpuSharedTextureMemoryCreateTexture = _libraries['libwebgpu_dawn.so'].wgpuSharedTextureMemoryCreateTexture
     wgpuSharedTextureMemoryCreateTexture.restype = WGPUTexture
     wgpuSharedTextureMemoryCreateTexture.argtypes = [WGPUSharedTextureMemory, ctypes.POINTER(struct_WGPUTextureDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuSharedTextureMemoryEndAccess = _libraries['webgpu'].wgpuSharedTextureMemoryEndAccess
+    wgpuSharedTextureMemoryEndAccess = _libraries['libwebgpu_dawn.so'].wgpuSharedTextureMemoryEndAccess
     wgpuSharedTextureMemoryEndAccess.restype = WGPUStatus
     wgpuSharedTextureMemoryEndAccess.argtypes = [WGPUSharedTextureMemory, WGPUTexture, ctypes.POINTER(struct_WGPUSharedTextureMemoryEndAccessState)]
 except AttributeError:
     pass
 try:
-    wgpuSharedTextureMemoryGetProperties = _libraries['webgpu'].wgpuSharedTextureMemoryGetProperties
+    wgpuSharedTextureMemoryGetProperties = _libraries['libwebgpu_dawn.so'].wgpuSharedTextureMemoryGetProperties
     wgpuSharedTextureMemoryGetProperties.restype = WGPUStatus
     wgpuSharedTextureMemoryGetProperties.argtypes = [WGPUSharedTextureMemory, ctypes.POINTER(struct_WGPUSharedTextureMemoryProperties)]
 except AttributeError:
     pass
 try:
-    wgpuSharedTextureMemoryIsDeviceLost = _libraries['webgpu'].wgpuSharedTextureMemoryIsDeviceLost
+    wgpuSharedTextureMemoryIsDeviceLost = _libraries['libwebgpu_dawn.so'].wgpuSharedTextureMemoryIsDeviceLost
     wgpuSharedTextureMemoryIsDeviceLost.restype = WGPUBool
     wgpuSharedTextureMemoryIsDeviceLost.argtypes = [WGPUSharedTextureMemory]
 except AttributeError:
     pass
 try:
-    wgpuSharedTextureMemorySetLabel = _libraries['webgpu'].wgpuSharedTextureMemorySetLabel
+    wgpuSharedTextureMemorySetLabel = _libraries['libwebgpu_dawn.so'].wgpuSharedTextureMemorySetLabel
     wgpuSharedTextureMemorySetLabel.restype = None
     wgpuSharedTextureMemorySetLabel.argtypes = [WGPUSharedTextureMemory, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuSharedTextureMemoryAddRef = _libraries['webgpu'].wgpuSharedTextureMemoryAddRef
+    wgpuSharedTextureMemoryAddRef = _libraries['libwebgpu_dawn.so'].wgpuSharedTextureMemoryAddRef
     wgpuSharedTextureMemoryAddRef.restype = None
     wgpuSharedTextureMemoryAddRef.argtypes = [WGPUSharedTextureMemory]
 except AttributeError:
     pass
 try:
-    wgpuSharedTextureMemoryRelease = _libraries['webgpu'].wgpuSharedTextureMemoryRelease
+    wgpuSharedTextureMemoryRelease = _libraries['libwebgpu_dawn.so'].wgpuSharedTextureMemoryRelease
     wgpuSharedTextureMemoryRelease.restype = None
     wgpuSharedTextureMemoryRelease.argtypes = [WGPUSharedTextureMemory]
 except AttributeError:
     pass
 try:
-    wgpuSurfaceConfigure = _libraries['webgpu'].wgpuSurfaceConfigure
+    wgpuSurfaceConfigure = _libraries['libwebgpu_dawn.so'].wgpuSurfaceConfigure
     wgpuSurfaceConfigure.restype = None
     wgpuSurfaceConfigure.argtypes = [WGPUSurface, ctypes.POINTER(struct_WGPUSurfaceConfiguration)]
 except AttributeError:
     pass
 try:
-    wgpuSurfaceGetCapabilities = _libraries['webgpu'].wgpuSurfaceGetCapabilities
+    wgpuSurfaceGetCapabilities = _libraries['libwebgpu_dawn.so'].wgpuSurfaceGetCapabilities
     wgpuSurfaceGetCapabilities.restype = WGPUStatus
     wgpuSurfaceGetCapabilities.argtypes = [WGPUSurface, WGPUAdapter, ctypes.POINTER(struct_WGPUSurfaceCapabilities)]
 except AttributeError:
     pass
 try:
-    wgpuSurfaceGetCurrentTexture = _libraries['webgpu'].wgpuSurfaceGetCurrentTexture
+    wgpuSurfaceGetCurrentTexture = _libraries['libwebgpu_dawn.so'].wgpuSurfaceGetCurrentTexture
     wgpuSurfaceGetCurrentTexture.restype = None
     wgpuSurfaceGetCurrentTexture.argtypes = [WGPUSurface, ctypes.POINTER(struct_WGPUSurfaceTexture)]
 except AttributeError:
     pass
 try:
-    wgpuSurfacePresent = _libraries['webgpu'].wgpuSurfacePresent
+    wgpuSurfacePresent = _libraries['libwebgpu_dawn.so'].wgpuSurfacePresent
     wgpuSurfacePresent.restype = None
     wgpuSurfacePresent.argtypes = [WGPUSurface]
 except AttributeError:
     pass
 try:
-    wgpuSurfaceSetLabel = _libraries['webgpu'].wgpuSurfaceSetLabel
+    wgpuSurfaceSetLabel = _libraries['libwebgpu_dawn.so'].wgpuSurfaceSetLabel
     wgpuSurfaceSetLabel.restype = None
     wgpuSurfaceSetLabel.argtypes = [WGPUSurface, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuSurfaceUnconfigure = _libraries['webgpu'].wgpuSurfaceUnconfigure
+    wgpuSurfaceUnconfigure = _libraries['libwebgpu_dawn.so'].wgpuSurfaceUnconfigure
     wgpuSurfaceUnconfigure.restype = None
     wgpuSurfaceUnconfigure.argtypes = [WGPUSurface]
 except AttributeError:
     pass
 try:
-    wgpuSurfaceAddRef = _libraries['webgpu'].wgpuSurfaceAddRef
+    wgpuSurfaceAddRef = _libraries['libwebgpu_dawn.so'].wgpuSurfaceAddRef
     wgpuSurfaceAddRef.restype = None
     wgpuSurfaceAddRef.argtypes = [WGPUSurface]
 except AttributeError:
     pass
 try:
-    wgpuSurfaceRelease = _libraries['webgpu'].wgpuSurfaceRelease
+    wgpuSurfaceRelease = _libraries['libwebgpu_dawn.so'].wgpuSurfaceRelease
     wgpuSurfaceRelease.restype = None
     wgpuSurfaceRelease.argtypes = [WGPUSurface]
 except AttributeError:
     pass
 try:
-    wgpuTextureCreateErrorView = _libraries['webgpu'].wgpuTextureCreateErrorView
+    wgpuTextureCreateErrorView = _libraries['libwebgpu_dawn.so'].wgpuTextureCreateErrorView
     wgpuTextureCreateErrorView.restype = WGPUTextureView
     wgpuTextureCreateErrorView.argtypes = [WGPUTexture, ctypes.POINTER(struct_WGPUTextureViewDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuTextureCreateView = _libraries['webgpu'].wgpuTextureCreateView
+    wgpuTextureCreateView = _libraries['libwebgpu_dawn.so'].wgpuTextureCreateView
     wgpuTextureCreateView.restype = WGPUTextureView
     wgpuTextureCreateView.argtypes = [WGPUTexture, ctypes.POINTER(struct_WGPUTextureViewDescriptor)]
 except AttributeError:
     pass
 try:
-    wgpuTextureDestroy = _libraries['webgpu'].wgpuTextureDestroy
+    wgpuTextureDestroy = _libraries['libwebgpu_dawn.so'].wgpuTextureDestroy
     wgpuTextureDestroy.restype = None
     wgpuTextureDestroy.argtypes = [WGPUTexture]
 except AttributeError:
     pass
 try:
-    wgpuTextureGetDepthOrArrayLayers = _libraries['webgpu'].wgpuTextureGetDepthOrArrayLayers
+    wgpuTextureGetDepthOrArrayLayers = _libraries['libwebgpu_dawn.so'].wgpuTextureGetDepthOrArrayLayers
     wgpuTextureGetDepthOrArrayLayers.restype = uint32_t
     wgpuTextureGetDepthOrArrayLayers.argtypes = [WGPUTexture]
 except AttributeError:
     pass
 try:
-    wgpuTextureGetDimension = _libraries['webgpu'].wgpuTextureGetDimension
+    wgpuTextureGetDimension = _libraries['libwebgpu_dawn.so'].wgpuTextureGetDimension
     wgpuTextureGetDimension.restype = WGPUTextureDimension
     wgpuTextureGetDimension.argtypes = [WGPUTexture]
 except AttributeError:
     pass
 try:
-    wgpuTextureGetFormat = _libraries['webgpu'].wgpuTextureGetFormat
+    wgpuTextureGetFormat = _libraries['libwebgpu_dawn.so'].wgpuTextureGetFormat
     wgpuTextureGetFormat.restype = WGPUTextureFormat
     wgpuTextureGetFormat.argtypes = [WGPUTexture]
 except AttributeError:
     pass
 try:
-    wgpuTextureGetHeight = _libraries['webgpu'].wgpuTextureGetHeight
+    wgpuTextureGetHeight = _libraries['libwebgpu_dawn.so'].wgpuTextureGetHeight
     wgpuTextureGetHeight.restype = uint32_t
     wgpuTextureGetHeight.argtypes = [WGPUTexture]
 except AttributeError:
     pass
 try:
-    wgpuTextureGetMipLevelCount = _libraries['webgpu'].wgpuTextureGetMipLevelCount
+    wgpuTextureGetMipLevelCount = _libraries['libwebgpu_dawn.so'].wgpuTextureGetMipLevelCount
     wgpuTextureGetMipLevelCount.restype = uint32_t
     wgpuTextureGetMipLevelCount.argtypes = [WGPUTexture]
 except AttributeError:
     pass
 try:
-    wgpuTextureGetSampleCount = _libraries['webgpu'].wgpuTextureGetSampleCount
+    wgpuTextureGetSampleCount = _libraries['libwebgpu_dawn.so'].wgpuTextureGetSampleCount
     wgpuTextureGetSampleCount.restype = uint32_t
     wgpuTextureGetSampleCount.argtypes = [WGPUTexture]
 except AttributeError:
     pass
 try:
-    wgpuTextureGetUsage = _libraries['webgpu'].wgpuTextureGetUsage
+    wgpuTextureGetUsage = _libraries['libwebgpu_dawn.so'].wgpuTextureGetUsage
     wgpuTextureGetUsage.restype = WGPUTextureUsage
     wgpuTextureGetUsage.argtypes = [WGPUTexture]
 except AttributeError:
     pass
 try:
-    wgpuTextureGetWidth = _libraries['webgpu'].wgpuTextureGetWidth
+    wgpuTextureGetWidth = _libraries['libwebgpu_dawn.so'].wgpuTextureGetWidth
     wgpuTextureGetWidth.restype = uint32_t
     wgpuTextureGetWidth.argtypes = [WGPUTexture]
 except AttributeError:
     pass
 try:
-    wgpuTextureSetLabel = _libraries['webgpu'].wgpuTextureSetLabel
+    wgpuTextureSetLabel = _libraries['libwebgpu_dawn.so'].wgpuTextureSetLabel
     wgpuTextureSetLabel.restype = None
     wgpuTextureSetLabel.argtypes = [WGPUTexture, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuTextureAddRef = _libraries['webgpu'].wgpuTextureAddRef
+    wgpuTextureAddRef = _libraries['libwebgpu_dawn.so'].wgpuTextureAddRef
     wgpuTextureAddRef.restype = None
     wgpuTextureAddRef.argtypes = [WGPUTexture]
 except AttributeError:
     pass
 try:
-    wgpuTextureRelease = _libraries['webgpu'].wgpuTextureRelease
+    wgpuTextureRelease = _libraries['libwebgpu_dawn.so'].wgpuTextureRelease
     wgpuTextureRelease.restype = None
     wgpuTextureRelease.argtypes = [WGPUTexture]
 except AttributeError:
     pass
 try:
-    wgpuTextureViewSetLabel = _libraries['webgpu'].wgpuTextureViewSetLabel
+    wgpuTextureViewSetLabel = _libraries['libwebgpu_dawn.so'].wgpuTextureViewSetLabel
     wgpuTextureViewSetLabel.restype = None
     wgpuTextureViewSetLabel.argtypes = [WGPUTextureView, WGPUStringView]
 except AttributeError:
     pass
 try:
-    wgpuTextureViewAddRef = _libraries['webgpu'].wgpuTextureViewAddRef
+    wgpuTextureViewAddRef = _libraries['libwebgpu_dawn.so'].wgpuTextureViewAddRef
     wgpuTextureViewAddRef.restype = None
     wgpuTextureViewAddRef.argtypes = [WGPUTextureView]
 except AttributeError:
     pass
 try:
-    wgpuTextureViewRelease = _libraries['webgpu'].wgpuTextureViewRelease
+    wgpuTextureViewRelease = _libraries['libwebgpu_dawn.so'].wgpuTextureViewRelease
     wgpuTextureViewRelease.restype = None
     wgpuTextureViewRelease.argtypes = [WGPUTextureView]
 except AttributeError:

@@ -1,10 +1,10 @@
-::: tinygrad.uop.ops.UOp
+::: tinygrad.ops.UOp
     options:
         members: false
         members_order: source
         show_labels: false
 
-::: tinygrad.uop.ops.Ops
+::: tinygrad.ops.Ops
     options:
         members: true
         members_order: source
