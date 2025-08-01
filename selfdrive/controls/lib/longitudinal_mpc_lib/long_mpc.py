@@ -19,7 +19,6 @@ else:
 from casadi import SX, vertcat
 
 from openpilot.common.params import Params
-from decimal import Decimal
 
 MODEL_NAME = 'long'
 LONG_MPC_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -58,7 +57,7 @@ T_IDXS = np.array(T_IDXS_LST)
 FCW_IDXS = T_IDXS < 5.0
 T_DIFFS = np.diff(T_IDXS, prepend=[0.])
 COMFORT_BRAKE = 2.5
-STOP_DISTANCE = float(Decimal(Params().get("StoppingDist", encoding="utf8"))*Decimal('0.1')) + 1.0 if Params().get("StoppingDist", encoding="utf8") is not None else 6.0 # 6.0
+STOP_DISTANCE = ((Params().get("StoppingDist") * 0.1) + 1.0) if Params().get("StoppingDist") is not None else 6.0 # 6.0
 CRUISE_MIN_ACCEL = -1.2
 CRUISE_MAX_ACCEL = 1.6
 
@@ -235,14 +234,14 @@ class LongitudinalMpc:
     self.source = SOURCES[2]
 
     self.t_follow = 1.45
-    self.cruise_gap1 = float(Decimal(Params().get("CruiseGap1", encoding="utf8")) * Decimal('0.1'))
-    self.cruise_gap2 = float(Decimal(Params().get("CruiseGap2", encoding="utf8")) * Decimal('0.1'))
-    self.cruise_gap3 = float(Decimal(Params().get("CruiseGap3", encoding="utf8")) * Decimal('0.1'))
-    self.cruise_gap4 = float(Decimal(Params().get("CruiseGap4", encoding="utf8")) * Decimal('0.1'))
+    self.cruise_gap1 = Params().get("CruiseGap1") * 0.1
+    self.cruise_gap2 = Params().get("CruiseGap2") * 0.1
+    self.cruise_gap3 = Params().get("CruiseGap3") * 0.1
+    self.cruise_gap4 = Params().get("CruiseGap4") * 0.1
 
-    self.dynamic_tr_spd = list(map(float, Params().get("DynamicTRSpd", encoding="utf8").split(',')))
-    self.dynamic_tr_set = list(map(float, Params().get("DynamicTRSet", encoding="utf8").split(',')))
-    self.dynamic_TR_mode = int(Params().get("DynamicTRGap", encoding="utf8"))
+    self.dynamic_tr_spd = list(map(float, Params().get("DynamicTRSpd").split(',')))
+    self.dynamic_tr_set = list(map(float, Params().get("DynamicTRSet").split(',')))
+    self.dynamic_TR_mode = Params().get("DynamicTRGap")
     self.custom_tr_enabled = Params().get_bool("CustomTREnabled")
 
     self.alpha_long_enabled = Params().get_bool("AlphaLongitudinalEnabled")
@@ -363,7 +362,7 @@ class LongitudinalMpc:
     self.lo_timer += 1
     if self.lo_timer > 200:
       self.lo_timer = 0
-      self.dynamic_TR_mode = int(Params().get("DynamicTRGap", encoding="utf8"))
+      self.dynamic_TR_mode = Params().get("DynamicTRGap")
       self.custom_tr_enabled = Params().get_bool("CustomTREnabled")
 
     self.status = radarstate.leadOne.status or radarstate.leadTwo.status

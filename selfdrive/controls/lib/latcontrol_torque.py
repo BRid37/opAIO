@@ -2,13 +2,13 @@ import math
 import numpy as np
 
 from cereal import log
+from opendbc.car import FRICTION_THRESHOLD, get_friction
 from opendbc.car.interfaces import LatControlInputs
 from opendbc.car.vehicle_model import ACCELERATION_DUE_TO_GRAVITY
 from openpilot.selfdrive.controls.lib.latcontrol import LatControl
 from openpilot.common.pid import PIDController
 
 from openpilot.common.params import Params
-from decimal import Decimal
 
 # At higher speeds (25+mph) we can assume:
 # Lateral acceleration achieved by a specific car correlates to
@@ -43,17 +43,17 @@ class LatControlTorque(LatControl):
     self.lt_timer = 0
     self.live_torque_params = self.params.get_bool("KisaLiveTorque")
 
-    self.max_lat_accel = float(Decimal(self.params.get("TorqueMaxLatAccel", encoding="utf8")) * Decimal('0.1'))
+    self.max_lat_accel = self.params.get("TorqueMaxLatAccel") * 0.1
 
   def live_tune(self):
     self.mpc_frame += 1
     if self.mpc_frame % 300 == 0:
-      self.max_lat_accel = float(Decimal(self.params.get("TorqueMaxLatAccel", encoding="utf8")) * Decimal('0.1'))
-      self.kp = float(Decimal(self.params.get("TorqueKp", encoding="utf8")) * Decimal('0.1'))
-      self.kf = float(Decimal(self.params.get("TorqueKf", encoding="utf8")) * Decimal('0.1'))
-      self.ki = float(Decimal(self.params.get("TorqueKi", encoding="utf8")) * Decimal('0.1'))
-      self.friction = float(Decimal(self.params.get("TorqueFriction", encoding="utf8")) * Decimal('0.001'))
-      self.steering_angle_deadzone_deg = float(Decimal(self.params.get("TorqueAngDeadZone", encoding="utf8")) * Decimal('0.1'))
+      self.max_lat_accel = self.params.get("TorqueMaxLatAccel") * 0.1
+      self.kp = self.params.get("TorqueKp") * 0.1
+      self.kf = self.params.get("TorqueKf") * 0.1
+      self.ki = self.params.get("TorqueKi") * 0.1
+      self.friction = self.params.get("TorqueFriction") * 0.001
+      self.steering_angle_deadzone_deg = self.params.get("TorqueAngDeadZone") * 0.1
       self.pid = PIDController(self.kp, self.ki,
                               k_f=self.kf, pos_limit=self.steer_max, neg_limit=-self.steer_max)
         
@@ -98,13 +98,13 @@ class LatControlTorque(LatControl):
       measurement = actual_lateral_accel + low_speed_factor * actual_curvature
       gravity_adjusted_lateral_accel = desired_lateral_accel - roll_compensation
       torque_from_setpoint = self.torque_from_lateral_accel(LatControlInputs(setpoint, roll_compensation, CS.vEgo, CS.aEgo), self.torque_params,
-                                                            setpoint, lateral_accel_deadzone, friction_compensation=False, gravity_adjusted=False)
+                                                            gravity_adjusted=False)
       torque_from_measurement = self.torque_from_lateral_accel(LatControlInputs(measurement, roll_compensation, CS.vEgo, CS.aEgo), self.torque_params,
-                                                               measurement, lateral_accel_deadzone, friction_compensation=False, gravity_adjusted=False)
+                                                               gravity_adjusted=False)
       pid_log.error = float(torque_from_setpoint - torque_from_measurement)
       ff = self.torque_from_lateral_accel(LatControlInputs(gravity_adjusted_lateral_accel, roll_compensation, CS.vEgo, CS.aEgo), self.torque_params,
-                                          desired_lateral_accel - actual_lateral_accel, lateral_accel_deadzone, friction_compensation=True,
                                           gravity_adjusted=True)
+      ff += get_friction(desired_lateral_accel - actual_lateral_accel, lateral_accel_deadzone, FRICTION_THRESHOLD, self.torque_params)
 
       freeze_integrator = steer_limited_by_controls or CS.steeringPressed or CS.vEgo < 5
       output_torque = self.pid.update(pid_log.error,

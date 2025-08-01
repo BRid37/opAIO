@@ -39,8 +39,8 @@ class CarSpecificEvents:
 
     self.ufc_mode = Params().get_bool("UFCModeEnabled")
     self.steer_warning_fix_enabled = Params().get_bool("SteerWarningFix")
-    self.user_specific_feature = int(Params().get("UserSpecificFeature", encoding="utf8"))
-    self.long_alt = int(Params().get("KISALongAlt", encoding="utf8"))
+    self.user_specific_feature = Params().get("UserSpecificFeature")
+    self.long_alt = Params().get("KISALongAlt")
     self.exp_long = self.CP.sccBus <= 0 and self.CP.openpilotLongitudinalControl and self.long_alt not in (1, 2)
     self.no_mdps_mods = Params().get_bool("NoSmartMDPS")
     self.lfa_button_eng = Params().get_bool("LFAButtonEngagement")

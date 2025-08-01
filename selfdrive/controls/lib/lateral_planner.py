@@ -12,15 +12,14 @@ from cereal import log
 
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
-from decimal import Decimal
 
 LaneChangeState = log.LateralPlan.LaneChangeState
 
 TRAJECTORY_SIZE = 33
 
-CAMERA_OFFSET = (float(Decimal(Params().get("CameraOffsetAdj", encoding="utf8")) * Decimal('0.001')))
+CAMERA_OFFSET = Params().get("CameraOffsetAdj") * 0.001
 CAMERA_OFFSET_A = CAMERA_OFFSET + 0.15
-PATH_OFFSET = (float(Decimal(Params().get("PathOffsetAdj", encoding="utf8")) * Decimal('0.001')))  # default 0.0
+PATH_OFFSET = Params().get("PathOffsetAdj") * 0.001  # default 0.0
 
 PATH_COST = 1.0
 LATERAL_MOTION_COST = 0.11
@@ -37,7 +36,7 @@ class LateralPlanner:
     self.DH = DesireHelper()
 
     self.params = Params()
-    self.legacy_lane_mode = int(self.params.get("UseLegacyLaneModel", encoding="utf8"))
+    self.legacy_lane_mode = self.params.get("UseLegacyLaneModel")
 
     # Vehicle model parameters used to calculate lateral movement of car
     self.factor1 = CP.wheelbase - CP.centerToFront
@@ -62,7 +61,7 @@ class LateralPlanner:
     self.reset_mpc(np.zeros(4))
 
 
-    self.laneless_mode = int(Params().get("LanelessMode", encoding="utf8"))
+    self.laneless_mode = Params().get("LanelessMode")
     self.laneless_mode_status = False
     self.laneless_mode_status_buffer = False
 
@@ -77,27 +76,27 @@ class LateralPlanner:
     self.ll_x = np.zeros((TRAJECTORY_SIZE,))
     self.lll_y = np.zeros((TRAJECTORY_SIZE,))
     self.rll_y = np.zeros((TRAJECTORY_SIZE,))
-    self.lane_width_estimate = FirstOrderFilter(float(Decimal(self.params.get("LaneWidth", encoding="utf8")) * Decimal('0.1')), 9.95, DT_MDL)
+    self.lane_width_estimate = FirstOrderFilter(self.params.get("LaneWidth") * 0.1, 9.95, DT_MDL)
     self.lane_width_certainty = FirstOrderFilter(1.0, 0.95, DT_MDL)
-    self.lane_width = float(Decimal(self.params.get("LaneWidth", encoding="utf8")) * Decimal('0.1'))
-    self.spd_lane_width_spd = list(map(float, self.params.get("SpdLaneWidthSpd", encoding="utf8").split(',')))
-    self.spd_lane_width_set = list(map(float, self.params.get("SpdLaneWidthSet", encoding="utf8").split(',')))
+    self.lane_width = self.params.get("LaneWidth") * 0.1
+    self.spd_lane_width_spd = list(map(float, self.params.get("SpdLaneWidthSpd").split(',')))
+    self.spd_lane_width_set = list(map(float, self.params.get("SpdLaneWidthSet").split(',')))
     self.lll_prob = self.rll_prob = self.d_prob = self.lll_std = self.rll_std = 0.
     self.camera_offset = CAMERA_OFFSET
     self.path_offset = PATH_OFFSET
     self.path_offset2 = 0.0
-    self.left_curv_offset = int(self.params.get("LeftCurvOffsetAdj", encoding="utf8"))
-    self.right_curv_offset = int(self.params.get("RightCurvOffsetAdj", encoding="utf8"))
+    self.left_curv_offset = self.params.get("LeftCurvOffsetAdj")
+    self.right_curv_offset = self.params.get("RightCurvOffsetAdj")
     self.drive_routine_on_co = self.params.get_bool("RoutineDriveOn")
     if self.drive_routine_on_co:
-      option_list = list(self.params.get("RoutineDriveOption", encoding="utf8"))
+      option_list = list(self.params.get("RoutineDriveOption"))
       if '0' in option_list:
         self.drive_routine_on_co = True
       else:
         self.drive_routine_on_co = False
     self.drive_close_to_edge = self.params.get_bool("CloseToRoadEdge")
-    self.left_edge_offset = float(Decimal(self.params.get("LeftEdgeOffset", encoding="utf8")) * Decimal('0.01'))
-    self.right_edge_offset = float(Decimal(self.params.get("RightEdgeOffset", encoding="utf8")) * Decimal('0.01'))
+    self.left_edge_offset = self.params.get("LeftEdgeOffset") * 0.01
+    self.right_edge_offset = self.params.get("RightEdgeOffset") * 0.01
     self.speed_offset = self.params.get_bool("SpeedCameraOffset")
     self.road_edge_offset = 0.0
     self.timer = 0
@@ -153,7 +152,7 @@ class LateralPlanner:
       self.timer = 0.0
       self.speed_offset = self.params.get_bool("SpeedCameraOffset")
       if self.params.get_bool("KisaLiveTunePanelEnable"):
-        self.camera_offset = (float(Decimal(self.params.get("CameraOffsetAdj", encoding="utf8")) * Decimal('0.001')))
+        self.camera_offset = self.params.get("CameraOffsetAdj") * 0.001
 
     if self.drive_close_to_edge: # kisapilot
       left_edge_prob = np.clip(1.0 - md.roadEdgeStds[0], 0.0, 1.0)
@@ -246,7 +245,7 @@ class LateralPlanner:
     if self.timer2 > 1.0:
       self.timer2 = 0.0
       if self.params.get_bool("KisaLiveTunePanelEnable"):
-        self.path_offset = (float(Decimal(self.params.get("PathOffsetAdj", encoding="utf8")) * Decimal('0.001')))
+        self.path_offset = self.params.get("PathOffsetAdj") * 0.001
     # Reduce reliance on lanelines that are too far apart or
     # will be in a few seconds
     path_xyz[:, 1] += (self.path_offset+self.path_offset2)
@@ -322,7 +321,7 @@ class LateralPlanner:
   def update(self, sm):
     self.second += DT_MDL
     if self.second > 1.0:
-      self.laneless_mode = int(Params().get("LanelessMode", encoding="utf8"))
+      self.laneless_mode = Params().get("LanelessMode")
       self.second = 0.0
 
     self.v_cruise_kph = sm['carState'].vCruise

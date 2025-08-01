@@ -2,22 +2,22 @@ from collections import deque
 import copy
 import math
 
-from cereal import car
-import cereal.messaging as messaging
-from opendbc.can.parser import CANParser
-from opendbc.can.can_define import CANDefine
+from opendbc.can import CANDefine, CANParser
 from opendbc.car import Bus, create_button_events, structs
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.hyundai.hyundaicanfd import CanBus
 from opendbc.car.hyundai.values import HyundaiFlags, CAR, DBC, Buttons, CarControllerParams
 from opendbc.car.interfaces import CarStateBase
+
+from cereal import car
+import cereal.messaging as messaging
 from openpilot.common.params import Params
 
 ButtonType = structs.CarState.ButtonEvent.Type
 
 PREV_BUTTON_SAMPLES = 8
 CLUSTER_SAMPLE_RATE = 20  # frames
-STANDSTILL_THRESHOLD = 12 * 0.03125 * CV.KPH_TO_MS
+STANDSTILL_THRESHOLD = 12 * 0.03125
 
 # Cancel button can sometimes be ACC pause/resume button, main button can also enable on some cars
 ENABLE_BUTTONS = (Buttons.RES_ACCEL, Buttons.SET_DECEL, Buttons.CANCEL)
@@ -88,13 +88,14 @@ class CarState(CarStateBase):
     self.prev_cruise_buttons = 0
     self.prev_gap_button = 0
     
-    self.steer_anglecorrection = float(int(Params().get("KisaSteerAngleCorrection", encoding="utf8")) * 0.1)
-    self.gear_correction = Params().get_bool("JustDoGearD")
-    self.set_spd_plus = int(Params().get("SetSpeedPlus", encoding="utf8"))
+    params = Params()
+    self.steer_anglecorrection = params.get("KisaSteerAngleCorrection") * 0.1
+    self.gear_correction = params.get_bool("JustDoGearD")
+    self.set_spd_plus = params.get("SetSpeedPlus")
     self.brake_check = False
     self.cancel_check = False
     
-    self.cruise_gap = int(Params().get("KisaCruiseGapSet", encoding="utf8"))
+    self.cruise_gap = params.get("KisaCruiseGapSet")
     self.is_highway = False
     self.cruise_active = False
 
@@ -117,14 +118,14 @@ class CarState(CarStateBase):
     self.acc_active = False
     self.acc_active_standby = False
     self.cruise_set_speed_kph = 0
-    self.cruise_set_mode = int(Params().get("CruiseStatemodeSelInit", encoding="utf8"))
+    self.cruise_set_mode = params.get("CruiseStatemodeSelInit")
     self.gasPressed = False
     self.cruiseGapSet = 4.0
 
-    self.ufc_mode = Params().get_bool("UFCModeEnabled")
-    self.user_specific_feature = int(Params().get("UserSpecificFeature", encoding="utf8"))
-    self.lfa_button_eng = Params().get_bool("LFAButtonEngagement")
-    self.long_alt = int(Params().get("KISALongAlt", encoding="utf8"))
+    self.ufc_mode = params.get_bool("UFCModeEnabled")
+    self.user_specific_feature = params.get("UserSpecificFeature")
+    self.lfa_button_eng = params.get_bool("LFAButtonEngagement")
+    self.long_alt = params.get("KISALongAlt")
     self.exp_engage_available = False
 
     self.exp_long = CP.sccBus <= 0 and self.CP.openpilotLongitudinalControl and not self.long_alt
@@ -138,7 +139,7 @@ class CarState(CarStateBase):
     self.i_pedal_max = False
     self.i_pedel_stop = False
 
-    self.no_mdps_mod = Params().get_bool("NoSmartMDPS")
+    self.no_mdps_mod = params.get_bool("NoSmartMDPS")
     self.low_speed_alert = False
     self.auto_hold = False
 
@@ -388,19 +389,16 @@ class CarState(CarStateBase):
 
     ret.seatbeltUnlatched = cp.vl["CGW1"]["CF_Gway_DrvSeatBeltSw"] == 0
 
-    ret.wheelSpeeds = self.get_wheel_speeds(
+    self.parse_wheel_speeds(ret,
       cp.vl["WHL_SPD11"]["WHL_SPD_FL"],
       cp.vl["WHL_SPD11"]["WHL_SPD_FR"],
       cp.vl["WHL_SPD11"]["WHL_SPD_RL"],
       cp.vl["WHL_SPD11"]["WHL_SPD_RR"],
     )
-    ret.vEgoRaw = (ret.wheelSpeeds.fl + ret.wheelSpeeds.fr + ret.wheelSpeeds.rl + ret.wheelSpeeds.rr) / 4.
-    ret.vEgo, ret.aEgo = self.update_speed_kf(ret.vEgoRaw)
-    ret.standstill = ret.wheelSpeeds.fl <= STANDSTILL_THRESHOLD and ret.wheelSpeeds.rr <= STANDSTILL_THRESHOLD
+    ret.standstill = cp.vl["WHL_SPD11"]["WHL_SPD_FL"] <= STANDSTILL_THRESHOLD and cp.vl["WHL_SPD11"]["WHL_SPD_RR"] <= STANDSTILL_THRESHOLD
 
     ret.vEgoOP = ret.vEgo
     ret.vEgo = cp.vl["CLU11"]["CF_Clu_Vanz"] * CV.MPH_TO_MS if bool(cp.vl["CLU11"]["CF_Clu_SPEED_UNIT"]) else cp.vl["CLU11"]["CF_Clu_Vanz"] * CV.KPH_TO_MS
-
 
     self.cluster_speed_counter += 1
     if self.cluster_speed_counter > CLUSTER_SAMPLE_RATE:
@@ -417,7 +415,6 @@ class CarState(CarStateBase):
 
     ret.steeringAngleDeg = cp.vl["SAS11"]["SAS_Angle"] - self.steer_anglecorrection
     ret.steeringRateDeg = cp.vl["SAS11"]["SAS_Speed"]
-    ret.yawRate = cp.vl["ESP12"]["YAW_RATE"]
     ret.leftBlinker, ret.rightBlinker = self.update_blinker_from_lamp(
       50, cp.vl["CGW1"]["CF_Gway_TurnSigLh"], cp.vl["CGW1"]["CF_Gway_TurnSigRh"])
     ret.steeringTorque = cp.vl["MDPS12"]["CR_Mdps_StrColTq"]
@@ -550,23 +547,21 @@ class CarState(CarStateBase):
 
     if self.CP.flags & (HyundaiFlags.HYBRID | HyundaiFlags.EV | HyundaiFlags.FCEV):
       if self.CP.flags & HyundaiFlags.FCEV:
-        ret.gas = cp.vl["FCEV_ACCELERATOR"]["ACCELERATOR_PEDAL"] / 254.
+        ret.gasPressed = cp.vl["FCEV_ACCELERATOR"]["ACCELERATOR_PEDAL"] > 0
         ret.engineRpm = 0
         ret.chargeMeter = 0
       elif self.CP.flags & HyundaiFlags.HYBRID:
-        ret.gas = cp.vl["E_EMS11"]["CR_Vcu_AccPedDep_Pos"] / 254.
+        ret.gasPressed = cp.vl["E_EMS11"]["CR_Vcu_AccPedDep_Pos"] > 0
         ret.engineRpm = cp.vl["E_EMS11"]["N"] # kisa
         ret.chargeMeter = 0
       else:
-        ret.gas = cp.vl["E_EMS11"]["Accel_Pedal_Pos"] / 254.
+        ret.gasPressed = cp.vl["E_EMS11"]["Accel_Pedal_Pos"] > 0
         ret.engineRpm = cp.vl["ELECT_GEAR"]["Elect_Motor_Speed"] * 30 # kisa, may multiply deceleration ratio in line with engine rpm
         if self.CP.evInfo:
           ret.chargeMeter = cp.vl["EV_Info"]["EV_Charge_Level"] # kisa
         else:
           ret.chargeMeter = 0
-      ret.gasPressed = ret.gas > 0
     else:
-      ret.gas = cp.vl["EMS12"]["PV_AV_CAN"] / 100.
       ret.gasPressed = bool(cp.vl["EMS16"]["CF_Ems_AclAct"])
       if self.CP.emsAvailable:
         ret.engineRpm = cp.vl["EMS_366"]["N"]
@@ -689,14 +684,12 @@ class CarState(CarStateBase):
     self.clu_Vanz = cp.vl["CRUISE_BUTTONS_ALT"]["CLUSTER_SPEED"]
 
     if self.CP.flags & (HyundaiFlags.EV | HyundaiFlags.HYBRID):
-      offset = 255. if self.CP.flags & HyundaiFlags.EV else 1023.
-      ret.gas = cp.vl[self.accelerator_msg_canfd]["ACCELERATOR_PEDAL"] / offset
-      ret.gasPressed = ret.gas > 1e-5
+      ret.gasPressed = cp.vl[self.accelerator_msg_canfd]["ACCELERATOR_PEDAL"] > 1e-5
     else:
       ret.gasPressed = bool(cp.vl[self.accelerator_msg_canfd]["ACCELERATOR_PEDAL_PRESSED"])
 
     ret.brakePressed = cp.vl["TCS"]["DriverBraking"] == 1
-    ret.brakeLights = bool(cp.vl["TCS"]["BRAKE_LIGHT"] or ret.brakePressed or self.auto_hold)
+    ret.brakeLights = bool(cp.vl["TCS"]["BRAKE_LIGHT"] or ret.brakePressed or self.auto_hold or self.i_pedel_stop)
 
     if self.CP.carFingerprint not in (CAR.KIA_EV3,):
       ret.doorOpen = cp.vl["DOORS_SEATBELTS"]["DRIVER_DOOR"] == 1
@@ -720,20 +713,17 @@ class CarState(CarStateBase):
       )
 
     # TODO: figure out positions
-    ret.wheelSpeeds = self.get_wheel_speeds(
+    self.parse_wheel_speeds(ret,
       cp.vl["WHEEL_SPEEDS"]["WHL_SpdFLVal"],
       cp.vl["WHEEL_SPEEDS"]["WHL_SpdFRVal"],
       cp.vl["WHEEL_SPEEDS"]["WHL_SpdRLVal"],
       cp.vl["WHEEL_SPEEDS"]["WHL_SpdRRVal"],
     )
-    ret.vEgoRaw = (ret.wheelSpeeds.fl + ret.wheelSpeeds.fr + ret.wheelSpeeds.rl + ret.wheelSpeeds.rr) / 4.
-    ret.vEgo, ret.aEgo = self.update_speed_kf(ret.vEgoRaw)
+    ret.standstill = cp.vl["WHEEL_SPEEDS"]["WHL_SpdFLVal"] <= STANDSTILL_THRESHOLD and cp.vl["WHEEL_SPEEDS"]["WHL_SpdFRVal"] <= STANDSTILL_THRESHOLD and \
+                     cp.vl["WHEEL_SPEEDS"]["WHL_SpdRLVal"] <= STANDSTILL_THRESHOLD and cp.vl["WHEEL_SPEEDS"]["WHL_SpdRRVal"] <= STANDSTILL_THRESHOLD
 
     ret.vEgoOP = ret.vEgo
     ret.vEgo = cp.vl["CRUISE_BUTTONS_ALT"]["CLUSTER_SPEED"] * CV.KPH_TO_MS if self.is_metric else cp.vl["CRUISE_BUTTONS_ALT"]["CLUSTER_SPEED"] * CV.MPH_TO_MS
-
-    ret.standstill = ret.wheelSpeeds.fl <= STANDSTILL_THRESHOLD and ret.wheelSpeeds.fr <= STANDSTILL_THRESHOLD and \
-                     ret.wheelSpeeds.rl <= STANDSTILL_THRESHOLD and ret.wheelSpeeds.rr <= STANDSTILL_THRESHOLD
 
     ret.steeringRateDeg = cp.vl["STEERING_SENSORS"]["STEERING_RATE"]
     ret.steeringAngleDeg = cp.vl["STEERING_SENSORS"]["STEERING_ANGLE"] + self.steer_anglecorrection
@@ -929,203 +919,22 @@ class CarState(CarStateBase):
     return ret
 
   def get_can_parsers_canfd(self, CP):
-    pt_messages = [
-      ("WHEEL_SPEEDS", 100),
-      ("STEERING_SENSORS", 100),
-      ("MDPS", 100),
-      ("TCS", 50),
-      ("CRUISE_BUTTONS_ALT", 50),
-      ("BLINKERS", 4),
-      ("DOORS_SEATBELTS", 4),
-    ]
-
-    if CP.flags & HyundaiFlags.EV:
-      pt_messages += [
-        ("ACCELERATOR", 100),
-        ("MANUAL_SPEED_LIMIT_ASSIST", 10),
-      ]
-    else:
-      pt_messages += [
-        (self.gear_msg_canfd, 100),
-        (self.accelerator_msg_canfd, 100),
-      ]
-
+    msgs = []
     if not (CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS):
-      pt_messages += [
+      # TODO: this can be removed once we add dynamic support to vl_all
+      msgs += [
         ("CRUISE_BUTTONS", 50)
       ]
-    elif CP.adrvControl:
-      pt_messages += [
-        ("CRUISE_BUTTONS", 50)
-      ]
-    elif CP.isAngleControl and not CP.adrvControl:
-      pt_messages += [
-        ("CRUISE_BUTTONS", 50)
-      ]
-
-    if CP.capacitiveSteeringWheel:
-      pt_messages += [
-        ("HOD_FD_01_100ms", 10)
-      ]
-
-    if CP.enableBsm and not CP.adrvControl:
-      pt_messages += [
-        ("BLINDSPOTS_REAR_CORNERS", 20),
-      ]
-
-    if not (CP.flags & HyundaiFlags.CANFD_CAMERA_SCC.value) and not CP.openpilotLongitudinalControl and not CP.adrvControl:
-      pt_messages += [
-        ("SCC_CONTROL", 50),
-      ]
-
-    if CP.adrvAvailable and CP.flags & HyundaiFlags.CANFD_LKA_STEERING and not CP.adrvControl:
-      pt_messages += [
-        ("ADRV_0x200", 20),
-      ]
-
-    if CP.tpmsAvailable:
-      pt_messages += [
-        ("TPMS", 5),
-      ]
-
-    if CP.autoHoldAvailable:
-      pt_messages += [
-        ("ESP_STATUS", 100),
-      ]
-
-    if CP.carFingerprint in (CAR.KIA_EV3,):
-      pt_messages.remove(("BLINKERS", 4))
-      pt_messages.remove(("DOORS_SEATBELTS", 4))
-      pt_messages.remove(("ACCELERATOR", 100))
-
-      pt_messages += [
-        ("ACCELERATOR", 50),
-      ]
-
-    cam_messages = []
-    if CP.flags & HyundaiFlags.CANFD_LKA_STEERING:
-      block_lfa_msg = "CAM_0x362" if CP.flags & HyundaiFlags.CANFD_LKA_STEERING_ALT else "CAM_0x2a4"
-      cam_messages += [(block_lfa_msg, 20)]
-      if CP.isAngleControl:
-        cam_messages += [
-          ("LKAS_ALT", 100),
-        ]
-    elif (CP.flags & HyundaiFlags.CANFD_CAMERA_SCC) or (CP.openpilotLongitudinalControl and CP.sccBus == 2):
-      cam_messages += [
-        ("SCC_CONTROL", 50),
-      ]
-      if (CP.adrvAvailable and not CP.flags & HyundaiFlags.CANFD_LKA_STEERING) or CP.adrvControl:
-        cam_messages += [
-          ("ADRV_0x200", 20),
-        ]
-    if CP.adrvControl:
-      cam_messages += [
-        ("BLINDSPOTS_REAR_CORNERS", 20),
-        ("LFA", 100),
-        ("ADAS_CMD_35_10ms", 100),
-        ("CCNC_0x161", 20),
-        ("CCNC_0x162", 20),
-        ("ADRV_0x1ea", 20),
-        ("ADRV_0x160", 20),
-      ]
-
     return {
-      Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], pt_messages, CanBus(CP).ECAN),
-      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], cam_messages, CanBus(CP).CAM),
+      Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], msgs, CanBus(CP).ECAN),
+      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [], CanBus(CP).CAM),
     }
 
   def get_can_parsers(self, CP):
     if CP.flags & HyundaiFlags.CANFD:
       return self.get_can_parsers_canfd(CP)
 
-    pt_messages = [
-      # address, frequency
-      ("MDPS12", 50),
-      ("TCS11", 100),
-      ("TCS13", 50),
-      ("TCS15", 10),
-      ("CLU11", 50),
-      ("CLU15", 5),
-      ("ESP12", 100),
-      ("CGW1", 10),
-      ("CGW2", 5),
-      ("CGW4", 5),
-      ("WHL_SPD11", 50),
-      ("SAS11", 100),
-    ]
-
-    if CP.sccBus == 0 and CP.pcmCruise and not (CP.flags & HyundaiFlags.CAMERA_SCC):
-      pt_messages += [
-        ("SCC11", 50),
-        ("SCC12", 50),
-      ]
-      if CP.flags & HyundaiFlags.USE_FCA.value:
-        pt_messages.append(("FCA11", 50))
-
-    if CP.enableBsm:
-      pt_messages.append(("LCA11", 50))
-
-    if CP.flags & (HyundaiFlags.HYBRID | HyundaiFlags.EV):
-      pt_messages.append(("E_EMS11", 50))
-      if (CP.flags & HyundaiFlags.EV) and CP.evInfo:
-        pt_messages.append(("EV_Info", 0))
-    elif CP.flags & HyundaiFlags.FCEV:
-      pt_messages.append(("FCEV_ACCELERATOR", 100))
-    else:
-      pt_messages += [
-        ("EMS12", 100),
-        ("EMS16", 100),
-      ]
-      if CP.emsAvailable:
-        pt_messages += [
-          ("EMS_366", 100),
-        ]
-
-    if CP.flags & (HyundaiFlags.HYBRID | HyundaiFlags.EV):
-      pt_messages.append(("ELECT_GEAR", 20))
-    elif CP.flags & HyundaiFlags.FCEV:
-      pt_messages.append(("EMS20", 100))
-    elif CP.flags & HyundaiFlags.CLUSTER_GEARS:
-      pass
-    elif CP.flags & HyundaiFlags.TCU_GEARS:
-      pt_messages.append(("TCU12", 100))
-    else:
-      pt_messages.append(("LVR12", 100))
-      if CP.lvrAvailable:
-        pt_messages.append(("LVR11", 100))
-
-
-    if CP.flags & HyundaiFlags.HAS_LDA_BUTTON:
-      pt_messages.append(("BCM_PO_11", 50))
-
-    if CP.tpmsAvailable:
-      pt_messages.append(("TPMS11", 0))
-
-    cam_messages = [
-      ("LKAS11", 100)
-    ]
-
-    if CP.openpilotLongitudinalControl and CP.sccBus == 2 or (CP.flags & HyundaiFlags.CAMERA_SCC):
-      cam_messages += [
-        ("SCC11", 50),
-        ("SCC12", 50),
-      ]
-
-      if CP.scc13Available:
-        cam_messages += [
-          ("SCC13", 50),
-        ]
-
-      if CP.scc14Available:
-        cam_messages += [
-          ("SCC14", 50),
-        ]
-
-      if CP.flags & HyundaiFlags.USE_FCA.value:
-        cam_messages.append(("FCA11", 50))
-
-
     return {
-      Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], pt_messages, 0),
-      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], cam_messages, 2),
+      Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], [], 0),
+      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [], 2),
     }

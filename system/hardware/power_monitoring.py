@@ -15,8 +15,8 @@ CAR_BATTERY_CAPACITY_uWh = 30e6
 CAR_CHARGING_RATE_W = 45
 
 VBATT_PAUSE_CHARGING = 11.8           # Lower limit on the LPF car battery voltage
-MAX_TIME_OFFROAD_S = np.interp(int(Params().get("KisaAutoShutdown", encoding="utf8")), [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14], [0,5,30,60,180,300,600,1800,3600,10800,18000,36000,86400,172800,259200]) \
-                      if Params().get("KisaAutoShutdown", encoding="utf8") is not None else 0 # 30*3600
+MAX_TIME_OFFROAD_S = np.interp(Params().get("KisaAutoShutdown"), [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14], [0,5,30,60,180,300,600,1800,3600,10800,18000,36000,86400,172800,259200]) \
+                      if Params().get("KisaAutoShutdown") is not None else 0 # 30*3600
 MIN_ON_TIME_S = 3600
 DELAY_SHUTDOWN_TIME_S = 300 # Wait at least DELAY_SHUTDOWN_TIME_S seconds after offroad_time to shutdown.
 VOLTAGE_SHUTDOWN_MIN_OFFROAD_TIME_S = 60
@@ -32,12 +32,10 @@ class PowerMonitoring:
     self.car_voltage_instant_mV = 12e3          # Last value of peripheralState voltage
     self.integration_lock = threading.Lock()
 
-    car_battery_capacity_uWh = self.params.get("CarBatteryCapacity")
-    if car_battery_capacity_uWh is None:
-      car_battery_capacity_uWh = 0
+    car_battery_capacity_uWh = self.params.get("CarBatteryCapacity") or 0
 
     # Reset capacity if it's low
-    self.car_battery_capacity_uWh = max((CAR_BATTERY_CAPACITY_uWh / 10), int(car_battery_capacity_uWh))
+    self.car_battery_capacity_uWh = max((CAR_BATTERY_CAPACITY_uWh / 10), car_battery_capacity_uWh)
 
   # Calculation tick
   def calculate(self, voltage: int | None, ignition: bool):
@@ -61,7 +59,7 @@ class PowerMonitoring:
       self.car_battery_capacity_uWh = max(self.car_battery_capacity_uWh, 0)
       self.car_battery_capacity_uWh = min(self.car_battery_capacity_uWh, CAR_BATTERY_CAPACITY_uWh)
       if now - self.last_save_time >= 10:
-        self.params.put_nonblocking("CarBatteryCapacity", str(int(self.car_battery_capacity_uWh)))
+        self.params.put_nonblocking("CarBatteryCapacity", int(self.car_battery_capacity_uWh))
         self.last_save_time = now
 
       # First measurement, set integration time

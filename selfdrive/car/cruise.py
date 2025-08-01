@@ -49,17 +49,17 @@ class VCruiseHelper:
     self.is_kph = self.params.get_bool("IsMetric")
     self.variable_cruise = self.params.get_bool("KisaVariableCruise")
 
-    self.osm_waze_spdlimit_offset = int(self.params.get("KisaSpeedLimitOffset", encoding="utf8"))
-    self.osm_waze_spdlimit_offset_option = int(self.params.get("KisaSpeedLimitOffsetOption", encoding="utf8"))
+    self.osm_waze_spdlimit_offset = self.params.get("KisaSpeedLimitOffset")
+    self.osm_waze_spdlimit_offset_option = self.params.get("KisaSpeedLimitOffsetOption")
     self.osm_speedlimit_enabled = self.params.get_bool("OSMSpeedLimitEnable")
     self.osm_waze_speedlimit = 255
     self.pause_spdlimit = False
     self.osm_waze_off_spdlimit_init = False
 
-    self.navi_selection = int(self.params.get("KISANaviSelect", encoding="utf8"))
+    self.navi_selection = self.params.get("KISANaviSelect")
 
-    self.osm_waze_custom_spdlimit_c = list(map(int, self.params.get("OSMCustomSpeedLimitC", encoding="utf8").split(',')))
-    self.osm_waze_custom_spdlimit_t = list(map(int, self.params.get("OSMCustomSpeedLimitT", encoding="utf8").split(',')))
+    self.osm_waze_custom_spdlimit_c = list(map(int, self.params.get("OSMCustomSpeedLimitC").split(',')))
+    self.osm_waze_custom_spdlimit_t = list(map(int, self.params.get("OSMCustomSpeedLimitT").split(',')))
 
     self.pause_spdlimit_push = False
     self.pause_spdlimit_push_cnt = 0
@@ -68,7 +68,7 @@ class VCruiseHelper:
 
     self.cruise_over_maxspeed = self.params.get_bool("CruiseOverMaxSpeed")
     self.cruise_road_limit_spd_enabled = self.params.get_bool("CruiseSetwithRoadLimitSpeedEnabled")
-    self.cruise_road_limit_spd_offset = int(self.params.get("CruiseSetwithRoadLimitSpeedOffset", encoding="utf8"))
+    self.cruise_road_limit_spd_offset = self.params.get("CruiseSetwithRoadLimitSpeedOffset")
 
     self.cruise_road_limit_spd_switch = True
     self.cruise_road_limit_spd_switch_prev = 0

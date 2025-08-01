@@ -8,7 +8,7 @@ import traceback
 from cereal import log
 import cereal.messaging as messaging
 import openpilot.system.sentry as sentry
-from openpilot.common.params import Params, ParamKeyType
+from openpilot.common.params import Params, ParamKeyFlag
 from openpilot.common.text_window import TextWindow
 from openpilot.system.hardware import HARDWARE
 from openpilot.system.manager.helpers import unblock_stdout, write_onroad_params, save_bootlog
@@ -19,8 +19,6 @@ from openpilot.common.swaglog import cloudlog, add_file_handler
 from openpilot.system.version import get_build_metadata, terms_version, training_version
 from openpilot.system.hardware.hw import Paths
 
-from openpilot.system.hardware import PC
-
 
 def manager_init() -> None:
   #save_bootlog()
@@ -28,231 +26,21 @@ def manager_init() -> None:
   build_metadata = get_build_metadata()
 
   params = Params()
-  params.clear_all(ParamKeyType.CLEAR_ON_MANAGER_START)
-  params.clear_all(ParamKeyType.CLEAR_ON_ONROAD_TRANSITION)
-  params.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
-  params.clear_all(ParamKeyType.CLEAR_ON_IGNITION_ON)
+  params.clear_all(ParamKeyFlag.CLEAR_ON_MANAGER_START)
+  params.clear_all(ParamKeyFlag.CLEAR_ON_ONROAD_TRANSITION)
+  params.clear_all(ParamKeyFlag.CLEAR_ON_OFFROAD_TRANSITION)
+  params.clear_all(ParamKeyFlag.CLEAR_ON_IGNITION_ON)
   if build_metadata.release_channel:
-    params.clear_all(ParamKeyType.DEVELOPMENT_ONLY)
-
-  default_params: list[tuple[str, str | bytes]] = [
-    ("CompletedTrainingVersion", "0"),
-    ("DisengageOnAccelerator", "0"),
-    ("GsmMetered", "1"),
-    ("HasAcceptedTerms", "0"),
-    ("LanguageSetting", "main_en"),
-    ("OpenpilotEnabledToggle", "1"),
-    ("LongitudinalPersonality", str(log.LongitudinalPersonality.standard)),
-    ("IsMetric", "1"),
-  ]
-
-  kisa_params: list[tuple[str, str | bytes]] = [
-    ("KisaAutoShutdown", "12"),
-    ("KisaAutoScreenOff", "-2"),
-    ("KisaUIBrightness", "0"),
-    ("KisaUIVolumeBoost", "0"),
-    ("KisaEnableLogger", "0"),
-    ("KisaEnableUploader", "0"),
-    ("KisaAutoResume", "1"),
-    ("KisaVariableCruise", "1"),
-    ("KisaLaneChangeSpeed", "20"),
-    ("KisaAutoLaneChangeDelay", "0"),
-    ("KisaSteerAngleCorrection", "0"),
-    ("PutPrebuiltOn", "0"),
-    ("LdwsCarFix", "0"),
-    ("LateralControlMethod", "3"),
-    ("CruiseStatemodeSelInit", "1"),
-    ("InnerLoopGain", "35"),
-    ("OuterLoopGain", "20"),
-    ("TimeConstant", "14"),
-    ("ActuatorEffectiveness", "20"),
-    ("Scale", "1500"),
-    ("LqrKi", "16"),
-    ("DcGain", "265"),
-    ("PidKp", "25"),
-    ("PidKi", "40"),
-    ("PidKd", "150"),
-    ("PidKf", "7"),
-    ("TorqueKp", "10"),
-    ("TorqueKf", "10"),
-    ("TorqueKi", "3"),
-    ("TorqueFriction", "80"),
-    ("TorqueMaxLatAccel", "30"),
-    ("TorqueAngDeadZone", "10"),
-    ("CameraOffsetAdj", "40"),
-    ("PathOffsetAdj", "0"),
-    ("SteerRatioAdj", "1375"),
-    ("SteerActuatorDelayAdj", "15"),
-    ("SteerLimitTimerAdj", "100"),
-    ("TireStiffnessFactorAdj", "85"),
-    ("SteerMaxAdj", "384"),
-    ("SteerDeltaUpAdj", "3"),
-    ("SteerDeltaDownAdj", "7"),
-    ("LeftCurvOffsetAdj", "0"),
-    ("RightCurvOffsetAdj", "0"),
-    ("DebugUi1", "0"),
-    ("DebugUi2", "0"),
-    ("DebugUi3", "0"),
-    ("LongLogDisplay", "0"),
-    ("KisaBlindSpotDetect", "1"),
-    ("KisaMaxAngleLimit", "80"),
-    ("KisaSteerMethod", "0"),
-    ("KisaMaxSteeringAngle", "90"),
-    ("KisaMaxDriverAngleWait", "0.002"),
-    ("KisaMaxSteerAngleWait", "0.001"),
-    ("KisaDriverAngleWait", "0.001"),
-    ("KisaSpeedLimitOffset", "0"),
-    ("KisaLiveSteerRatio", "1"),
-    ("KisaDrivingRecord", "0"),
-    ("KisaTurnSteeringDisable", "0"),
-    ("CarModel", ""),
-    ("KisaHotspotOnBoot", "0"),
-    ("KisaSSHLegacy", "1"),
-    ("CruiseOverMaxSpeed", "0"),
-    ("JustDoGearD", "0"),
-    ("LanelessMode", "2"),
-    ("SteerThreshold", "150"),
-    ("RecordingCount", "200"),
-    ("RecordingRunning", "0"),
-    ("CruiseGapAdjust", "0"),
-    ("AutoEnable", "0"),
-    ("CruiseAutoRes", "0"),
-    ("AutoResOption", "0"),
-    ("AutoResCondition", "0"),
-    ("KisaMonitoringMode", "0"),
-    ("KisaMonitorEyesThreshold", "45"),
-    ("KisaMonitorBlinkThreshold", "75"),
-    ("UFCModeEnabled", "0"),
-    ("LFAButtonEngagement", "0"),    
-    ("SteerWarningFix", "0"),
-    ("CruiseGap1", "11"),
-    ("CruiseGap2", "12"),
-    ("CruiseGap3", "13"),
-    ("CruiseGap4", "15"),
-    ("DynamicTRGap", "1"),
-    ("DynamicTRSpd", "0,20,40,60,110"),
-    ("DynamicTRSet", "1.1,1.2,1.3,1.4,1.5"),
-    ("LCTimingFactorUD", "1"),
-    ("LCTimingFactor30", "30"),
-    ("LCTimingFactor60", "60"),
-    ("LCTimingFactor80", "80"),
-    ("LCTimingFactor110", "100"),
-    ("KisaUIBrightnessOff", "10"),
-    ("LCTimingFactorEnable", "0"),
-    ("AutoEnableSpeed", "5"),
-    ("SafetyCamDecelDistGain", "0"),
-    ("KisaLiveTunePanelEnable", "0"),
-    ("RadarLongHelper", "2"),
-    ("LiveSteerRatioPercent", "0"),
-    ("StoppingDistAdj", "0"),
-    ("ShowError", "1"),
-    ("AutoResLimitTime", "0"),
-    ("VCurvSpeedC", "30,50,70,90"),
-    ("VCurvSpeedT", "43,58,73,87"),
-    ("VCurvSpeedCMPH", "20,30,45,60"),
-    ("VCurvSpeedTMPH", "27,36,46,57"),
-    ("OCurvSpeedC", "30,40,50,60,70"),
-    ("OCurvSpeedT", "35,45,60,70,80"),
-    ("OSMCustomSpeedLimitC", "30,40,50,60,70,90"),
-    ("OSMCustomSpeedLimitT", "30,40,65,72,80,95"),
-    ("StockNaviSpeedEnabled", "0"),
-    ("KISANaviSelect", "0"),
-    ("E2ELong", "0"),
-    ("IgnoreCANErroronISG", "0"),
-    ("RESCountatStandstill", "20"),
-    ("KisaSpeedLimitOffsetOption", "0"),
-    ("KisaSpeedLimitSignType", "0"),
-    ("StockLKASEnabled", "0"),
-    ("SpeedLimitDecelOff", "0"),
-    ("CurvDecelOption", "2"),
-    ("StandstillResumeAlt", "0"),
-    ("AutoRESDelay", "1"),
-    ("UseRadarTrack", "0"),
-    ("RadarDisable", "0"),
-    ("DesiredCurvatureLimit", "10"),
-    ("CustomTREnabled", "1"),
-    ("RoadList", "RoadName1,+0.0,RoadName2,-0.0\nRoadName3,30,RoadName4,60"),
-    ("LaneWidth", "37"),
-    ("SpdLaneWidthSpd", "0,31"),
-    ("SpdLaneWidthSet", "2.8,3.5"),
-    ("BottomTextView", "0"),
-    ("CloseToRoadEdge", "0"),
-    ("LeftEdgeOffset", "0"),
-    ("RightEdgeOffset", "0"),
-    ("AvoidLKASFaultEnabled", "1"),
-    ("AvoidLKASFaultMaxAngle", "85"),
-    ("AvoidLKASFaultMaxFrame", "89"),
-    ("AvoidLKASFaultBeyond", "0"),
-    ("UseStockDecelOnSS", "0"),
-    ("AnimatedRPM", "1"),
-    ("AnimatedRPMMax", "3600"),
-    ("RoutineDriveOption", "KISA"),
-    ("SshEnabled", "1"),
-    ("UserSpecificFeature", "0"),
-    ("KisaWakeUp", "0"),
-    ("MultipleLateralUse", "2"),
-    ("MultipleLateralOpS", "3,3,0"),
-    ("MultipleLateralSpd", "60,90"),
-    ("MultipleLateralOpA", "3,3,0"),
-    ("MultipleLateralAng", "20,35"),
-    ("StoppingDist", "35"),
-    ("StopAtStopSign", "0"),
-    ("VarCruiseSpeedFactor", "15"),
-    ("KISASpeedBump", "0"),
-    ("KISAEarlyStop", "1"),
-    ("DoNotDisturbMode", "0"),
-    ("DepartChimeAtResume", "0"),
-    ("CommaStockUI", "0"),
-    ("CruiseGapBySpdOn", "0"),
-    ("CruiseGapBySpdSpd", "25,55,130"),
-    ("CruiseGapBySpdGap", "1,2,3,4"),
-    ("CruiseSetwithRoadLimitSpeedEnabled", "0"),
-    ("CruiseSetwithRoadLimitSpeedOffset", "0"),
-    ("KisaLiveTorque", "1"),
-    ("ExternalDeviceIP", ""),
-    ("ExternalDeviceIPAuto", "1"),
-    ("ExternalDeviceIPNow", ""),
-    ("SetSpeedPlus", "0"),
-    ("KISALongAlt", "0"),
-    ("LowUIProfile", "0"),
-    ("RunCustomCommand", "0"),
-    ("CruiseSpammingSpd", "50,80,110"),
-    ("CruiseSpammingLevel", "15,10,5,0"),
-    ("KisaCruiseGapSet", "4"),
-    ("UseLegacyLaneModel", "2"),
-    ("DrivingModel", "DrivingModel"),
-    ("GitCommitRemote", "0000000000000000000000000000000000000000"),
-    ("GitCommitRemoteDate", "00-00"),
-    ("LCTimingKeepFactorLeft", "10"),
-    ("LCTimingKeepFactorRight", "10"),
-    ("LCTimingKeepFactorEnable", "1"),
-    ("KISACruiseSpammingInterval", "7"),
-    ("KISACruiseSpammingBtnCount", "1"),
-    ("UseRadarValue", "1"),
-    ("RegenBrakeFeature", "0"),
-    ("RegenBrakeFeatureOn", "0"),
-    ("TimeFactorModHours", "0"),
-    ("TimeFactorModMinutes", "0"),
-  ]
-
-  if not PC:
-    default_params += kisa_params
-  else:
-    for param_name, param_value in kisa_params:
-      file_path = os.path.expanduser(f"~/.comma/params/d/{param_name}")
-      try:
-        with open(file_path, "w") as file:
-          file.write(param_value)
-      except:
-        print(f"Error writing to {file_path}: {e}")
+    params.clear_all(ParamKeyFlag.DEVELOPMENT_ONLY)
 
   if params.get_bool("RecordFrontLock"):
     params.put_bool("RecordFront", True)
 
-  # set unset params
-  for k, v in default_params:
-    if params.get(k) is None:
-      params.put(k, v)
+  # set unset params to their default value
+  for k in params.all_keys():
+    default_value = params.get_default_value(k)
+    if default_value and params.get(k) is None:
+      params.put(k, default_value)
 
   # kisapilot
   if os.path.isfile('/data/User_Params.txt'):
@@ -337,7 +125,7 @@ def manager_thread() -> None:
   params = Params()
 
   ignore: list[str] = []
-  if params.get("DongleId", encoding='utf8') in (None, UNREGISTERED_DONGLE_ID):
+  if params.get("DongleId") in (None, UNREGISTERED_DONGLE_ID):
     ignore += ["manage_athenad", "uploader"]
   if os.getenv("NOBOARD") is not None:
     ignore.append("pandad")
@@ -358,13 +146,13 @@ def manager_thread() -> None:
     started = sm['deviceState'].started
 
     if started and not started_prev:
-      params.clear_all(ParamKeyType.CLEAR_ON_ONROAD_TRANSITION)
+      params.clear_all(ParamKeyFlag.CLEAR_ON_ONROAD_TRANSITION)
     elif not started and started_prev:
-      params.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
+      params.clear_all(ParamKeyFlag.CLEAR_ON_OFFROAD_TRANSITION)
 
     ignition = any(ps.ignitionLine or ps.ignitionCan for ps in sm['pandaStates'] if ps.pandaType != log.PandaState.PandaType.unknown)
     if ignition and not ignition_prev:
-      params.clear_all(ParamKeyType.CLEAR_ON_IGNITION_ON)
+      params.clear_all(ParamKeyFlag.CLEAR_ON_IGNITION_ON)
 
     # update onroad params, which drives pandad's safety setter thread
     if started != started_prev:

@@ -8,10 +8,6 @@
         <translation>닫기</translation>
     </message>
     <message>
-        <source>Snooze Update</source>
-        <translation>업데이트 일시 중지</translation>
-    </message>
-    <message>
         <source>Reboot and Update</source>
         <translation>업데이트 및 재부팅</translation>
     </message>
@@ -497,10 +493,6 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
         <translation>NVMe 드라이브가 마운트되지 않았습니다.</translation>
     </message>
     <message>
-        <source>Unsupported NVMe drive detected. Device may draw significantly more power and overheat due to the unsupported NVMe.</source>
-        <translation>지원되지 않는 NVMe 드라이브가 감지되었습니다. 지원되지 않는 NVMe 드라이브는 많은 전력을 소비하고 장치를 과열시킬 수 있습니다.</translation>
-    </message>
-    <message>
         <source>openpilot was unable to identify your car. Your car is either unsupported or its ECUs are not recognized. Please submit a pull request to add the firmware versions to the proper vehicle. Need help? Join discord.comma.ai.</source>
         <translation>오픈파일럿이 차량을 식별할 수 없습니다. 지원되지 않는 차량이거나 ECU가 인식되지 않습니다. 해당 차량에 맞는 펌웨어 버전을 추가하려면 PR을 제출하세요. 도움이 필요하시면 discord.comma.ai에 참여하세요.</translation>
     </message>
@@ -514,6 +506,18 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>Device failed to register with the comma.ai backend. It will not connect or upload to comma.ai servers, and receives no support from comma.ai. If this is a device purchased at comma.ai/shop, open a ticket at https://comma.ai/support.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Acknowledge Excessive Actuation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snooze Update</source>
+        <translation type="unfinished">업데이트 일시 중지</translation>
+    </message>
+    <message>
+        <source>openpilot has detected excessive %1 actuation. This may be due to a software bug. Please contact support at https://comma.ai/support.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -658,47 +662,6 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     <message>
         <source>now</source>
         <translation>now</translation>
-    </message>
-</context>
-<context>
-    <name>Reset</name>
-    <message>
-        <source>Reset failed. Reboot to try again.</source>
-        <translation>초기화 실패. 재부팅 후 다시 시도하세요.</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to reset your device?</source>
-        <translation>장치를 초기화하시겠습니까?</translation>
-    </message>
-    <message>
-        <source>System Reset</source>
-        <translation>장치 초기화</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>취소</translation>
-    </message>
-    <message>
-        <source>Reboot</source>
-        <translation>재부팅</translation>
-    </message>
-    <message>
-        <source>Confirm</source>
-        <translation>확인</translation>
-    </message>
-    <message>
-        <source>Unable to mount data partition. Partition may be corrupted. Press confirm to erase and reset your device.</source>
-        <translation>데이터 파티션을 마운트할 수 없습니다. 파티션이 손상되었을 수 있습니다. 모든 설정을 삭제하고 장치를 초기화하려면 확인을 누르세요.</translation>
-    </message>
-    <message>
-        <source>Resetting device...
-This may take up to a minute.</source>
-        <translation>장치를 초기화하는 중...
-최대 1분이 소요될 수 있습니다.</translation>
-    </message>
-    <message>
-        <source>System reset triggered. Press confirm to erase all content and settings. Press cancel to resume boot.</source>
-        <translation>시스템 재설정이 시작되었습니다. 모든 콘텐츠와 설정을 지우려면 확인을 누르시고 부팅을 재개하려면 취소를 누르세요.</translation>
     </message>
 </context>
 <context>
@@ -1206,41 +1169,6 @@ If you&apos;d like to proceed, use https://flash.comma.ai to restore your device
     <message>
         <source>Record and store microphone audio while driving. The audio will be included in the dashcam video in comma connect.</source>
         <translation>운전 중에 마이크 오디오를 녹음하고 저장하십시오. 오디오는 comma connect의 대시캠 비디오에 포함됩니다.</translation>
-    </message>
-</context>
-<context>
-    <name>Updater</name>
-    <message>
-        <source>Update Required</source>
-        <translation>업데이트 필요</translation>
-    </message>
-    <message>
-        <source>An operating system update is required. Connect your device to Wi-Fi for the fastest update experience. The download size is approximately 1GB.</source>
-        <translation>OS 업데이트가 필요합니다. 장치를 Wi-Fi에 연결하면 가장 빠르게 업데이트할 수 있습니다. 다운로드 크기는 약 1GB입니다.</translation>
-    </message>
-    <message>
-        <source>Connect to Wi-Fi</source>
-        <translation>Wi-Fi 연결</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>설치</translation>
-    </message>
-    <message>
-        <source>Back</source>
-        <translation>뒤로</translation>
-    </message>
-    <message>
-        <source>Loading...</source>
-        <translation>로딩 중...</translation>
-    </message>
-    <message>
-        <source>Reboot</source>
-        <translation>재부팅</translation>
-    </message>
-    <message>
-        <source>Update failed</source>
-        <translation>업데이트 실패</translation>
     </message>
 </context>
 <context>
@@ -2906,17 +2834,6 @@ If you&apos;d like to proceed, use https://flash.comma.ai to restore your device
     </message>
 </context>
 <context>
-    <name>DesiredCurvatureLimit</name>
-    <message>
-        <source>DesiredCurvatureLimit</source>
-        <translation>DesiredCurvatureLimit</translation>
-    </message>
-    <message>
-        <source>Adjust DisiredCurvatureLimit, Default is 0.05(DT_MDL), For HKG, maybe 0.2 is preferred from user&apos;s experience. If the steering digs into inside on intersection, upper the value. And then it will limit your scope of steering angle. In case of opposite situation, lower the value. this is multiplier of desired curvature rate not real limit value.</source>
-        <translation>DisiredCurvatureLimit 조정합니다. 기본값은 0.05(DT_MDL)입니다. HKG의 경우 사용자의 경험에 의해 0.2가 선호됩니다. 스티어링이 교차로에서 안쪽으로 파고들면 값을 높입니다. 그러면 스티어링 각도의 범위가 제한될 것입니다. 반대의 경우 값을 낮춥니다. 이것은 실제 제한값이 아닌 원하는 곡률 속도의 승수입니다.</translation>
-    </message>
-</context>
-<context>
     <name>DynamicTRUD</name>
     <message>
         <source>DynamicTR: [Speed] [TRs]</source>
@@ -3132,17 +3049,6 @@ If you&apos;d like to proceed, use https://flash.comma.ai to restore your device
     <message>
         <source>Car starts to stop under the value.</source>
         <translation>차간거리가 해당값 이하로 되면 차가 멈추기 시작합니다.</translation>
-    </message>
-</context>
-<context>
-    <name>VariableCruiseLevel</name>
-    <message>
-        <source>Button Spamming Level</source>
-        <translation>크루즈 가감속 레벨</translation>
-    </message>
-    <message>
-        <source>High values make early stopping and starting, but might be not comfortable. Low values are the opposite.</source>
-        <translation>값이 높으면 가감속 수치 변화가 빨라 이른 가감속이 가능할수도 있지만 사용에 불편할 수 있습니다. 낮은 값은 그 반대입니다.</translation>
     </message>
 </context>
 <context>
@@ -3460,17 +3366,6 @@ If you&apos;d like to proceed, use https://flash.comma.ai to restore your device
     </message>
 </context>
 <context>
-    <name>E2ELongToggle</name>
-    <message>
-        <source>Enable E2E Long</source>
-        <translation>E2E 롱 사용</translation>
-    </message>
-    <message>
-        <source>Activate E2E Long. It may work unexpectedly. Be careful.</source>
-        <translation>E2E 롱을 활성화합니다. 예기치 않게 작동할 수 있습니다. 조심하세요.</translation>
-    </message>
-</context>
-<context>
     <name>StopAtStopSignToggle</name>
     <message>
         <source>Stop at Stop Sign</source>
@@ -3581,17 +3476,6 @@ If you&apos;d like to proceed, use https://flash.comma.ai to restore your device
     </message>
 </context>
 <context>
-    <name>RadarDisableToggle</name>
-    <message>
-        <source>Disable Radar</source>
-        <translation>레이더 사용 안 함</translation>
-    </message>
-    <message>
-        <source>This is pre-requisite for LongControl of HKG. It seems that this affects AEB. So do not use this if you have any concern.</source>
-        <translation>이것은 HKG의 Long Control을 위한 전제 조건입니다. 이것은 AEB에 영향을 미치는 것 같습니다. 해당 부분이 우려가 된다면 이것을 사용하지 마세요.</translation>
-    </message>
-</context>
-<context>
     <name>C2WithCommaPowerToggle</name>
     <message>
         <source>C2 with CommaPower</source>
@@ -3644,17 +3528,6 @@ If you&apos;d like to proceed, use https://flash.comma.ai to restore your device
     <message>
         <source>to avoid LKAS fault above max angle limit(car specific). This is live value. Find out your maxframe while driving.</source>
         <translation>최대 조향각(MaxAngle)을 초과시 LKAS Fault를 방지합니다. 이것은 라이브 밸류입니다. 운전하면서 LKAS Fault가 발생하지 않는 차량의 MaxFrame을 찾아보십시오.</translation>
-    </message>
-</context>
-<context>
-    <name>ToAvoidLKASFaultBeyondToggle</name>
-    <message>
-        <source>To Avoid LKAS Fault with More Steer</source>
-        <translation>LKAS Fault 방지와 변경 판다값 적용 </translation>
-    </message>
-    <message>
-        <source>This is just in case you are using other panda setting.(delta updown, maxsteer, rtdelta and etc).</source>
-        <translation>판다 설정을 기본값에서 높여서 쓸경우를 대비해서입니다. (델타 업다운, MAX스티어, RT델다 등)</translation>
     </message>
 </context>
 <context>

@@ -19,7 +19,6 @@ ActuatorEffectiveness:20
 Scale:1500
 LqrKi:16
 DcGain:265
-IgnoreZone:0
 PidKp:25
 PidKi:40
 PidKd:150
@@ -102,7 +101,6 @@ OCurvSpeedT:35,45,60,70,80
 OSMCustomSpeedLimitC:30,40,50,60,70,90
 OSMCustomSpeedLimitT:30,40,65,72,80,95
 StockNaviSpeedEnabled:0
-E2ELong:0
 OSMEnable:0
 OSMSpeedLimitEnable:0
 RESCountatStandstill:18
@@ -111,8 +109,6 @@ StockLKASEnabled:0
 CurvDecelOption:2
 AutoRESDelay:1
 UseRadarTrack:0
-RadarDisable:0
-DesiredCurvatureLimit:10
 LaneWidth:37
 SpdLaneWidthSpd:0,31
 SpdLaneWidthSet:2.8,3.5
@@ -122,7 +118,6 @@ RightEdgeOffset:0
 AvoidLKASFaultEnabled:1
 AvoidLKASFaultMaxAngle:85
 AvoidLKASFaultMaxFrame:89
-AvoidLKASFaultBeyond:0
 UseStockDecelOnSS:0
 AnimatedRPM:1
 AnimatedRPMMax:3600
@@ -135,7 +130,6 @@ MultipleLateralAng:20,35
 StoppingDist:35
 SpeedCameraOffset:0
 StopAtStopSign:0
-VarCruiseSpeedFactor:15
 KISASpeedBump:0
 KISAEarlyStop:1
 DoNotDisturbMode:0

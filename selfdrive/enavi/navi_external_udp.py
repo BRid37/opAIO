@@ -38,7 +38,7 @@ class ENaviUDP:
     self.cnt1 = self.cnt2 = 0
     self.cnt_threshold = 1
 
-    self.navi_selection = int(Params().get("KISANaviSelect", encoding="utf8"))
+    self.navi_selection = Params().get("KISANaviSelect")
     self.is_metric = Params().get_bool("IsMetric")
 
     self.lock = threading.Lock()

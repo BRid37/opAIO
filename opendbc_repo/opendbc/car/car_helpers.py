@@ -15,7 +15,7 @@ from openpilot.common.params import Params
 
 FRAME_FINGERPRINT = 100  # 1s
 
-CAR_NAME = Params().get("CarModel", encoding="utf8")
+CAR_NAME = Params().get("CarModel")
 
 def load_interfaces(brand_names):
   ret = {}

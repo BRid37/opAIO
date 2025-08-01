@@ -10,7 +10,6 @@ CONTROL_N_T_IDX = ModelConstants.T_IDXS[:CONTROL_N]
 LongCtrlState = car.CarControl.Actuators.LongControlState
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
-from decimal import Decimal
 
 import openpilot.common.log as trace1
 LongitudinalPlanSource = log.LongitudinalPlan.LongitudinalPlanSource
@@ -62,7 +61,7 @@ class LongControl:
     self.long_plan_source = ""
 
     self.long_log = Params().get_bool("LongLogDisplay")
-    self.stopping_dist = float(Decimal(Params().get("StoppingDist", encoding="utf8"))*Decimal('0.1'))
+    self.stopping_dist = Params().get("StoppingDist") * 0.1
 
     self.loc_timer = 0
 

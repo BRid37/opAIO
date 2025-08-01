@@ -37,12 +37,12 @@ class CarControllerParams:
   )
 
   def __init__(self, CP):
-    self.STEER_DELTA_UP = int(Params().get("SteerDeltaUpAdj", encoding="utf8"))  # default 3
-    self.STEER_DELTA_DOWN = int(Params().get("SteerDeltaDownAdj", encoding="utf8"))  # default 7
+    self.STEER_DELTA_UP = Params().get("SteerDeltaUpAdj")  # default 3
+    self.STEER_DELTA_DOWN = Params().get("SteerDeltaDownAdj")  # default 7
     self.STEER_DRIVER_ALLOWANCE = 50
     self.STEER_DRIVER_MULTIPLIER = 2
     self.STEER_DRIVER_FACTOR = 1
-    self.STEER_THRESHOLD = int(Params().get("SteerThreshold", encoding="utf8"))  # default 150
+    self.STEER_THRESHOLD = Params().get("SteerThreshold")  # default 150
     self.STEER_STEP = 1  # 100 Hz
 
     if CP.flags & HyundaiFlags.CANFD:
@@ -61,7 +61,7 @@ class CarControllerParams:
 
     # Default for most HKG
     else:
-      self.STEER_MAX = int(Params().get("SteerMaxAdj", encoding="utf8"))  # default 384
+      self.STEER_MAX = Params().get("SteerMaxAdj")  # default 384
 
 
 class HyundaiSafetyFlags(IntFlag):

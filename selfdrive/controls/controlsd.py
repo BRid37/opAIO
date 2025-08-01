@@ -23,11 +23,9 @@ from openpilot.selfdrive.controls.lib.latcontrol_atom import LatControlATOM
 from openpilot.selfdrive.controls.lib.longcontrol import LongControl
 from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose
 
-
-from decimal import Decimal
 import openpilot.common.log as trace1
 
-USE_LEGACY_LANE_MODEL = int(Params().get("UseLegacyLaneModel", encoding="utf8")) if Params().get("UseLegacyLaneModel", encoding="utf8") is not None else 0
+USE_LEGACY_LANE_MODEL = Params().get("UseLegacyLaneModel") if Params().get("UseLegacyLaneModel") is not None else 0
 
 State = log.SelfdriveState.OpenpilotState
 if USE_LEGACY_LANE_MODEL:
@@ -89,25 +87,25 @@ class Controls:
       self.LaC = LatControlATOM(self.CP, self.CI)
       self.lateral_control_method = 4
 
-    self.new_steerRatio = float(Decimal(self.params.get("SteerRatioAdj", encoding="utf8"))*Decimal('0.01'))
+    self.new_steerRatio = self.params.get("SteerRatioAdj") * 0.01
     self.steerRatio_to_send = 0
     self.live_sr = self.params.get_bool("KisaLiveSteerRatio")
-    self.live_sr_percent = int(self.params.get("LiveSteerRatioPercent", encoding="utf8"))
+    self.live_sr_percent = self.params.get("LiveSteerRatioPercent")
 
     self.ready_timer = 0
     self.osm_speedlimit_enabled = self.params.get_bool("OSMSpeedLimitEnable")
     try:
-      self.roadname_and_slc = self.params.get("RoadList", encoding="utf8").strip().splitlines()[1].split(',')
+      self.roadname_and_slc = self.params.get("RoadList").strip().splitlines()[1].split(',')
     except:
       self.roadname_and_slc = ""
       pass
 
     self.var_cruise_speed_factor = 0
-    self.cruise_spamming_level = list(map(int, self.params.get("CruiseSpammingLevel", encoding="utf8").split(',')))
-    self.cruise_spamming_spd = list(map(int, self.params.get("CruiseSpammingSpd", encoding="utf8").split(',')))
+    self.cruise_spamming_level = list(map(int, self.params.get("CruiseSpammingLevel").split(',')))
+    self.cruise_spamming_spd = list(map(int, self.params.get("CruiseSpammingSpd").split(',')))
     self.desired_angle_deg = 0
-    self.navi_selection = int(self.params.get("KISANaviSelect", encoding="utf8"))
-    self.legacy_lane_mode = int(self.params.get("UseLegacyLaneModel", encoding="utf8"))
+    self.navi_selection = self.params.get("KISANaviSelect")
+    self.legacy_lane_mode = self.params.get("UseLegacyLaneModel")
     self.standstill_elapsed_time = 0.0
     self.timer = 0.0
 
@@ -123,7 +121,7 @@ class Controls:
     if self.timer > 1.0:
       self.timer = 0.0
       self.live_sr = self.params.get_bool("KisaLiveSteerRatio")
-      self.live_sr_percent = int(self.params.get("LiveSteerRatioPercent", encoding="utf8"))
+      self.live_sr_percent = self.params.get("LiveSteerRatioPercent")
 
   def state_control(self):
     CS = self.sm['carState']

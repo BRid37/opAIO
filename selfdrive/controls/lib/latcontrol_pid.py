@@ -5,7 +5,6 @@ from openpilot.selfdrive.controls.lib.latcontrol import LatControl
 from openpilot.common.pid import PIDController
 
 from openpilot.common.params import Params
-from decimal import Decimal
 
 class LatControlPID(LatControl):
   def __init__(self, CP, CI):
@@ -31,10 +30,10 @@ class LatControlPID(LatControl):
   def live_tune(self):
     self.mpc_frame += 1
     if self.mpc_frame % 300 == 0:
-      self.steerKpV = float(Decimal(self.params.get("PidKp", encoding="utf8")) * Decimal('0.01'))
-      self.steerKiV = float(Decimal(self.params.get("PidKi", encoding="utf8")) * Decimal('0.001'))
-      self.steerKf = float(Decimal(self.params.get("PidKf", encoding="utf8")) * Decimal('0.00001'))
-      self.steerKd = float(Decimal(self.params.get("PidKd", encoding="utf8")) * Decimal('0.01'))
+      self.steerKpV = self.params.get("PidKp") * 0.01
+      self.steerKiV = self.params.get("PidKi") * 0.001
+      self.steerKf = self.params.get("PidKf") * 0.00001
+      self.steerKd = self.params.get("PidKd") * 0.01
       self.pid = PIDController(([0., 9.], [0.1, self.steerKpV]),
                           ([0., 9.], [0.01, self.steerKiV]),
                           k_f=self.steerKf, k_d=self.steerKd,

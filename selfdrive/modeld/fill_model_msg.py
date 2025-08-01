@@ -10,7 +10,7 @@ SEND_RAW_PRED = os.getenv('SEND_RAW_PRED')
 
 ConfidenceClass = log.ModelDataV2.ConfidenceClass
 
-USE_LEGACY_LANE_MODEL = int(Params().get("UseLegacyLaneModel", encoding="utf8")) if Params().get("UseLegacyLaneModel", encoding="utf8") is not None else 0
+USE_LEGACY_LANE_MODEL = Params().get("UseLegacyLaneModel") if Params().get("UseLegacyLaneModel") is not None else 0
 
 class PublishState:
   def __init__(self):

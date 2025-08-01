@@ -137,16 +137,16 @@ function launch {
     $1 == p && $2 == v && $4 == ph && $5 == vh {
       print $3;
     }
-  ' /data/openpilot/selfdrive/assets/addon/model/ModelList)
+  ' /data/openpilot/selfdrive/modeld/models/ModelList)
 
   if [ -z "$MODEL_NAME" ]; then
     MODEL_NAME=$(awk -v p="$Model_P" -v v="$Model_V" '
       $1 == p && $2 == v {
         print $3;
       }
-    ' /data/openpilot/selfdrive/assets/addon/model/ModelList)
+    ' /data/openpilot/selfdrive/modeld/models/ModelList)
   fi
-  if [ -z "$MODEL_NAME" ]; then MODEL_NAME=$(head -n 1 /data/openpilot/selfdrive/assets/addon/model/ModelList | awk '{print $3}'); fi
+  if [ -z "$MODEL_NAME" ]; then MODEL_NAME=$(head -n 1 /data/openpilot/selfdrive/modeld/models/ModelList | awk '{print $3}'); fi
   echo -en "$MODEL_NAME" > /data/params/d/DrivingModel
 
   # start manager

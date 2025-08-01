@@ -9,17 +9,16 @@ from typing import Any, NamedTuple
 from collections.abc import Callable
 from functools import cache
 
-from opendbc.car import DT_CTRL, apply_hysteresis, gen_empty_fingerprint, scale_rot_inertia, scale_tire_stiffness, get_friction, STD_CARGO_KG
+from opendbc.car import DT_CTRL, apply_hysteresis, gen_empty_fingerprint, scale_rot_inertia, scale_tire_stiffness, STD_CARGO_KG
 from opendbc.car import structs
 from opendbc.car.can_definitions import CanData, CanRecvCallable, CanSendCallable
 from opendbc.car.common.basedir import BASEDIR
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.common.simple_kalman import KF1D, get_kalman_gain
 from opendbc.car.values import PLATFORMS
-from opendbc.can.parser import CANParser
+from opendbc.can import CANParser
 
 from openpilot.common.params import Params
-from decimal import Decimal
 
 GearShifter = structs.CarState.GearShifter
 ButtonType = structs.CarState.ButtonEvent.Type
@@ -52,8 +51,8 @@ GEAR_SHIFTER_MAP: dict[str, structs.CarState.GearShifter] = {
 
 UseLiveTorque = Params().get_bool("KisaLiveTorque") if Params().get_bool("KisaLiveTorque") is not None else False
 NoMdpsMod = Params().get_bool("NoSmartMDPS") if Params().get_bool("NoSmartMDPS") is not None else False
-TireStiffnessFactor = float(Decimal(Params().get("TireStiffnessFactorAdj", encoding="utf8")) * Decimal('0.01')) if Params().get("TireStiffnessFactorAdj") is not None else 1.0
-CAR_CANDIDATE = Params().get("CarModel", encoding="utf8")
+TireStiffnessFactor = Params().get("TireStiffnessFactorAdj") * 0.01 if Params().get("TireStiffnessFactorAdj") is not None else 1.0
+CAR_CANDIDATE = Params().get("CarModel")
 
 class LatControlInputs(NamedTuple):
   lateral_acceleration: float
@@ -197,10 +196,9 @@ class CarInterfaceBase(ABC):
     return self.get_steer_feedforward_default
 
   def torque_from_lateral_accel_linear(self, latcontrol_inputs: LatControlInputs, torque_params: structs.CarParams.LateralTorqueTuning,
-                                       lateral_accel_error: float, lateral_accel_deadzone: float, friction_compensation: bool, gravity_adjusted: bool) -> float:
+                                       gravity_adjusted: bool) -> float:
     # The default is a linear relationship between torque and lateral acceleration (accounting for road roll and steering friction)
-    friction = get_friction(lateral_accel_error, lateral_accel_deadzone, FRICTION_THRESHOLD, torque_params, friction_compensation)
-    return (latcontrol_inputs.lateral_acceleration / float(torque_params.latAccelFactor)) + friction
+    return latcontrol_inputs.lateral_acceleration / float(torque_params.latAccelFactor)
 
   def torque_from_lateral_accel(self) -> TorqueFromLateralAccelCallbackType:
     return self.torque_from_lateral_accel_linear
@@ -215,7 +213,7 @@ class CarInterfaceBase(ABC):
     if get_torque_params() is not None:
       ret.maxLateralAccel = get_torque_params()[candidate]['MAX_LAT_ACCEL_MEASURED']
     else:
-      ret.maxLateralAccel = float(Decimal(Params().get("TorqueMaxLatAccel", encoding="utf8")) * Decimal('0.1'))
+      ret.maxLateralAccel = Params().get("TorqueMaxLatAccel") * 0.1
     ret.autoResumeSng = True  # describes whether car can resume from a stop automatically
 
     # standard ALC params
@@ -265,12 +263,12 @@ class CarInterfaceBase(ABC):
         tune.torque.latAccelOffset = 0.0
         tune.torque.steeringAngleDeadzoneDeg = steering_angle_deadzone_deg
       else:
-        TorqueKp = float(Decimal(Params().get("TorqueKp", encoding="utf8")) * Decimal('0.1'))
-        TorqueKf = float(Decimal(Params().get("TorqueKf", encoding="utf8")) * Decimal('0.1'))
-        TorqueKi = float(Decimal(Params().get("TorqueKi", encoding="utf8")) * Decimal('0.1'))
-        TorqueFriction = float(Decimal(Params().get("TorqueFriction", encoding="utf8")) * Decimal('0.01'))
-        TorqueLatAccelFactor = float(Decimal(Params().get("TorqueMaxLatAccel", encoding="utf8")) * Decimal('0.1'))
-        TorqueAngDeadZone = float(Decimal(Params().get("TorqueAngDeadZone", encoding="utf8")) * Decimal('0.1'))
+        TorqueKp = Params().get("TorqueKp") * 0.1
+        TorqueKf = Params().get("TorqueKf") * 0.1
+        TorqueKi = Params().get("TorqueKi") * 0.1
+        TorqueFriction = Params().get("TorqueFriction") * 0.01
+        TorqueLatAccelFactor = Params().get("TorqueMaxLatAccel") * 0.1
+        TorqueAngDeadZone = Params().get("TorqueAngDeadZone") * 0.1
         tune.torque.kp = TorqueKp
         tune.torque.kf = TorqueKf
         tune.torque.ki = TorqueKi
@@ -279,12 +277,12 @@ class CarInterfaceBase(ABC):
         tune.torque.latAccelOffset = 0.0
         tune.torque.steeringAngleDeadzoneDeg = TorqueAngDeadZone        
     else:
-      TorqueKp = float(Decimal(Params().get("TorqueKp", encoding="utf8")) * Decimal('0.1'))
-      TorqueKf = float(Decimal(Params().get("TorqueKf", encoding="utf8")) * Decimal('0.1'))
-      TorqueKi = float(Decimal(Params().get("TorqueKi", encoding="utf8")) * Decimal('0.1'))
-      TorqueFriction = float(Decimal(Params().get("TorqueFriction", encoding="utf8")) * Decimal('0.01'))
-      TorqueLatAccelFactor = float(Decimal(Params().get("TorqueMaxLatAccel", encoding="utf8")) * Decimal('0.1'))
-      TorqueAngDeadZone = float(Decimal(Params().get("TorqueAngDeadZone", encoding="utf8")) * Decimal('0.1'))
+      TorqueKp = Params().get("TorqueKp") * 0.1
+      TorqueKf = Params().get("TorqueKf") * 0.1
+      TorqueKi = Params().get("TorqueKi") * 0.1
+      TorqueFriction = Params().get("TorqueFriction") * 0.01
+      TorqueLatAccelFactor = Params().get("TorqueMaxLatAccel") * 0.1
+      TorqueAngDeadZone = Params().get("TorqueAngDeadZone") * 0.1
       tune.torque.kp = TorqueKp
       tune.torque.kf = TorqueKf
       tune.torque.ki = TorqueKi
@@ -297,7 +295,7 @@ class CarInterfaceBase(ABC):
     # parse can
     for cp in self.can_parsers.values():
       if cp is not None:
-        cp.update_strings(can_packets)
+        cp.update(can_packets)
 
     # get CarState
     ret = self.CS.update(self.can_parsers)
@@ -355,22 +353,16 @@ class CarStateBase(ABC):
   def update(self, can_parsers) -> structs.CarState:
     pass
 
+  def parse_wheel_speeds(self, cs, fl, fr, rl, rr, unit=CV.KPH_TO_MS):
+    cs.vEgoRaw = float(np.mean([fl, fr, rl, rr]) * unit * self.CP.wheelSpeedFactor)
+    cs.vEgo, cs.aEgo = self.update_speed_kf(cs.vEgoRaw)
+
   def update_speed_kf(self, v_ego_raw):
     if abs(v_ego_raw - self.v_ego_kf.x[0][0]) > 2.0:  # Prevent large accelerations when car starts at non zero speed
       self.v_ego_kf.set_x([[v_ego_raw], [0.0]])
 
     v_ego_x = self.v_ego_kf.update(v_ego_raw)
     return float(v_ego_x[0]), float(v_ego_x[1])
-
-  def get_wheel_speeds(self, fl, fr, rl, rr, unit=CV.KPH_TO_MS):
-    factor = unit * self.CP.wheelSpeedFactor
-
-    wheelSpeeds = structs.CarState.WheelSpeeds()
-    wheelSpeeds.fl = fl * factor
-    wheelSpeeds.fr = fr * factor
-    wheelSpeeds.rl = rl * factor
-    wheelSpeeds.rr = rr * factor
-    return wheelSpeeds
 
   def update_blinker_from_lamp(self, blinker_time: int, left_blinker_lamp: bool, right_blinker_lamp: bool):
     """Update blinkers from lights. Enable output when light was seen within the last `blinker_time`

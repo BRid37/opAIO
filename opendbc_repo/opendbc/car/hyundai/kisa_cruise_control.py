@@ -27,9 +27,9 @@ class KisaCruiseControl():
 
     self.params = Params()
 
-    self.map_spdlimit_offset = int(self.params.get("KisaSpeedLimitOffset", encoding="utf8"))
-    self.map_spdlimit_offset_option = int(self.params.get("KisaSpeedLimitOffsetOption", encoding="utf8"))
-    self.safetycam_decel_dist_gain = int(self.params.get("SafetyCamDecelDistGain", encoding="utf8"))
+    self.map_spdlimit_offset = self.params.get("KisaSpeedLimitOffset")
+    self.map_spdlimit_offset_option = self.params.get("KisaSpeedLimitOffsetOption")
+    self.safetycam_decel_dist_gain = self.params.get("SafetyCamDecelDistGain")
 
     self.map_speed_block = False
     self.map_speed_dist = 0
@@ -44,43 +44,43 @@ class KisaCruiseControl():
     self.driverSccSetControl = False
     self.ctrl_speed = 0
     self.ctrl_gap = 0
-    self.vision_curv_speed_c = list(map(int, self.params.get("VCurvSpeedC", encoding="utf8").split(',')))
-    self.vision_curv_speed_t = list(map(int, self.params.get("VCurvSpeedT", encoding="utf8").split(',')))
-    self.vision_curv_speed_cmph = list(map(int, self.params.get("VCurvSpeedCMPH", encoding="utf8").split(',')))
-    self.vision_curv_speed_tmph = list(map(int, self.params.get("VCurvSpeedTMPH", encoding="utf8").split(',')))
+    self.vision_curv_speed_c = list(map(int, self.params.get("VCurvSpeedC").split(',')))
+    self.vision_curv_speed_t = list(map(int, self.params.get("VCurvSpeedT").split(',')))
+    self.vision_curv_speed_cmph = list(map(int, self.params.get("VCurvSpeedCMPH").split(',')))
+    self.vision_curv_speed_tmph = list(map(int, self.params.get("VCurvSpeedTMPH").split(',')))
 
-    self.osm_curv_speed_c = list(map(int, self.params.get("OCurvSpeedC", encoding="utf8").split(',')))
-    self.osm_curv_speed_t = list(map(int, self.params.get("OCurvSpeedT", encoding="utf8").split(',')))
-    self.osm_custom_spdlimit_c = list(map(int, self.params.get("OSMCustomSpeedLimitC", encoding="utf8").split(',')))
-    self.osm_custom_spdlimit_t = list(map(int, self.params.get("OSMCustomSpeedLimitT", encoding="utf8").split(',')))
+    self.osm_curv_speed_c = list(map(int, self.params.get("OCurvSpeedC").split(',')))
+    self.osm_curv_speed_t = list(map(int, self.params.get("OCurvSpeedT").split(',')))
+    self.osm_custom_spdlimit_c = list(map(int, self.params.get("OSMCustomSpeedLimitC").split(',')))
+    self.osm_custom_spdlimit_t = list(map(int, self.params.get("OSMCustomSpeedLimitT").split(',')))
 
     self.osm_wait_timer = 0
     self.stock_navi_info_enabled = self.params.get_bool("StockNaviSpeedEnabled")
     self.osm_speedlimit_enabled = self.params.get_bool("OSMSpeedLimitEnable")
     self.speedlimit_decel_off = self.params.get_bool("SpeedLimitDecelOff")
-    self.curv_decel_option = int(self.params.get("CurvDecelOption", encoding="utf8"))
+    self.curv_decel_option = self.params.get("CurvDecelOption")
     self.cut_in = False
     self.cut_in_run_timer = 0
 
     self.drive_routine_on_sl = self.params.get_bool("RoutineDriveOn")
     if self.drive_routine_on_sl:
-      option_list = list(self.params.get("RoutineDriveOption", encoding="utf8"))
+      option_list = list(self.params.get("RoutineDriveOption"))
       if '1' in option_list:
         self.drive_routine_on_sl = True
       else:
         self.drive_routine_on_sl = False
     try:
-      self.roadname_and_sl = self.params.get("RoadList", encoding="utf8").strip().splitlines()[1].split(',')
+      self.roadname_and_sl = self.params.get("RoadList").strip().splitlines()[1].split(',')
     except:
       self.roadname_and_sl = ""
       pass
 
     self.decel_on_speedbump = self.params.get_bool("KISASpeedBump")
-    self.navi_sel = int(self.params.get("KISANaviSelect", encoding="utf8"))
+    self.navi_sel = self.params.get("KISANaviSelect")
 
     self.na_timer = 0
     self.t_interval = 7
-    self.t_interval2 = int(self.params.get("KISACruiseSpammingInterval", encoding="utf8"))
+    self.t_interval2 = self.params.get("KISACruiseSpammingInterval")
     self.faststart = False
     self.safetycam_speed = 0
 
@@ -98,8 +98,8 @@ class KisaCruiseControl():
     self.try_early_stop_org_gap = 4.0
 
     self.gap_by_spd_on = self.params.get_bool("CruiseGapBySpdOn")
-    self.gap_by_spd_spd = list(map(int, self.params.get("CruiseGapBySpdSpd", encoding="utf8").split(',')))
-    self.gap_by_spd_gap = list(map(int, self.params.get("CruiseGapBySpdGap", encoding="utf8").split(',')))
+    self.gap_by_spd_spd = list(map(int, self.params.get("CruiseGapBySpdSpd").split(',')))
+    self.gap_by_spd_gap = list(map(int, self.params.get("CruiseGapBySpdGap").split(',')))
     self.gap_by_spd_on_buffer1 = 0
     self.gap_by_spd_on_buffer2 = 0
     self.gap_by_spd_on_buffer3 = 0
@@ -111,7 +111,7 @@ class KisaCruiseControl():
 
     self.is_canfd = False
 
-    self.cruise_road_limitspd_offset = int(self.params.get("CruiseSetwithRoadLimitSpeedOffset", encoding="utf8"))
+    self.cruise_road_limitspd_offset = self.params.get("CruiseSetwithRoadLimitSpeedOffset")
 
   def button_status(self, CS):
     if not CS.cruise_active or CS.cruise_buttons[-1] != Buttons.NONE or CS.main_buttons[-1] or CS.lfa_buttons[-1]: 
@@ -155,7 +155,7 @@ class KisaCruiseControl():
       if self.target_speed == self.VSetDis:
         self.btn_cnt = 0
         self.seq_command = 4      # case_4 번으로 이동.    
-      elif self.btn_cnt > (3 if self.is_canfd else 5):
+      elif self.btn_cnt > (2 if self.is_canfd else 5):
         self.btn_cnt = 0
         self.seq_command = 4      # case_4 번으로 이동.
       return btn_signal
@@ -166,7 +166,7 @@ class KisaCruiseControl():
       if self.target_speed == self.VSetDis:
         self.btn_cnt = 0
         self.seq_command = 4      # case_4 번으로 이동.      
-      elif self.btn_cnt > (3 if self.is_canfd else 5):
+      elif self.btn_cnt > (2 if self.is_canfd else 5):
         self.btn_cnt = 0
         self.seq_command = 4      # case_4 번으로 이동.
       return btn_signal
@@ -177,7 +177,7 @@ class KisaCruiseControl():
       if self.target_gap == self.DistSet:
         self.btn_cnt = 0
         self.seq_command = 4      # case_4 번으로 이동.      
-      elif self.btn_cnt > (3 if self.is_canfd else 5):
+      elif self.btn_cnt > (2 if self.is_canfd else 5):
         self.btn_cnt = 0
         self.seq_command = 4      # case_4 번으로 이동.
       return btn_signal

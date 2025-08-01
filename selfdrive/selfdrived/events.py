@@ -50,12 +50,12 @@ class ET:
 EVENT_NAME = {v: k for k, v in EventName.schema.enumerants.items()}
 
 try:
-  LANG_FILE='/data/openpilot/selfdrive/assets/addon/lang/events/' + Params().get("LanguageSetting", encoding="utf8") + '.txt'
+  LANG_FILE='/data/openpilot/selfdrive/assets/addon/lang/events/' + Params().get("LanguageSetting") + '.txt'
 except:
   LANG_FILE='/data/openpilot/selfdrive/assets/addon/lang/events/main_en.txt'
   pass
 try:
-  IS_WAZE = Params().get("KISANaviSelect", encoding="utf8") in ("2", "4")
+  IS_WAZE = Params().get("KISANaviSelect") in (2, 4)
 except:
   IS_WAZE = False
   pass
@@ -781,6 +781,11 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.NO_ENTRY: NoEntryAlert(tr(109)),
   },
 
+  EventName.excessiveActuation: {
+    ET.SOFT_DISABLE: soft_disable_alert("Excessive Actuation"),
+    ET.NO_ENTRY: NoEntryAlert("Excessive Actuation"),
+  },
+
   EventName.overheat: {
     ET.PERMANENT: overheat_alert,
     ET.SOFT_DISABLE: soft_disable_alert(tr(111)),
@@ -1048,14 +1053,6 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.none, .1),
-  },
-
-  EventName.e2eLongAlert: {
-    ET.WARNING: Alert(
-      tr(62),
-      tr(63),
-      AlertStatus.normal, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.warning, 2.),
   },
 
   EventName.laneChangeManual: {

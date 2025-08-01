@@ -128,22 +128,22 @@ struct OnroadEvent @0xc4fa6047f024e718 {
     personalityChanged @91;
     aeb @92;
     userFlag @95;
+    excessiveActuation @96;
 
     soundsUnavailableDEPRECATED @47;
 
-    plannerError @96;
-    laneChangeManual @97;
-    emgButtonManual @98;
-    driverSteering @99;
-    modeChangeOpenpilot @100;
-    modeChangeDistcurv @101;
-    modeChangeDistance @102;
-    modeChangeCurv @103;
-    modeChangeOneway @104;
-    modeChangeMaponly @105;
-    needBrake @106;
-    standStill @107;
-    e2eLongAlert @108;
+    plannerError @97;
+    laneChangeManual @98;
+    emgButtonManual @99;
+    driverSteering @100;
+    modeChangeOpenpilot @101;
+    modeChangeDistcurv @102;
+    modeChangeDistance @103;
+    modeChangeCurv @104;
+    modeChangeOneway @105;
+    modeChangeMaponly @106;
+    needBrake @107;
+    standStill @108;
     isgActive @109;
     camSpeedDown @110;
     gapAdjusting @111;

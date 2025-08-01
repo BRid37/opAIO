@@ -6,7 +6,6 @@ from openpilot.common.realtime import DT_CTRL
 from openpilot.common.filter_simple import FirstOrderFilter
 
 from openpilot.common.params import Params
-from decimal import Decimal
 from openpilot.common.conversions import Conversions as CV
 
 from openpilot.selfdrive.controls.lib.latcontrol import LatControl
@@ -165,11 +164,11 @@ class LatControlATOM(LatControl):
 
     self.reset()
 
-    self.multi_lateral_method = int(Params().get("MultipleLateralUse", encoding="utf8"))
-    self.multi_lat_spdMethod  = list(map(int, Params().get("MultipleLateralOpS", encoding="utf8").split(',')))
-    self.multi_lat_spdBP      = list(map(int, Params().get("MultipleLateralSpd", encoding="utf8").split(',')))
-    self.multi_lat_angMethod  = list(map(int, Params().get("MultipleLateralOpA", encoding="utf8").split(',')))
-    self.multi_lat_angBP      = list(map(int, Params().get("MultipleLateralAng", encoding="utf8").split(',')))
+    self.multi_lateral_method = Params().get("MultipleLateralUse")
+    self.multi_lat_spdMethod  = list(map(int, Params().get("MultipleLateralOpS").split(',')))
+    self.multi_lat_spdBP      = list(map(int, Params().get("MultipleLateralSpd").split(',')))
+    self.multi_lat_angMethod  = list(map(int, Params().get("MultipleLateralOpA").split(',')))
+    self.multi_lat_angBP      = list(map(int, Params().get("MultipleLateralAng").split(',')))
     
     if self.multi_lateral_method == LaMethod.ANGLE_INTERP:
       self.lat_fun0 = self.method_func( self.multi_lat_angMethod[0] )
