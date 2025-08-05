@@ -45,7 +45,7 @@ class CanBus(CanBusBase):
     return self._cam
 
 
-def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque, apply_angle, max_torque, frame, adrv_160, adrv_1ea, lfa_alt, mdps_info, lfa_info, csw_info, ccnc_161):
+def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque, apply_angle, max_torque, frame, adrv_160, adrv_1ea, lfa_alt, mdps_info, lfa_info, csw_info, ccnc_161, lfa_hda_info):
   common_values = {
     "LKA_MODE": 2,
     "LKA_ICON": 2 if enabled else 1,
@@ -127,19 +127,31 @@ def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque,
         lfa_values["STEER_REQ"] = 0
         lfa_values["HAS_LANE_SAFETY"] = 0
         lfa_values["STEER_MODE"] = 0
-        lfa_values["LKAS_ANGLE_CMD"] = -25.6
+        lfa_values["LKAS_ANGLE_CMD"] = -25.7
         lfa_values["LKAS_ANGLE_ACTIVE"] = 0
-        lfa_values["LKAS_ANGLE_MAX_TORQUE"] = 0
-        lfa_values["NEW_SIGNAL_6"] = 10
+        lfa_values["LKAS_ANGLE_MAX_TORQUE"] = 4
       ret.append(packer.make_can_msg("LFA", CAN.ECAN, lfa_values))
 
       if frame % 2 == 0 and not CP.openpilotLongitudinalControl:
         adrv_160_values = adrv_160
         adrv_160_values["LFA_FAULT"] = 0
+        adrv_160_values["AEB_SETTING"] = 0
         ret.append(packer.make_can_msg("ADRV_0x160", CAN.ECAN, adrv_160_values))
-      # if frame % 5 == 0:
-      #   adrv_1ea_values = copy.copy(adrv_1ea)
-      #   ret.append(packer.make_can_msg("ADRV_0x1ea", CAN.ECAN, adrv_1ea_values))
+      if frame % 5 == 0:
+        adrv_1ea_values = adrv_1ea
+        adrv_1ea_values["SET_ME_1C"] = 8
+        adrv_1ea_values["NEW_SIGNAL_1"] = 0
+        adrv_1ea_values["NEW_SIGNAL_27"] = 0
+        ret.append(packer.make_can_msg("ADRV_0x1ea", CAN.ECAN, adrv_1ea_values))
+
+        lfa_hda_values = lfa_hda_info
+        lfa_hda_values["HDA_ICON"] = 1 if enabled else 0
+        lfa_hda_values["LFA_ICON"] = 2 if enabled else 0
+        lfa_hda_values["NEW_SIGNAL_1"] = 0
+        lfa_hda_values["NEW_SIGNAL_4"] = 0
+        lfa_hda_values["NEW_SIGNAL_6"] = 0
+        ret.append(packer.make_can_msg("LFAHDA_CLUSTER", CAN.ECAN, lfa_hda_values))
+
     else:
       lfa_values["LKA_MODE"] = 0
       lfa_values["NEW_SIGNAL_1"] = 3 if lat_active else 0
@@ -400,34 +412,26 @@ def create_ccnc(packer, CAN, frame, enabled, lat_active, ccnc_161, ccnc_162, adr
   ret = []
 
   values_161 = ccnc_161
-  values_161.update({
-    "FCA_ALT_ICON": 0,
-    "LKA_ICON": 4 if enabled else ccnc_161["LKA_ICON"],
-    "LFA_ICON": 2 if enabled else ccnc_161["LFA_ICON"],
-    "LCA_LEFT_ICON": 2 if enabled else ccnc_161["LCA_LEFT_ICON"],
-    "LCA_RIGHT_ICON": 2 if enabled else ccnc_161["LCA_RIGHT_ICON"],
-    "CENTERLINE": 1 if enabled else ccnc_161["CENTERLINE"],
-    "LANELINE_LEFT": 2 if enabled else ccnc_161["LANELINE_LEFT"],
-    "LANELINE_RIGHT": 2 if enabled else ccnc_161["LANELINE_RIGHT"],
-  })
+  # values_161.update({
+  #   "FCA_ALT_ICON": 0,
+  #   "LKA_ICON": 4 if enabled else ccnc_161["LKA_ICON"],
+  #   "LFA_ICON": 2 if enabled else ccnc_161["LFA_ICON"],
+  #   "LCA_LEFT_ICON": 2 if enabled else ccnc_161["LCA_LEFT_ICON"],
+  #   "LCA_RIGHT_ICON": 2 if enabled else ccnc_161["LCA_RIGHT_ICON"],
+  #   "CENTERLINE": 1 if enabled else ccnc_161["CENTERLINE"],
+  #   "LANELINE_LEFT": 2 if enabled else ccnc_161["LANELINE_LEFT"],
+  #   "LANELINE_RIGHT": 2 if enabled else ccnc_161["LANELINE_RIGHT"],
+  # })
   ret.append(packer.make_can_msg("CCNC_0x161", CAN.ECAN, values_161))
 
   values_162 = ccnc_162
-  values_162.update({
-    "FAULT_FCA": 0,
-    "FAULT_LFA": 0,
-    "FAULT_LCA": 0,
-    "FAULT_DAS": 0,
-  })
+  # values_162.update({
+  #   "FAULT_FCA": 0,
+  #   "FAULT_LFA": 0,
+  #   "FAULT_LCA": 0,
+  #   "FAULT_DAS": 0,
+  # })
   ret.append(packer.make_can_msg("CCNC_0x162", CAN.ECAN, values_162))
-
-  values_1ea = adrv_1ea
-  values_1ea.update({
-    "SET_ME_1C": 8,
-    "NEW_SIGNAL_1": 0,
-    "NEW_SIGNAL_27": 0,
-  })
-  ret.append(packer.make_can_msg("ADRV_0x1ea", CAN.ECAN, values_1ea))
 
   return ret
 
