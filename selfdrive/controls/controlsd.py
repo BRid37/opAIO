@@ -188,7 +188,7 @@ class Controls:
       new_desired_curvature = model_v2.action.desiredCurvature if CC.latActive else self.curvature
       desired_curvature2, curvature_limited = clip_curvature(CS.vEgo, self.desired_curvature, new_desired_curvature, lp.roll)
       desired_curvature3 = np.interp(CS.vEgo, [0.3, 1.0], [desired_curvature1, desired_curvature2])
-      self.desired_curvature = np.interp(model_speed, [30, 80], [desired_curvature3, desired_curvature1])
+      self.desired_curvature = np.interp(model_speed, [150, 200], [desired_curvature3, desired_curvature1])
       if lat_plan.laneChangeState != LaneChangeState.off:
         self.desired_curvature = desired_curvature2
     elif self.legacy_lane_mode == 1:
