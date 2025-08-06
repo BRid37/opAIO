@@ -412,16 +412,13 @@ def create_ccnc(packer, CAN, frame, enabled, lat_active, ccnc_161, ccnc_162, adr
   ret = []
 
   values_161 = ccnc_161
-  # values_161.update({
-  #   "FCA_ALT_ICON": 0,
-  #   "LKA_ICON": 4 if enabled else ccnc_161["LKA_ICON"],
-  #   "LFA_ICON": 2 if enabled else ccnc_161["LFA_ICON"],
-  #   "LCA_LEFT_ICON": 2 if enabled else ccnc_161["LCA_LEFT_ICON"],
-  #   "LCA_RIGHT_ICON": 2 if enabled else ccnc_161["LCA_RIGHT_ICON"],
-  #   "CENTERLINE": 1 if enabled else ccnc_161["CENTERLINE"],
-  #   "LANELINE_LEFT": 2 if enabled else ccnc_161["LANELINE_LEFT"],
-  #   "LANELINE_RIGHT": 2 if enabled else ccnc_161["LANELINE_RIGHT"],
-  # })
+  values_161.update({
+    "CENTERLINE": 1 if enabled else ccnc_161["CENTERLINE"],
+    "LANELINE_LEFT": 2 if enabled else ccnc_161["LANELINE_LEFT"],
+    "LANELINE_RIGHT": 2 if enabled else ccnc_161["LANELINE_RIGHT"],
+    "LFA_ICON": 2 if enabled else ccnc_161["LFA_ICON"],
+    "LANELINE_CURVATURE": 15 if enabled else ccnc_161["LANELINE_CURVATURE"],
+  })
   ret.append(packer.make_can_msg("CCNC_0x161", CAN.ECAN, values_161))
 
   values_162 = ccnc_162
