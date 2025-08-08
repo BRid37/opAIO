@@ -182,25 +182,23 @@ class Controls:
     actuators.accel, actuators.oaccel = float(result[0]), float(result[1])
 
     # Steering PID loop and lateral MPC
-    if self.legacy_lane_mode == 2:
+    if self.legacy_lane_mode == 2: # Mix
       model_speed = self.sm['lateralPlan'].modelSpeed
       desired_curvature1, self.desired_curvature_rate = get_lag_adjusted_curvature(self.CP, CS.vEgo, lat_plan.psis, lat_plan.curvatures, lat_plan.curvatureRates, self.sm['liveDelay'].lateralDelay)
       new_desired_curvature = model_v2.action.desiredCurvature if CC.latActive else self.curvature
       desired_curvature2, curvature_limited = clip_curvature(CS.vEgo, self.desired_curvature, new_desired_curvature, lp.roll)
-      desired_curvature3 = np.interp(CS.vEgo, [0.3, 1.0], [desired_curvature1, desired_curvature2])
-      self.desired_curvature = np.interp(model_speed, [150, 200], [desired_curvature3, desired_curvature1])
+      desired_curvature3 = np.interp(model_speed, [150, 210], [desired_curvature2, desired_curvature1])
+      self.desired_curvature = np.interp(CS.vEgo, [5.5, 8.3], [desired_curvature2, desired_curvature3])
       if lat_plan.laneChangeState != LaneChangeState.off:
         self.desired_curvature = desired_curvature2
-    elif self.legacy_lane_mode == 1:
-      model_speed = self.sm['lateralPlan'].modelSpeed
+    elif self.legacy_lane_mode == 1: # MPC
       desired_curvature1, self.desired_curvature_rate = get_lag_adjusted_curvature(self.CP, CS.vEgo, lat_plan.psis, lat_plan.curvatures, lat_plan.curvatureRates, self.sm['liveDelay'].lateralDelay)
       new_desired_curvature = model_v2.action.desiredCurvature if CC.latActive else self.curvature
       desired_curvature2, curvature_limited = clip_curvature(CS.vEgo, self.desired_curvature, new_desired_curvature, lp.roll)
-      desired_curvature3 = np.interp(CS.vEgo, [0.3, 1.0], [desired_curvature1, desired_curvature2])
-      self.desired_curvature = np.interp(model_speed, [29, 30], [desired_curvature3, desired_curvature1])
+      self.desired_curvature = desired_curvature1
       if lat_plan.laneChangeState != LaneChangeState.off:
         self.desired_curvature = desired_curvature2
-    else:
+    else: # Model
       new_desired_curvature = model_v2.action.desiredCurvature if CC.latActive else self.curvature
       self.desired_curvature, curvature_limited = clip_curvature(CS.vEgo, self.desired_curvature, new_desired_curvature, lp.roll)
       self.desired_curvature_rate = 0.0
