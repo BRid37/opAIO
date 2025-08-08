@@ -5,7 +5,7 @@
 
 #define HYUNDAI_CANFD_CRUISE_BUTTON_TX_MSGS(bus) \
   {0x1CF, bus, 8, .check_relay = false},  /* CRUISE_BUTTON */   \
-  {0x2AF, bus, 8, .check_relay = false},  /* HOD_FD_01_100ms */  \
+  {0x2AF, bus, 8, .check_relay = (bus) == 2},  /* HOD_FD_01_100ms */  \
 
 #define HYUNDAI_CANFD_LKA_STEERING_COMMON_TX_MSGS(a_can, e_can) \
   HYUNDAI_CANFD_CRUISE_BUTTON_TX_MSGS(e_can)                        \
@@ -283,7 +283,8 @@ static safety_config hyundai_canfd_init(uint16_t param) {
     {0x162, 0, 32, .check_relay = true}, /* ADRV_0x162 */ \
     {0x1ea, 0, 32, .check_relay = true}, /* ADRV_0x1ea */ \
     {0xCB,  0, 24, .check_relay = true}, /* ADAS_CMD_35_10ms(Angle) */ \
-
+    {0xEA,  2, 24, .check_relay = true}, /* MDPS */ \
+  
   hyundai_common_init(param);
 
   gen_crc_lookup_table_16(0x1021, hyundai_canfd_crc_lut);
