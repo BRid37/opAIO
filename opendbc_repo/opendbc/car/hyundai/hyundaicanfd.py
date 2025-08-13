@@ -130,6 +130,8 @@ def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_torque,
         lfa_values["LKAS_ANGLE_CMD"] = -25.7
         lfa_values["LKAS_ANGLE_ACTIVE"] = 0
         lfa_values["LKAS_ANGLE_MAX_TORQUE"] = 4
+        lfa_values["NEW_SIGNAL_3"] = 1
+        lfa_values["NEW_SIGNAL_5"] = 1
       ret.append(packer.make_can_msg("LFA", CAN.ECAN, lfa_values))
 
       if frame % 2 == 0 and not CP.openpilotLongitudinalControl:
