@@ -179,6 +179,7 @@ FW_VERSIONS = {
       b'\xf1\x00DN8_ SCC FHCUP      1.00 1.00 99110-L0000         ',
       b'\xf1\x00DN8_ SCC FHCUP      1.00 1.01 99110-L1000         ',
       b'\xf1\x00DN8_ SCC FHCUP      1.00 1.02 99110-L1000         ',
+      b'\xf1\x00DN8_ RDR -----      1.00 1.00 99110-L1800         ',
     ],
     (Ecu.abs, 0x7d1, None): [
       b'\xf1\x00DN ESC \x01 102\x19\x04\x13 58910-L1300',
@@ -219,6 +220,7 @@ FW_VERSIONS = {
       b'\xf1\x00DN8 MFC  AT USA LHD 1.00 1.05 99211-L1000 201109',
       b'\xf1\x00DN8 MFC  AT USA LHD 1.00 1.06 99211-L1000 210325',
       b'\xf1\x00DN8 MFC  AT USA LHD 1.00 1.07 99211-L1000 211223',
+      b'\xf1\x00DN8 MFC  AT MES LHD 1.00 1.01 99211-L1800 230512',
     ],
   },
   CAR.HYUNDAI_SONATA_LF: {
