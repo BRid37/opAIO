@@ -58,6 +58,8 @@ class CarState(CarStateBase):
     self.cruise_btns_msg_canfd = "CRUISE_BUTTONS_ALT" if CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS else \
                                  "CRUISE_BUTTONS"
     self.is_metric = False
+    self.buttons_counter = 0
+
     self.wheel_counter = 0
     self.wheel_touched = False
 
@@ -82,44 +84,34 @@ class CarState(CarStateBase):
     self.lkas_button_on = True
     self.cruise_main_button = 0
     self.mdps_error_cnt = 0
-    self.cruiseState_standstill = False
 
     self.driverAcc_time = 0
 
     self.prev_cruise_buttons = 0
     self.prev_gap_button = 0
-    
+
     params = Params()
     self.steer_anglecorrection = params.get("KisaSteerAngleCorrection") * 0.1
     self.gear_correction = params.get_bool("JustDoGearD")
-    self.set_spd_plus = params.get("SetSpeedPlus")
-    self.brake_check = False
-    self.cancel_check = False
-    
+
     self.cruise_gap = params.get("KisaCruiseGapSet")
     self.is_highway = False
-    self.cruise_active = False
 
     # atom
-    self.cruise_buttons_time = 0
+
     self.time_delay_int = 0
     self.VSetDis = 0
     self.clu_Vanz = 0
 
-    # acc button 
-    self.prev_acc_active = False
-    self.prev_acc_set_btn = False
-    self.prev_acc_reset_btn = False
-    self.prev_cruise_btn = False
-    self.prev_main_btn = False
+    # acc button
+
     self.prev_lfa_btn = False
     self.prev_lfa_btn_timer = 0
     self.prev_main_btn2 = False
     self.prev_main_btn_timer = 0
     self.acc_active = False
     self.acc_active_standby = False
-    self.cruise_set_speed_kph = 0
-    self.cruise_set_mode = params.get("CruiseStatemodeSelInit")
+
     self.gasPressed = False
     self.cruiseGapSet = 4.0
 
@@ -144,6 +136,9 @@ class CarState(CarStateBase):
     self.low_speed_alert = False
     self.auto_hold = False
 
+    self.cruise_set_mode = params.get("CruiseStatemodeSelInit")
+    self.prev_cruise_btn = False
+
     self.sm = messaging.SubMaster(['carState'])
 
 
@@ -154,210 +149,6 @@ class CarState(CarStateBase):
     return any(btn in ENABLE_BUTTONS for btn in self.cruise_buttons) or any(self.main_buttons) or any(self.lfa_buttons)
 
 
-  def cruise_speed_button_alt(self):
-    self.sm.update(0)
-    set_speed_kph = self.cruise_set_speed_kph
-    if 1 < round(self.sm['carState'].vCruise) < 255:
-      set_speed_kph = round(self.sm['carState'].vCruise)
-      self.cruise_set_speed_kph = set_speed_kph
-
-    if self.cruise_buttons[-1]:
-      self.cruise_buttons_time += 1
-    else:
-      self.cruise_buttons_time = 0
-     
-    # long press should set scc speed with cluster scc number
-    if self.cruise_buttons_time >= 70:
-      self.cruise_set_speed_kph = self.VSetDis
-      return self.cruise_set_speed_kph
-
-    if self.acc_active and not self.cruise_buttons[-1] and not self.prev_main_btn:
-      if not self.prev_acc_set_btn: # first scc active
-        self.prev_acc_set_btn = self.acc_active
-        self.prev_main_btn = self.acc_active
-        self.cruise_set_speed_kph = max(int(round(self.clu_Vanz)), (30 if self.is_metric else 20))
-        return self.cruise_set_speed_kph
-    elif self.prev_cruise_btn == self.cruise_buttons[-1]:
-      return self.cruise_set_speed_kph
-    elif self.prev_cruise_btn != self.cruise_buttons[-1]:
-      self.prev_cruise_btn = self.cruise_buttons[-1]
-      if not self.cruise_active:
-        if self.cruise_buttons[-1] == Buttons.GAP_DIST:  # mode change
-          self.cruise_set_mode += 1
-          if self.cruise_set_mode > 5:
-            self.cruise_set_mode = 0
-          return None
-        elif not self.prev_acc_reset_btn: # first scc active
-          self.prev_acc_reset_btn = True
-          if self.cruise_buttons[-1] == Buttons.SET_DECEL:
-            self.cruise_set_speed_kph = max(int(round(self.clu_Vanz)), (30 if self.is_metric else 20))
-          elif self.cruise_buttons[-1] == Buttons.RES_ACCEL:
-            self.cruise_set_speed_kph = max(set_speed_kph, int(round(self.clu_Vanz)), (30 if self.is_metric else 20))
-          elif self.cruise_buttons[-1] == Buttons.CANCEL:
-            self.cruise_set_speed_kph = max(set_speed_kph, int(round(self.clu_Vanz)), (30 if self.is_metric else 20))
-          return self.cruise_set_speed_kph
-      elif self.cruise_buttons[-1] == Buttons.RES_ACCEL and not self.cruiseState_standstill:   # up 
-        if self.set_spd_plus:
-          set_speed_kph += self.set_spd_plus
-          if set_speed_kph % self.set_spd_plus != 0:
-            set_speed_kph = int(round(set_speed_kph/self.set_spd_plus)*self.set_spd_plus)
-        else:
-          set_speed_kph += 1
-      elif self.cruise_buttons[-1] == Buttons.SET_DECEL and not self.cruiseState_standstill:  # dn
-        if self.set_spd_plus:
-          set_speed_kph -= self.set_spd_plus
-          if set_speed_kph % self.set_spd_plus != 0:
-            set_speed_kph = int(round(set_speed_kph/self.set_spd_plus)*self.set_spd_plus)
-        else:
-          set_speed_kph -= 1
-      elif self.cruise_buttons[-1] == Buttons.CANCEL and not self.cruiseState_standstill:  # dn
-        set_speed_kph = 255
-
-      if set_speed_kph <= 30 and self.is_metric:
-        set_speed_kph = 30
-      elif set_speed_kph <= 20 and not self.is_metric:
-        set_speed_kph = 20
-      self.cruise_set_speed_kph = set_speed_kph
-    else:
-      self.prev_cruise_btn = False 
-
-    return set_speed_kph
-
-  def cruise_speed_button_long(self):
-    self.sm.update(0)
-    set_speed_kph = self.cruise_set_speed_kph
-    if 0 < round(self.sm['carState'].vCruise) < 255:
-      set_speed_kph = round(self.sm['carState'].vCruise)
-
-    if self.cruise_buttons[-1]:
-      self.cruise_buttons_time += 1
-    else:
-      self.cruise_buttons_time = 0
-
-    # long press should set scc speed with cluster scc number
-    if self.cruise_buttons_time >= 70 and self.cruise_buttons[-1] in (1,2):
-      self.cruise_buttons_time = 0
-      if self.is_metric:
-        if self.cruise_buttons[-1] == 1:
-          set_speed_kph += 10
-        elif self.cruise_buttons[-1] == 2:
-          set_speed_kph -= 10
-      else:
-        if self.cruise_buttons[-1] == 1:
-          set_speed_kph += 5
-        elif self.cruise_buttons[-1] == 2:
-          set_speed_kph -= 5
-      set_speed_kph = max(10, set_speed_kph) if self.is_metric else max(5, set_speed_kph)
-      self.cruise_set_speed_kph = int(round(set_speed_kph/10)*10) if self.is_metric else int(round(set_speed_kph/5)*5)
-      return self.cruise_set_speed_kph
-
-    if self.prev_cruise_btn == self.cruise_buttons[-1]:
-      return self.cruise_set_speed_kph
-    elif self.prev_cruise_btn != self.cruise_buttons[-1]:
-      self.prev_cruise_btn = self.cruise_buttons[-1]
-      if self.cruise_buttons[-1] == Buttons.GAP_DIST and not self.acc_active:  # mode change
-        self.cruise_set_mode += 1
-        if self.cruise_set_mode > 5:
-          self.cruise_set_mode = 0
-        return None
-      elif not self.prev_acc_set_btn: # first scc active
-        self.prev_acc_set_btn = self.exp_engage_available
-        if self.cruise_buttons[-1] == Buttons.SET_DECEL:
-          self.cruise_set_speed_kph = max(int(round(self.clu_Vanz)), 10 if self.is_metric else 5)
-        elif self.cruise_buttons[-1] == Buttons.RES_ACCEL:
-          self.cruise_set_speed_kph = max(set_speed_kph, int(round(self.clu_Vanz)), 10 if self.is_metric else 5)
-        return self.cruise_set_speed_kph
-
-      if self.cruise_buttons[-1] == Buttons.RES_ACCEL:   # up 
-        if self.set_spd_plus:
-          set_speed_kph += self.set_spd_plus
-          if set_speed_kph % self.set_spd_plus != 0:
-            set_speed_kph = int(round(set_speed_kph/self.set_spd_plus)*self.set_spd_plus)
-        else:
-          set_speed_kph += 1
-        if set_speed_kph <= 10 and self.is_metric:
-          set_speed_kph = 10
-        elif set_speed_kph <= 5 and not self.is_metric:
-          set_speed_kph = 5
-
-      elif self.cruise_buttons[-1] == Buttons.SET_DECEL:  # dn
-        if self.set_spd_plus:
-          set_speed_kph -= self.set_spd_plus
-          if set_speed_kph % self.set_spd_plus != 0:
-            set_speed_kph = int(round(set_speed_kph/self.set_spd_plus)*self.set_spd_plus)
-        else:
-          set_speed_kph -= 1
-        if set_speed_kph <= 10 and self.is_metric:
-          set_speed_kph = 10
-        elif set_speed_kph <= 5 and not self.is_metric:
-          set_speed_kph = 5
-
-      self.cruise_set_speed_kph = set_speed_kph
-    else:
-      self.prev_cruise_btn = False
-
-    return set_speed_kph
-
-  def cruise_speed_button(self):
-    self.sm.update(0)
-    set_speed_kph = self.cruise_set_speed_kph
-    if 1 < round(self.sm['carState'].vCruise) < 255:
-      set_speed_kph = round(self.sm['carState'].vCruise)
-
-    if self.cruise_buttons[-1]:
-      self.cruise_buttons_time += 1
-    else:
-      self.cruise_buttons_time = 0
-     
-    # long press should set scc speed with cluster scc number
-    if self.cruise_buttons_time >= 60:
-      self.cruise_set_speed_kph = self.VSetDis
-      return self.cruise_set_speed_kph
-
-    if self.prev_cruise_btn == self.cruise_buttons[-1]:
-      return self.cruise_set_speed_kph
-    elif self.prev_cruise_btn != self.cruise_buttons[-1]:
-      self.prev_cruise_btn = self.cruise_buttons[-1]
-      if not self.cruise_active:
-        if self.cruise_buttons[-1] == Buttons.GAP_DIST:  # mode change
-          self.cruise_set_mode += 1
-          if self.cruise_set_mode > 5:
-            self.cruise_set_mode = 0
-          return None
-        elif not self.prev_acc_set_btn: # first scc active
-          self.prev_acc_set_btn = self.acc_active
-          if self.cruise_buttons[-1] == Buttons.SET_DECEL:
-            self.cruise_set_speed_kph = max(int(round(self.clu_Vanz)), (30 if self.is_metric else 20))
-          elif self.cruise_buttons[-1] == Buttons.RES_ACCEL:
-            self.cruise_set_speed_kph = max(set_speed_kph, int(round(self.clu_Vanz)), (30 if self.is_metric else 20))
-          return self.cruise_set_speed_kph
-
-      elif self.cruise_buttons[-1] == Buttons.RES_ACCEL and not self.cruiseState_standstill:   # up 
-        if self.set_spd_plus:
-          set_speed_kph += self.set_spd_plus
-          if set_speed_kph % self.set_spd_plus != 0:
-            set_speed_kph = int(round(set_speed_kph/self.set_spd_plus)*self.set_spd_plus)
-        else:
-          set_speed_kph += 1
-      elif self.cruise_buttons[-1] == Buttons.SET_DECEL and not self.cruiseState_standstill:  # dn
-        if self.set_spd_plus:
-          set_speed_kph -= self.set_spd_plus
-          if set_speed_kph % self.set_spd_plus != 0:
-            set_speed_kph = int(round(set_speed_kph/self.set_spd_plus)*self.set_spd_plus)
-        else:
-          set_speed_kph -= 1
-
-      if set_speed_kph <= 30 and self.is_metric:
-        set_speed_kph = 30
-      elif set_speed_kph <= 20 and not self.is_metric:
-        set_speed_kph = 20
-
-      self.cruise_set_speed_kph = set_speed_kph
-    else:
-      self.prev_cruise_btn = False
-
-    return set_speed_kph
-
   def get_tpms(self, unit, fl, fr, rl, rr):
     factor = 0.72519 if unit == 1 else 0.1 if unit == 2 else 1 # 0:psi, 1:kpa, 2:bar
     tpms = car.CarState.TPMS.new_message()
@@ -367,6 +158,16 @@ class CarState(CarStateBase):
     tpms.rl = rl * factor
     tpms.rr = rr * factor
     return tpms
+
+  def cruise_mode_change(self, cruise_btn):
+    if self.prev_cruise_btn == cruise_btn:
+      return None
+    elif self.prev_cruise_btn != cruise_btn:
+      self.prev_cruise_btn = cruise_btn
+      if not self.acc_active and cruise_btn == Buttons.GAP_DIST:  # mode change
+          self.cruise_set_mode += 1
+          if self.cruise_set_mode > 5:
+            self.cruise_set_mode = 0
 
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -432,6 +233,7 @@ class CarState(CarStateBase):
       self.driverAcc_time -= 1
 
     self.clu_Vanz = cp.vl["CLU11"]["CF_Clu_Vanz"]
+    ret.cluVanz = self.clu_Vanz
     ret.isMph = not self.is_metric
 
     self.cruise_main_button = cp.vl["CLU11"]["CF_Clu_CruiseSwMain"]
@@ -439,6 +241,8 @@ class CarState(CarStateBase):
     self.cruise_buttons[-1] = cp.vl["CLU11"]["CF_Clu_CruiseSwState"]
     ret.cruiseButtons = self.cruise_buttons[-1]
 
+    self.cruise_mode_change(self.cruise_buttons[-1])
+    ret.cruiseState.modeSel = self.cruise_set_mode
     if self.prev_gap_button != self.cruise_buttons[-1]:
       if self.cruise_buttons == 3:
         self.cruise_gap -= 1
@@ -456,10 +260,6 @@ class CarState(CarStateBase):
 
     ret.parkingBrake = cp.vl["TCS13"]["PBRAKE_ACT"] == 1
 
-    if ret.brakePressed:
-      self.brake_check = True
-    if self.cruise_buttons[-1] == 4:
-      self.cancel_check = True
     ret.brakeLights = bool(cp.vl["TCS13"]["BrakeLight"] or ret.brakePressed)
 
     # cruise state
@@ -469,19 +269,13 @@ class CarState(CarStateBase):
       #ret.cruiseState.enabled = cp.vl["TCS13"]["ACC_REQ"] == 1 or cp.vl["LVR12"]["CF_Lvr_CruiseSet"] != 0
       ret.cruiseState.standstill = False
       if ret.brakePressed and self.acc_active:
-        self.brake_check = True
         self.acc_active = False
-      set_speed = self.cruise_speed_button_long()
       if self.cruise_buttons[-1] == 1 or self.cruise_buttons[-1] == 2:
-        self.brake_check = False
         self.exp_engage_available = True
         self.acc_active = self.exp_engage_available
       elif self.cruise_buttons[-1] == 4:
         self.exp_engage_available = False
         self.acc_active = False
-      if set_speed is not None:
-        ret.cruiseState.speed = set_speed * speed_conv if self.acc_active else 0
-        ret.cruiseState.speedCluster = set_speed * speed_conv if self.acc_active else 0
       ret.cruiseState.available = self.exp_engage_available
       ret.cruiseState.enabled = ret.cruiseState.available
       ret.cruiseAccStatus = self.acc_active
@@ -511,22 +305,8 @@ class CarState(CarStateBase):
         ret.cruiseState.enabled = ret.cruiseState.available
 
       self.acc_active = cp_scc.vl["SCC12"]['ACCMode'] != 0
-      if self.acc_active:
-        self.brake_check = False
-        self.cancel_check = False
-      elif not ret.cruiseState.available:
-        self.prev_acc_set_btn = False
-        self.prev_main_btn = False
-      self.cruiseState_standstill = ret.cruiseState.standstill
 
-      set_speed = self.cruise_speed_button()
-      if ret.cruiseState.enabled and (self.brake_check == False or self.cancel_check == False):
-        if set_speed is not None:
-          ret.cruiseState.speed = set_speed * speed_conv if not self.exp_long else \
-                                          cp.vl["LVR12"]["CF_Lvr_CruiseSet"] * speed_conv
-      else:
-        ret.cruiseState.speed = 0
-      self.cruise_active = self.acc_active
+      ret.cruiseState.speed = cp_cruise.vl["SCC11"]["VSetDis"] * speed_conv
 
       ret.cruiseState.gapSet = cp_scc.vl["SCC11"]['TauGapSet']
       self.cruiseGapSet = ret.cruiseState.gapSet
@@ -544,7 +324,6 @@ class CarState(CarStateBase):
 
     ret.cruiseState.accActive = self.acc_active
     ret.cruiseState.cruiseSwState = self.cruise_buttons[-1]
-    ret.cruiseState.modeSel = self.cruise_set_mode
 
     if self.CP.flags & (HyundaiFlags.HYBRID | HyundaiFlags.EV | HyundaiFlags.FCEV):
       if self.CP.flags & HyundaiFlags.FCEV:
@@ -679,10 +458,13 @@ class CarState(CarStateBase):
 
     ret = structs.CarState()
 
+    ret.isCanFD = True
+
     self.is_metric = cp.vl["CRUISE_BUTTONS_ALT"]["DISTANCE_UNIT"] != 1
     speed_factor = CV.KPH_TO_MS if self.is_metric else CV.MPH_TO_MS
 
     self.clu_Vanz = cp.vl["CRUISE_BUTTONS_ALT"]["CLUSTER_SPEED"]
+    ret.cluVanz = self.clu_Vanz
 
     if self.CP.flags & (HyundaiFlags.EV | HyundaiFlags.HYBRID):
       ret.gasPressed = cp.vl[self.accelerator_msg_canfd]["ACCELERATOR_PEDAL"] > 1e-5
@@ -761,19 +543,13 @@ class CarState(CarStateBase):
       # ret.cruiseState.enabled = cp.vl["TCS"]["ACC_REQ"] == 1
       ret.cruiseState.standstill = False
       if ret.brakePressed and self.acc_active and not ret.standstill:
-        self.brake_check = True
         self.acc_active = False
-      set_speed = self.cruise_speed_button_long()
       if self.cruise_buttons[-1] == 1 or self.cruise_buttons[-1] == 2:
-        self.brake_check = False
         self.exp_engage_available = True
         self.acc_active = self.exp_engage_available
       elif self.cruise_buttons[-1] == 4:
         self.exp_engage_available = False
         self.acc_active = False
-      if set_speed is not None:
-        ret.cruiseState.speed = set_speed * speed_factor if self.acc_active else 0
-        ret.cruiseState.speedCluster = set_speed * speed_factor if self.acc_active else 0
       ret.cruiseState.available = self.exp_engage_available
       ret.cruiseState.enabled = ret.cruiseState.available
       ret.cruiseAccStatus = self.acc_active
@@ -787,7 +563,6 @@ class CarState(CarStateBase):
       ret.cruiseState.standstill = cp_cruise_info.vl["SCC_CONTROL"]["CRUISE_STANDSTILL"] == 1
       self.VSetDis = cp_cruise_info.vl["SCC_CONTROL"]["VSetDis"]
       ret.vSetDis = self.VSetDis
-      self.cruiseState_standstill = ret.cruiseState.standstill
       self.cruise_info = copy.copy(cp_cruise_info.vl["SCC_CONTROL"])
       self.cruise_btn_info = copy.copy(cp.vl[self.cruise_btns_msg_canfd])
       if self.CP.adrvControl:
@@ -821,22 +596,8 @@ class CarState(CarStateBase):
       self.acc_active = cp_cruise_info.vl["SCC_CONTROL"]["ACCMode"] in (1, 2)
       self.acc_active_standby = cp_cruise_info.vl["SCC_CONTROL"]["MainMode_ACC"] != 0
       ret.cruiseState.accActive = self.acc_active
-      if self.acc_active:
-        self.brake_check = False
-        self.cancel_check = False
-      elif not ret.cruiseState.available:
-        self.prev_acc_set_btn = False
-        self.prev_main_btn = False
-      elif not self.acc_active:
-        self.prev_acc_reset_btn = False
 
-      set_speed = self.cruise_speed_button_alt()
-      if ret.cruiseState.enabled and (self.brake_check == False or self.cancel_check == False):
-        if set_speed is not None:
-          ret.cruiseState.speed = set_speed * speed_factor
-      else:
-        ret.cruiseState.speed = 0
-      self.cruise_active = self.acc_active
+      ret.cruiseState.speed = cp_cruise_info.vl["SCC_CONTROL"]["VSetDis"] * speed_factor
       ret.cruiseAccStatus = self.acc_active
 
       if self.CP.autoHoldAvailable:
@@ -855,7 +616,6 @@ class CarState(CarStateBase):
         self.DistSet = distance + 5
       else:
         self.DistSet = distance
-      ret.cruiseState.modeSel = self.cruise_set_mode
 
     if not self.exp_long:
       self.lead_distance = cp_cruise_info.vl["SCC_CONTROL"]["ACC_ObjDist"]
@@ -894,11 +654,15 @@ class CarState(CarStateBase):
     self.cruise_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["CRUISE_BUTTONS"])
     self.main_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["ADAPTIVE_CRUISE_MAIN_BTN"])
     self.lda_button = cp.vl[self.cruise_btns_msg_canfd]["LDA_BTN"]
+    self.buttons_counter = cp.vl[self.cruise_btns_msg_canfd]["COUNTER"]
     if self.CP.capacitiveSteeringWheel:
       self.csw_info = copy.copy(cp.vl["HOD_FD_01_100ms"])
       self.wheel_touched = True if cp.vl["HOD_FD_01_100ms"]["HOD_Dir_Status"] > 0 else False
     ret.accFaulted = cp.vl["TCS"]["ACCEnable"] != 0  # 0 ACC CONTROL ENABLED, 1-3 ACC CONTROL DISABLED
     ret.cruiseButtons = self.cruise_buttons[-1]
+
+    self.cruise_mode_change(self.cruise_buttons[-1])
+    ret.cruiseState.modeSel = self.cruise_set_mode
 
     if self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING:
       self.lfa_block_msg = copy.copy(cp_cam.vl["CAM_0x362"] if self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING_ALT

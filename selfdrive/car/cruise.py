@@ -43,8 +43,6 @@ class VCruiseHelper:
     self.button_timers = {ButtonType.decelCruise: 0, ButtonType.accelCruise: 0}
     self.button_change_states = {btn: {"standstill": False, "enabled": False} for btn in self.button_timers}
 
-    self.sm = messaging.SubMaster(['controlsState', 'liveENaviData', 'liveMapData'])
-
     self.params = Params()
     self.is_kph = self.params.get_bool("IsMetric")
     self.variable_cruise = self.params.get_bool("KisaVariableCruise")
@@ -75,19 +73,26 @@ class VCruiseHelper:
 
     self.first_acc = False
 
+    self.set_spd_plus = self.params.get("SetSpeedPlus")
+    self.cruise_set_speed_kph = 0
+    self.cruise_buttons_time = 0
+    self.prev_cruise_btn = False
+    self.prev_acc_set_btn = False
+    self.prev_acc_reset_btn = False
+    self.prev_main_btn = False
+
   @property
   def v_cruise_initialized(self):
     return self.v_cruise_kph != V_CRUISE_UNSET
 
-  def update_v_cruise(self, CS, enabled, is_metric):
+  def update_v_cruise(self, CS, enabled, is_metric, cstate, navi, osm):
     self.v_cruise_kph_last = self.v_cruise_kph
-    self.sm.update(0)
     if CS.cruiseState.available:
       m_unit = CV.MS_TO_KPH if self.is_kph else CV.MS_TO_MPH
       if not self.CP.pcmCruise:
         if self.CP.brand == "hyundai":
-          self.v_cruise_kph = int(round(CS.cruiseState.speed * m_unit))
-          self.v_cruise_cluster_kph = int(round(CS.cruiseState.speedCluster * m_unit))
+          self.v_cruise_kph = self.cruise_speed_button_long(CS)
+          self.v_cruise_cluster_kph = self.v_cruise_kph
         else:
           # if stock cruise is completely disabled, then we can use our own set speed logic
           self._update_v_cruise_non_pcm(CS, enabled, is_metric)
@@ -101,54 +106,55 @@ class VCruiseHelper:
             self.v_cruise_kph = V_CRUISE_UNSET
             self.v_cruise_cluster_kph = V_CRUISE_UNSET
         else:
+          cruise_set_spd = self.cruise_speed_button_canfd(CS) if CS.isCanFD else self.cruise_speed_button(CS)
           t_speed = 30 if self.is_kph else 20
-          if (self.cruise_road_limit_spd_enabled and self.sm['controlsState'].roadLimitSpeedOnTemp) and not self.cruise_road_limit_spd_switch and self.cruise_road_limit_spd_switch_prev != 0 and self.cruise_road_limit_spd_switch_prev != self.sm['liveENaviData'].roadLimitSpeed:
+          if (self.cruise_road_limit_spd_enabled and cstate.setLoadspeedTempStop) and not self.cruise_road_limit_spd_switch and self.cruise_road_limit_spd_switch_prev != 0 and self.cruise_road_limit_spd_switch_prev != navi.roadLimitSpeed:
             self.cruise_road_limit_spd_switch = True
             self.cruise_road_limit_spd_switch_prev = 0
-          if self.variable_cruise and CS.cruiseState.modeSel != 0 and self.sm['controlsState'].autoResvCruisekph > t_speed:
-            self.v_cruise_kph = self.sm['controlsState'].autoResvCruisekph
+          if self.variable_cruise and CS.cruiseState.modeSel != 0 and cstate.autoResvCruisekph > t_speed:
+            self.v_cruise_kph = cstate.autoResvCruisekph
             self.v_cruise_kph_last = self.v_cruise_kph
             self.v_cruise_cluster_kph = self.v_cruise_kph
           elif CS.cruiseButtons == Buttons.RES_ACCEL or CS.cruiseButtons == Buttons.SET_DECEL or (CS.cruiseState.accActive and CS.cruiseButtons == 0 and not self.first_acc):
             if CS.cruiseState.accActive and CS.cruiseButtons == 0:
               self.first_acc = True
-            if (self.cruise_road_limit_spd_enabled and self.sm['controlsState'].roadLimitSpeedOnTemp) and CS.cruiseButtons == Buttons.RES_ACCEL:
-              self.cruise_road_limit_spd_switch_prev = self.sm['liveENaviData'].roadLimitSpeed
+            if (self.cruise_road_limit_spd_enabled and cstate.setLoadspeedTempStop) and CS.cruiseButtons == Buttons.RES_ACCEL:
+              self.cruise_road_limit_spd_switch_prev = navi.roadLimitSpeed
               self.cruise_road_limit_spd_switch = False
-            elif (self.cruise_road_limit_spd_enabled and self.sm['controlsState'].roadLimitSpeedOnTemp) and (CS.cruiseButtons == Buttons.SET_DECEL or self.first_acc):
-              if 1 < int(self.sm['liveENaviData'].roadLimitSpeed) < 150:
+            elif (self.cruise_road_limit_spd_enabled and cstate.setLoadspeedTempStop) and (CS.cruiseButtons == Buttons.SET_DECEL or self.first_acc):
+              if 1 < int(navi.roadLimitSpeed) < 150:
                 self.cruise_road_limit_spd_switch = True
               else:
                 self.cruise_road_limit_spd_switch = False
-            self.v_cruise_kph = round(CS.cruiseState.speed * m_unit)
+            self.v_cruise_kph = cruise_set_spd
             self.v_cruise_cluster_kph = self.v_cruise_kph
             self.v_cruise_kph_last = self.v_cruise_kph
             if self.osm_speedlimit_enabled or self.navi_selection in (2, 4):
               self.osm_waze_off_spdlimit_init = True
               if self.navi_selection in (2, 4):
-                self.osm_waze_speedlimit = round(self.sm['liveENaviData'].wazeRoadSpeedLimit)
+                self.osm_waze_speedlimit = round(navi.wazeRoadSpeedLimit)
               elif self.osm_speedlimit_enabled:
-                self.osm_waze_speedlimit = round(self.sm['liveMapData'].speedLimit)
-          elif CS.driverAcc and self.variable_cruise and (self.cruise_over_maxspeed or (self.cruise_road_limit_spd_enabled and self.sm['controlsState'].roadLimitSpeedOnTemp)) and t_speed <= self.v_cruise_kph < round(CS.vEgo*m_unit):
-            self.cruise_road_limit_spd_switch_prev = self.sm['liveENaviData'].roadLimitSpeed
+                self.osm_waze_speedlimit = round(osm.speedLimit)
+          elif CS.driverAcc and self.variable_cruise and (self.cruise_over_maxspeed or (self.cruise_road_limit_spd_enabled and cstate.setLoadspeedTempStop)) and t_speed <= self.v_cruise_kph < round(CS.vEgo*m_unit):
+            self.cruise_road_limit_spd_switch_prev = navi.roadLimitSpeed
             self.cruise_road_limit_spd_switch = False
             self.v_cruise_kph = round(CS.vEgo*m_unit)
             self.v_cruise_cluster_kph = self.v_cruise_kph
             self.v_cruise_kph_last = self.v_cruise_kph
-          elif self.variable_cruise and (self.cruise_road_limit_spd_enabled and self.sm['controlsState'].roadLimitSpeedOnTemp) and int(self.v_cruise_kph) != (int(self.sm['liveENaviData'].roadLimitSpeed) + self.cruise_road_limit_spd_offset) and \
-           29 < int(self.sm['liveENaviData'].roadLimitSpeed) < 150 and self.cruise_road_limit_spd_switch:
-            self.v_cruise_kph = int(self.sm['liveENaviData'].roadLimitSpeed) + self.cruise_road_limit_spd_offset
+          elif self.variable_cruise and (self.cruise_road_limit_spd_enabled and cstate.setLoadspeedTempStop) and int(self.v_cruise_kph) != (int(navi.roadLimitSpeed) + self.cruise_road_limit_spd_offset) and \
+           29 < int(navi.roadLimitSpeed) < 150 and self.cruise_road_limit_spd_switch:
+            self.v_cruise_kph = int(navi.roadLimitSpeed) + self.cruise_road_limit_spd_offset
             self.v_cruise_cluster_kph = self.v_cruise_kph
             self.v_cruise_kph_last = self.v_cruise_kph
           elif self.variable_cruise and CS.cruiseState.modeSel != 0 and (self.osm_speedlimit_enabled or self.navi_selection in (2, 4)) and self.osm_waze_off_spdlimit_init:
             if self.navi_selection in (2, 4):
-              osm_waze_speedlimit_ = round(self.sm['liveENaviData'].wazeRoadSpeedLimit)
-              osm_waze_speedlimitdist_ = round(self.sm['liveENaviData'].wazeAlertDistance)
+              osm_waze_speedlimit_ = round(navi.wazeRoadSpeedLimit)
+              osm_waze_speedlimitdist_ = round(navi.wazeAlertDistance)
             elif self.osm_speedlimit_enabled:
-              osm_waze_speedlimit_ = round(self.sm['liveMapData'].speedLimit)
+              osm_waze_speedlimit_ = round(osm.speedLimit)
               osm_waze_speedlimitdist_ = 0
             else:
-              osm_waze_speedlimit_ = round(self.sm['liveMapData'].speedLimit)
+              osm_waze_speedlimit_ = round(osm.speedLimit)
               osm_waze_speedlimitdist_ = 0
             if self.osm_waze_spdlimit_offset_option == 0:
               osm_waze_speedlimit = osm_waze_speedlimit_ + round(osm_waze_speedlimit_*0.01*self.osm_waze_spdlimit_offset)
@@ -164,15 +170,15 @@ class VCruiseHelper:
             elif self.osm_waze_speedlimit == osm_waze_speedlimit_:
               self.pause_spdlimit = True
             elif osm_waze_speedlimit != self.v_cruise_kph:
-              if self.navi_selection in (2, 4) and self.sm['liveENaviData'].wazeRoadSpeedLimit > 9:
+              if self.navi_selection in (2, 4) and navi.wazeRoadSpeedLimit > 9:
                 self.v_cruise_kph = osm_waze_speedlimit
                 self.v_cruise_kph_last = self.v_cruise_kph
                 self.v_cruise_cluster_kph = self.v_cruise_kph
-              elif self.osm_speedlimit_enabled and self.sm['liveMapData'].speedLimit > 9:
+              elif self.osm_speedlimit_enabled and osm.speedLimit > 9:
                 self.v_cruise_kph = osm_waze_speedlimit
                 self.v_cruise_kph_last = self.v_cruise_kph
           elif self.variable_cruise and CS.cruiseState.modeSel != 0 and not (self.osm_speedlimit_enabled or self.navi_selection in (2, 4)):
-            if self.sm['liveENaviData'].safetyDistance > 600: # temporary pause to limit spd in safety section
+            if navi.safetyDistance > 600: # temporary pause to limit spd in safety section
               self.second2 += DT_MDL
               if CS.cruiseButtons == Buttons.GAP_DIST: # push gap 3 times quickly, this is toggle.
                 self.pause_spdlimit_push = True
@@ -200,11 +206,11 @@ class VCruiseHelper:
         # to display maxspeed synced as roadspeedlimit on scc standby
         if self.variable_cruise and CS.cruiseState.modeSel != 0 and (self.osm_speedlimit_enabled or self.navi_selection in (2, 4)):
           if self.navi_selection in (2, 4):
-            osm_waze_speedlimit_ = round(self.sm['liveENaviData'].wazeRoadSpeedLimit)
+            osm_waze_speedlimit_ = round(navi.wazeRoadSpeedLimit)
           elif self.osm_speedlimit_enabled:
-            osm_waze_speedlimit_ = round(self.sm['liveMapData'].speedLimit)
+            osm_waze_speedlimit_ = round(osm.speedLimit)
           else:
-            osm_waze_speedlimit_ = round(self.sm['liveMapData'].speedLimit)
+            osm_waze_speedlimit_ = round(osm.speedLimit)
           if self.osm_waze_spdlimit_offset_option == 0:
             osm_waze_speedlimit = osm_waze_speedlimit_ + round(osm_waze_speedlimit_*0.01*self.osm_waze_spdlimit_offset)
           elif self.osm_waze_spdlimit_offset_option == 1:
@@ -212,11 +218,11 @@ class VCruiseHelper:
           elif self.osm_waze_spdlimit_offset_option in (2,3):
             osm_waze_speedlimit = int(np.interp(osm_waze_speedlimit_, self.osm_waze_custom_spdlimit_c, self.osm_waze_custom_spdlimit_t))
           if osm_waze_speedlimit != self.v_cruise_kph:
-            if self.navi_selection in (2, 4) and self.sm['liveENaviData'].wazeRoadSpeedLimit > 9:
+            if self.navi_selection in (2, 4) and navi.wazeRoadSpeedLimit > 9:
               self.v_cruise_kph = osm_waze_speedlimit
               self.v_cruise_kph_last = self.v_cruise_kph
               self.v_cruise_cluster_kph = self.v_cruise_kph
-            elif self.osm_speedlimit_enabled and self.sm['liveMapData'].speedLimit > 9:
+            elif self.osm_speedlimit_enabled and osm.speedLimit > 9:
               self.v_cruise_kph = osm_waze_speedlimit
               self.v_cruise_kph_last = self.v_cruise_kph
               self.v_cruise_cluster_kph = self.v_cruise_kph
@@ -294,3 +300,201 @@ class VCruiseHelper:
       self.v_cruise_kph = int(round(np.clip(CS.vEgo * CV.MS_TO_KPH, initial, V_CRUISE_MAX)))
 
     self.v_cruise_cluster_kph = self.v_cruise_kph
+
+
+  def cruise_speed_button(self, CS):
+    if not CS.cruiseState.available:
+      self.prev_acc_set_btn = False
+      self.prev_main_btn = False
+
+    set_speed_kph = self.cruise_set_speed_kph
+    if 1 < self.v_cruise_kph < 255:
+      set_speed_kph = self.v_cruise_kph
+
+    if CS.cruiseButtons:
+      self.cruise_buttons_time += 1
+    else:
+      self.cruise_buttons_time = 0
+
+    # long press should set scc speed with cluster scc number
+    if self.cruise_buttons_time >= 60:
+      self.cruise_set_speed_kph = CS.vSetDis
+      return self.cruise_set_speed_kph
+
+    if self.prev_cruise_btn == CS.cruiseButtons:
+      return self.cruise_set_speed_kph
+    elif self.prev_cruise_btn != CS.cruiseButtons:
+      self.prev_cruise_btn = CS.cruiseButtons
+      if not CS.cruiseAccStatus:
+        if not self.prev_acc_set_btn: # first scc active
+          self.prev_acc_set_btn = CS.cruiseAccStatus
+          if CS.cruiseButtons == Buttons.SET_DECEL:
+            self.cruise_set_speed_kph = max(int(round(CS.cluVanz)), (30 if self.is_kph else 20))
+          elif CS.cruiseButtons == Buttons.RES_ACCEL:
+            self.cruise_set_speed_kph = max(set_speed_kph, int(round(CS.cluVanz)), (30 if self.is_kph else 20))
+          return self.cruise_set_speed_kph
+      elif CS.cruiseButtons == Buttons.RES_ACCEL and not CS.cruiseState.standstill:   # up
+        if self.set_spd_plus:
+          set_speed_kph += self.set_spd_plus
+          if set_speed_kph % self.set_spd_plus != 0:
+            set_speed_kph = int(round(set_speed_kph/self.set_spd_plus)*self.set_spd_plus)
+        else:
+          set_speed_kph += 1
+      elif CS.cruiseButtons == Buttons.SET_DECEL and not CS.cruiseState.standstill:  # dn
+        if self.set_spd_plus:
+          set_speed_kph -= self.set_spd_plus
+          if set_speed_kph % self.set_spd_plus != 0:
+            set_speed_kph = int(round(set_speed_kph/self.set_spd_plus)*self.set_spd_plus)
+        else:
+          set_speed_kph -= 1
+
+      if set_speed_kph <= 30 and self.is_kph:
+        set_speed_kph = 30
+      elif set_speed_kph <= 20 and not self.is_kph:
+        set_speed_kph = 20
+
+      self.cruise_set_speed_kph = set_speed_kph
+    else:
+      self.prev_cruise_btn = False
+
+    return set_speed_kph
+
+  def cruise_speed_button_canfd(self, CS):
+    if not CS.cruiseAccStatus:
+      self.prev_acc_reset_btn = False
+
+    if not CS.cruiseState.available:
+      self.prev_acc_set_btn = False
+      self.prev_main_btn = False
+
+    set_speed_kph = self.cruise_set_speed_kph
+
+    if 1 < self.v_cruise_kph < 255:
+      set_speed_kph = self.v_cruise_kph
+      self.cruise_set_speed_kph = set_speed_kph
+
+    if CS.cruiseButtons:
+      self.cruise_buttons_time += 1
+    else:
+      self.cruise_buttons_time = 0
+
+    # long press should set scc speed with cluster scc number
+    if self.cruise_buttons_time >= 70:
+      self.cruise_set_speed_kph = CS.vSetDis
+      return self.cruise_set_speed_kph
+
+    if CS.cruiseAccStatus and not CS.cruiseButtons and not self.prev_main_btn:
+      if not self.prev_acc_set_btn: # first scc active
+        self.prev_acc_set_btn = CS.cruiseAccStatus
+        self.prev_main_btn = CS.cruiseAccStatus
+        self.cruise_set_speed_kph = max(int(round(CS.cluVanz)), (30 if self.is_kph else 20))
+        return self.cruise_set_speed_kph
+    elif self.prev_cruise_btn == CS.cruiseButtons:
+      return self.cruise_set_speed_kph
+    elif self.prev_cruise_btn != CS.cruiseButtons:
+      self.prev_cruise_btn = CS.cruiseButtons
+      if not CS.cruiseAccStatus:
+        if not self.prev_acc_reset_btn: # first scc active
+          self.prev_acc_reset_btn = True
+          if CS.cruiseButtons == Buttons.SET_DECEL:
+            self.cruise_set_speed_kph = max(int(round(CS.cluVanz)), (30 if self.is_kph else 20))
+          elif CS.cruiseButtons == Buttons.RES_ACCEL:
+            self.cruise_set_speed_kph = max(set_speed_kph, int(round(CS.cluVanz)), (30 if self.is_kph else 20))
+          elif CS.cruiseButtons == Buttons.CANCEL:
+            self.cruise_set_speed_kph = max(set_speed_kph, int(round(CS.cluVanz)), (30 if self.is_kph else 20))
+          return self.cruise_set_speed_kph
+      elif CS.cruiseButtons == Buttons.RES_ACCEL and not CS.cruiseState.standstill:   # up
+        if self.set_spd_plus:
+          set_speed_kph += self.set_spd_plus
+          if set_speed_kph % self.set_spd_plus != 0:
+            set_speed_kph = int(round(set_speed_kph/self.set_spd_plus)*self.set_spd_plus)
+        else:
+          set_speed_kph += 1
+      elif CS.cruiseButtons == Buttons.SET_DECEL and not CS.cruiseState.standstill:  # dn
+        if self.set_spd_plus:
+          set_speed_kph -= self.set_spd_plus
+          if set_speed_kph % self.set_spd_plus != 0:
+            set_speed_kph = int(round(set_speed_kph/self.set_spd_plus)*self.set_spd_plus)
+        else:
+          set_speed_kph -= 1
+      elif CS.cruiseButtons == Buttons.CANCEL and not CS.cruiseState.standstill:  # dn
+        set_speed_kph = 255
+
+      if set_speed_kph <= 30 and self.is_kph:
+        set_speed_kph = 30
+      elif set_speed_kph <= 20 and not self.is_kph:
+        set_speed_kph = 20
+      self.cruise_set_speed_kph = set_speed_kph
+    else:
+      self.prev_cruise_btn = False
+
+    return set_speed_kph
+
+  def cruise_speed_button_long(self, CS):
+    set_speed_kph = self.cruise_set_speed_kph
+    if 0 < self.v_cruise_kph < 255:
+      set_speed_kph = self.v_cruise_kph
+
+    if CS.cruiseButtons:
+      self.cruise_buttons_time += 1
+    else:
+      self.cruise_buttons_time = 0
+
+    # long press should set scc speed with cluster scc number
+    if self.cruise_buttons_time >= 70 and CS.cruiseButtons in (1,2):
+      self.cruise_buttons_time = 0
+      if self.is_kph:
+        if CS.cruiseButtons == 1:
+          set_speed_kph += 10
+        elif CS.cruiseButtons == 2:
+          set_speed_kph -= 10
+      else:
+        if CS.cruiseButtons == 1:
+          set_speed_kph += 5
+        elif CS.cruiseButtons == 2:
+          set_speed_kph -= 5
+      set_speed_kph = max(10, set_speed_kph) if self.is_kph else max(5, set_speed_kph)
+      self.cruise_set_speed_kph = int(round(set_speed_kph/10)*10) if self.is_kph else int(round(set_speed_kph/5)*5)
+      return self.cruise_set_speed_kph
+
+    if self.prev_cruise_btn == CS.cruiseButtons:
+      return self.cruise_set_speed_kph
+    elif self.prev_cruise_btn != CS.cruiseButtons:
+      self.prev_cruise_btn = CS.cruiseButtons
+      if not self.prev_acc_set_btn: # first scc active
+        self.prev_acc_set_btn = self.exp_engage_available
+        if CS.cruiseButtons == Buttons.SET_DECEL:
+          self.cruise_set_speed_kph = max(int(round(CS.cluVanz)), 10 if self.is_kph else 5)
+        elif CS.cruiseButtons == Buttons.RES_ACCEL:
+          self.cruise_set_speed_kph = max(set_speed_kph, int(round(CS.cluVanz)), 10 if self.is_kph else 5)
+        return self.cruise_set_speed_kph
+
+      if CS.cruiseButtons == Buttons.RES_ACCEL:   # up
+        if self.set_spd_plus:
+          set_speed_kph += self.set_spd_plus
+          if set_speed_kph % self.set_spd_plus != 0:
+            set_speed_kph = int(round(set_speed_kph/self.set_spd_plus)*self.set_spd_plus)
+        else:
+          set_speed_kph += 1
+        if set_speed_kph <= 10 and self.is_kph:
+          set_speed_kph = 10
+        elif set_speed_kph <= 5 and not self.is_kph:
+          set_speed_kph = 5
+
+      elif CS.cruiseButtons == Buttons.SET_DECEL:  # dn
+        if self.set_spd_plus:
+          set_speed_kph -= self.set_spd_plus
+          if set_speed_kph % self.set_spd_plus != 0:
+            set_speed_kph = int(round(set_speed_kph/self.set_spd_plus)*self.set_spd_plus)
+        else:
+          set_speed_kph -= 1
+        if set_speed_kph <= 10 and self.is_kph:
+          set_speed_kph = 10
+        elif set_speed_kph <= 5 and not self.is_kph:
+          set_speed_kph = 5
+
+      self.cruise_set_speed_kph = set_speed_kph
+    else:
+      self.prev_cruise_btn = False
+
+    return set_speed_kph

@@ -84,7 +84,7 @@ class CarController(CarControllerBase):
     self.emergency_manual_timer = 0
     self.driver_steering_torque_above_timer = 150
     self.driver_steering_angle_above_timer = 150
-    
+
     self.mode_change_timer = 0
 
     self.acc_standstill_timer = 0
@@ -193,7 +193,7 @@ class CarController(CarControllerBase):
     self.road_spd_on_sw = False
     self.road_spd_on_sw_trg = True
     self.road_spd_on_sw_cnt = 0
-    self.road_spd_on_sw_cnt2 = 0    
+    self.road_spd_on_sw_cnt2 = 0
 
     self.prev_cruiseButton = 0
     self.lead_visible = False
@@ -297,7 +297,7 @@ class CarController(CarControllerBase):
       elif CP.lateralTuning.which() == 'torque':
         self.str_log3 = 'T={:0.2f}/{:0.2f}/{:0.2f}/{:0.3f}'.format(CP.lateralTuning.torque.kp, CP.lateralTuning.torque.kf, CP.lateralTuning.torque.ki, CP.lateralTuning.torque.friction)
 
-    self.sm = messaging.SubMaster(['controlsState', 'radarState', 'lateralPlan', 'longitudinalPlan', 'liveTorqueParameters', 'carState'])
+    self.sm = messaging.SubMaster(['controlsState', 'selfdriveState', 'radarState', 'lateralPlan', 'longitudinalPlan', 'liveTorqueParameters', 'carState', 'liveENaviData', 'liveMapData'])
 
 
   def update(self, CC, CS, now_nanos):
@@ -453,7 +453,7 @@ class CarController(CarControllerBase):
 
     new_actuators.autoResvCruisekph = self.v_cruise_kph_auto_res
     new_actuators.resSpeed = self.res_speed
-    new_actuators.roadLimitSpeedOnTemp = (self.road_spd_on_sw_trg and self.road_limit_spd_enabled)
+    new_actuators.setLoadspeedTempStop = (self.road_spd_on_sw_trg and self.road_limit_spd_enabled)
 
     new_actuators.kisaLog1 = self.str_log1 + '  ' + self.str_log3
     new_actuators.kisaLog2 = self.str_log2
@@ -526,7 +526,7 @@ class CarController(CarControllerBase):
               self.last_resume_frame = self.frame
           self.standstill_fault_reduce_timer += 1
         # gap save after 1sec
-        elif 100 < self.standstill_fault_reduce_timer and self.cruise_gap_prev == 0 and CS.cruiseGapSet != 1.0 and self.kisa_autoresume and self.kisa_cruisegap_auto_adj and not self.gap_by_spd_on: 
+        elif 100 < self.standstill_fault_reduce_timer and self.cruise_gap_prev == 0 and CS.cruiseGapSet != 1.0 and self.kisa_autoresume and self.kisa_cruisegap_auto_adj and not self.gap_by_spd_on:
           self.cruise_gap_prev = CS.cruiseGapSet
           self.cruise_gap_set_init = True
         # gap adjust to 1 for fast start
@@ -546,7 +546,7 @@ class CarController(CarControllerBase):
       self.last_lead_distance = 0
       self.standstill_res_button = False
     elif self.kisa_variablecruise and CS.acc_active:
-      btn_signal = self.KCC.update(CS, self.gap_by_spd_on_sw_trg)
+      btn_signal = self.KCC.update(CS, self.gap_by_spd_on_sw_trg, sm=self.sm)
       self.btnsignal = btn_signal
       self.on_speed_control = self.KCC.onSpeedControl
       self.on_speed_bump_control = self.KCC.onSpeedBumpControl
@@ -739,7 +739,7 @@ class CarController(CarControllerBase):
     t_speed = 20 if not CS.is_metric else 30
     if self.auto_res_timer > 0:
       self.auto_res_timer -= 1
-    elif self.model_speed > (60 if not CS.is_metric else 95) and self.cancel_counter == 0 and not CS.cruise_active and not CS.out.brakeLights and round(CS.VSetDis) >= t_speed and \
+    elif self.model_speed > (60 if not CS.is_metric else 95) and self.cancel_counter == 0 and not CS.acc_active and not CS.out.brakeLights and round(CS.VSetDis) >= t_speed and \
      (1 < CS.lead_distance < 149 or round(CS.clu_Vanz) > t_speed) and round(CS.clu_Vanz) >= 3 and self.cruise_init and \
      self.kisa_cruise_auto_res and kisa_cruise_auto_res_condition and (self.auto_res_limit_sec == 0 or self.auto_res_limit_timer < self.auto_res_limit_sec) and \
      (self.auto_res_delay == 0 or self.auto_res_delay_timer >= self.auto_res_delay):
@@ -991,17 +991,17 @@ class CarController(CarControllerBase):
         accel = float(np.clip(accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX))
         self.aq_value = accel
         self.aq_value_raw = aReqValue
-        can_sends.append(hyundaican.create_scc11(self.packer, self.frame, set_speed_in_units, hud_control.leadVisible, self.scc_live, self.dRel, self.vRel, self.yRel, 
+        can_sends.append(hyundaican.create_scc11(self.packer, self.frame, set_speed_in_units, hud_control.leadVisible, self.scc_live, self.dRel, self.vRel, self.yRel,
         self.car_fingerprint, CS.out.vEgo * CV.MS_TO_KPH, self.acc_standstill, self.gapsettingdance, self.stopped, radar_recog, CS.scc11))
         if (CS.brake_check or CS.cancel_check) and self.car_fingerprint != CAR.KIA_NIRO_EV:
-          can_sends.append(hyundaican.create_scc12(self.packer, accel, CC.enabled, self.scc_live, CS.out.gasPressed, 1, 
+          can_sends.append(hyundaican.create_scc12(self.packer, accel, CC.enabled, self.scc_live, CS.out.gasPressed, 1,
           CS.out.stockAeb, self.car_fingerprint, CS.out.vEgo * CV.MS_TO_KPH, self.stopped, self.acc_standstill, radar_recog, self.scc12_cnt, CS.scc12))
         else:
-          can_sends.append(hyundaican.create_scc12(self.packer, accel, CC.enabled, self.scc_live, CS.out.gasPressed, CS.out.brakePressed, 
+          can_sends.append(hyundaican.create_scc12(self.packer, accel, CC.enabled, self.scc_live, CS.out.gasPressed, CS.out.brakePressed,
           CS.out.stockAeb, self.car_fingerprint, CS.out.vEgo * CV.MS_TO_KPH, self.stopped, self.acc_standstill, radar_recog, self.scc12_cnt, CS.scc12))
         self.scc12_cnt += 1
         if self.CP.scc14Available:
-          can_sends.append(hyundaican.create_scc14(self.packer, CC.enabled, CS.scc14, CS.out.stockAeb, hud_control.leadVisible, self.dRel, 
+          can_sends.append(hyundaican.create_scc14(self.packer, CC.enabled, CS.scc14, CS.out.stockAeb, hud_control.leadVisible, self.dRel,
             CS.out.vEgo, self.acc_standstill, self.car_fingerprint))
         self.accel = accel
 
@@ -1045,7 +1045,7 @@ class CarController(CarControllerBase):
         can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, CS.cruise_btn_info, 0, False, True))
 
     # steering control
-    can_sends.extend(hyundaicanfd.create_steering_messages(self.packer, self.CP, self.CAN, CC.enabled, apply_steer_req, apply_torque, 
+    can_sends.extend(hyundaicanfd.create_steering_messages(self.packer, self.CP, self.CAN, CC.enabled, apply_steer_req, apply_torque,
                                                             apply_angle, lkas_max_torque, self.frame, CS.adrv_160, CS.adrv_1ea, CS.lfa_alt_info, CS.mdps_info, CS.lfa_info, CS.csw_info, CS.ccnc_161, CS.lfa_hda_info))
 
     # prevent LFA from activating on LKA steering cars by sending "no lane lines detected" to ADAS ECU
@@ -1123,7 +1123,7 @@ class CarController(CarControllerBase):
           self.cruise_gap_set_init = False
           self.standstill_res_button = False
           self.auto_res_starting = False
-          btn_signal = self.KCC.update(CS, self.gap_by_spd_on_sw_trg)
+          btn_signal = self.KCC.update(CS, self.gap_by_spd_on_sw_trg, sm=self.sm)
           self.btnsignal = btn_signal
           self.on_speed_control = self.KCC.onSpeedControl
           self.on_speed_bump_control = self.KCC.onSpeedBumpControl
@@ -1255,7 +1255,7 @@ class CarController(CarControllerBase):
         kisa_cruise_auto_res_condition = False
         kisa_cruise_auto_res_condition = CS.acc_active_standby and CS.regen_level < 20 and (not self.kisa_cruise_auto_res_condition or CS.out.gasPressed)
         t_speed = 20 if not CS.is_metric else 30
-        if self.model_speed > (60 if not CS.is_metric else 95) and self.cancel_counter == 0 and not CS.cruise_active and not CS.out.brakeLights and round(CS.VSetDis) >= t_speed and \
+        if self.model_speed > (60 if not CS.is_metric else 95) and self.cancel_counter == 0 and not CS.acc_active and not CS.out.brakeLights and round(CS.VSetDis) >= t_speed and \
         (1 < CS.lead_distance < 149 or round(CS.clu_Vanz) > t_speed) and round(CS.clu_Vanz) >= 3 and self.cruise_init and \
         self.kisa_cruise_auto_res and kisa_cruise_auto_res_condition and (self.auto_res_limit_sec == 0 or self.auto_res_limit_timer < self.auto_res_limit_sec) and \
         (self.auto_res_delay == 0 or self.auto_res_delay_timer >= self.auto_res_delay):
@@ -1307,12 +1307,12 @@ class CarController(CarControllerBase):
 
   def create_common_msgs(self, CS, CC, lat_active, stopping, set_speed_in_units, new_torque):
     # common
-    if CS.cruise_active and CS.lead_distance > 149 and self.dRel < ((CS.out.vEgo * CV.MS_TO_KPH)+5) < 100 and \
+    if CS.acc_active and CS.lead_distance > 149 and self.dRel < ((CS.out.vEgo * CV.MS_TO_KPH)+5) < 100 and \
      self.vRel*3.6 < -(CS.out.vEgo * CV.MS_TO_KPH * 0.16) and CS.out.vEgo > 7 and abs(CS.out.steeringAngleDeg) < 10 and not self.longcontrol:
       self.need_brake_timer += 1
       if self.need_brake_timer > 100:
         self.need_brake = True
-    elif not CS.cruise_active and 1 < self.dRel < (CS.out.vEgo * CV.MS_TO_KPH * 0.5) < 13 and self.vRel*3.6 < -(CS.out.vEgo * CV.MS_TO_KPH * 0.6) and \
+    elif not CS.acc_active and 1 < self.dRel < (CS.out.vEgo * CV.MS_TO_KPH * 0.5) < 13 and self.vRel*3.6 < -(CS.out.vEgo * CV.MS_TO_KPH * 0.6) and \
       5 < (CS.out.vEgo * CV.MS_TO_KPH) < 20 and not (CS.out.brakeLights or CS.out.brakePressed or CS.out.gasPressed): # generate an event to avoid collision when SCC is not activated at low speed.
       self.need_brake_timer += 1
       if self.need_brake_timer > 50:
@@ -1348,11 +1348,11 @@ class CarController(CarControllerBase):
       self.gap_by_spd_gap2 = False
       self.gap_by_spd_gap3 = False
       self.gap_by_spd_gap4 = False
-    elif CS.cruise_active:
+    elif CS.acc_active:
       self.cruise_init = True
       self.cancel_counter = 0
       self.auto_res_limit_timer = 0
-      self.auto_res_delay_timer = 0          
+      self.auto_res_delay_timer = 0
       self.e2e_standstill = False
       self.e2e_standstill_stat = False
       self.e2e_standstill_timer = 0
@@ -1430,12 +1430,12 @@ class CarController(CarControllerBase):
         self.acc_standstill = False
     elif CS.out.gasPressed or CS.out.vEgo > 1:
       self.acc_standstill = False
-      self.acc_standstill_timer = 0      
+      self.acc_standstill_timer = 0
     else:
       self.acc_standstill = False
       self.acc_standstill_timer = 0
 
-    if CS.cruise_active: # to toggle lkas, hold gap button for 1 sec
+    if CS.acc_active: # to toggle lkas, hold gap button for 1 sec
       if CS.cruise_buttons[-1] == 3:
         self.lkas_onoff_counter += 1
         self.gap_by_spd_on_sw = True
@@ -1555,20 +1555,20 @@ class CarController(CarControllerBase):
     self.cc_timer += 1
     if self.cc_timer > 100:
       self.cc_timer = 0
-      # self.radar_helper_option = self.c_params.get("RadarLongHelper")
-      # self.stopping_dist_adj_enabled = self.c_params.get_bool("StoppingDistAdj")
-      # self.standstill_res_count = self.c_params.get("RESCountatStandstill")
-      # self.kisa_cruisegap_auto_adj = self.c_params.get_bool("CruiseGapAdjust")
-      # self.to_avoid_lkas_fault_enabled = self.c_params.get_bool("AvoidLKASFaultEnabled")
-      # self.to_avoid_lkas_fault_max_angle = self.c_params.get("AvoidLKASFaultMaxAngle")
-      # self.to_avoid_lkas_fault_max_frame = self.c_params.get("AvoidLKASFaultMaxFrame")
-      # self.stopsign_enabled = self.c_params.get_bool("StopAtStopSign")
-      # self.gap_by_spd_on = self.c_params.get_bool("CruiseGapBySpdOn")
-      # self.experimental_mode = self.c_params.get_bool("ExperimentalMode")
-      # self.usf = self.c_params.get("UserSpecificFeature")
-      # self.regenbrake = self.c_params.get_bool("RegenBrakeFeatureOn")
-      # rgn_option_list = list(self.c_params.get("RegenBrakeFeature"))
-      # self.regen_stop = True if '1' in rgn_option_list and self.regenbrake else False
+      self.radar_helper_option = self.c_params.get("RadarLongHelper")
+      self.stopping_dist_adj_enabled = self.c_params.get_bool("StoppingDistAdj")
+      self.standstill_res_count = self.c_params.get("RESCountatStandstill")
+      self.kisa_cruisegap_auto_adj = self.c_params.get_bool("CruiseGapAdjust")
+      self.to_avoid_lkas_fault_enabled = self.c_params.get_bool("AvoidLKASFaultEnabled")
+      self.to_avoid_lkas_fault_max_angle = self.c_params.get("AvoidLKASFaultMaxAngle")
+      self.to_avoid_lkas_fault_max_frame = self.c_params.get("AvoidLKASFaultMaxFrame")
+      self.stopsign_enabled = self.c_params.get_bool("StopAtStopSign")
+      self.gap_by_spd_on = self.c_params.get_bool("CruiseGapBySpdOn")
+      self.experimental_mode = self.c_params.get_bool("ExperimentalMode")
+      self.usf = self.c_params.get("UserSpecificFeature")
+      self.regenbrake = self.c_params.get_bool("RegenBrakeFeatureOn")
+      rgn_option_list = list(self.c_params.get("RegenBrakeFeature"))
+      self.regen_stop = True if '1' in rgn_option_list and self.regenbrake else False
       if self.c_params.get_bool("KisaLiveTunePanelEnable"):
         if self.CP.isAngleControl:
           pass

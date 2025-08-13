@@ -340,7 +340,7 @@ class Controls:
     cs.btnPressing = int(CO.actuatorsOutput.btnPressing)
     cs.autoResvCruisekph = float(CO.actuatorsOutput.autoResvCruisekph)
     cs.resSpeed = float(CO.actuatorsOutput.resSpeed)
-    cs.roadLimitSpeedOnTemp = bool(CO.actuatorsOutput.roadLimitSpeedOnTemp)
+    cs.setLoadspeedTempStop = bool(CO.actuatorsOutput.setLoadspeedTempStop)
     cs.standStill = bool(CO.actuatorsOutput.standStill)
     if cs.standStill:
       self.standstill_elapsed_time += DT_CTRL

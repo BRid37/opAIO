@@ -251,6 +251,8 @@ struct CarState {
   leftLaneColor @79 :Int8;
   rightLaneColor @80 :Int8;
   engineRpm @81 :Float32;
+  cluVanz @82 :Float32;
+  isCanFD @83 :Bool;
 
   struct TPMS {
     unit @0 :Int8;
@@ -430,7 +432,7 @@ struct CarControl {
     speed @6: Float32;  # m/s
 
     oaccel @9: Float32; # m/s^2
-    safetySpeed @10: Float32; 
+    safetySpeed @10: Float32;
     lkasTemporaryOff @11: Bool;
     gapBySpdOnTemp @12: Bool;
     expModeTemp @13: Bool;
@@ -439,7 +441,7 @@ struct CarControl {
     aqValueRaw @16: Float32;
     autoResvCruisekph @17: Float32;
     resSpeed @18: Float32;
-    roadLimitSpeedOnTemp @19: Bool;
+    setLoadspeedTempStop @19: Bool;
     kisaLog1 @20: Text;
     kisaLog2 @21: Text;
     kisaLog3 @22: Text;

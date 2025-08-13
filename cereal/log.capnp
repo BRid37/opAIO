@@ -926,7 +926,7 @@ struct ControlsState @0x97ff69c53601abf1 {
   btnPressing @84 :UInt8;
   autoResvCruisekph @85 :Float32;
   resSpeed @86 :Float32;
-  roadLimitSpeedOnTemp @87 :Bool;
+  setLoadspeedTempStop @87 :Bool;
   standStill @88 :Bool;
   standStillTimer @89 :Float32;
   vFuture @90: Float32;
