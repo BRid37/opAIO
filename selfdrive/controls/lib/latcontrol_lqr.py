@@ -49,7 +49,7 @@ class LatControlLQR(LatControl):
         
       self.mpc_frame = 0
 
-  def update(self, active, CS, VM, params, steer_limited_by_controls, desired_curvature, curvature_limited, desired_curvature_rate):
+  def update(self, active, CS, VM, params, steer_limited_by_safety, desired_curvature, curvature_limited, desired_curvature_rate):
     self.ll_timer += 1
     if self.ll_timer > 100:
       self.ll_timer = 0
@@ -106,5 +106,5 @@ class LatControlLQR(LatControl):
     lqr_log.i = float(self.i_lqr)
     lqr_log.output = float(output_steer)
     lqr_log.lqrOutput = float(lqr_output)
-    lqr_log.saturated = bool(self._check_saturation(self.steer_max - abs(output_steer) < 1e-3, CS, steer_limited_by_controls, curvature_limited))
+    lqr_log.saturated = bool(self._check_saturation(self.steer_max - abs(output_steer) < 1e-3, CS, steer_limited_by_safety, curvature_limited))
     return output_steer, desired_angle, lqr_log

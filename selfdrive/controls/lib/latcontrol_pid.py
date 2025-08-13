@@ -22,9 +22,6 @@ class LatControlPID(LatControl):
 
     self.lp_timer = 0
 
-  def reset(self):
-    super().reset()
-    self.pid.reset()
 
   # live tune referred to kegman's 
   def live_tune(self):
@@ -40,7 +37,8 @@ class LatControlPID(LatControl):
                           pos_limit=self.steer_max, neg_limit=-self.steer_max)
       self.mpc_frame = 0
 
-  def update(self, active, CS, VM, params, steer_limited_by_controls, desired_curvature, curvature_limited, desired_curvature_rate):
+
+  def update(self, active, CS, VM, params, steer_limited_by_safety, desired_curvature, curvature_limited, desired_curvature_rate):
     self.lp_timer += 1
     if self.lp_timer > 100:
       self.lp_timer = 0
@@ -59,20 +57,24 @@ class LatControlPID(LatControl):
     pid_log.steeringAngleDesiredDeg = angle_steers_des
     pid_log.angleError = error
     if not active:
-      output_steer = 0.0
+      output_torque = 0.0
       pid_log.active = False
-      self.pid.reset()
+
     else:
       # offset does not contribute to resistive torque
-      steer_feedforward = self.get_steer_feedforward(angle_steers_des_no_offset, CS.vEgo)
+      ff = self.get_steer_feedforward(angle_steers_des_no_offset, CS.vEgo)
+      freeze_integrator = steer_limited_by_safety or CS.steeringPressed or CS.vEgo < 5
 
-      output_steer = self.pid.update(error, override=CS.steeringPressed,
-                                     feedforward=steer_feedforward, speed=CS.vEgo)
+      output_torque = self.pid.update(error,
+                                feedforward=ff,
+                                speed=CS.vEgo,
+                                freeze_integrator=freeze_integrator)
+
       pid_log.active = True
       pid_log.p = float(self.pid.p)
       pid_log.i = float(self.pid.i)
       pid_log.f = float(self.pid.f)
-      pid_log.output = float(output_steer)
-      pid_log.saturated = bool(self._check_saturation(self.steer_max - abs(output_steer) < 1e-3, CS, steer_limited_by_controls, curvature_limited))
+      pid_log.output = float(output_torque)
+      pid_log.saturated = bool(self._check_saturation(self.steer_max - abs(output_torque) < 1e-3, CS, steer_limited_by_safety, curvature_limited))
 
-    return output_steer, angle_steers_des, pid_log
+    return output_torque, angle_steers_des, pid_log

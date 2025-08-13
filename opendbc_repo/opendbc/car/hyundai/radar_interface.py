@@ -15,6 +15,7 @@ USE_RADAR_TRACK = Params().get_bool("UseRadarTrack") or (Params().get_bool("Alph
 
 # POC for parsing corner radars: https://github.com/commaai/openpilot/pull/24221/
 
+
 def get_radar_can_parser(CP):
   if USE_RADAR_TRACK or CP.carFingerprint in CANFD_CAR:
     if Bus.radar not in DBC[CP.carFingerprint]:

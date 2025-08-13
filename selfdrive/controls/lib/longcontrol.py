@@ -8,7 +8,7 @@ from openpilot.selfdrive.modeld.constants import ModelConstants
 CONTROL_N_T_IDX = ModelConstants.T_IDXS[:CONTROL_N]
 
 LongCtrlState = car.CarControl.Actuators.LongControlState
-from openpilot.common.conversions import Conversions as CV
+from openpilot.common.constants import CV
 from openpilot.common.params import Params
 
 import openpilot.common.log as trace1

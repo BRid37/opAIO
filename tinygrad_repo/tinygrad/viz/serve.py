@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import multiprocessing, pickle, difflib, os, threading, json, time, sys, webbrowser, socket, argparse, socketserver, functools, codecs, io
+import subprocess, ctypes
 from contextlib import redirect_stdout
 from decimal import Decimal
 from http.server import BaseHTTPRequestHandler
@@ -17,7 +18,8 @@ uops_colors = {Ops.LOAD: "#ffc0c0", Ops.STORE: "#87CEEB", Ops.CONST: "#e0e0e0", 
                Ops.INDEX: "#e8ffa0", Ops.WMMA: "#efefc0", Ops.VIEW: "#C8F9D4", Ops.MULTI: "#f6ccff", Ops.KERNEL: "#3e7f55",
                **{x:"#D8F9E4" for x in GroupOp.Movement}, **{x:"#ffffc0" for x in GroupOp.ALU}, Ops.THREEFRY:"#ffff80", Ops.BUFFER_VIEW: "#E5EAFF",
                Ops.BLOCK: "#C4A484", Ops.BLOCKEND: "#C4A4A4", Ops.BUFFER: "#B0BDFF", Ops.COPY: "#a040a0", Ops.FUSE: "#FFa500",
-               Ops.ALLREDUCE: "#ff40a0", Ops.MSELECT: "#d040a0", Ops.MSTACK: "#d040a0", Ops.CONTIGUOUS: "#FFC14D"}
+               Ops.ALLREDUCE: "#ff40a0", Ops.MSELECT: "#d040a0", Ops.MSTACK: "#d040a0", Ops.CONTIGUOUS: "#FFC14D",
+               Ops.CHILD: "#80fff0"}
 
 # VIZ API
 
@@ -29,10 +31,13 @@ def get_metadata(keys:list[TracingKey], contexts:list[list[TrackedGraphRewrite]]
   for i,(k,v) in enumerate(zip(keys, contexts)):
     steps = [{"name":s.name, "loc":s.loc, "depth":s.depth, "match_count":len(s.matches), "code_line":printable(s.loc),
               "query":f"/ctxs?ctx={i}&idx={j}"} for j,s in enumerate(v)]
-    if isinstance(k.ret, ProgramSpec): steps.append({"name":"View Disassembly", "query":f"/disasm?ctx={i}"})
-    ret.append(r:={"name":k.display_name, "fmt":k.fmt, "steps":steps})
+    ret.append(r:={"name":k.display_name, "steps":steps})
     # use the first key to get runtime profiling data about this context
     if getenv("PROFILE_VALUE") >= 2 and k.keys: r["runtime_stats"] = get_runtime_stats(k.keys[0])
+    # program spec metadata
+    if isinstance(k.ret, ProgramSpec):
+      steps.append({"name":"View Disassembly", "query":f"/disasm?ctx={i}"})
+      r["fmt"] = k.ret.src
     for key in k.keys: ref_map[key] = i
   return ret
 
@@ -54,7 +59,7 @@ def uop_to_json(x:UOp) -> dict[int, dict]:
   excluded: set[UOp] = set()
   for u in (toposort:=x.toposort()):
     # always exclude DEVICE/CONST/UNIQUE
-    if u.op in {Ops.DEVICE, Ops.CONST, Ops.UNIQUE}: excluded.add(u)
+    if u.op in {Ops.DEVICE, Ops.CONST, Ops.UNIQUE} and u is not x: excluded.add(u)
     # only exclude CONST VIEW source if it has no other children in the graph
     if u.op is Ops.CONST and len(u.src) != 0 and all(cr.op is Ops.CONST for c in u.src[0].children if (cr:=c()) is not None and cr in toposort):
       excluded.update(u.src)
@@ -125,12 +130,16 @@ def timeline_layout(events:list[tuple[int, int, float, DevEvent]]) -> dict:
     depth = next((i for i,level_et in enumerate(levels) if st>=level_et), len(levels))
     if depth < len(levels): levels[depth] = et
     else: levels.append(et)
-    name, cat = e.name, None
-    if (ref:=ref_map.get(name)) is not None: name = ctxs[ref]["name"]
+    name, cat, info = e.name, None, None
+    if (ref:=ref_map.get(name)) is not None:
+      name = ctxs[ref]["name"]
+      # TODO: support symbolic by capturing var_vals in profile events
+      if isinstance(p:=contexts[0][ref].ret, ProgramSpec) and all(isinstance(es,int) for es in [p.estimates.ops, p.estimates.mem, p.estimates.lds]):
+        info = f"{p.estimates.ops/(t:=dur*1e3):.2f} GFLOPS {p.estimates.mem/t:4.1f}|{p.estimates.lds/t:.1f} GB/s"
     elif isinstance(e.name, TracingKey):
       name, cat = e.name.display_name, e.name.cat
       ref = next((v for k in e.name.keys if (v:=ref_map.get(k)) is not None), None)
-    shapes.append({"name":name, "ref":ref, "st":st, "dur":dur, "depth":depth, "cat":cat})
+    shapes.append({"name":name, "ref":ref, "st":st, "dur":dur, "depth":depth, "cat":cat, "info":info})
   return {"shapes":shapes, "maxDepth":len(levels)}
 
 def mem_layout(events:list[tuple[int, int, float, DevEvent]]) -> dict:
@@ -185,11 +194,40 @@ def get_runtime_stats(key) -> list[dict]:
       ret.append({"device":e.device, "data":[{"name":"Duration", "value":float(e.en-e.st), "unit":"us"}]})
   return ret
 
+# ** Assembly analyzers
+
+def get_llvm_mca(asm:str, mtriple:str, mcpu:str) -> dict:
+  target_args = [f"-mtriple={mtriple}", f"-mcpu={mcpu}"]
+  # disassembly output can include headers / metadata, skip if llvm-mca can't parse those lines
+  data = json.loads(subprocess.check_output(["llvm-mca","-skip-unsupported-instructions=parse-failure","--json","-"]+target_args, input=asm.encode()))
+  cr = data["CodeRegions"][0]
+  resource_labels = data["TargetInfo"]["Resources"]
+  rows:list = [[instr] for instr in cr["Instructions"]]
+  # add scheduler estimates
+  for info in cr["InstructionInfoView"]["InstructionList"]: rows[info["Instruction"]].append(info["Latency"])
+  # map per instruction resource usage
+  instr_usage:dict[int, dict[int, int]] = {}
+  for d in cr["ResourcePressureView"]["ResourcePressureInfo"]:
+    instr_usage.setdefault(i:=d["InstructionIndex"], {}).setdefault(r:=d["ResourceIndex"], 0)
+    instr_usage[i][r] += d["ResourceUsage"]
+  # last row is the usage summary
+  summary = [{"idx":k, "label":resource_labels[k], "value":v} for k,v in instr_usage.pop(len(rows), {}).items()]
+  max_usage = max([sum(v.values()) for i,v in instr_usage.items() if i<len(rows)], default=0)
+  for i,usage in instr_usage.items(): rows[i].append([[k, v, (v/max_usage)*100] for k,v in usage.items()])
+  return {"rows":rows, "cols":["Opcode", "Latency", {"title":"HW Resources", "labels":resource_labels}], "summary":summary}
+
 def get_disassembly(ctx:list[str]):
   if not isinstance(prg:=contexts[0][int(ctx[0])].ret, ProgramSpec): return
-  lib = Device[prg.device].compiler.compile(prg.src)
-  with redirect_stdout(buf:=io.StringIO()): Device[prg.device].compiler.disassemble(lib)
-  return json.dumps({"src":buf.getvalue()}).encode()
+  lib = (compiler:=Device[prg.device].compiler).compile(prg.src)
+  with redirect_stdout(buf:=io.StringIO()): compiler.disassemble(lib)
+  disasm_str = buf.getvalue()
+  from tinygrad.runtime.ops_llvm import llvm, LLVMCompiler
+  if isinstance(compiler, LLVMCompiler):
+    mtriple = ctypes.string_at(llvm.LLVMGetTargetMachineTriple(tm:=compiler.target_machine)).decode()
+    mcpu = ctypes.string_at(llvm.LLVMGetTargetMachineCPU(tm)).decode()
+    ret = get_llvm_mca(disasm_str, mtriple, mcpu)
+  else: ret = {"src":disasm_str}
+  return json.dumps(ret).encode()
 
 # ** HTTP server
 

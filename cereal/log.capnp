@@ -127,42 +127,43 @@ struct OnroadEvent @0xc4fa6047f024e718 {
     espActive @90;
     personalityChanged @91;
     aeb @92;
-    userFlag @95;
+    userBookmark @95;
     excessiveActuation @96;
+    audioFeedback @97;
 
     soundsUnavailableDEPRECATED @47;
 
-    plannerError @97;
-    laneChangeManual @98;
-    emgButtonManual @99;
-    driverSteering @100;
-    modeChangeOpenpilot @101;
-    modeChangeDistcurv @102;
-    modeChangeDistance @103;
-    modeChangeCurv @104;
-    modeChangeOneway @105;
-    modeChangeMaponly @106;
-    needBrake @107;
-    standStill @108;
-    isgActive @109;
-    camSpeedDown @110;
-    gapAdjusting @111;
-    resCruise @112;
-    curvSpeedDown @113;
-    standstillResButton @114;
-    routineDriveOn @115;
-    lkasEnabled @116;
-    cutinDetection @117;
-    gearNotD @118;
-    unSleepMode @119;
-    speedBump @120;
-    sccDriverOverride @121;
-    doNotDisturb @122;
-    chimeAtResume @123;
-    autoHold @124;
-    lkasDisabled @125;
-    laneChangeFinish @126;
-    dingding @127;
+    plannerError @98;
+    laneChangeManual @99;
+    emgButtonManual @100;
+    driverSteering @101;
+    modeChangeOpenpilot @102;
+    modeChangeDistcurv @103;
+    modeChangeDistance @104;
+    modeChangeCurv @105;
+    modeChangeOneway @106;
+    modeChangeMaponly @107;
+    needBrake @108;
+    standStill @109;
+    isgActive @110;
+    camSpeedDown @111;
+    gapAdjusting @112;
+    resCruise @113;
+    curvSpeedDown @114;
+    standstillResButton @115;
+    routineDriveOn @116;
+    lkasEnabled @117;
+    cutinDetection @118;
+    gearNotD @119;
+    unSleepMode @120;
+    speedBump @121;
+    sccDriverOverride @122;
+    doNotDisturb @123;
+    chimeAtResume @124;
+    autoHold @125;
+    lkasDisabled @126;
+    laneChangeFinish @127;
+    dingding @128;
   }
 }
 
@@ -620,7 +621,7 @@ struct PandaState @0xa7649e2575e4591e {
   fanPower @28 :UInt8;
   fanStallCount @34 :UInt8;
 
-  spiChecksumErrorCount @33 :UInt16;
+  spiErrorCount @33 :UInt16;
 
   harnessStatus @21 :HarnessStatus;
   sbu1Voltage @35 :Float32;
@@ -2672,7 +2673,7 @@ struct DebugAlert {
   alertText2 @1 :Text;
 }
 
-struct UserFlag {
+struct UserBookmark @0xfe346a9de48d9b50 {
 }
 
 struct SoundPressure @0xdc24138990726023 {
@@ -2688,6 +2689,11 @@ struct SoundPressure @0xdc24138990726023 {
 struct AudioData {
   data @0 :Data;
   sampleRate @1 :UInt32;
+}
+
+struct AudioFeedback {
+  audio @0 :AudioData;
+  blockNum @1 :UInt16;
 }
 
 struct Touch {
@@ -2790,8 +2796,12 @@ struct Event {
     mapRenderState @105: MapRenderState;
 
     # UI services
-    userFlag @93 :UserFlag;
     uiDebug @102 :UIDebug;
+
+    # driving feedback
+    userBookmark @93 :UserBookmark;
+    bookmarkButton @148 :UserBookmark;
+    audioFeedback @149 :AudioFeedback;
 
     # *********** debug ***********
     testJoystick @52 :Joystick;
@@ -2837,8 +2847,8 @@ struct Event {
     customReserved18 @144 :Custom.CustomReserved18;
     customReserved19 @145 :Custom.CustomReserved19;
 
-    liveENaviData @148: LiveENaviData;
-    liveMapData @149: LiveMapData;
+    liveENaviData @150: LiveENaviData;
+    liveMapData @151: LiveMapData;
 
     # *********** legacy + deprecated ***********
     model @9 :Legacy.ModelData; # TODO: rename modelV2 and mark this as deprecated

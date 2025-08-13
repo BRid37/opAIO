@@ -10,6 +10,16 @@ const parseColors = (name, defaultColor="#ffffff") => Array.from(name.matchAll(/
 
 const rect = (s) => (typeof s === "string" ? document.querySelector(s) : s).getBoundingClientRect();
 
+let timeout = null;
+const updateProgress = ({ show=true }) => {
+  clearTimeout(timeout);
+  const msg = document.getElementById("progress-message");
+  if (show) {
+    msg.innerText = "Rendering new graph...";
+    timeout = setTimeout(() => { msg.style.display = "block"; }, 2000);
+  } else msg.style.display = "none";
+}
+
 // ** UOp graph
 
 function intersectRect(r1, r2) {
@@ -22,13 +32,10 @@ function intersectRect(r1, r2) {
   return {x:r1.x+dx*scale, y:r1.y+dy*scale};
 }
 
-let [workerUrl, worker, timeout] = [null, null, null];
+let [workerUrl, worker] = [null, null];
 async function renderDag(graph, additions, recenter=false) {
   // start calculating the new layout (non-blocking)
-  const progressMessage = document.querySelector(".progress-message");
-  progressMessage.innerText = "Rendering new graph...";
-  if (timeout != null) clearTimeout(timeout);
-  timeout = setTimeout(() => {progressMessage.style.display = "block"}, 2000);
+  updateProgress({ show:true });
   if (worker == null) {
     const resp = await Promise.all(["/assets/dagrejs.github.io/project/dagre/latest/dagre.min.js","/js/worker.js"].map(u => fetch(u)));
     workerUrl = URL.createObjectURL(new Blob([(await Promise.all(resp.map((r) => r.text()))).join("\n")], { type: "application/javascript" }));
@@ -40,8 +47,7 @@ async function renderDag(graph, additions, recenter=false) {
   worker.postMessage({graph, additions, ctxs});
   worker.onmessage = (e) => {
     displayGraph("graph");
-    progressMessage.style.display = "none";
-    clearTimeout(timeout);
+    updateProgress({ show:false });
     const g = dagre.graphlib.json.read(e.data);
     // draw nodes
     const STROKE_WIDTH = 1.4;
@@ -109,11 +115,19 @@ function formatTime(ts, dur=ts) {
 }
 const formatUnit = (d, unit="") => d3.format(".3~s")(d)+unit;
 
-const devColors = {"TINY":["rgb(27 87 69)", "rgb(53 79 82)", "rgb(53 79 82)", "rgb(70 172 194)", "rgb(29, 46, 98)"],
-                   "DEFAULT":["rgb(29,31,42)","rgb(42,45,61)","rgb(55,59,79)","rgb(68,72,98)","rgb(18,19,26)","rgb(47,50,68)","rgb(59,63,84)","rgb(74,78,101)","rgb(24,26,35)","rgb(35,37,50)","rgb(49,53,72)","rgb(64,68,89)"],}
-const bufColors = ["#3A57B7","#5066C1","#6277CD","#7488D8","#8A9BE3","#A3B4F2"];
+const colorScheme = {TINY:["#1b5745", "#354f52", "#354f52", "#1d2e62", "#63b0cd"],
+  DEFAULT:["#2b2e39", "#2c2f3a", "#31343f", "#323544", "#2d303a", "#2e313c", "#343746", "#353847", "#3c4050", "#404459", "#444862", "#4a4e65"],
+  BUFFER:["#3A57B7","#5066C1","#6277CD","#7488D8","#8A9BE3","#A3B4F2"],
+  CATEGORICAL:["#ff8080", "#F4A261", "#C8F9D4", "#8D99AE", "#F4A261", "#ffffa2", "#ffffc0", "#87CEEB"],}
+const cycleColors = (lst, i) => lst[i%lst.length];
 
-const lighten = (rgb, depth, step=0.08) => rgb.replace(/\d+/g, n => Math.round(parseInt(n)+(255-parseInt(n)) * Math.min(1, depth*step)));
+const drawLine = (ctx, x, y) => {
+  ctx.beginPath();
+  ctx.moveTo(x[0], y[0]);
+  ctx.lineTo(x[1], y[1]);
+  ctx.fillStyle = ctx.strokeStyle = "#f0f0f5";
+  ctx.stroke();
+}
 
 var profileRet, focusedDevice, canvasZoom, zoomLevel = d3.zoomIdentity;
 async function renderProfiler() {
@@ -152,11 +166,8 @@ async function renderProfiler() {
     let colorKey, ref;
     for (const e of timeline.shapes) {
       if (e.depth === 0) colorKey = e.cat ?? e.name;
-      if (!colorMap.has(colorKey)) {
-        const colors = devColors[k] ?? devColors.DEFAULT;
-        colorMap.set(colorKey, colors[colorMap.size%colors.length]);
-      }
-      const fillColor = lighten(colorMap.get(colorKey), e.depth);
+      if (!colorMap.has(colorKey)) colorMap.set(colorKey, cycleColors(colorScheme[k] ?? colorScheme.DEFAULT, colorMap.size));
+      const fillColor = d3.color(colorMap.get(colorKey)).brighter(e.depth).toString();
       const label = parseColors(e.name).map(({ color, st }) => ({ color, st, width:ctx.measureText(st).width }));
       if (e.ref != null) ref = {ctx:e.ref, step:0};
       else if (ref != null) {
@@ -164,31 +175,34 @@ async function renderProfiler() {
         const stepIdx = ctxs[ref.ctx+1].steps.findIndex((s, i) => i >= start && s.name == e.name);
         ref = stepIdx === -1 ? null : {ctx:ref.ctx, step:stepIdx};
       }
-      const arg = { tooltipText:formatTime(e.dur), ...ref };
+      const arg = { tooltipText:formatTime(e.dur)+(e.info != null ? "\n"+e.info : ""), ...ref };
       // offset y by depth
       data.shapes.push({x:e.st-st, y:offsetY+levelHeight*e.depth, width:e.dur, height:levelHeight, arg, label, fillColor });
     }
     // position shapes on the canvas and scale to fit fixed area
-    const startY = offsetY+(levelHeight*timeline.maxDepth)+padding/2;
     let area = mem.shapes.length === 0 ? 0 : areaScale(mem.peak);
     if (area === 0) div.style.pointerEvents = "none";
-    else div.style.cursor = "pointer";
-    if (k === focusedDevice) {
-      // expand memory graph for the focused device
-      area = maxArea*4;
-      data.axes.y = { domain:[0, mem.peak], range:[startY+area, startY], fmt:"B" };
-    }
-    const yscale = d3.scaleLinear().domain([0, mem.peak]).range([startY+area, startY]);
-    for (const [i,e] of mem.shapes.entries()) {
-      const x = e.x.map((i,_) => (mem.timestamps[i] ?? et)-st);
-      const y0 = e.y.map(yscale);
-      const y1 = e.y.map(y => yscale(y+e.arg.nbytes));
-      const arg = { tooltipText:`${e.arg.dtype} len:${formatUnit(e.arg.sz)}\n${formatUnit(e.arg.nbytes, "B")}` };
-      data.shapes.push({ x, y0, y1, arg, fillColor:bufColors[i%bufColors.length] });
+    else {
+      const startY = offsetY+(levelHeight*timeline.maxDepth)+padding/2;
+      div.style.cursor = "pointer";
+      if (k === focusedDevice) {
+        // expand memory graph for the focused device
+        area = maxArea*4;
+        data.axes.y = { domain:[0, mem.peak], range:[startY+area, startY], fmt:"B" };
+      }
+      const yscale = d3.scaleLinear().domain([0, mem.peak]).range([startY+area, startY]);
+      for (const [i,e] of mem.shapes.entries()) {
+        const x = e.x.map((i,_) => (mem.timestamps[i] ?? et)-st);
+        const y0 = e.y.map(yscale);
+        const y1 = e.y.map(y => yscale(y+e.arg.nbytes));
+        const arg = { tooltipText:`${e.arg.dtype} len:${formatUnit(e.arg.sz)}\n${formatUnit(e.arg.nbytes, "B")}` };
+        data.shapes.push({ x, y0, y1, arg, fillColor:cycleColors(colorScheme.BUFFER, i) });
+      }
     }
     // lastly, adjust device rect by number of levels
     div.style.height = `${Math.max(levelHeight*timeline.maxDepth, baseHeight)+area+padding}px`;
   }
+  updateProgress({ "show":false });
   // draw events on a timeline
   const dpr = window.devicePixelRatio || 1;
   const ellipsisWidth = ctx.measureText("...").width;
@@ -221,7 +235,13 @@ async function renderProfiler() {
         ctx.closePath();
         ctx.fill();
         // NOTE: y coordinates are in reverse order
-        for (let i = 0; i < x.length - 1; i++) rectLst.push({ x0:x[i], x1:x[i+1], y0:e.y1[i], y1:e.y0[i], arg:e.arg });
+        for (let i = 0; i < x.length - 1; i++) {
+          let tooltipText = e.arg.tooltipText;
+          if (yscale != null && ((yaxisVal=yscale.invert(e.y1[i]))>0)) {
+            tooltipText += `\nTotal: ${formatUnit(yaxisVal, data.axes.y.fmt)}`;
+          }
+          rectLst.push({ x0:x[i], x1:x[i+1], y0:e.y1[i], y1:e.y0[i], arg:{...e.arg, tooltipText} });
+        }
         continue;
       }
       // contiguous rect
@@ -247,20 +267,12 @@ async function renderProfiler() {
       }
     }
     // draw axes
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(canvas.clientWidth, 0);
-    ctx.fillStyle = ctx.strokeStyle = "#f0f0f5";
-    ctx.lineWidth = 1;
-    ctx.stroke();
+    drawLine(ctx, xscale.range(), [0, 0]);
     const ticks = xscale.ticks();
     for (const [i, tick] of ticks.entries()) {
-      ctx.beginPath();
       // tick line
       const x = xscale(tick);
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, tickSize);
-      ctx.stroke();
+      drawLine(ctx, [x, x], [0, tickSize])
       // tick label
       ctx.textBaseline = "top";
       ctx.textAlign = i === ticks.length-1 ? "right" : "left";
@@ -268,16 +280,10 @@ async function renderProfiler() {
       ctx.fillText(formatTime(tick, et-st), x+(ctx.lineWidth+2)*padding, tickSize);
     }
     if (yscale != null) {
-      ctx.beginPath();
-      ctx.moveTo(0, yscale.range()[1]);
-      ctx.lineTo(0, yscale.range()[0]);
-      ctx.stroke();
+      drawLine(ctx, [0, 0], yscale.range());
       for (const tick of yscale.ticks()) {
         const y = yscale(tick);
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(tickSize, y);
-        ctx.stroke();
+        drawLine(ctx, [0, tickSize], [y, y]);
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
         ctx.fillText(formatUnit(tick, data.axes.y.fmt), tickSize+2, y);
@@ -377,11 +383,16 @@ function codeBlock(st, language, { loc, wrap }={}) {
   return ret;
 }
 
-function appendRow(table, name, value, unit, cls) {
+function appendTd(tr, value, unit=null) {
+  const fmt = (typeof value === "number" && !Number.isInteger(value)) ? value.toFixed(2) : value;
+  tr.appendChild(document.createElement("td")).innerText = unit == "us" ? formatTime(value) : fmt+(unit ?? "");
+}
+
+function appendRow(table, name, value, unit=null, cls="main-row") {
   const tr = table.appendChild(document.createElement("tr"));
   tr.className = cls;
   tr.appendChild(document.createElement("td")).innerText = name;
-  tr.appendChild(document.createElement("td")).innerText = unit === "us" ? formatTime(value) : value.toFixed(2)+(unit != null ? " "+unit : "%");
+  appendTd(tr, value, unit);
   return tr;
 }
 
@@ -495,10 +506,47 @@ async function main() {
   if (ckey.startsWith("/disasm")) {
     if (!(ckey in cache)) cache[ckey] = ret = await (await fetch(ckey)).json();
     displayGraph("profiler");
-    document.querySelector(".metadata").innerHTML = "";
     const root = document.createElement("div");
     root.className = "raw-text";
-    root.appendChild(codeBlock(ret.src, "x86asm"));
+    const metadata = document.querySelector(".metadata");
+    metadata.innerHTML = "";
+    // detailed assembly view
+    if (ret.cols != null) {
+      const asm = root.appendChild(document.createElement("table"));
+      const thead = asm.appendChild(document.createElement("thead"));
+      for (const c of ret.cols) thead.appendChild(document.createElement("th")).innerText = c.title ?? c;
+      for (const r of ret.rows) {
+        const tr = asm.appendChild(document.createElement("tr"));
+        tr.className = "main-row code-row";
+        for (const [i,value] of r.entries()) {
+          // string format scalar values
+          if (!Array.isArray(value)) appendTd(tr, value);
+          // display arrays in a bar graph
+          else {
+            const segmentsTd = tr.appendChild(document.createElement("td"));
+            segmentsTd.className = "pct-row";
+            const usageBar = segmentsTd.appendChild(document.createElement("div"));
+            for (const [k, v, width] of value) {
+              const seg = usageBar.appendChild(document.createElement("div"));
+              seg.style.width = width+"%";
+              seg.title = `${ret.cols[i].labels[k]} ${v}`;
+              seg.style.background = cycleColors(colorScheme.CATEGORICAL, parseInt(k));
+            }
+          }
+        }
+      }
+      const summary = metadata.appendChild(document.createElement("table"));
+      for (const s of ret.summary) {
+        const tr = summary.appendChild(document.createElement("tr"));
+        tr.className = "main-row";
+        const td = tr.appendChild(document.createElement("td"));
+        const div = td.appendChild(document.createElement("div"));
+        div.className = "legend";
+        div.appendChild(document.createElement("div")).style.background = cycleColors(colorScheme.CATEGORICAL, s.idx);
+        div.appendChild(document.createElement("p")).textContent = s.label;
+        appendTd(tr, s.value);
+      }
+    } else root.appendChild(codeBlock(ret.src, "x86asm"));
     return document.querySelector(".profiler").replaceChildren(root);
   }
   // ** UOp view (default)

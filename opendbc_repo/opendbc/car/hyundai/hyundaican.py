@@ -3,6 +3,7 @@ from opendbc.car.hyundai.values import CAR, HyundaiFlags, LEGACY_SAFETY_MODE_CAR
 
 hyundai_checksum = crcmod.mkCrcFun(0x11D, initCrc=0xFD, rev=False, xorOut=0xdf)
 
+
 def create_lkas11(packer, frame, CP, apply_torque, steer_req,
                   torque_fault, lkas11, sys_warning, sys_state, enabled,
                   left_lane, right_lane,
@@ -144,6 +145,7 @@ def create_lfahda_mfc(packer, enabled, hda_set_speed=0):
   }
   return packer.make_can_msg("LFAHDA_MFC", 0, values)
 
+
 def create_acc_commands(packer, enabled, accel, upper_jerk, idx, hud_control, set_speed, stopping, long_override, use_fca, CP, gap_setting):
   commands = []
 
@@ -207,6 +209,7 @@ def create_acc_commands(packer, enabled, accel, upper_jerk, idx, hud_control, se
 
   return commands
 
+
 def create_acc_opt(packer, CP):
   commands = []
 
@@ -228,12 +231,14 @@ def create_acc_opt(packer, CP):
 
   return commands
 
+
 def create_frt_radar_opt(packer):
   frt_radar11_values = {
     "CF_FCA_Equip_Front_Radar": 1,
   }
   return packer.make_can_msg("FRT_RADAR11", 0, frt_radar11_values)
-  
+
+
 def create_scc11(packer, frame, set_speed, lead_visible, scc_live, lead_dist, lead_vrel, lead_yrel, car_fingerprint, speed, standstill, gap_setting, stopping, radar_recognition, scc11):
   values = scc11
   values["AliveCounterACC"] = frame // 2 % 0x10
@@ -258,6 +263,7 @@ def create_scc11(packer, frame, set_speed, lead_visible, scc_live, lead_dist, le
     values["ACC_ObjLatPos"] = clip(-lead_yrel if lead_visible else 0, -170., 170.)
 
   return packer.make_can_msg("SCC11", 0, values)
+
 
 def create_scc12(packer, apply_accel, enabled, scc_live, gaspressed, brakepressed, aebcmdact, car_fingerprint, speed, stopping, standstill, radar_recognition, cnt, scc12):
   values = scc12
@@ -299,9 +305,11 @@ def create_scc12(packer, apply_accel, enabled, scc_live, gaspressed, brakepresse
 
   return packer.make_can_msg("SCC12", 0, values)
 
+
 def create_scc13(packer, scc13):
   values = scc13
   return packer.make_can_msg("SCC13", 0, values)
+
 
 def create_scc14(packer, enabled, scc14, aebcmdact, lead_visible, lead_dist, v_ego, standstill, car_fingerprint):
   values = scc14
@@ -335,6 +343,7 @@ def create_scc14(packer, enabled, scc14, aebcmdact, lead_visible, lead_dist, v_e
     values["ObjGap"] = 0
 
   return packer.make_can_msg("SCC14", 0, values)
+
 
 def create_scc42a(packer):
   values = {

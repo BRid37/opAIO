@@ -2,7 +2,7 @@ import math
 import numpy as np
 
 from cereal import car
-from openpilot.common.conversions import Conversions as CV
+from openpilot.common.constants import CV
 
 import cereal.messaging as messaging
 from openpilot.common.realtime import DT_MDL
