@@ -17,9 +17,9 @@ LaneChangeState = log.LateralPlan.LaneChangeState
 
 TRAJECTORY_SIZE = 33
 
-CAMERA_OFFSET = Params().get("CameraOffsetAdj") * 0.001
+CAMERA_OFFSET = Params().get("CameraOffsetAdj") * 0.001 if Params().get("CameraOffsetAdj") is not None else 0.04 # default 0.04
 CAMERA_OFFSET_A = CAMERA_OFFSET + 0.15
-PATH_OFFSET = Params().get("PathOffsetAdj") * 0.001  # default 0.0
+PATH_OFFSET = Params().get("PathOffsetAdj") * 0.001 if Params().get("PathOffsetAdj") is not None else 0.0 # default 0.0
 
 PATH_COST = 1.0
 LATERAL_MOTION_COST = 0.11
