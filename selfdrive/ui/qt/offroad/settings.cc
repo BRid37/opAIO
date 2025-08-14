@@ -194,7 +194,7 @@ void TogglesPanel::updateToggles() {
       // no long for now
       experimental_mode_toggle->setEnabled(false);
       long_personality_setting->setEnabled(false);
-      params.remove("ExperimentalMode");
+      // params.remove("ExperimentalMode");
 
       const QString unavailable = tr("Experimental mode is currently unavailable on this car since the car's stock ACC is used for longitudinal control.");
 
