@@ -139,6 +139,9 @@ class CarState(CarStateBase):
     self.cruise_set_mode = params.get("CruiseStatemodeSelInit")
     self.prev_cruise_btn = False
 
+    self.brake_check = False
+    self.cancel_check = False
+
     self.sm = messaging.SubMaster(['carState'])
 
 
@@ -260,6 +263,11 @@ class CarState(CarStateBase):
 
     ret.parkingBrake = cp.vl["TCS13"]["PBRAKE_ACT"] == 1
 
+    if ret.brakePressed:
+      self.brake_check = True
+    if self.cruise_buttons[-1] == 4:
+      self.cancel_check = True
+
     ret.brakeLights = bool(cp.vl["TCS13"]["BrakeLight"] or ret.brakePressed)
 
     # cruise state
@@ -269,8 +277,10 @@ class CarState(CarStateBase):
       #ret.cruiseState.enabled = cp.vl["TCS13"]["ACC_REQ"] == 1 or cp.vl["LVR12"]["CF_Lvr_CruiseSet"] != 0
       ret.cruiseState.standstill = False
       if ret.brakePressed and self.acc_active:
+        self.brake_check = True
         self.acc_active = False
       if self.cruise_buttons[-1] == 1 or self.cruise_buttons[-1] == 2:
+        self.brake_check = False
         self.exp_engage_available = True
         self.acc_active = self.exp_engage_available
       elif self.cruise_buttons[-1] == 4:
@@ -305,6 +315,9 @@ class CarState(CarStateBase):
         ret.cruiseState.enabled = ret.cruiseState.available
 
       self.acc_active = cp_scc.vl["SCC12"]['ACCMode'] != 0
+      if self.acc_active:
+        self.brake_check = False
+        self.cancel_check = False
 
       ret.cruiseState.speed = cp_cruise.vl["SCC11"]["VSetDis"] * speed_conv
 
@@ -322,7 +335,6 @@ class CarState(CarStateBase):
       ret.espDisabled = cp.vl["TCS11"]["TCS_PAS"] == 1
       ret.espActive = cp.vl["TCS11"]["ABS_ACT"] == 1
 
-    ret.cruiseState.accActive = self.acc_active
     ret.cruiseState.cruiseSwState = self.cruise_buttons[-1]
 
     if self.CP.flags & (HyundaiFlags.HYBRID | HyundaiFlags.EV | HyundaiFlags.FCEV):
@@ -543,8 +555,10 @@ class CarState(CarStateBase):
       # ret.cruiseState.enabled = cp.vl["TCS"]["ACC_REQ"] == 1
       ret.cruiseState.standstill = False
       if ret.brakePressed and self.acc_active and not ret.standstill:
+        self.brake_check = True
         self.acc_active = False
       if self.cruise_buttons[-1] == 1 or self.cruise_buttons[-1] == 2:
+        self.brake_check = False
         self.exp_engage_available = True
         self.acc_active = self.exp_engage_available
       elif self.cruise_buttons[-1] == 4:
@@ -595,7 +609,9 @@ class CarState(CarStateBase):
 
       self.acc_active = cp_cruise_info.vl["SCC_CONTROL"]["ACCMode"] in (1, 2)
       self.acc_active_standby = cp_cruise_info.vl["SCC_CONTROL"]["MainMode_ACC"] != 0
-      ret.cruiseState.accActive = self.acc_active
+      if self.acc_active:
+        self.brake_check = False
+        self.cancel_check = False
 
       ret.cruiseState.speed = cp_cruise_info.vl["SCC_CONTROL"]["VSetDis"] * speed_factor
       ret.cruiseAccStatus = self.acc_active

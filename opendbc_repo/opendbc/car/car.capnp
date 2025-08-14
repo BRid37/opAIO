@@ -283,8 +283,7 @@ struct CarState {
     # atom
     modeSel @7 :Int16;
     cruiseSwState @8 :Int16;
-    accActive @9 :Bool;
-    gapSet @10 :Int16;
+    gapSet @9 :Int16;
   }
 
   enum GearShifter {

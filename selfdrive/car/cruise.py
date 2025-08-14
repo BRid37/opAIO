@@ -115,8 +115,8 @@ class VCruiseHelper:
             self.v_cruise_kph = cstate.autoResvCruisekph
             self.v_cruise_kph_last = self.v_cruise_kph
             self.v_cruise_cluster_kph = self.v_cruise_kph
-          elif CS.cruiseButtons == Buttons.RES_ACCEL or CS.cruiseButtons == Buttons.SET_DECEL or (CS.cruiseState.accActive and CS.cruiseButtons == 0 and not self.first_acc):
-            if CS.cruiseState.accActive and CS.cruiseButtons == 0:
+          elif CS.cruiseButtons == Buttons.RES_ACCEL or CS.cruiseButtons == Buttons.SET_DECEL or (CS.cruiseAccStatus and CS.cruiseButtons == 0 and not self.first_acc):
+            if CS.cruiseAccStatus and CS.cruiseButtons == 0:
               self.first_acc = True
             if (self.cruise_road_limit_spd_enabled and cstate.setLoadspeedTempStop) and CS.cruiseButtons == Buttons.RES_ACCEL:
               self.cruise_road_limit_spd_switch_prev = navi.roadLimitSpeed
