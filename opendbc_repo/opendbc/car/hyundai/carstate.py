@@ -367,13 +367,14 @@ class CarState(CarStateBase):
     self.gasPressed = ret.gasPressed
 
     # kisa
-    ret.tpms = self.get_tpms(
-      cp.vl["TPMS11"]["UNIT"],
-      cp.vl["TPMS11"]["PRESSURE_FL"],
-      cp.vl["TPMS11"]["PRESSURE_FR"],
-      cp.vl["TPMS11"]["PRESSURE_RL"],
-      cp.vl["TPMS11"]["PRESSURE_RR"],
-    )
+    if self.CP.tpmsAvailable:
+      ret.tpms = self.get_tpms(
+        cp.vl["TPMS11"]["UNIT"],
+        cp.vl["TPMS11"]["PRESSURE_FL"],
+        cp.vl["TPMS11"]["PRESSURE_FR"],
+        cp.vl["TPMS11"]["PRESSURE_RL"],
+        cp.vl["TPMS11"]["PRESSURE_RR"],
+      )
 
     # Gear Selection via Cluster - For those Kia/Hyundai which are not fully discovered, we can use the Cluster Indicator for Gear Selection,
     # as this seems to be standard over all cars, but is not the preferred method.
