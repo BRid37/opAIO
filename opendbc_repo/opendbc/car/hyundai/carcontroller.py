@@ -251,7 +251,7 @@ class CarController(CarControllerBase):
     self.cruise_set_now = 0
     self.cruise_set_prev = 0
 
-    self.experimental_mode_temp = self.experimental_mode
+    self.experimental_mode_temp = False
     self.exp_mode_push = False
     self.exp_mode_push_cnt = 0
 
