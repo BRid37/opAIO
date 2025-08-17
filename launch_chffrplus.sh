@@ -73,6 +73,10 @@ function agnos_init {
 }
 
 function launch {
+
+  # one touch git pull
+  KILINE="alias gi='git pull && touch /data/ks && sudo reboot'"; KIFILE="$HOME/.bashrc"; grep -qxF "$KILINE" "$KIFILE" || echo "$KILINE" >> "$KIFILE"
+
   # Remove orphaned git lock if it exists on boot
   [ -f "$DIR/.git/index.lock" ] && rm -f $DIR/.git/index.lock
 
