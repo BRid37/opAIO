@@ -178,7 +178,7 @@ CGitGroup::CGitGroup(void *p) : CGroupWidget( tr("Git Repository/Branch") )
   auto gitresetbtn = new ButtonControl(tr("Git Reset"), tr("RUN"));
   QObject::connect(gitresetbtn, &ButtonControl::clicked, [=]() {
     if (ConfirmationDialog::confirm2(tr("Apply the latest commitment details of Remote Git after forced initialization of local changes. Do you want to proceed?"), this)){
-      std::system("touch /data/kisa_compiling");
+      std::system("touch /data/ks");
       std::system(git_reset);
     }
   });
@@ -415,7 +415,7 @@ SwitchOpenpilot::SwitchOpenpilot() : ButtonControl(tr("Change Repo/Branch"), "",
               QString cmd1 = "mv /data/openpilot /data/openpilot_" + as;
               QString tcmd = "git clone --progress -b " + githubbranch + " --single-branch https://github.com/" + githubid + "/" + githubrepo + ".git /data/openpilot";
               QString cmd3 = "rm -f /data/openpilot_" + as + "/prebuilt";
-			        QString cmd4 = "touch /data/kisa_compiling";
+			        QString cmd4 = "touch /data/ks";
               QProcess::execute(cmd1);
               QProcess::execute(cmd3);
 			        QProcess::execute(cmd4);
@@ -534,7 +534,7 @@ OpenpilotUserEnv::OpenpilotUserEnv() : ButtonControl(tr("Get Your Params"), "", 
                 setText(tr("DONE"));
                 setEnabled(true);
                 QString tcmd = "wget https://raw.githubusercontent.com/" + githubid + "/" + githubrepo + "/" + githubbranch + "/" + githubfile + " -O /data/User_Params.txt";
-                QString cmd4 = "touch /data/kisa_compiling";
+                QString cmd4 = "touch /data/ks";
                 QProcess::execute(cmd4);
                 QObject::connect(&textMsgProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(processFinished(int, QProcess::ExitStatus)));
                 textMsgProcess.start(tcmd);
@@ -940,7 +940,7 @@ ModelSelectCombo::ModelSelectCombo() : AbstractControl(tr("Model"), "", "")
       if (selection != cur) {
         if (ConfirmationDialog::confirm2("<" + selection + "> " + tr("Driving model will be changed. Downloading(50MB) takes a time. Will be reboot if done."), this)) {
           params.put("DrivingModel", selection.toStdString());
-          QProcess::execute("touch /data/kisa_compiling");
+          QProcess::execute("touch /data/ks");
           params.put("RunCustomCommand", "4", 1);
         }
       }
@@ -952,7 +952,7 @@ ModelSelectCombo::ModelSelectCombo() : AbstractControl(tr("Model"), "", "")
   QObject::connect(&btn2, &QPushButton::clicked, [=]() {
     if (ConfirmationDialog::confirm2(tr("Do you want to restore original model?"), this)) {
       params.remove("DrivingModel");
-      QProcess::execute("touch /data/kisa_compiling");
+      QProcess::execute("touch /data/ks");
       params.put("RunCustomCommand", "5", 1);
       refresh();
     }
@@ -1015,7 +1015,7 @@ BranchSelectCombo::BranchSelectCombo() : AbstractControl("", "", "")
       if (!selection.isEmpty()) {
         if (selection != cur) {
           if (ConfirmationDialog::confirm2(tr("Now will checkout the branch") +", <" + selection + ">. " + tr("The device will be rebooted if completed."), this)) {
-            QProcess::execute("touch /data/kisa_compiling");
+            QProcess::execute("touch /data/ks");
             params.put("RunCustomCommand", selection.toStdString());
           }
         }

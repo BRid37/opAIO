@@ -413,7 +413,7 @@ GitPullCancel::GitPullCancel(const QString &confirm_text, const QString &cancel_
         if (ConfirmationDialog::confirm2(tr("This will run below command: git reset --hard ") + hash[0], this)) {
           QString cmd0 = "git reset --hard " + hash[0];
           std::system("rm -f /data/openpilot/prebuilt");
-          std::system("touch /data/kisa_compiling");
+          std::system("touch /data/ks");
           std::system("git clean -d -f -f");
           std::system(cmd0.toUtf8().constData());
           std::system("sudo reboot");

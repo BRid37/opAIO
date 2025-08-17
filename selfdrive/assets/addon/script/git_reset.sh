@@ -22,7 +22,7 @@ if [ "$?" == "0" ]; then
   rm -f /data/openpilot/selfdrive/modeld/models/driving_*
   git -C /data/openpilot/selfdrive/modeld/models checkout driving_policy.onnx
   git -C /data/openpilot/selfdrive/modeld/models checkout driving_vision.onnx
-  touch /data/kisa_compiling
+  touch /data/ks
   sleep 1
 
   sudo reboot

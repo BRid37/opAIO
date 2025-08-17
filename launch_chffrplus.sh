@@ -6,8 +6,8 @@ source "$DIR/launch_env.sh"
 
 function agnos_init {
   # prebuilt recreate
-  if [ -f "/data/kisa_compiling" ]; then
-    sudo rm /data/kisa_compiling
+  if [ -f "/data/ks" ]; then
+    sudo rm /data/ks
     if [ -f "$DIR/prebuilt" ]; then
       sudo rm $DIR/prebuilt
     fi
@@ -94,7 +94,7 @@ function launch {
         if [ ! -d /data/safe_staging/old_openpilot ]; then
           echo "Valid overlay update found, installing"
           
-          touch /data/kisa_compiling
+          touch /data/ks
 
           LAUNCHER_LOCATION="${BASH_SOURCE[0]}"
 

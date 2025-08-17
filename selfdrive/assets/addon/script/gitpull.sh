@@ -27,7 +27,7 @@ if [ "$?" == "0" ]; then
       git reset --hard
     fi
     git pull origin $BRANCH
-    touch /data/kisa_compiling
+    touch /data/ks
     sleep 1
 
     sudo reboot
