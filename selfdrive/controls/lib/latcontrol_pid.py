@@ -27,10 +27,10 @@ class LatControlPID(LatControl):
   def live_tune(self):
     self.mpc_frame += 1
     if self.mpc_frame % 300 == 0:
-      self.steerKpV = self.params.get("PidKp") * 0.01
-      self.steerKiV = self.params.get("PidKi") * 0.001
-      self.steerKf = self.params.get("PidKf") * 0.00001
-      self.steerKd = self.params.get("PidKd") * 0.01
+      self.steerKpV = self.params.get("PidKp", return_default=True) * 0.01
+      self.steerKiV = self.params.get("PidKi", return_default=True) * 0.001
+      self.steerKf = self.params.get("PidKf", return_default=True) * 0.00001
+      self.steerKd = self.params.get("PidKd", return_default=True) * 0.01
       self.pid = PIDController(([0., 9.], [0.1, self.steerKpV]),
                           ([0., 9.], [0.01, self.steerKiV]),
                           k_f=self.steerKf, k_d=self.steerKd,

@@ -27,7 +27,7 @@ from openpilot.system.version import get_build_metadata
 from openpilot.common.constants import CV
 from opendbc.car import structs
 
-USE_LEGACY_LANE_MODEL = Params().get("UseLegacyLaneModel") if Params().get("UseLegacyLaneModel") is not None else 0
+USE_LEGACY_LANE_MODEL = Params().get("UseLegacyLaneModel", return_default=True) if Params().get("UseLegacyLaneModel", return_default=True) is not None else 0
 
 REPLAY = "REPLAY" in os.environ
 SIMULATION = "SIMULATION" in os.environ
@@ -159,8 +159,8 @@ class SelfdriveD:
     self.no_mdps_mods = self.params.get_bool("NoSmartMDPS")
     self.ufc_mode = self.params.get_bool("UFCModeEnabled")
     self.second = 0.0
-    self.lane_change_delay = self.params.get("KisaAutoLaneChangeDelay")
-    self.auto_enable_speed = self.params.get("AutoEnableSpeed")
+    self.lane_change_delay = self.params.get("KisaAutoLaneChangeDelay", return_default=True)
+    self.auto_enable_speed = self.params.get("AutoEnableSpeed", return_default=True)
     self.e2e_long_alert_prev = True
     self.unsleep_mode_alert_prev = True
     self.donotdisturb_mode_alert_prev = True
@@ -171,7 +171,7 @@ class SelfdriveD:
     self.rx_checks_ok = False
     self.mismatch_counter_ok = False
 
-    self.legacy_lane_mode = self.params.get("UseLegacyLaneModel")
+    self.legacy_lane_mode = self.params.get("UseLegacyLaneModel", return_default=True)
 
   def auto_enable(self, CS):
     if self.state_machine.state != State.enabled:
@@ -343,10 +343,10 @@ class SelfdriveD:
       elif not self.params.get_bool("KisaMonitoringMode"):
         self.unsleep_mode_alert_prev = True
       # DoNotDisturb Mode Alert
-      if self.params.get("CommaStockUI") == 2 and self.donotdisturb_mode_alert_prev:
+      if self.params.get("CommaStockUI", return_default=True) == 2 and self.donotdisturb_mode_alert_prev:
         self.events.add(EventName.doNotDisturb)
         self.donotdisturb_mode_alert_prev = not self.donotdisturb_mode_alert_prev
-      elif not self.params.get("CommaStockUI") == 2:
+      elif not self.params.get("CommaStockUI", return_default=True) == 2:
         self.donotdisturb_mode_alert_prev = True
       self.second = 0.0
 

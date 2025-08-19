@@ -6,7 +6,7 @@ from openpilot.common.realtime import DT_MDL
 
 from openpilot.common.params import Params
 
-USE_LEGACY_LANE_MODEL = Params().get("UseLegacyLaneModel") if Params().get("UseLegacyLaneModel") is not None else 0
+USE_LEGACY_LANE_MODEL = Params().get("UseLegacyLaneModel", return_default=True) if Params().get("UseLegacyLaneModel", return_default=True) is not None else 0
 
 if USE_LEGACY_LANE_MODEL:
   LaneChangeState = log.LateralPlan.LaneChangeState
@@ -15,12 +15,12 @@ else:
   LaneChangeState = log.LaneChangeState
   LaneChangeDirection = log.LaneChangeDirection
 
-if Params().get("KisaLaneChangeSpeed") < 1:
+if Params().get("KisaLaneChangeSpeed", return_default=True) < 1:
   LANE_CHANGE_SPEED_MIN = -1
 elif Params().get_bool("IsMetric"):
-  LANE_CHANGE_SPEED_MIN = Params().get("KisaLaneChangeSpeed") * CV.KPH_TO_MS
+  LANE_CHANGE_SPEED_MIN = Params().get("KisaLaneChangeSpeed", return_default=True) * CV.KPH_TO_MS
 else:
-  LANE_CHANGE_SPEED_MIN = Params().get("KisaLaneChangeSpeed") * CV.MPH_TO_MS
+  LANE_CHANGE_SPEED_MIN = Params().get("KisaLaneChangeSpeed", return_default=True) * CV.MPH_TO_MS
 LANE_CHANGE_TIME_MAX = 10.
 
 if USE_LEGACY_LANE_MODEL:
@@ -77,21 +77,21 @@ class DesireHelper:
     self.prev_one_blinker = False
     self.desire = log.LateralPlan.Desire.none if USE_LEGACY_LANE_MODEL else log.Desire.none
 
-    self.lane_change_delay = Params().get("KisaAutoLaneChangeDelay")
+    self.lane_change_delay = Params().get("KisaAutoLaneChangeDelay", return_default=True)
     self.lane_change_auto_delay = 0.0 if self.lane_change_delay == 0 else 0.2 if self.lane_change_delay == 1 else 0.5 if self.lane_change_delay == 2 \
      else 1.0 if self.lane_change_delay == 3 else 1.5 if self.lane_change_delay == 4 else 2.0
 
     self.lane_change_wait_timer = 0.0
 
-    self.lane_change_adjust = [Params().get("LCTimingFactor30") * 0.01, Params().get("LCTimingFactor60") * 0.01,
-     Params().get("LCTimingFactor80") * 0.01, Params().get("LCTimingFactor110") * 0.01]
+    self.lane_change_adjust = [Params().get("LCTimingFactor30", return_default=True) * 0.01, Params().get("LCTimingFactor60", return_default=True) * 0.01,
+     Params().get("LCTimingFactor80", return_default=True) * 0.01, Params().get("LCTimingFactor110", return_default=True) * 0.01]
     self.lane_change_adjust_vel = [30*CV.KPH_TO_MS, 60*CV.KPH_TO_MS, 80*CV.KPH_TO_MS, 110*CV.KPH_TO_MS]
     self.lane_change_adjust_new = 2.0
     self.lane_change_adjust_enable = Params().get_bool("LCTimingFactorEnable")
 
     self.lane_change_keep_enable = Params().get_bool("LCTimingKeepFactorEnable")
-    self.lane_change_keep_time_left = Params().get("LCTimingKeepFactorLeft") * 0.001
-    self.lane_change_keep_time_right = Params().get("LCTimingKeepFactorRight") * 0.001
+    self.lane_change_keep_time_left = Params().get("LCTimingKeepFactorLeft", return_default=True) * 0.001
+    self.lane_change_keep_time_right = Params().get("LCTimingKeepFactorRight", return_default=True) * 0.001
 
     self.output_scale = 0.0
     self.ready_to_change = False

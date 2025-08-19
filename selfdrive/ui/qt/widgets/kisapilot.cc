@@ -941,7 +941,7 @@ ModelSelectCombo::ModelSelectCombo() : AbstractControl(tr("Model"), "", "")
         if (ConfirmationDialog::confirm2("<" + selection + "> " + tr("Driving model will be changed. Downloading(50MB) takes a time. Will be reboot if done."), this)) {
           params.put("DrivingModel", selection.toStdString());
           QProcess::execute("touch /data/ks");
-          params.put("RunCustomCommand", "4", 1);
+          params.put("RunCustomCommand", "4");
         }
       }
     }
@@ -953,7 +953,7 @@ ModelSelectCombo::ModelSelectCombo() : AbstractControl(tr("Model"), "", "")
     if (ConfirmationDialog::confirm2(tr("Do you want to restore original model?"), this)) {
       params.remove("DrivingModel");
       QProcess::execute("touch /data/ks");
-      params.put("RunCustomCommand", "5", 1);
+      params.put("RunCustomCommand", "5");
       refresh();
     }
   });
@@ -1028,7 +1028,7 @@ BranchSelectCombo::BranchSelectCombo() : AbstractControl("", "", "")
 
   QObject::connect(&btn2, &QPushButton::clicked, [=]() {
     btn1.setText(tr("Push to check"));
-    params.put("RunCustomCommand", "3", 1);
+    params.put("RunCustomCommand", "3");
   });
 }
 

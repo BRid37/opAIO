@@ -61,7 +61,7 @@ class LongControl:
     self.long_plan_source = ""
 
     self.long_log = Params().get_bool("LongLogDisplay")
-    self.stopping_dist = Params().get("StoppingDist") * 0.1
+    self.stopping_dist = Params().get("StoppingDist", return_default=True) * 0.1
 
     self.loc_timer = 0
 

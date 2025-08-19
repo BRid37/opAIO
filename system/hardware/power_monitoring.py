@@ -15,8 +15,8 @@ CAR_BATTERY_CAPACITY_uWh = 30e6
 CAR_CHARGING_RATE_W = 45
 
 VBATT_PAUSE_CHARGING = 11.8           # Lower limit on the LPF car battery voltage
-MAX_TIME_OFFROAD_S = np.interp(Params().get("KisaAutoShutdown"), [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14], [0,5,30,60,180,300,600,1800,3600,10800,18000,36000,86400,172800,259200]) \
-                      if Params().get("KisaAutoShutdown") is not None else 0 # 30*3600
+MAX_TIME_OFFROAD_S = np.interp(Params().get("KisaAutoShutdown", return_default=True), [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14], [0,5,30,60,180,300,600,1800,3600,10800,18000,36000,86400,172800,259200]) \
+                      if Params().get("KisaAutoShutdown", return_default=True) is not None else 0 # 30*3600
 MIN_ON_TIME_S = 3600
 DELAY_SHUTDOWN_TIME_S = 300 # Wait at least DELAY_SHUTDOWN_TIME_S seconds after offroad_time to shutdown.
 VOLTAGE_SHUTDOWN_MIN_OFFROAD_TIME_S = 60

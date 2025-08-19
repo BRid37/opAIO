@@ -344,11 +344,11 @@ void HomeWindow::mousePressEvent(QMouseEvent* e)
       uiState()->scene.laneless_mode = 0;
     }
     if (uiState()->scene.laneless_mode == 0) {
-      Params().put("LanelessMode", "0", 1);
+      Params().put("LanelessMode", "0");
     } else if (uiState()->scene.laneless_mode == 1) {
-      Params().put("LanelessMode", "1", 1);
+      Params().put("LanelessMode", "1");
     } else if (uiState()->scene.laneless_mode == 2) {
-      Params().put("LanelessMode", "2", 1);
+      Params().put("LanelessMode", "2");
     }
     return;
   }
@@ -376,11 +376,11 @@ void HomeWindow::mousePressEvent(QMouseEvent* e)
     }
 
     if (uiState()->scene.comma_stock_ui == 0) {
-      Params().put("CommaStockUI", "0", 1);
+      Params().put("CommaStockUI", "0");
     } else if (uiState()->scene.comma_stock_ui == 1) {
-      Params().put("CommaStockUI", "1", 1);
+      Params().put("CommaStockUI", "1");
     } else if (uiState()->scene.comma_stock_ui == 2) {
-      Params().put("CommaStockUI", "2", 1);
+      Params().put("CommaStockUI", "2");
       uiState()->scene.touched2 = true;
       QTimer::singleShot(500, []() { uiState()->scene.touched2 = false; });
     }

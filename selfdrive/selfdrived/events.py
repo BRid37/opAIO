@@ -52,12 +52,12 @@ class ET:
 EVENT_NAME = {v: k for k, v in EventName.schema.enumerants.items()}
 
 try:
-  LANG_FILE='/data/openpilot/selfdrive/assets/addon/lang/events/' + Params().get("LanguageSetting") + '.txt'
+  LANG_FILE='/data/openpilot/selfdrive/assets/addon/lang/events/' + Params().get("LanguageSetting", return_default=True) + '.txt'
 except:
   LANG_FILE='/data/openpilot/selfdrive/assets/addon/lang/events/main_en.txt'
   pass
 try:
-  IS_WAZE = Params().get("KISANaviSelect") in (2, 4)
+  IS_WAZE = Params().get("KISANaviSelect", return_default=True) in (2, 4)
 except:
   IS_WAZE = False
   pass

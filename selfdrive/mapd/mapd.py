@@ -48,7 +48,7 @@ class MapD():
     self._query_thread = None
     self._lock = threading.RLock()
     self.ms_to_spd = 3.6 if Params().get_bool("IsMetric") else 2.236936
-    self.roadname_and_offset = Params().get("RoadList").strip().splitlines()[0].split(',')
+    self.roadname_and_offset = Params().get("RoadList", return_default=True).strip().splitlines()[0].split(',')
 
   def udpate_state(self, sm):
     sock = 'selfdriveState'

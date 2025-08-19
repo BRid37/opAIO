@@ -78,10 +78,10 @@ void MainWindow::openSettings(int index, const QString &param) {
 
 void MainWindow::closeSettings() {
   if (uiState()->scene.brightness_off == 100) {
-    uiState()->scene.brightness_off = std::stoi(Params().get("KisaUIBrightnessOff"));
+    uiState()->scene.brightness_off = std::atoi(Params().get("KisaUIBrightnessOff").c_str());
   }
   if (uiState()->scene.do_not_disturb_mode == 0) {
-    uiState()->scene.do_not_disturb_mode = std::stoi(Params().get("DoNotDisturbMode"));
+    uiState()->scene.do_not_disturb_mode = std::atoi(Params().get("DoNotDisturbMode").c_str());
   }
   main_layout->setCurrentWidget(homeWindow);
 

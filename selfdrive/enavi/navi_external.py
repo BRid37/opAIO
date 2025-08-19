@@ -47,7 +47,7 @@ class ENavi:
     self.dest = {"latitude": 0.0, "longitude": 0.0,}
     self.waypoints = [(0.0, 0.0),]
 
-    self.Auto_IP = self.params.get("ExternalDeviceIPAuto")
+    self.Auto_IP = self.params.get("ExternalDeviceIPAuto", return_default=True)
 
     self.KISA_Debug = self.params.get_bool("KISADebug")
     if self.KISA_Debug:
@@ -98,7 +98,7 @@ class ENavi:
         self.ip_count = 0
         pass
     self.is_metric = self.params.get_bool("IsMetric")
-    self.navi_selection = self.params.get("KISANaviSelect")
+    self.navi_selection = self.params.get("KISANaviSelect", return_default=True)
 
     self.mtom4 = False
     self.mtom3 = False

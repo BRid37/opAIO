@@ -164,11 +164,11 @@ class LatControlATOM(LatControl):
 
     self.reset()
 
-    self.multi_lateral_method = Params().get("MultipleLateralUse")
-    self.multi_lat_spdMethod  = list(map(int, Params().get("MultipleLateralOpS").split(',')))
-    self.multi_lat_spdBP      = list(map(int, Params().get("MultipleLateralSpd").split(',')))
-    self.multi_lat_angMethod  = list(map(int, Params().get("MultipleLateralOpA").split(',')))
-    self.multi_lat_angBP      = list(map(int, Params().get("MultipleLateralAng").split(',')))
+    self.multi_lateral_method = Params().get("MultipleLateralUse", return_default=True)
+    self.multi_lat_spdMethod  = list(map(int, Params().get("MultipleLateralOpS", return_default=True).split(',')))
+    self.multi_lat_spdBP      = list(map(int, Params().get("MultipleLateralSpd", return_default=True).split(',')))
+    self.multi_lat_angMethod  = list(map(int, Params().get("MultipleLateralOpA", return_default=True).split(',')))
+    self.multi_lat_angBP      = list(map(int, Params().get("MultipleLateralAng", return_default=True).split(',')))
     
     if self.multi_lateral_method == LaMethod.ANGLE_INTERP:
       self.lat_fun0 = self.method_func( self.multi_lat_angMethod[0] )

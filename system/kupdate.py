@@ -45,7 +45,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -57,7 +57,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -69,7 +69,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -81,7 +81,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -93,7 +93,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -105,7 +105,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -117,7 +117,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -129,7 +129,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -141,7 +141,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -149,15 +149,15 @@ def sw_update_thread(end_event, nv_queue):
             rvalue=result.poll()
             if rvalue == 0:
               p_order = 0
-              params.put("RunCustomCommand", 0)
+              params.put("RunCustomCommand", "0")
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
-        elif params.get("RunCustomCommand") == 1:
+        elif params.get("RunCustomCommand") == "1":
           if p_order == 0:
             command1 = "/data/openpilot/selfdrive/assets/addon/script/gitcommit.sh"
             p_order = 1
@@ -167,15 +167,15 @@ def sw_update_thread(end_event, nv_queue):
             rvalue=result.poll()
             if rvalue == 0:
               p_order = 0
-              params.put("RunCustomCommand", 0)
+              params.put("RunCustomCommand", "0")
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
-        elif params.get("RunCustomCommand") == 2:
+        elif params.get("RunCustomCommand") == "2":
           if p_order == 0:
             command1 = "/data/openpilot/selfdrive/assets/addon/script/gitpull.sh"
             p_order = 1
@@ -185,15 +185,15 @@ def sw_update_thread(end_event, nv_queue):
             rvalue=result.poll()
             if rvalue == 0:
               p_order = 0
-              params.put("RunCustomCommand", 0)
+              params.put("RunCustomCommand", "0")
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
-        elif params.get("RunCustomCommand") == 3:
+        elif params.get("RunCustomCommand") == "3":
           if p_order == 0:
             command1 = "rm -f /data/branches"
             command2 = "git -C /data/openpilot remote prune origin"
@@ -210,7 +210,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -222,7 +222,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -234,7 +234,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -242,15 +242,15 @@ def sw_update_thread(end_event, nv_queue):
             rvalue=result.poll()
             if rvalue == 0:
               p_order = 0
-              params.put("RunCustomCommand", 0)
+              params.put("RunCustomCommand", "0")
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
-        elif params.get("RunCustomCommand") == 4:
+        elif params.get("RunCustomCommand") == "4":
           if p_order == 0:
             model_name = params.get("DrivingModel")
             command1 = "wget -P /data/model https://raw.githubusercontent.com/kisapilot/model/main/models/" + model_name + "_driving_policy"
@@ -273,7 +273,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 300: # killing in 180sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -285,7 +285,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 300: # killing in 180sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -297,7 +297,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -309,7 +309,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -321,7 +321,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -329,11 +329,11 @@ def sw_update_thread(end_event, nv_queue):
             rvalue=result.poll()
             if rvalue == 0:
               p_order = 0
-              params.put("RunCustomCommand", 0)
+              params.put("RunCustomCommand", "0")
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -354,7 +354,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -366,7 +366,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -378,7 +378,7 @@ def sw_update_thread(end_event, nv_queue):
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()
@@ -386,11 +386,11 @@ def sw_update_thread(end_event, nv_queue):
             rvalue=result.poll()
             if rvalue == 0:
               p_order = 0
-              params.put("RunCustomCommand", 0)
+              params.put("RunCustomCommand", "0")
             else:
               lcount += 1
               if lcount > 30: # killing in 30sec if proc is abnormal or not completed.
-                params.put("RunCustomCommand", 0)
+                params.put("RunCustomCommand", "0")
                 p_order = 0
                 lcount = 0
                 result.kill()

@@ -63,9 +63,9 @@ def and_(*fns):
 
 EnableLogger = Params().get_bool('KisaEnableLogger')
 EnableUploader = Params().get_bool('KisaEnableUploader')
-EnableOSM = Params().get_bool('OSMEnable') or Params().get_bool('OSMSpeedLimitEnable') or Params().get("CurvDecelOption") in (1, 3)
-EnableExternalNavi = Params().get("KISANaviSelect") in (1, 2)
-EnableExternalNaviUDP = Params().get("KISANaviSelect") in (3, 4)
+EnableOSM = Params().get_bool('OSMEnable') or Params().get_bool('OSMSpeedLimitEnable') or Params().get("CurvDecelOption", return_default=True) in (1, 3)
+EnableExternalNavi = Params().get("KISANaviSelect", return_default=True) in (1, 2)
+EnableExternalNaviUDP = Params().get("KISANaviSelect", return_default=True) in (3, 4)
 
 procs = [
   DaemonProcess("manage_athenad", "system.athena.manage_athenad", "AthenadPid"),

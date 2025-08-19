@@ -300,7 +300,7 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"SetSpeedPlus", {PERSISTENT, INT, "0"}},
     {"KISALongAlt", {PERSISTENT, INT, "0"}},
     {"LowUIProfile", {PERSISTENT, BOOL, "0"}},
-    {"RunCustomCommand", {CLEAR_ON_MANAGER_START, INT}},
+    {"RunCustomCommand", {CLEAR_ON_MANAGER_START, STRING}},
     {"CruiseSpammingSpd", {PERSISTENT, STRING, "50,80,110"}},
     {"CruiseSpammingLevel", {PERSISTENT, STRING, "15,10,5,0"}},
     {"KISACruiseSpammingInterval", {PERSISTENT, INT, "7"}},

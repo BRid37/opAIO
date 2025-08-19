@@ -46,8 +46,8 @@ GEAR_SHIFTER_MAP: dict[str, structs.CarState.GearShifter] = {
 
 UseLiveTorque = Params().get_bool("KisaLiveTorque") if Params().get_bool("KisaLiveTorque") is not None else False
 NoMdpsMod = Params().get_bool("NoSmartMDPS") if Params().get_bool("NoSmartMDPS") is not None else False
-TireStiffnessFactor = Params().get("TireStiffnessFactorAdj") * 0.01 if Params().get("TireStiffnessFactorAdj") is not None else 1.0
-CAR_CANDIDATE = Params().get("CarModel")
+TireStiffnessFactor = Params().get("TireStiffnessFactorAdj", return_default=True) * 0.01 if Params().get("TireStiffnessFactorAdj", return_default=True) is not None else 1.0
+CAR_CANDIDATE = Params().get("CarModel", return_default=True)
 
 class LatControlInputs(NamedTuple):
   lateral_acceleration: float
@@ -208,7 +208,7 @@ class CarInterfaceBase(ABC):
     if get_torque_params() is not None:
       ret.maxLateralAccel = get_torque_params()[candidate]['MAX_LAT_ACCEL_MEASURED']
     else:
-      ret.maxLateralAccel = Params().get("TorqueMaxLatAccel") * 0.1
+      ret.maxLateralAccel = Params().get("TorqueMaxLatAccel", return_default=True) * 0.1
     ret.autoResumeSng = True  # describes whether car can resume from a stop automatically
 
     # standard ALC params
@@ -258,12 +258,12 @@ class CarInterfaceBase(ABC):
         tune.torque.latAccelOffset = 0.0
         tune.torque.steeringAngleDeadzoneDeg = steering_angle_deadzone_deg
       else:
-        TorqueKp = Params().get("TorqueKp") * 0.1
-        TorqueKf = Params().get("TorqueKf") * 0.1
-        TorqueKi = Params().get("TorqueKi") * 0.1
-        TorqueFriction = Params().get("TorqueFriction") * 0.01
-        TorqueLatAccelFactor = Params().get("TorqueMaxLatAccel") * 0.1
-        TorqueAngDeadZone = Params().get("TorqueAngDeadZone") * 0.1
+        TorqueKp = Params().get("TorqueKp", return_default=True) * 0.1
+        TorqueKf = Params().get("TorqueKf", return_default=True) * 0.1
+        TorqueKi = Params().get("TorqueKi", return_default=True) * 0.1
+        TorqueFriction = Params().get("TorqueFriction", return_default=True) * 0.01
+        TorqueLatAccelFactor = Params().get("TorqueMaxLatAccel", return_default=True) * 0.1
+        TorqueAngDeadZone = Params().get("TorqueAngDeadZone", return_default=True) * 0.1
         tune.torque.kp = TorqueKp
         tune.torque.kf = TorqueKf
         tune.torque.ki = TorqueKi
@@ -272,12 +272,12 @@ class CarInterfaceBase(ABC):
         tune.torque.latAccelOffset = 0.0
         tune.torque.steeringAngleDeadzoneDeg = TorqueAngDeadZone        
     else:
-      TorqueKp = Params().get("TorqueKp") * 0.1
-      TorqueKf = Params().get("TorqueKf") * 0.1
-      TorqueKi = Params().get("TorqueKi") * 0.1
-      TorqueFriction = Params().get("TorqueFriction") * 0.01
-      TorqueLatAccelFactor = Params().get("TorqueMaxLatAccel") * 0.1
-      TorqueAngDeadZone = Params().get("TorqueAngDeadZone") * 0.1
+      TorqueKp = Params().get("TorqueKp", return_default=True) * 0.1
+      TorqueKf = Params().get("TorqueKf", return_default=True) * 0.1
+      TorqueKi = Params().get("TorqueKi", return_default=True) * 0.1
+      TorqueFriction = Params().get("TorqueFriction", return_default=True) * 0.01
+      TorqueLatAccelFactor = Params().get("TorqueMaxLatAccel", return_default=True) * 0.1
+      TorqueAngDeadZone = Params().get("TorqueAngDeadZone", return_default=True) * 0.1
       tune.torque.kp = TorqueKp
       tune.torque.kf = TorqueKf
       tune.torque.ki = TorqueKi

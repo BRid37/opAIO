@@ -43,18 +43,18 @@ class LatControlTorque(LatControl):
     self.lt_timer = 0
     self.live_torque_params = self.params.get_bool("KisaLiveTorque")
 
-    self.max_lat_accel = self.params.get("TorqueMaxLatAccel") * 0.1
+    self.max_lat_accel = self.params.get("TorqueMaxLatAccel", return_default=True) * 0.1
 
 
   def live_tune(self):
     self.mpc_frame += 1
     if self.mpc_frame % 300 == 0:
-      self.max_lat_accel = self.params.get("TorqueMaxLatAccel") * 0.1
-      self.kp = self.params.get("TorqueKp") * 0.1
-      self.kf = self.params.get("TorqueKf") * 0.1
-      self.ki = self.params.get("TorqueKi") * 0.1
-      self.friction = self.params.get("TorqueFriction") * 0.001
-      self.steering_angle_deadzone_deg = self.params.get("TorqueAngDeadZone") * 0.1
+      self.max_lat_accel = self.params.get("TorqueMaxLatAccel", return_default=True) * 0.1
+      self.kp = self.params.get("TorqueKp", return_default=True) * 0.1
+      self.kf = self.params.get("TorqueKf", return_default=True) * 0.1
+      self.ki = self.params.get("TorqueKi", return_default=True) * 0.1
+      self.friction = self.params.get("TorqueFriction", return_default=True) * 0.001
+      self.steering_angle_deadzone_deg = self.params.get("TorqueAngDeadZone", return_default=True) * 0.1
       self.pid = PIDController(self.kp, self.ki,
                               k_f=self.kf, pos_limit=self.steer_max, neg_limit=-self.steer_max)
         

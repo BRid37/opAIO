@@ -19,7 +19,7 @@ SshControl::SshControl() :
     } else {
       params.remove("GithubUsername");
       params.remove("GithubSshKeys");
-      params.put("KisaSSHLegacy", "0", 1);
+      params.putBool("KisaSSHLegacy", false);
       refresh();
     }
   });

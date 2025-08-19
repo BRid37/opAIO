@@ -47,17 +47,17 @@ class VCruiseHelper:
     self.is_kph = self.params.get_bool("IsMetric")
     self.variable_cruise = self.params.get_bool("KisaVariableCruise")
 
-    self.osm_waze_spdlimit_offset = self.params.get("KisaSpeedLimitOffset")
-    self.osm_waze_spdlimit_offset_option = self.params.get("KisaSpeedLimitOffsetOption")
+    self.osm_waze_spdlimit_offset = self.params.get("KisaSpeedLimitOffset", return_default=True)
+    self.osm_waze_spdlimit_offset_option = self.params.get("KisaSpeedLimitOffsetOption", return_default=True)
     self.osm_speedlimit_enabled = self.params.get_bool("OSMSpeedLimitEnable")
     self.osm_waze_speedlimit = 255
     self.pause_spdlimit = False
     self.osm_waze_off_spdlimit_init = False
 
-    self.navi_selection = self.params.get("KISANaviSelect")
+    self.navi_selection = self.params.get("KISANaviSelect", return_default=True)
 
-    self.osm_waze_custom_spdlimit_c = list(map(int, self.params.get("OSMCustomSpeedLimitC").split(',')))
-    self.osm_waze_custom_spdlimit_t = list(map(int, self.params.get("OSMCustomSpeedLimitT").split(',')))
+    self.osm_waze_custom_spdlimit_c = list(map(int, self.params.get("OSMCustomSpeedLimitC", return_default=True).split(',')))
+    self.osm_waze_custom_spdlimit_t = list(map(int, self.params.get("OSMCustomSpeedLimitT", return_default=True).split(',')))
 
     self.pause_spdlimit_push = False
     self.pause_spdlimit_push_cnt = 0
@@ -66,14 +66,14 @@ class VCruiseHelper:
 
     self.cruise_over_maxspeed = self.params.get_bool("CruiseOverMaxSpeed")
     self.cruise_road_limit_spd_enabled = self.params.get_bool("CruiseSetwithRoadLimitSpeedEnabled")
-    self.cruise_road_limit_spd_offset = self.params.get("CruiseSetwithRoadLimitSpeedOffset")
+    self.cruise_road_limit_spd_offset = self.params.get("CruiseSetwithRoadLimitSpeedOffset", return_default=True)
 
     self.cruise_road_limit_spd_switch = True
     self.cruise_road_limit_spd_switch_prev = 0
 
     self.first_acc = False
 
-    self.set_spd_plus = self.params.get("SetSpeedPlus")
+    self.set_spd_plus = self.params.get("SetSpeedPlus", return_default=True)
     self.cruise_set_speed_kph = 0
     self.cruise_buttons_time = 0
     self.prev_cruise_btn = False

@@ -11,7 +11,7 @@ from openpilot.common.params import Params
 RADAR_START_ADDR = 0x500
 RADAR_MSG_COUNT = 32
 
-USE_RADAR_TRACK = Params().get_bool("UseRadarTrack") or (Params().get_bool("AlphaLongitudinalEnabled") and Params().get("KISALongAlt") not in (1, 2))
+USE_RADAR_TRACK = Params().get_bool("UseRadarTrack") or (Params().get_bool("AlphaLongitudinalEnabled") and Params().get("KISALongAlt", return_default=True) not in (1, 2))
 
 # POC for parsing corner radars: https://github.com/commaai/openpilot/pull/24221/
 

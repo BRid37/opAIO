@@ -40,7 +40,7 @@ class CarInterface(CarInterfaceBase):
 
     params = Params()
 
-    kisaLongAlt = params.get("KISALongAlt")
+    kisaLongAlt = params.get("KISALongAlt", return_default=True)
 
     if ret.flags & HyundaiFlags.CANFD:
       # Shared configuration for CAN-FD cars
@@ -187,21 +187,21 @@ class CarInterface(CarInterfaceBase):
     # Common lateral control setup
 
     ret.centerToFront = ret.wheelbase * 0.4
-    ret.steerActuatorDelay = params.get("SteerActuatorDelayAdj") * 0.01   #0.1
-    ret.steerLimitTimer = params.get("SteerLimitTimerAdj") * 0.01   #0.4
+    ret.steerActuatorDelay = params.get("SteerActuatorDelayAdj", return_default=True) * 0.01   #0.1
+    ret.steerLimitTimer = params.get("SteerLimitTimerAdj", return_default=True) * 0.01   #0.4
 
-    ret.smoothSteer.method = params.get("KisaSteerMethod")   # 1
-    ret.smoothSteer.maxSteeringAngle = params.get("KisaMaxSteeringAngle")   # 90
-    ret.smoothSteer.maxDriverAngleWait = params.get("KisaMaxDriverAngleWait")  # 0.002
-    ret.smoothSteer.maxSteerAngleWait = params.get("KisaMaxSteerAngleWait")   # 0.001  # 10 sec
-    ret.smoothSteer.driverAngleWait = params.get("KisaDriverAngleWait")  #0.001
+    ret.smoothSteer.method = params.get("KisaSteerMethod", return_default=True)   # 1
+    ret.smoothSteer.maxSteeringAngle = params.get("KisaMaxSteeringAngle", return_default=True)   # 90
+    ret.smoothSteer.maxDriverAngleWait = params.get("KisaMaxDriverAngleWait", return_default=True)  # 0.002
+    ret.smoothSteer.maxSteerAngleWait = params.get("KisaMaxSteerAngleWait", return_default=True)   # 0.001  # 10 sec
+    ret.smoothSteer.driverAngleWait = params.get("KisaDriverAngleWait", return_default=True)  #0.001
 
     ret.experimentalLong = params.get_bool("AlphaLongitudinalEnabled")
     
     if ret.isAngleControl:    
       ret.steerControlType = SteerControlType.angle
     else:
-      lat_control_method = params.get("LateralControlMethod")
+      lat_control_method = params.get("LateralControlMethod", return_default=True)
       if lat_control_method == 0:
         set_lat_tune(ret.lateralTuning, LatTunes.PID)
       elif lat_control_method == 1:

@@ -24,9 +24,9 @@ class KisaCruiseControl():
 
     self.params = Params()
 
-    self.map_spdlimit_offset = self.params.get("KisaSpeedLimitOffset")
-    self.map_spdlimit_offset_option = self.params.get("KisaSpeedLimitOffsetOption")
-    self.safetycam_decel_dist_gain = self.params.get("SafetyCamDecelDistGain")
+    self.map_spdlimit_offset = self.params.get("KisaSpeedLimitOffset", return_default=True)
+    self.map_spdlimit_offset_option = self.params.get("KisaSpeedLimitOffsetOption", return_default=True)
+    self.safetycam_decel_dist_gain = self.params.get("SafetyCamDecelDistGain", return_default=True)
 
     self.map_speed_block = False
     self.map_speed_dist = 0
@@ -41,43 +41,43 @@ class KisaCruiseControl():
     self.driverSccSetControl = False
     self.ctrl_speed = 0
     self.ctrl_gap = 0
-    self.vision_curv_speed_c = list(map(int, self.params.get("VCurvSpeedC").split(',')))
-    self.vision_curv_speed_t = list(map(int, self.params.get("VCurvSpeedT").split(',')))
-    self.vision_curv_speed_cmph = list(map(int, self.params.get("VCurvSpeedCMPH").split(',')))
-    self.vision_curv_speed_tmph = list(map(int, self.params.get("VCurvSpeedTMPH").split(',')))
+    self.vision_curv_speed_c = list(map(int, self.params.get("VCurvSpeedC", return_default=True).split(',')))
+    self.vision_curv_speed_t = list(map(int, self.params.get("VCurvSpeedT", return_default=True).split(',')))
+    self.vision_curv_speed_cmph = list(map(int, self.params.get("VCurvSpeedCMPH", return_default=True).split(',')))
+    self.vision_curv_speed_tmph = list(map(int, self.params.get("VCurvSpeedTMPH", return_default=True).split(',')))
 
-    self.osm_curv_speed_c = list(map(int, self.params.get("OCurvSpeedC").split(',')))
-    self.osm_curv_speed_t = list(map(int, self.params.get("OCurvSpeedT").split(',')))
-    self.osm_custom_spdlimit_c = list(map(int, self.params.get("OSMCustomSpeedLimitC").split(',')))
-    self.osm_custom_spdlimit_t = list(map(int, self.params.get("OSMCustomSpeedLimitT").split(',')))
+    self.osm_curv_speed_c = list(map(int, self.params.get("OCurvSpeedC", return_default=True).split(',')))
+    self.osm_curv_speed_t = list(map(int, self.params.get("OCurvSpeedT", return_default=True).split(',')))
+    self.osm_custom_spdlimit_c = list(map(int, self.params.get("OSMCustomSpeedLimitC", return_default=True).split(',')))
+    self.osm_custom_spdlimit_t = list(map(int, self.params.get("OSMCustomSpeedLimitT", return_default=True).split(',')))
 
     self.osm_wait_timer = 0
     self.stock_navi_info_enabled = self.params.get_bool("StockNaviSpeedEnabled")
     self.osm_speedlimit_enabled = self.params.get_bool("OSMSpeedLimitEnable")
     self.speedlimit_decel_off = self.params.get_bool("SpeedLimitDecelOff")
-    self.curv_decel_option = self.params.get("CurvDecelOption")
+    self.curv_decel_option = self.params.get("CurvDecelOption", return_default=True)
     self.cut_in = False
     self.cut_in_run_timer = 0
 
     self.drive_routine_on_sl = self.params.get_bool("RoutineDriveOn")
     if self.drive_routine_on_sl:
-      option_list = list(self.params.get("RoutineDriveOption"))
+      option_list = list(self.params.get("RoutineDriveOption", return_default=True))
       if '1' in option_list:
         self.drive_routine_on_sl = True
       else:
         self.drive_routine_on_sl = False
     try:
-      self.roadname_and_sl = self.params.get("RoadList").strip().splitlines()[1].split(',')
+      self.roadname_and_sl = self.params.get("RoadList", return_default=True).strip().splitlines()[1].split(',')
     except:
       self.roadname_and_sl = ""
       pass
 
     self.decel_on_speedbump = self.params.get_bool("KISASpeedBump")
-    self.navi_sel = self.params.get("KISANaviSelect")
+    self.navi_sel = self.params.get("KISANaviSelect", return_default=True)
 
     self.na_timer = 0
     self.t_interval = 7
-    self.t_interval2 = self.params.get("KISACruiseSpammingInterval")
+    self.t_interval2 = self.params.get("KISACruiseSpammingInterval", return_default=True)
     self.faststart = False
     self.safetycam_speed = 0
     self.decelonstop = False
@@ -96,8 +96,8 @@ class KisaCruiseControl():
     self.try_early_stop_org_gap = 4.0
 
     self.gap_by_spd_on = self.params.get_bool("CruiseGapBySpdOn")
-    self.gap_by_spd_spd = list(map(int, self.params.get("CruiseGapBySpdSpd").split(',')))
-    self.gap_by_spd_gap = list(map(int, self.params.get("CruiseGapBySpdGap").split(',')))
+    self.gap_by_spd_spd = list(map(int, self.params.get("CruiseGapBySpdSpd", return_default=True).split(',')))
+    self.gap_by_spd_gap = list(map(int, self.params.get("CruiseGapBySpdGap", return_default=True).split(',')))
     self.gap_by_spd_on_buffer1 = 0
     self.gap_by_spd_on_buffer2 = 0
     self.gap_by_spd_on_buffer3 = 0
@@ -109,7 +109,7 @@ class KisaCruiseControl():
 
     self.is_canfd = False
 
-    self.cruise_road_limitspd_offset = self.params.get("CruiseSetwithRoadLimitSpeedOffset")
+    self.cruise_road_limitspd_offset = self.params.get("CruiseSetwithRoadLimitSpeedOffset", return_default=True)
 
   def button_status(self, CS):
     if not CS.acc_active or CS.cruise_buttons[-1] != Buttons.NONE or CS.main_buttons[-1] or CS.lfa_buttons[-1]:

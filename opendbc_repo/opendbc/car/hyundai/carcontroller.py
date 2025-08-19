@@ -22,8 +22,8 @@ LongCtrlState = structs.CarControl.Actuators.LongControlState
 
 # EPS faults if you apply torque while the steering angle is above 90 degrees for more than 1 second
 # All slightly below EPS thresholds to avoid fault
-MAX_ANGLE = Params().get("AvoidLKASFaultMaxAngle") # 85
-MAX_ANGLE_FRAMES = Params().get("AvoidLKASFaultMaxFrame") # 89
+MAX_ANGLE = Params().get("AvoidLKASFaultMaxAngle", return_default=True) # 85
+MAX_ANGLE_FRAMES = Params().get("AvoidLKASFaultMaxFrame", return_default=True) # 89
 MAX_ANGLE_CONSECUTIVE_FRAMES = 2
 
 
@@ -98,25 +98,25 @@ class CarController(CarControllerBase):
     self.v_cruise_kph_auto_res = 0
 
     self.c_params = Params()
-    self.mode_change_switch = self.c_params.get("CruiseStatemodeSelInit")
+    self.mode_change_switch = self.c_params.get("CruiseStatemodeSelInit", return_default=True)
     self.kisa_variablecruise = self.c_params.get_bool("KisaVariableCruise")
     self.kisa_autoresume = self.c_params.get_bool("KisaAutoResume")
     self.kisa_cruisegap_auto_adj = self.c_params.get_bool("CruiseGapAdjust")
     self.kisa_cruise_auto_res = self.c_params.get_bool("CruiseAutoRes")
-    self.kisa_cruise_auto_res_option = self.c_params.get("AutoResOption")
-    self.kisa_cruise_auto_res_condition = self.c_params.get("AutoResCondition")
+    self.kisa_cruise_auto_res_option = self.c_params.get("AutoResOption", return_default=True)
+    self.kisa_cruise_auto_res_condition = self.c_params.get("AutoResCondition", return_default=True)
 
     self.kisa_turnsteeringdisable = self.c_params.get_bool("KisaTurnSteeringDisable")
-    self.kisa_maxanglelimit = float(self.c_params.get("KisaMaxAngleLimit"))
+    self.kisa_maxanglelimit = float(self.c_params.get("KisaMaxAngleLimit", return_default=True))
     self.ufc_mode_enabled = self.c_params.get_bool("UFCModeEnabled")
     self.ldws_fix = self.c_params.get_bool("LdwsCarFix")
-    self.radar_helper_option = self.c_params.get("RadarLongHelper")
+    self.radar_helper_option = self.c_params.get("RadarLongHelper", return_default=True)
     self.stopping_dist_adj_enabled = self.c_params.get_bool("StoppingDistAdj")
     self.standstill_resume_alt = self.c_params.get_bool("StandstillResumeAlt")
-    self.auto_res_delay = self.c_params.get("AutoRESDelay") * 100
+    self.auto_res_delay = self.c_params.get("AutoRESDelay", return_default=True) * 100
     self.auto_res_delay_timer = 0
     self.stopped = False
-    self.stoppingdist = self.c_params.get("StoppingDist") * 0.1
+    self.stoppingdist = self.c_params.get("StoppingDist", return_default=True) * 0.1
 
     self.longcontrol = self.CP.openpilotLongitudinalControl
     #self.scc_live is true because CP.radarUnavailable is False
@@ -134,7 +134,7 @@ class CarController(CarControllerBase):
     self.cruise_speed_adjusting = False
     self.standstill_fault_reduce_timer = 0
     self.standstill_res_button = False
-    self.standstill_res_count = self.c_params.get("RESCountatStandstill")
+    self.standstill_res_count = self.c_params.get("RESCountatStandstill", return_default=True)
 
     self.standstill_status = False
     self.standstill_status_canfd = False
@@ -143,7 +143,7 @@ class CarController(CarControllerBase):
     self.switch_timer2 = 0
     self.auto_res_timer = 0
     self.auto_res_limit_timer = 0
-    self.auto_res_limit_sec = self.c_params.get("AutoResLimitTime") * 100
+    self.auto_res_limit_sec = self.c_params.get("AutoResLimitTime", return_default=True) * 100
     self.auto_res_starting = False
     self.res_speed = 0
     self.res_speed_timer = 0
@@ -169,15 +169,15 @@ class CarController(CarControllerBase):
     self.change_accel_fast = False
 
     self.to_avoid_lkas_fault_enabled = self.c_params.get_bool("AvoidLKASFaultEnabled")
-    self.to_avoid_lkas_fault_max_angle = self.c_params.get("AvoidLKASFaultMaxAngle")
-    self.to_avoid_lkas_fault_max_frame = self.c_params.get("AvoidLKASFaultMaxFrame")
+    self.to_avoid_lkas_fault_max_angle = self.c_params.get("AvoidLKASFaultMaxAngle", return_default=True)
+    self.to_avoid_lkas_fault_max_frame = self.c_params.get("AvoidLKASFaultMaxFrame", return_default=True)
     self.no_mdps_mods = self.c_params.get_bool("NoSmartMDPS")
 
-    self.user_specific_feature = self.c_params.get("UserSpecificFeature")
+    self.user_specific_feature = self.c_params.get("UserSpecificFeature", return_default=True)
 
     self.gap_by_spd_on = self.c_params.get_bool("CruiseGapBySpdOn")
-    self.gap_by_spd_spd = list(map(int, self.c_params.get("CruiseGapBySpdSpd").split(',')))
-    self.gap_by_spd_gap = list(map(int, self.c_params.get("CruiseGapBySpdGap").split(',')))
+    self.gap_by_spd_spd = list(map(int, self.c_params.get("CruiseGapBySpdSpd", return_default=True).split(',')))
+    self.gap_by_spd_gap = list(map(int, self.c_params.get("CruiseGapBySpdGap", return_default=True).split(',')))
     self.gap_by_spd_on_buffer1 = 0
     self.gap_by_spd_on_buffer2 = 0
     self.gap_by_spd_on_buffer3 = 0
@@ -236,14 +236,14 @@ class CarController(CarControllerBase):
     self.alpha_long_enabled = self.c_params.get_bool("AlphaLongitudinalEnabled")
     self.experimental_mode = self.c_params.get_bool("ExperimentalMode")
     self.live_torque_params = self.c_params.get_bool("KisaLiveTorque")
-    self.gapsettingdance = self.c_params.get("KisaCruiseGapSet")
+    self.gapsettingdance = self.c_params.get("KisaCruiseGapSet", return_default=True)
     self.prev_gapButton = 0
 
-    self.kisa_long_alt = True if self.c_params.get("KISALongAlt") in (1, 2) else False
+    self.kisa_long_alt = True if self.c_params.get("KISALongAlt", return_default=True) in (1, 2) else False
 
     self.btnsignal = 0
-    self.nt_interval = self.c_params.get("KISACruiseSpammingInterval")
-    self.btn_count = self.c_params.get("KISACruiseSpammingBtnCount")
+    self.nt_interval = self.c_params.get("KISACruiseSpammingInterval", return_default=True)
+    self.btn_count = self.c_params.get("KISACruiseSpammingBtnCount", return_default=True)
     self.second2 = 0
     self.pause_time = 0
     self.gap_now = 0
@@ -270,7 +270,7 @@ class CarController(CarControllerBase):
     self.lfa_init = False
 
     self.regenbrake = self.c_params.get_bool("RegenBrakeFeatureOn")
-    rgn_option_list = list(self.c_params.get("RegenBrakeFeature"))
+    rgn_option_list = list(self.c_params.get("RegenBrakeFeature", return_default=True))
     self.regen_stop = True if '1' in rgn_option_list and self.regenbrake else False
     self.regen_dist = True if '2' in rgn_option_list and self.regenbrake else False
     self.regen_e2e = True if '3' in rgn_option_list and self.regenbrake else False
@@ -1555,34 +1555,34 @@ class CarController(CarControllerBase):
     self.cc_timer += 1
     if self.cc_timer > 100:
       self.cc_timer = 0
-      self.radar_helper_option = self.c_params.get("RadarLongHelper")
+      self.radar_helper_option = self.c_params.get("RadarLongHelper", return_default=True)
       self.stopping_dist_adj_enabled = self.c_params.get_bool("StoppingDistAdj")
-      self.standstill_res_count = self.c_params.get("RESCountatStandstill")
+      self.standstill_res_count = self.c_params.get("RESCountatStandstill", return_default=True)
       self.kisa_cruisegap_auto_adj = self.c_params.get_bool("CruiseGapAdjust")
       self.to_avoid_lkas_fault_enabled = self.c_params.get_bool("AvoidLKASFaultEnabled")
-      self.to_avoid_lkas_fault_max_angle = self.c_params.get("AvoidLKASFaultMaxAngle")
-      self.to_avoid_lkas_fault_max_frame = self.c_params.get("AvoidLKASFaultMaxFrame")
+      self.to_avoid_lkas_fault_max_angle = self.c_params.get("AvoidLKASFaultMaxAngle", return_default=True)
+      self.to_avoid_lkas_fault_max_frame = self.c_params.get("AvoidLKASFaultMaxFrame", return_default=True)
       self.stopsign_enabled = self.c_params.get_bool("StopAtStopSign")
       self.gap_by_spd_on = self.c_params.get_bool("CruiseGapBySpdOn")
       self.experimental_mode = self.c_params.get_bool("ExperimentalMode")
-      self.usf = self.c_params.get("UserSpecificFeature")
+      self.usf = self.c_params.get("UserSpecificFeature", return_default=True)
       self.regenbrake = self.c_params.get_bool("RegenBrakeFeatureOn")
-      rgn_option_list = list(self.c_params.get("RegenBrakeFeature"))
+      rgn_option_list = list(self.c_params.get("RegenBrakeFeature", return_default=True))
       self.regen_stop = True if '1' in rgn_option_list and self.regenbrake else False
       if self.c_params.get_bool("KisaLiveTunePanelEnable"):
         if self.CP.isAngleControl:
           pass
         elif self.CP.lateralTuning.which() == 'pid':
-          self.str_log3 = 'T={:0.2f}/{:0.3f}/{:0.1f}/{:0.5f}'.format(self.c_params.get("PidKp")*0.01, \
-          self.c_params.get("PidKi")*0.001, self.c_params.get("PidKd")*0.01, self.c_params.get("PidKf")*0.00001)
+          self.str_log3 = 'T={:0.2f}/{:0.3f}/{:0.1f}/{:0.5f}'.format(self.c_params.get("PidKp", return_default=True)*0.01, \
+          self.c_params.get("PidKi", return_default=True)*0.001, self.c_params.get("PidKd", return_default=True)*0.01, self.c_params.get("PidKf", return_default=True)*0.00001)
         elif self.CP.lateralTuning.which() == 'indi':
-          self.str_log3 = 'T={:03.1f}/{:03.1f}/{:03.1f}/{:03.1f}'.format(self.c_params.get("InnerLoopGain")*0.1, \
-          self.c_params.get("OuterLoopGain")*0.1, self.c_params.get("TimeConstant")*0.1, self.c_params.get("ActuatorEffectiveness")*0.1)
+          self.str_log3 = 'T={:03.1f}/{:03.1f}/{:03.1f}/{:03.1f}'.format(self.c_params.get("InnerLoopGain", return_default=True)*0.1, \
+          self.c_params.get("OuterLoopGain", return_default=True)*0.1, self.c_params.get("TimeConstant", return_default=True)*0.1, self.c_params.get("ActuatorEffectiveness", return_default=True)*0.1)
         elif self.CP.lateralTuning.which() == 'lqr':
-          self.str_log3 = 'T={:04.0f}/{:05.3f}/{:07.5f}'.format(self.c_params.get("Scale")*1.0, self.c_params.get("LqrKi")*0.001, self.c_params.get("DcGain")*0.00001)
+          self.str_log3 = 'T={:04.0f}/{:05.3f}/{:07.5f}'.format(self.c_params.get("Scale", return_default=True)*1.0, self.c_params.get("LqrKi", return_default=True)*0.001, self.c_params.get("DcGain", return_default=True)*0.00001)
         elif self.CP.lateralTuning.which() == 'torque':
-          self.str_log3 = 'T={:0.1f}/{:0.1f}/{:0.1f}/{:0.1f}/{:0.3f}'.format(self.c_params.get("TorqueMaxLatAccel")*0.1, \
-          self.c_params.get("TorqueKp")*0.1, self.c_params.get("TorqueKf")*0.1, self.c_params.get("TorqueKi")*0.1, self.c_params.get("TorqueFriction")*0.001)
+          self.str_log3 = 'T={:0.1f}/{:0.1f}/{:0.1f}/{:0.1f}/{:0.3f}'.format(self.c_params.get("TorqueMaxLatAccel", return_default=True)*0.1, \
+          self.c_params.get("TorqueKp", return_default=True)*0.1, self.c_params.get("TorqueKf", return_default=True)*0.1, self.c_params.get("TorqueKi", return_default=True)*0.1, self.c_params.get("TorqueFriction", return_default=True)*0.001)
       elif self.CP.lateralTuning.which() == 'torque' and self.live_torque_params:
         torque_params = self.sm['liveTorqueParameters']
         self.str_log3 = 'T={:0.2f}/{:0.2f}/{:0.3f}'.format(torque_params.latAccelFactorFiltered, torque_params.latAccelOffsetFiltered, torque_params.frictionCoefficientFiltered)

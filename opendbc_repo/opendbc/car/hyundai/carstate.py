@@ -91,10 +91,10 @@ class CarState(CarStateBase):
     self.prev_gap_button = 0
 
     params = Params()
-    self.steer_anglecorrection = params.get("KisaSteerAngleCorrection") * 0.1
+    self.steer_anglecorrection = params.get("KisaSteerAngleCorrection", return_default=True) * 0.1
     self.gear_correction = params.get_bool("JustDoGearD")
 
-    self.cruise_gap = params.get("KisaCruiseGapSet")
+    self.cruise_gap = params.get("KisaCruiseGapSet", return_default=True)
     self.is_highway = False
 
     # atom
@@ -116,9 +116,9 @@ class CarState(CarStateBase):
     self.cruiseGapSet = 4.0
 
     self.ufc_mode = params.get_bool("UFCModeEnabled")
-    self.user_specific_feature = params.get("UserSpecificFeature")
+    self.user_specific_feature = params.get("UserSpecificFeature", return_default=True)
     self.lfa_button_eng = params.get_bool("LFAButtonEngagement")
-    self.long_alt = params.get("KISALongAlt")
+    self.long_alt = params.get("KISALongAlt", return_default=True)
     self.exp_engage_available = False
 
     self.exp_long = CP.sccBus <= 0 and self.CP.openpilotLongitudinalControl and not self.long_alt
@@ -136,7 +136,7 @@ class CarState(CarStateBase):
     self.low_speed_alert = False
     self.auto_hold = False
 
-    self.cruise_set_mode = params.get("CruiseStatemodeSelInit")
+    self.cruise_set_mode = params.get("CruiseStatemodeSelInit", return_default=True)
     self.prev_cruise_btn = False
 
     self.brake_check = False

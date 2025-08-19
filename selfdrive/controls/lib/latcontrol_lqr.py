@@ -40,9 +40,9 @@ class LatControlLQR(LatControl):
   def live_tune(self):
     self.mpc_frame += 1
     if self.mpc_frame % 300 == 0:
-      self.scale_ = self.params.get("Scale") * 1.0
-      self.ki_ = self.params.get("LqrKi") * 0.001
-      self.dc_gain_ = self.params.get("DcGain") * 0.00001
+      self.scale_ = self.params.get("Scale", return_default=True) * 1.0
+      self.ki_ = self.params.get("LqrKi", return_default=True) * 0.001
+      self.dc_gain_ = self.params.get("DcGain", return_default=True) * 0.00001
       self.scale = self.scale_
       self.ki = self.ki_
       self.dc_gain = self.dc_gain_
