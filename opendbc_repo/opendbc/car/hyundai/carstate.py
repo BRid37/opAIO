@@ -530,7 +530,7 @@ class CarState(CarStateBase):
 
     # TODO: alt signal usage may be described by cp.vl['BLINKERS']['USE_ALT_LAMP']
     left_blinker_sig, right_blinker_sig = "LEFT_LAMP", "RIGHT_LAMP"
-    if self.CP.carFingerprint in (CAR.HYUNDAI_KONA_EV_2ND_GEN, CAR.HYUNDAI_IONIQ_5_PE, CAR.KIA_EV9, CAR.KIA_EV6_2025, CAR.GENESIS_GV70_1ST_GEN_PE):
+    if self.CP.carFingerprint in (CAR.HYUNDAI_KONA_EV_2ND_GEN,) or self.CP.isAngleControl:
       left_blinker_sig, right_blinker_sig = "LEFT_LAMP_ALT", "RIGHT_LAMP_ALT"
     if self.CP.carFingerprint not in (CAR.KIA_EV3,):
       ret.leftBlinker, ret.rightBlinker = self.update_blinker_from_lamp(50, cp.vl["BLINKERS"][left_blinker_sig],
