@@ -223,6 +223,14 @@ FW_VERSIONS = {
       b'\xf1\x00DN8 MFC  AT MES LHD 1.00 1.01 99211-L1800 230512',
     ],
   },
+  CAR.HYUNDAI_SONATA_2025: {
+    (Ecu.fwdRadar, 0x7d0, None): [
+      b'\xf1\x00DN8_ RDR -----      1.00 1.00 99110-L1800         ',
+    ],
+    (Ecu.fwdCamera, 0x7c4, None): [
+      b'\xf1\x00DN8 MFC  AT MES LHD 1.00 1.01 99211-L1800 230512',
+    ],
+  },
   CAR.HYUNDAI_SONATA_LF: {
     (Ecu.fwdRadar, 0x7d0, None): [
       b'\xf1\x00LF__ SCC F-CUP      1.00 1.00 96401-C2200         ',

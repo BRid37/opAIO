@@ -86,6 +86,7 @@ legend = ["LAT_ACCEL_FACTOR", "MAX_LAT_ACCEL_MEASURED", "FRICTION"]
 "KIA_EV9" = [1.75, 1.75, 0.15]
 "GENESIS_GV70_1ST_GEN_PE" = [2.42, 2.42, 0.1]
 "HYUNDAI_AZERA_7TH_GEN" = [2.3, 2.3, 0.1]
+"HYUNDAI_SONATA_2025" = [2.3, 2.3, 0.1]
 "KIA_EV3" = [2.5, 2.5, 0.1]
 
 # Dashcam or fallback configured as ideal car
