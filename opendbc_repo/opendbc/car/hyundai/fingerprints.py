@@ -179,7 +179,6 @@ FW_VERSIONS = {
       b'\xf1\x00DN8_ SCC FHCUP      1.00 1.00 99110-L0000         ',
       b'\xf1\x00DN8_ SCC FHCUP      1.00 1.01 99110-L1000         ',
       b'\xf1\x00DN8_ SCC FHCUP      1.00 1.02 99110-L1000         ',
-      b'\xf1\x00DN8_ RDR -----      1.00 1.00 99110-L1800         ',
     ],
     (Ecu.abs, 0x7d1, None): [
       b'\xf1\x00DN ESC \x01 102\x19\x04\x13 58910-L1300',
@@ -220,7 +219,6 @@ FW_VERSIONS = {
       b'\xf1\x00DN8 MFC  AT USA LHD 1.00 1.05 99211-L1000 201109',
       b'\xf1\x00DN8 MFC  AT USA LHD 1.00 1.06 99211-L1000 210325',
       b'\xf1\x00DN8 MFC  AT USA LHD 1.00 1.07 99211-L1000 211223',
-      b'\xf1\x00DN8 MFC  AT MES LHD 1.00 1.01 99211-L1800 230512',
     ],
   },
   CAR.HYUNDAI_SONATA_2025: {
@@ -749,6 +747,7 @@ FW_VERSIONS = {
       b'\xf1\x00DE  MDPS C 1.00 1.04 56310Q4100\x00 4DEEC104',
       b'\xf1\x00DE  MDPS C 1.00 1.05 56310Q4000\x00 4DEEC105',
       b'\xf1\x00DE  MDPS C 1.00 1.05 56310Q4100\x00 4DEEC105',
+      b'\xf1\x00DE  MDPS C 1.00 1.05 56310Q4200\x00 4DEEC105',
     ],
     (Ecu.fwdCamera, 0x7c4, None): [
       b'\xf1\x00DEE MFC  AT EUR LHD 1.00 1.00 99211-Q4000 191211',
@@ -1004,6 +1003,7 @@ FW_VERSIONS = {
   },
   CAR.KIA_SORENTO: {
     (Ecu.fwdCamera, 0x7c4, None): [
+      b'\xf1\x00UMP LKAS AT AUS RHD 1.00 1.00 96400-C6550 S30',
       b'\xf1\x00UMP LKAS AT KOR LHD 1.00 1.00 95740-C5550 S30',
       b'\xf1\x00UMP LKAS AT USA LHD 1.00 1.00 95740-C6550 d00',
       b'\xf1\x00UMP LKAS AT USA LHD 1.01 1.01 95740-C6550 d01',
@@ -1316,16 +1316,19 @@ FW_VERSIONS = {
   },
   CAR.HYUNDAI_KONA_2022: {
     (Ecu.fwdCamera, 0x7c4, None): [
+      b'\xf1\x00OSP LKA  AT CND LHD 1.00 1.04 99211-J9200 904',
       b'\xf1\x00OSP LKA  AT USA LHD 1.00 1.04 99211-J9200 904',
     ],
     (Ecu.eps, 0x7d4, None): [
       b'\xf1\x00OSP MDPS C 1.00 1.04 56310/J9290 4OPCC104',
       b'\xf1\x00OSP MDPS C 1.00 1.04 56310/J9291 4OPCC104',
+      b'\xf1\x00OSP MDPS C 1.00 1.04 56310J9291\x00 4OPCC104',
     ],
     (Ecu.fwdRadar, 0x7d0, None): [
       b'\xf1\x00YB__ FCA -----      1.00 1.01 99110-J9000      \x00\x00\x00',
     ],
     (Ecu.transmission, 0x7e1, None): [
+      b'\xf1\x00HT6WA280BLHT6VA650A1COS4N20NS1\x00\x00\x00\x00\x00\x00\x15\xf5\x87~',
       b'\xf1\x00T01960BL  T01E60A1  DOS2T16X4XE60NS4N\x90\xe6\xcb',
       b'\xf1\x00T01G00BL  T01I00A1  DOS2T16X2XI00NS0\x8c`\xff\xe7',
       b'\xf1\x00T01G00BL  T01I00A1  DOS2T16X4XI00NS0\x99L\xeeq',
