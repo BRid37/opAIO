@@ -1,3 +1,9 @@
+KisaPilot 0.10.0
+========================
+* Up to __nightly(2025-09-06)
+* ~ Firehose model, AGNOS 13
+* code refactoring, removal of lagging
+
 KisaPilot Version 0.9.10
 ========================
 * Up to __nightly(2025-06-15)

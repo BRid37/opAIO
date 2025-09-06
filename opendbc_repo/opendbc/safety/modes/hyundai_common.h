@@ -119,7 +119,6 @@ void hyundai_common_cruise_state_check_alt(const bool cruise_engaged) {
   cruise_engaged_prev = cruise_engaged;
 }
 
-#ifdef CANFD
 uint32_t hyundai_common_canfd_compute_checksum(const CANPacket_t *msg) {
   int len = GET_LEN(msg);
   uint32_t address = msg->addr;
@@ -144,4 +143,3 @@ uint32_t hyundai_common_canfd_compute_checksum(const CANPacket_t *msg) {
 
   return crc;
 }
-#endif
