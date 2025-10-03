@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from openpilot.selfdrive.controls.lib.desire_helper import TurnDirection
 from openpilot.selfdrive.selfdrived.events import ET, FROGPILOT_EVENT_NAME, EventName, FrogPilotEventName, Events
 
 from openpilot.frogpilot.common.frogpilot_variables import NON_DRIVING_GEARS
@@ -61,5 +62,10 @@ class FrogPilotEvents:
       self.events.add(FrogPilotEventName.openpilotCrashed)
 
     self.startup_seen |= sm["frogpilotSelfdriveState"].alertText1 == frogpilot_toggles.startup_alert_top and sm["frogpilotSelfdriveState"].alertText2 == frogpilot_toggles.startup_alert_bottom
+
+    if sm["frogpilotModelV2"].turnDirection == TurnDirection.turnLeft:
+      self.events.add(FrogPilotEventName.turningLeft)
+    elif sm["frogpilotModelV2"].turnDirection == TurnDirection.turnRight:
+      self.events.add(FrogPilotEventName.turningRight)
 
     self.played_events.update(FROGPILOT_EVENT_NAME[event] for event in self.events.names)
