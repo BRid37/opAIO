@@ -1048,6 +1048,14 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.PERMANENT: custom_startup_alert,
   },
 
+  FrogPilotEventName.goatSteerSaturated: {
+    ET.WARNING: Alert(
+      "JESUS TAKE THE WHEEL!!",
+      "Turn Exceeds Steering Limit",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.goat, 2.),
+  },
+
   FrogPilotEventName.openpilotCrashed: {
     ET.IMMEDIATE_DISABLE: Alert(
       "openpilot crashed",

@@ -47,6 +47,7 @@ sound_list: dict[int, tuple[str, int | None, float]] = {
   AudibleAlert.warningImmediate: ("warning_immediate.wav", None, MAX_VOLUME),
 
   # FrogPilot variables
+  FrogPilotAudibleAlert.goat: ("goat.wav", None, MAX_VOLUME),
 }
 
 def check_selfdrive_timeout_alert(sm):
