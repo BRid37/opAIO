@@ -127,6 +127,8 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
   header_layout->setSpacing(16);
 
   // FrogPilot variables
+  date = new ElidedLabel();
+  header_layout->addWidget(date, 0, Qt::AlignHCenter | Qt::AlignLeft);
 
   update_notif = new QPushButton(tr("UPDATE"));
   update_notif->setVisible(false);
@@ -227,8 +229,6 @@ void OffroadHome::hideEvent(QHideEvent *event) {
 }
 
 void OffroadHome::refresh() {
-  version->setText(getBrand() + " " +  QString::fromStdString(params.get("UpdaterCurrentDescription")));
-
   bool updateAvailable = update_widget->refresh();
   int alerts = alerts_widget->refresh();
 
@@ -252,4 +252,9 @@ void OffroadHome::refresh() {
   // FrogPilot variables
   FrogPilotUIState &fs = *frogpilotUIState();
   FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
+
+  date->setText(QLocale(uiState()->language.mid(5)).toString(QDateTime::currentDateTime(), "dddd, MMMM d"));
+  date->setVisible(util::system_time_valid());
+
+  version->setText(getBrand() + " v" + getVersion().left(14).trimmed());
 }
