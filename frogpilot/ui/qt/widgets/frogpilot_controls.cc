@@ -12,6 +12,11 @@ bool FrogPilotConfirmationDialog::yesorno(const QString &prompt_text, QWidget *p
   return d.exec();
 }
 
+bool useKonikServer() {
+  static bool use_konik = QFile::exists("/cache/use_konik");
+  return use_konik;
+}
+
 void clearMovie(QSharedPointer<QMovie> &movie, QWidget *parent) {
   if (movie) {
     QObject::disconnect(movie.data(), &QMovie::frameChanged, parent, nullptr);

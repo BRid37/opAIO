@@ -23,6 +23,7 @@ private:
   void updateFrogPilotStatsForLabel(StatsLabels &labels);
 
   bool isMetric;
+  bool konik;
 
   Params params;
 
