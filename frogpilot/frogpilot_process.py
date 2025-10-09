@@ -10,7 +10,7 @@ from openpilot.common.time_helpers import system_time_valid
 
 from openpilot.frogpilot.assets.theme_manager import THEME_COMPONENT_PARAMS, ThemeManager
 from openpilot.frogpilot.common.frogpilot_functions import backup_toggles
-from openpilot.frogpilot.common.frogpilot_utilities import is_url_pingable, run_thread_with_lock, update_openpilot
+from openpilot.frogpilot.common.frogpilot_utilities import flash_panda, is_url_pingable, run_thread_with_lock, update_openpilot
 from openpilot.frogpilot.common.frogpilot_variables import ERROR_LOGS_PATH, FrogPilotVariables
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.frogpilot.system.frogpilot_stats import send_stats
@@ -23,6 +23,9 @@ def assets_checks(theme_manager, params_memory, frogpilot_toggles):
     asset_to_download = params_memory.get(asset_param)
     if asset_to_download:
       run_thread_with_lock("download_theme", theme_manager.download_theme, (asset_type, asset_to_download, asset_param, frogpilot_toggles))
+
+  if params_memory.get_bool("FlashPanda"):
+    run_thread_with_lock("flash_panda", flash_panda, (params_memory,))
 
 def update_checks(now, theme_manager, params, params_memory, frogpilot_toggles, boot_run=False):
   while not (is_url_pingable("https://github.com") or is_url_pingable("https://gitlab.com")):
