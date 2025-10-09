@@ -211,6 +211,10 @@ class CarInterfaceBase(ABC):
         fp_ret.canUsePedal = not CP.autoResumeSng
         fp_ret.canUseSDSU = not CP.enableDsu and candidate not in UNSUPPORTED_DSU_CAR and candidate not in TSS2_CAR
 
+        if candidate == TOYOTA.TOYOTA_PRIUS:
+          if 0x23 in fingerprint[0]:
+            fp_ret.flags |= ToyotaFrogPilotFlags.ZSS.value
+
       fp_ret.openpilotLongitudinalControlDisabled = frogpilot_toggles.disable_openpilot_long
 
     return fp_ret
