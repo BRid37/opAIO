@@ -122,6 +122,8 @@ class FrogPilotPlanner:
 
     frogpilotPlan.frogpilotEvents = self.frogpilot_events.events.to_msg()
 
+    frogpilotPlan.increasedStoppedDistance = frogpilot_toggles.increase_stopped_distance
+
     frogpilotPlan.lateralCheck = self.lateral_check
 
     frogpilotPlan.maxAcceleration = float(self.frogpilot_acceleration.max_accel)
