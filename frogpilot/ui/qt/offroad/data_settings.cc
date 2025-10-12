@@ -22,6 +22,387 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
   ScrollView *statsLabelsPanel = new ScrollView(statsLabelsList, this);
   dataLayout->addWidget(statsLabelsPanel);
 
+  FrogPilotButtonsControl *frogpilotBackupButton = new FrogPilotButtonsControl(tr("FrogPilot Backups"), tr("<b>Create, delete, or restore FrogPilot backups.</b>"), "", {tr("BACKUP"), tr("DELETE"), tr("DELETE ALL"), tr("RESTORE")});
+  QObject::connect(frogpilotBackupButton, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
+    static const QRegularExpression autoBackupRegex("^(.*?)_(\\d{4}-\\d{2}-\\d{2})_auto(?:\\..*)?$");
+    static const QRegularExpression inProgressFilterRegex("^(?!.*_in_progress).*$");
+
+    QDir backupDir("/data/backups");
+    QStringList backupNames = backupDir.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::Name).filter(inProgressFilterRegex);
+
+    QMap<QString, QString> backupFriendlyMap;
+    for (const QString &name : backupNames) {
+      QRegularExpressionMatch match = autoBackupRegex.match(name);
+
+      QString friendlyName = name;
+      if (match.hasMatch()) {
+        friendlyName = QString("%1: %2").arg(match.captured(1), match.captured(2));
+      }
+
+      backupFriendlyMap.insert(friendlyName, name);
+    }
+
+    if (id == 0) {
+      QString nameSelection = InputDialog::getText(tr("Enter a name for this backup"), this, "", false, 1).trimmed().replace(" ", "_");
+      if (!nameSelection.isEmpty()) {
+        if (backupNames.contains(nameSelection)) {
+          ConfirmationDialog::alert(tr("Name already in use. Please choose a different name!"), this);
+          return;
+        }
+        bool compressed = FrogPilotConfirmationDialog::yesorno(tr("Compress this backup? This will save space and run in the background but take a bit longer!"), this);
+        std::thread([=]() {
+          parent->keepScreenOn = true;
+
+          frogpilotBackupButton->setEnabled(false);
+          frogpilotBackupButton->setValue(tr("Backing up..."));
+
+          frogpilotBackupButton->setVisibleButton(1, false);
+          frogpilotBackupButton->setVisibleButton(2, false);
+          frogpilotBackupButton->setVisibleButton(3, false);
+
+          QString fullBackupPath = backupDir.filePath(nameSelection);
+          QString inProgressBackupPath = fullBackupPath + "_in_progress";
+
+          QDir().mkpath(inProgressBackupPath);
+          std::system(qPrintable(QString("rsync -av /data/openpilot/ %1/").arg(inProgressBackupPath)));
+
+          if (compressed) {
+            frogpilotBackupButton->setValue(tr("Compressing..."));
+
+            std::system(qPrintable(QString("tar -cf - -C %1 . | zstd -2 -T0 -o %2_in_progress.tar.zst").arg(inProgressBackupPath, fullBackupPath)));
+
+            QDir(inProgressBackupPath).removeRecursively();
+
+            QString oldTar = QString("%1_in_progress.tar.zst").arg(fullBackupPath);
+            QString newTar = QString("%1.tar.zst").arg(fullBackupPath);
+            QFile::rename(oldTar, newTar);
+          } else {
+            QDir().rename(inProgressBackupPath, fullBackupPath);
+          }
+
+          frogpilotBackupButton->setValue(tr("Backup created!"));
+
+          util::sleep_for(2500);
+
+          frogpilotBackupButton->setEnabled(true);
+          frogpilotBackupButton->setValue("");
+
+          frogpilotBackupButton->setVisibleButton(1, true);
+          frogpilotBackupButton->setVisibleButton(2, true);
+          frogpilotBackupButton->setVisibleButton(3, true);
+
+          parent->keepScreenOn = false;
+        }).detach();
+      }
+
+    } else if (id == 1) {
+      QString selectionFriendly = MultiOptionDialog::getSelection(tr("Choose a FrogPilot backup to delete"), backupFriendlyMap.keys(), "", this);
+      if (!selectionFriendly.isEmpty()) {
+        QString selection = backupFriendlyMap.value(selectionFriendly);
+        if (ConfirmationDialog::confirm(tr("Delete this backup?"), tr("Delete"), this)) {
+          std::thread([=]() {
+            parent->keepScreenOn = true;
+
+            frogpilotBackupButton->setEnabled(false);
+            frogpilotBackupButton->setValue(tr("Deleting..."));
+
+            frogpilotBackupButton->setVisibleButton(0, false);
+            frogpilotBackupButton->setVisibleButton(2, false);
+            frogpilotBackupButton->setVisibleButton(3, false);
+
+            if (selection.endsWith(".tar.zst")) {
+              QFile::remove(backupDir.filePath(selection));
+            } else {
+              QDir(backupDir.filePath(selection)).removeRecursively();
+            }
+
+            frogpilotBackupButton->setValue(tr("Deleted!"));
+
+            util::sleep_for(2500);
+
+            frogpilotBackupButton->setEnabled(true);
+            frogpilotBackupButton->setValue("");
+
+            frogpilotBackupButton->setVisibleButton(0, true);
+            frogpilotBackupButton->setVisibleButton(2, true);
+            frogpilotBackupButton->setVisibleButton(3, true);
+
+            parent->keepScreenOn = false;
+          }).detach();
+        }
+      }
+
+    } else if (id == 2) {
+      if (ConfirmationDialog::confirm(tr("Delete all backups?"), tr("Delete All"), this)) {
+        std::thread([=]() mutable {
+          parent->keepScreenOn = true;
+
+          frogpilotBackupButton->setEnabled(false);
+          frogpilotBackupButton->setValue(tr("Deleting..."));
+
+          frogpilotBackupButton->setVisibleButton(0, false);
+          frogpilotBackupButton->setVisibleButton(1, false);
+          frogpilotBackupButton->setVisibleButton(3, false);
+
+          backupDir.removeRecursively();
+          backupDir.mkpath(".");
+
+          frogpilotBackupButton->setValue(tr("Deleted!"));
+
+          util::sleep_for(2500);
+
+          frogpilotBackupButton->setEnabled(true);
+          frogpilotBackupButton->setValue("");
+
+          frogpilotBackupButton->setVisibleButton(0, true);
+          frogpilotBackupButton->setVisibleButton(1, true);
+          frogpilotBackupButton->setVisibleButton(3, true);
+
+          parent->keepScreenOn = false;
+        }).detach();
+      }
+
+    } else if (id == 3) {
+      QString selectionFriendly = MultiOptionDialog::getSelection(tr("Choose a backup to restore"), backupFriendlyMap.keys(), "", this);
+      if (!selectionFriendly.isEmpty()) {
+        QString selection = backupFriendlyMap.value(selectionFriendly);
+        if (ConfirmationDialog::confirm(tr("Restore this backup?"), tr("Restore"), this)) {
+          std::thread([=]() {
+            parent->keepScreenOn = true;
+
+            frogpilotBackupButton->setEnabled(false);
+            frogpilotBackupButton->setValue(tr("Restoring..."));
+
+            frogpilotBackupButton->setVisibleButton(0, false);
+            frogpilotBackupButton->setVisibleButton(1, false);
+            frogpilotBackupButton->setVisibleButton(2, false);
+
+            QString extractDirectory = "/data/restore_temp";
+            QString sourcePath = backupDir.filePath(selection);
+            QString targetPath = "/data/safe_staging/finalized";
+
+            QDir().mkpath(extractDirectory);
+
+            if (selection.endsWith(".tar.zst")) {
+              frogpilotBackupButton->setValue(tr("Extracting..."));
+
+              QString backupTarPath = QDir(extractDirectory).filePath("backup.tar");
+
+              std::system(qPrintable(QString("zstd -d %1 -o %2").arg(sourcePath, backupTarPath)));
+              std::system(qPrintable(QString("tar --strip-components=1 -xf %1 -C %2").arg(backupTarPath, extractDirectory)));
+
+              QFile::remove(backupTarPath);
+            } else {
+              std::system(qPrintable(QString("rsync -av %1/ %2/").arg(sourcePath, extractDirectory)));
+            }
+
+            QDir().mkpath(targetPath);
+
+            std::system(qPrintable(QString("rsync -av --delete -l %1/ %2/").arg(extractDirectory, targetPath)));
+
+            QFile overlayFile(QDir(targetPath).filePath(".overlay_consistent"));
+            overlayFile.open(QIODevice::WriteOnly);
+            overlayFile.close();
+
+            QDir(extractDirectory).removeRecursively();
+
+            QFile("/cache/on_backup").open(QIODevice::WriteOnly);
+
+            frogpilotBackupButton->setValue(tr("Restored!"));
+
+            util::sleep_for(2500);
+
+            frogpilotBackupButton->setValue(tr("Rebooting..."));
+
+            util::sleep_for(2500);
+
+            Hardware::reboot();
+          }).detach();
+        }
+      }
+    }
+  });
+  if (forceOpenDescriptions) {
+    frogpilotBackupButton->showDescription();
+  }
+  dataMainList->addItem(frogpilotBackupButton);
+
+  FrogPilotButtonsControl *toggleBackupButton = new FrogPilotButtonsControl(tr("Toggle Backups"), tr("<b>Create, delete, or restore toggle backups.</b>"), "", {tr("BACKUP"), tr("DELETE"), tr("DELETE ALL"), tr("RESTORE")});
+  QObject::connect(toggleBackupButton, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
+    static const QRegularExpression autoBackupRegex("^(\\d{4}-\\d{2}-\\d{2})_(\\d{2}-\\d{2})([AP]M)_auto(?:\\..*)?$", QRegularExpression::CaseInsensitiveOption);
+    static const QRegularExpression inProgressFilterRegex("^(?!.*_in_progress$).*$");
+
+    QDir backupDir("/data/toggle_backups");
+    QStringList backupNames = backupDir.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::Name).filter(inProgressFilterRegex);
+
+    QMap<QString, QString> backupFriendlyMap;
+    for (const QString &name : backupNames) {
+      QRegularExpressionMatch match = autoBackupRegex.match(name);
+
+      QString friendlyName = name;
+
+      if (match.hasMatch()) {
+        QString datePart = match.captured(1);
+        QString timePart = match.captured(2).replace("-", ":");
+        QString ampmPart = match.captured(3).toUpper();
+
+        friendlyName = QString("%1 - %2 %3").arg(datePart, timePart, ampmPart);
+      }
+
+      backupFriendlyMap.insert(friendlyName, name);
+    }
+
+    if (id == 0) {
+      QString nameSelection = InputDialog::getText(tr("Enter a name for this backup"), this, "", false, 1).trimmed().replace(" ", "_");
+      if (!nameSelection.isEmpty()) {
+        if (backupNames.contains(nameSelection)) {
+          ConfirmationDialog::alert(tr("Name already in use. Please choose a different name!"), this);
+          return;
+        }
+        std::thread([=]() {
+          parent->keepScreenOn = true;
+
+          toggleBackupButton->setEnabled(false);
+          toggleBackupButton->setValue(tr("Backing up..."));
+
+          toggleBackupButton->setVisibleButton(1, false);
+          toggleBackupButton->setVisibleButton(2, false);
+          toggleBackupButton->setVisibleButton(3, false);
+
+          QString fullBackupPath = backupDir.filePath(nameSelection);
+          QString inProgressBackupPath = fullBackupPath + "_in_progress";
+
+          QDir().mkpath(inProgressBackupPath);
+
+          std::system(qPrintable(QString("rsync -av /data/params/d/ %1/").arg(inProgressBackupPath)));
+
+          QDir().rename(inProgressBackupPath, fullBackupPath);
+
+          toggleBackupButton->setValue(tr("Backup created!"));
+
+          util::sleep_for(2500);
+
+          toggleBackupButton->setEnabled(true);
+          toggleBackupButton->setValue("");
+
+          toggleBackupButton->setVisibleButton(1, true);
+          toggleBackupButton->setVisibleButton(2, true);
+          toggleBackupButton->setVisibleButton(3, true);
+
+          parent->keepScreenOn = false;
+        }).detach();
+      }
+
+    } else if (id == 1) {
+      QString selectionFriendly = MultiOptionDialog::getSelection(tr("Choose a backup to delete"), backupFriendlyMap.keys(), "", this);
+      if (!selectionFriendly.isEmpty()) {
+        QString selection = backupFriendlyMap.value(selectionFriendly);
+        if (ConfirmationDialog::confirm(tr("Delete this backup?"), tr("Delete"), this)) {
+          std::thread([=]() {
+            parent->keepScreenOn = true;
+
+            toggleBackupButton->setEnabled(false);
+            toggleBackupButton->setValue(tr("Deleting..."));
+
+            toggleBackupButton->setVisibleButton(0, false);
+            toggleBackupButton->setVisibleButton(2, false);
+            toggleBackupButton->setVisibleButton(3, false);
+
+            QDir dirToDelete(backupDir.filePath(selection));
+            dirToDelete.removeRecursively();
+
+            toggleBackupButton->setValue(tr("Deleted!"));
+
+            util::sleep_for(2500);
+
+            toggleBackupButton->setEnabled(true);
+            toggleBackupButton->setValue("");
+
+            toggleBackupButton->setVisibleButton(0, true);
+            toggleBackupButton->setVisibleButton(2, true);
+            toggleBackupButton->setVisibleButton(3, true);
+
+            parent->keepScreenOn = false;
+          }).detach();
+        }
+      }
+
+    } else if (id == 2) {
+      if (ConfirmationDialog::confirm(tr("Delete all backups?"), tr("Delete All"), this)) {
+        std::thread([=]() mutable {
+          parent->keepScreenOn = true;
+
+          toggleBackupButton->setEnabled(false);
+          toggleBackupButton->setValue(tr("Deleting..."));
+
+          toggleBackupButton->setVisibleButton(0, false);
+          toggleBackupButton->setVisibleButton(1, false);
+          toggleBackupButton->setVisibleButton(3, false);
+
+          backupDir.removeRecursively();
+          backupDir.mkpath(".");
+
+          toggleBackupButton->setValue(tr("Deleted!"));
+
+          util::sleep_for(2500);
+
+          toggleBackupButton->setEnabled(true);
+          toggleBackupButton->setValue("");
+
+          toggleBackupButton->setVisibleButton(0, true);
+          toggleBackupButton->setVisibleButton(1, true);
+          toggleBackupButton->setVisibleButton(3, true);
+
+          parent->keepScreenOn = false;
+        }).detach();
+      }
+
+    } else if (id == 3) {
+      QString selectionFriendly = MultiOptionDialog::getSelection(tr("Choose a backup to restore"), backupFriendlyMap.keys(), "", this);
+      if (!selectionFriendly.isEmpty()) {
+        QString selection = backupFriendlyMap.value(selectionFriendly);
+        if (ConfirmationDialog::confirm(tr("Restore this backup?"), tr("Restore"), this)) {
+          std::thread([=]() {
+            parent->keepScreenOn = true;
+
+            toggleBackupButton->setEnabled(false);
+            toggleBackupButton->setValue(tr("Restoring..."));
+
+            toggleBackupButton->setVisibleButton(0, false);
+            toggleBackupButton->setVisibleButton(1, false);
+            toggleBackupButton->setVisibleButton(2, false);
+
+            QString sourcePath = backupDir.filePath(selection);
+            QString targetPath = "/data/params/d";
+
+            QDir().mkpath(targetPath);
+
+            std::system(qPrintable(QString("rsync -av -l %1/ %2/").arg(sourcePath, targetPath)));
+
+            updateFrogPilotToggles();
+
+            toggleBackupButton->setValue(tr("Restored!"));
+
+            util::sleep_for(2500);
+
+            toggleBackupButton->setEnabled(true);
+            toggleBackupButton->setValue("");
+
+            toggleBackupButton->setVisibleButton(0, true);
+            toggleBackupButton->setVisibleButton(1, true);
+            toggleBackupButton->setVisibleButton(2, true);
+
+            parent->keepScreenOn = false;
+          }).detach();
+        }
+      }
+    }
+  });
+  if (forceOpenDescriptions) {
+    toggleBackupButton->showDescription();
+  }
+  dataMainList->addItem(toggleBackupButton);
+
   FrogPilotButtonsControl *viewStatsButton = new FrogPilotButtonsControl(tr("FrogPilot Stats"), tr("<b>View your collected FrogPilot stats.</b>"), "", {tr("RESET"), tr("VIEW")});
   QObject::connect(viewStatsButton, &FrogPilotButtonsControl::buttonClicked, [dataLayout, statsLabelsPanel, this](int id) {
     if (id == 0) {

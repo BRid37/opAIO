@@ -1,22 +1,115 @@
 #!/usr/bin/env python3
+import datetime
 import random
+import shutil
 import string
+import tarfile
 import threading
 import time
+import zstandard as zstd
 
 from pathlib import Path
 
+from openpilot.common.basedir import BASEDIR
+from openpilot.common.params import Params
 from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.hardware import HARDWARE
 
-from openpilot.frogpilot.common.frogpilot_utilities import run_cmd
+from openpilot.frogpilot.common.frogpilot_utilities import delete_file, run_cmd
 from openpilot.frogpilot.common.frogpilot_variables import (
-  FrogPilotVariables
+  EXCLUDED_KEYS,
+  FrogPilotVariables, get_frogpilot_toggles
 )
 from openpilot.frogpilot.system.frogpilot_stats import send_stats
 
 
-def frogpilot_boot_functions(params):
+def cleanup_backups(directory, limit):
+  directory.mkdir(parents=True, exist_ok=True)
+
+  for backup in directory.glob("*_in_progress*"):
+    delete_file(backup, report=False)
+
+  backups = sorted(directory.glob("*_auto*"), key=lambda f: f.stat().st_mtime, reverse=True)
+  for oldest_backup in backups[limit:]:
+    delete_file(oldest_backup, report=False)
+
+
+def create_backup(backup, destination, success_message, fail_message, params, minimum_backup_size=0, compressed=False):
+  in_progress_destination = destination.parent / f"{destination.name}_in_progress"
+  final_destination = destination.parent / f"{destination.name}.tar.zst" if compressed else destination
+
+  if final_destination.exists():
+    print("Backup already exists. Aborting...")
+    return False
+
+  in_progress_destination.mkdir(parents=True, exist_ok=True)
+  run_cmd(["sudo", "rsync", "-avq", f"{backup}/.", str(in_progress_destination)], "" if compressed else success_message, fail_message, report=False)
+
+  if compressed:
+    compressed_file = destination.parent / f"{destination.name}_in_progress.tar.zst"
+
+    with open(compressed_file, "wb") as f_out:
+      cctx = zstd.ZstdCompressor(level=2)
+      with cctx.stream_writer(f_out) as compressor:
+        with tarfile.open(fileobj=compressor, mode="w") as tar:
+          tar.add(in_progress_destination, arcname=destination.name)
+
+    delete_file(in_progress_destination, report=False)
+
+    compressed_file.rename(final_destination)
+    print(f"Backup saved: {final_destination}")
+
+    compressed_backup_size = final_destination.stat().st_size
+    if minimum_backup_size == 0 or compressed_backup_size < minimum_backup_size:
+      params.put("MinimumBackupSize", compressed_backup_size)
+  else:
+    if in_progress_destination.exists():
+      if destination.exists():
+        delete_file(destination, report=False)
+      in_progress_destination.replace(destination)
+
+
+def backup_frogpilot(build_metadata, params):
+  backup_path = Path("/data/backups")
+  maximum_backups = 3
+  cleanup_backups(backup_path, maximum_backups)
+
+  _, _, free = shutil.disk_usage(backup_path)
+  minimum_backup_size = params.get("MinimumBackupSize")
+  if free > minimum_backup_size * maximum_backups:
+    destination = backup_path / f"{build_metadata.channel}_{build_metadata.openpilot.git_commit_date[12:-16]}_auto"
+    create_backup(Path(BASEDIR), destination, "Successfully backed up FrogPilot!", "Failed to backup FrogPilot...", params, minimum_backup_size, compressed=True)
+
+
+def backup_toggles(params, params_cache):
+  params_backup = Params("/data/params_backup")
+
+  changes_found = False
+  for key in params.all_keys():
+    current_value = params_backup.get(key)
+    new_value = params.get(key)
+
+    if new_value != current_value:
+      if new_value is not None:
+        params_backup.put(key, new_value)
+        params_cache.put(key, new_value)
+      changes_found |= key not in EXCLUDED_KEYS
+
+  backup_path = Path("/data/toggle_backups")
+  maximum_backups = 5
+  cleanup_backups(backup_path, maximum_backups)
+
+  if not changes_found and list(backup_path.glob("*")):
+    print("Toggles are identical to the previous backup. Aborting...")
+    return
+
+  destination = backup_path / f"{datetime.datetime.now().strftime('%Y-%m-%d_%I-%M%p').lower()}_auto"
+  create_backup(Path(params_backup.get_param_path()), destination, "Successfully backed up toggles!", "Failed to backup toggles...", params)
+
+
+def frogpilot_boot_functions(build_metadata, params, params_cache):
+  params_memory = Params(memory=True)
+
   FrogPilotVariables().update()
 
   if params.get("FrogPilotDongleId") == None:
@@ -26,6 +119,9 @@ def frogpilot_boot_functions(params):
     while not system_time_valid():
       print("Waiting for system time to become valid...")
       time.sleep(1)
+
+    backup_frogpilot(build_metadata, params)
+    backup_toggles(params, params_cache)
 
     send_stats(params)
 
