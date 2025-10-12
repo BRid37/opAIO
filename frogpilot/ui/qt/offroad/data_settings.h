@@ -12,6 +12,8 @@ signals:
   void openSubPanel();
 
 private:
+  void updateStatsLabels(FrogPilotListWidget *labelsList);
+
   bool isMetric;
 
   FrogPilotSettingsWindow *parent;
