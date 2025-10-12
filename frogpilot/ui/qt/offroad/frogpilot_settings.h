@@ -93,6 +93,7 @@ private:
   FrogPilotButtonsControl *vehiclePanelButtons;
 
   Params params;
+  Params params_memory{"", false, true};
 
   QStackedLayout *mainLayout;
 

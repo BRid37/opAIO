@@ -30,7 +30,7 @@ cdef extern from "common/params.h":
     BYTES
 
   cdef cppclass c_Params "Params":
-    c_Params(string) except + nogil
+    c_Params(string, bool, bool) except + nogil
     string get(string, bool) nogil
     bool getBool(string, bool) nogil
     int remove(string) nogil
@@ -46,6 +46,8 @@ cdef extern from "common/params.h":
     vector[string] allKeys()
 
     # FrogPilot variables
+    optional[string] getStockValue(string) nogil
+    int getTuningLevel(string) nogil
 
 PYTHON_2_CPP = {
   (str, STRING): lambda v: v,
@@ -78,20 +80,28 @@ cdef class Params:
   cdef str d
 
   # FrogPilot variables
+  cdef bool c
+  cdef bool m
+  cdef bool return_defaults
 
-  def __cinit__(self, d=""):
+  def __cinit__(self, d="", *, cache=False, memory=False, return_defaults=False):
     cdef string path = <string>d.encode()
 
     # FrogPilot variables
+    cdef bool c_cache = cache
+    cdef bool c_memory = memory
 
     with nogil:
-      self.p = new c_Params(path)
+      self.p = new c_Params(path, c_cache, c_memory)
     self.d = d
 
     # FrogPilot variables
+    self.c = cache
+    self.m = memory
+    self.return_defaults = return_defaults
 
   def __reduce__(self):
-    return (type(self), (self.d,))
+    return (type(self), (self.d, self.c, self.m, self.return_defaults))
 
   def __dealloc__(self):
     del self.p
@@ -128,7 +138,7 @@ cdef class Params:
     with nogil:
       val = self.p.get(k, block)
 
-    default_val = (default.value() if default.has_value() else None) if return_default else None
+    default_val = (default.value() if default.has_value() else None) if (return_default or self.return_defaults and not block) else None
     if val == b"":
       if block:
         # If we got no value while running in blocked mode
@@ -205,3 +215,15 @@ cdef class Params:
     return self._cpp2python(t, value, None, key)
 
   # FrogPilot variables
+  def get_stock_value(self, key):
+    cdef string k = self.check_key(key)
+    cdef ParamKeyType t = self.p.getKeyType(k)
+    cdef optional[string] stock = self.p.getStockValue(k)
+    return self._cpp2python(t, stock.value(), None, key) if stock.has_value() else None
+
+  def get_tuning_level(self, key):
+    cdef string k = self.check_key(key)
+    cdef int level
+    with nogil:
+      level = self.p.getTuningLevel(k)
+    return level
