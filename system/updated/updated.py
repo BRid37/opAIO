@@ -410,6 +410,7 @@ class Updater:
     cloudlog.info("finalize success!")
 
     # FrogPilot variables
+    self.params.put("Updated", datetime.datetime.now().strftime("%B %d, %Y - %I:%M%p"))
 
 def main() -> None:
   params = Params()
