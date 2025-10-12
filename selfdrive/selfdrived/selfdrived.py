@@ -132,7 +132,7 @@ class SelfdriveD:
       self.ignored_processes = {'loggerd', }
 
     # Determine startup event
-    self.startup_event = EventName.startup if build_metadata.openpilot.comma_remote and build_metadata.tested_channel else EventName.startupMaster
+    self.startup_event = FrogPilotEventName.customStartupAlert
     if not car_recognized:
       self.startup_event = EventName.startupNoCar
     elif car_recognized and self.CP.passive:
@@ -163,7 +163,10 @@ class SelfdriveD:
 
     # Add startup event
     if self.startup_event is not None:
-      self.events.add(self.startup_event)
+      if self.startup_event == FrogPilotEventName.customStartupAlert:
+        self.frogpilot_events.add(self.startup_event)
+      else:
+        self.events.add(self.startup_event)
       self.startup_event = None
 
     # Don't add any more events if not initialized
