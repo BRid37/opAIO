@@ -1,0 +1,20 @@
+#pragma once
+
+#include "frogpilot/ui/qt/offroad/frogpilot_settings.h"
+
+class FrogPilotDataPanel : public FrogPilotListWidget {
+  Q_OBJECT
+
+public:
+  explicit FrogPilotDataPanel(FrogPilotSettingsWindow *parent);
+
+signals:
+  void openSubPanel();
+
+private:
+  bool isMetric;
+
+  FrogPilotSettingsWindow *parent;
+
+  Params params;
+};
