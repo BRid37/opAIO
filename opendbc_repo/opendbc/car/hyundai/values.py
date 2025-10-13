@@ -69,6 +69,7 @@ class HyundaiSafetyFlags(IntFlag):
 
 
 # FrogPilot variables
+class HyundaiFrogPilotSafetyFlags(IntFlag):
 
 
 class HyundaiFlags(IntFlag):
@@ -131,6 +132,7 @@ class HyundaiFlags(IntFlag):
 
 
 # FrogPilot variables
+class HyundaiFrogPilotFlags(IntFlag):
 
 
 class Footnote(Enum):

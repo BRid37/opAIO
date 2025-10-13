@@ -16,6 +16,12 @@ static void update_state(FrogPilotUIState *fs) {
     const cereal::DeviceState::Reader &deviceState = fpsm["deviceState"].getDeviceState();
     frogpilot_scene.online = deviceState.getNetworkType() != cereal::DeviceState::NetworkType::NONE;
   }
+  if (fpsm.updated("frogpilotCarState")) {
+    const cereal::FrogPilotCarState::Reader &frogpilotCarState = fpsm["frogpilotCarState"].getFrogpilotCarState();
+  }
+  if (fpsm.updated("frogpilotPlan")) {
+    const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
+  }
   if (fpsm.updated("selfdriveState")) {
     const cereal::SelfdriveState::Reader &selfdriveState = fpsm["selfdriveState"].getSelfdriveState();
     frogpilot_scene.enabled = selfdriveState.getEnabled();
@@ -24,7 +30,7 @@ static void update_state(FrogPilotUIState *fs) {
 
 FrogPilotUIState::FrogPilotUIState(QObject *parent) : QObject(parent) {
   sm = std::make_unique<SubMaster, const std::initializer_list<const char *>>({
-    "carState", "deviceState", "selfdriveState"
+    "carState", "deviceState", "frogpilotCarState", "frogpilotDeviceState", "frogpilotPlan", "selfdriveState"
   });
 
   wifi = new WifiManager(this);
