@@ -143,7 +143,7 @@ void UIState::update() {
   QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
 
   if (frogpilot_scene.downloading_update || frogpilot_scene.frogpilot_panel_active) {
-    device()->resetInteractiveTimeout();
+    device()->resetInteractiveTimeout(frogpilot_toggles.value("screen_timeout").toInt(), frogpilot_toggles.value("screen_timeout_onroad").toInt());
   }
 
   fs->update();
@@ -170,11 +170,12 @@ void Device::setAwake(bool on) {
   }
 }
 
-void Device::resetInteractiveTimeout(int timeout) {
+void Device::resetInteractiveTimeout(int timeout, int timeout_onroad) {
   if (timeout == -1) {
     timeout = (ignition_on ? 10 : 30);
   } else {
     // FrogPilot variables
+    timeout = (ignition_on ? timeout_onroad : timeout);
   }
   interactive_timeout = timeout * UI_FREQ;
 }
@@ -225,7 +226,7 @@ void Device::updateWakefulness(const UIState &s, const FrogPilotUIState &fs) {
   ignition_on = s.scene.ignition;
 
   if (ignition_just_turned_off) {
-    resetInteractiveTimeout();
+    resetInteractiveTimeout(frogpilot_toggles.value("screen_timeout").toInt(), frogpilot_toggles.value("screen_timeout_onroad").toInt());
   } else if (interactive_timeout > 0 && --interactive_timeout == 0) {
     emit interactiveTimeout();
   }
