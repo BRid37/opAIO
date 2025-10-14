@@ -203,7 +203,7 @@ class FrogPilotVariables:
       HD_PATH.unlink()
       HARDWARE.reboot()
 
-  def update(self, started=False):
+  def update(self, holiday_theme="stock", started=False):
     default = self.default_values
     level = self.tuning_levels
     toggle = self.frogpilot_toggles
@@ -474,6 +474,16 @@ class FrogPilotVariables:
     toggle.stoppingDecelRate = 0.01 if toggle.frogsgomoo_tweak else toggle.stoppingDecelRate
     toggle.vEgoStarting = 0.1 if toggle.frogsgomoo_tweak else toggle.vEgoStarting
     toggle.vEgoStopping = 0.5 if toggle.frogsgomoo_tweak else toggle.vEgoStopping
+
+    toggle.holiday_themes = self.params.get_bool("HolidayThemes") if tuning_level >= level["HolidayThemes"] else default["HolidayThemes"]
+    toggle.current_holiday_theme = holiday_theme if toggle.holiday_themes else "stock"
+    if toggle.current_holiday_theme != "stock":
+      toggle.color_scheme = toggle.current_holiday_theme
+      toggle.distance_icons = toggle.current_holiday_theme
+      toggle.icon_pack = toggle.current_holiday_theme
+      toggle.signal_icons = toggle.current_holiday_theme
+      toggle.sound_pack = toggle.current_holiday_theme
+      toggle.wheel_image = toggle.current_holiday_theme
 
     toggle.lane_changes = self.params.get_bool("LaneChanges") if tuning_level >= level["LaneChanges"] else default["LaneChanges"]
     toggle.lane_change_delay = self.params.get("LaneChangeTime") if toggle.lane_changes and tuning_level >= level["LaneChangeTime"] else default["LaneChangeTime"]
