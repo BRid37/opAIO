@@ -21,6 +21,9 @@ static void update_state(FrogPilotUIState *fs) {
   }
   if (fpsm.updated("frogpilotPlan")) {
     const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
+    if (frogpilotPlan.getTogglesUpdated()) {
+      frogpilot_scene.frogpilot_toggles = QJsonDocument::fromJson(QByteArray::fromStdString(fs->params_memory.get("FrogPilotToggles"))).object();
+    }
   }
   if (fpsm.updated("selfdriveState")) {
     const cereal::SelfdriveState::Reader &selfdriveState = fpsm["selfdriveState"].getSelfdriveState();
@@ -34,6 +37,8 @@ FrogPilotUIState::FrogPilotUIState(QObject *parent) : QObject(parent) {
   });
 
   wifi = new WifiManager(this);
+
+  frogpilot_scene.frogpilot_toggles = QJsonDocument::fromJson(QByteArray::fromStdString(params_memory.get("FrogPilotToggles", true))).object();
 }
 
 FrogPilotUIState *frogpilotUIState() {
