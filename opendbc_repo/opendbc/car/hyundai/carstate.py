@@ -63,6 +63,8 @@ class CarState(CarStateBase):
 
     self.params = CarControllerParams(CP)
 
+    # FrogPilot variables
+
   def recent_button_interaction(self) -> bool:
     # On some newer model years, the CANCEL button acts as a pause/resume button based on the PCM state
     # To avoid re-engaging when openpilot cancels, check user engagement intention via buttons
@@ -202,6 +204,8 @@ class CarState(CarStateBase):
       self.low_speed_alert = False
     ret.lowSpeedAlert = self.low_speed_alert
 
+    # FrogPilot variables
+
     return ret
 
   def update_canfd(self, can_parsers) -> structs.CarState:
@@ -293,6 +297,8 @@ class CarState(CarStateBase):
 
     ret.blockPcmEnable = not self.recent_button_interaction()
 
+    # FrogPilot variables
+
     return ret
 
   def get_can_parsers_canfd(self, CP):
@@ -303,6 +309,9 @@ class CarState(CarStateBase):
         # this message is 50Hz but the ECU frequently stops transmitting for ~0.5s
         ("CRUISE_BUTTONS", 1)
       ]
+
+    # FrogPilot variables
+
     return {
       Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], msgs, CanBus(CP).ECAN),
       Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [], CanBus(CP).CAM),

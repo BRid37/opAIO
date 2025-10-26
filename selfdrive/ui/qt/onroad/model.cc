@@ -89,6 +89,9 @@ void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const
   }
   max_idx = get_path_length_idx(model_position, max_distance);
   mapLineToPolygon(model_position, 0.9, path_offset_z, &track_vertices, max_idx, false);
+
+  // FrogPilot variables
+  FrogPilotUIScene &frogpilot_scene = frogpilotUIState()->frogpilot_scene;
 }
 
 void ModelRenderer::drawLaneLines(QPainter &painter) {
