@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import numpy as np
 
-from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import get_jerk_factor, get_T_FOLLOW
+from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import COMFORT_BRAKE, LEAD_DANGER_FACTOR, STOP_DISTANCE, get_jerk_factor, get_T_FOLLOW
+
+from openpilot.frogpilot.common.frogpilot_variables import CITY_SPEED_LIMIT, CRUISING_SPEED
 
 class FrogPilotFollowing:
   def __init__(self, FrogPilotPlanner):
@@ -44,12 +46,35 @@ class FrogPilotFollowing:
       self.t_follow = 0
 
     self.acceleration_jerk = self.base_acceleration_jerk
+    self.danger_factor = LEAD_DANGER_FACTOR
     self.danger_jerk = self.base_danger_jerk
     self.speed_jerk = self.base_speed_jerk
 
     self.following_lead = self.frogpilot_planner.tracking_lead and self.frogpilot_planner.lead_one.dRel < (self.t_follow * 2) * v_ego
 
     if long_control_active and self.frogpilot_planner.tracking_lead:
-      self.update_follow_values(self.frogpilot_planner.lead_one.dRel, v_ego, self.frogpilot_planner.lead_one.vLead, frogpilot_toggles)
+      if frogpilot_toggles.human_following:
+        self.update_follow_values(self.frogpilot_planner.lead_one.dRel, v_ego, self.frogpilot_planner.lead_one.vLead, frogpilot_toggles)
 
   def update_follow_values(self, lead_distance, v_ego, v_lead, frogpilot_toggles):
+    # Offset by FrogAi for FrogPilot for a more natural approach to a faster lead
+    if v_lead > v_ego:
+      distance_factor = max(lead_distance - (v_ego * self.t_follow), 1)
+      accelerating_offset = np.clip(STOP_DISTANCE - v_ego, 1, distance_factor)
+
+      self.acceleration_jerk /= accelerating_offset
+      self.speed_jerk /= accelerating_offset
+      self.t_follow /= accelerating_offset
+
+    # Offset by FrogAi for FrogPilot for a more natural approach to a slower lead
+    if v_lead < v_ego:
+      distance_factor = max(lead_distance - (v_lead * self.t_follow), 1)
+      braking_offset = np.clip(min(v_ego - v_lead, v_lead) - COMFORT_BRAKE, 1, distance_factor)
+
+      self.danger_factor += (braking_offset / 100)
+
+      if lead_distance >= 100:
+        far_lead_offset = max(lead_distance - (v_ego * self.t_follow) - STOP_DISTANCE, 0)
+        braking_offset += far_lead_offset
+
+      self.t_follow /= braking_offset
