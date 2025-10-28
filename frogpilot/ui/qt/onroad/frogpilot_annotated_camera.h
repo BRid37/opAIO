@@ -24,6 +24,8 @@ public:
   float speedConversion;
   float speedConversionMetrics;
 
+  QPoint dmIconPosition;
+
   QString accelerationUnit;
   QString leadDistanceUnit;
   QString leadSpeedUnit;
@@ -33,6 +35,13 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
+  void paintCompass(QPainter &p, QJsonObject &frogpilot_toggles);
+
   Params params;
   Params params_memory{"", false, true};
+
+  QColor blackColor(int alpha = 255) { return QColor(0, 0, 0, alpha); }
+  QColor whiteColor(int alpha = 255) { return QColor(255, 255, 255, alpha); }
+
+  QPoint compassPosition;
 };
