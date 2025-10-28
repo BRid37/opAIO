@@ -185,6 +185,61 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
   }
 }
 
+void FrogPilotAnnotatedCameraWidget::paintAdjacentPaths(QPainter &p, SubMaster &fpsm, const FrogPilotUIScene &frogpilot_scene, const QJsonObject &frogpilot_toggles) {
+  const cereal::CarState::Reader &carState = fpsm["carState"].getCarState();
+
+  std::function<void(bool, float, float, const QPolygonF &)> drawAdjacentPath = [&p, &frogpilot_toggles, this](bool isBlindSpot, float width, float requirement, const QPolygonF &polygon) {
+    QLinearGradient gradient(0, height(), 0, 0);
+    if (isBlindSpot && frogpilot_toggles.value("blind_spot_path").toBool()) {
+      gradient.setColorAt(0.0f, QColor::fromHslF(0 / 360.0f, 0.75f, 0.5f, 0.6f));
+      gradient.setColorAt(0.5f, QColor::fromHslF(0 / 360.0f, 0.75f, 0.5f, 0.4f));
+      gradient.setColorAt(1.0f, QColor::fromHslF(0 / 360.0f, 0.75f, 0.5f, 0.2f));
+    } else {
+      float ratio = std::clamp(width / requirement, 0.0f, 1.0f);
+      float hue = ratio * (120.0f / 360.0f);
+
+      gradient.setColorAt(0.0f, QColor::fromHslF(hue, 0.75f, 0.5f, 0.6f));
+      gradient.setColorAt(0.5f, QColor::fromHslF(hue, 0.75f, 0.5f, 0.4f));
+      gradient.setColorAt(1.0f, QColor::fromHslF(hue, 0.75f, 0.5f, 0.2f));
+    }
+
+    p.setBrush(gradient);
+    p.drawPolygon(polygon);
+  };
+
+  std::function<void(bool, float, const QPolygonF &)> drawAdjacentPathMetric = [&p, &frogpilot_toggles, this](bool isBlindSpot, float width, const QPolygonF &polygon) {
+    QString text = isBlindSpot && frogpilot_toggles.value("blind_spot_path").toBool() ? tr("Vehicle in blind spot") : QString::number(width * distanceConversion, 'f', 2) + leadDistanceUnit;
+
+    p.setFont(InterFont(40, QFont::DemiBold));
+    p.setPen(QPen(whiteColor()));
+    p.drawText(polygon.boundingRect(), Qt::AlignCenter, text);
+  };
+
+  if (frogpilot_scene.lane_width_left >= frogpilot_toggles.value("lane_detection_width").toDouble()) {
+    p.save();
+
+    drawAdjacentPath(carState.getLeftBlindspot(), frogpilot_scene.lane_width_left, frogpilot_toggles.value("lane_detection_width").toDouble(), frogpilot_scene.track_adjacent_vertices[0]);
+
+    if (frogpilot_toggles.value("adjacent_path_metrics").toBool()) {
+      drawAdjacentPathMetric(carState.getLeftBlindspot(), frogpilot_scene.lane_width_left, frogpilot_scene.track_adjacent_vertices[0]);
+    }
+
+    p.restore();
+  }
+
+  if (frogpilot_scene.lane_width_right >= frogpilot_toggles.value("lane_detection_width").toDouble()) {
+    p.save();
+
+    drawAdjacentPath(carState.getRightBlindspot(), frogpilot_scene.lane_width_right, frogpilot_toggles.value("lane_detection_width").toDouble(), frogpilot_scene.track_adjacent_vertices[1]);
+
+    if (frogpilot_toggles.value("adjacent_path_metrics").toBool()) {
+      drawAdjacentPathMetric(carState.getRightBlindspot(), frogpilot_scene.lane_width_right, frogpilot_scene.track_adjacent_vertices[1]);
+    }
+
+    p.restore();
+  }
+}
+
 void FrogPilotAnnotatedCameraWidget::paintBlindSpotPath(QPainter &p, SubMaster &fpsm, const FrogPilotUIScene &frogpilot_scene) {
   const cereal::CarState::Reader &carState = fpsm["carState"].getCarState();
 

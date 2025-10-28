@@ -11,6 +11,7 @@ class FrogPilotAnnotatedCameraWidget : public QWidget {
 public:
   explicit FrogPilotAnnotatedCameraWidget(QWidget *parent = 0);
 
+  void paintAdjacentPaths(QPainter &p, SubMaster &fpsm, const FrogPilotUIScene &frogpilot_scene, const QJsonObject &frogpilot_toggles);
   void paintBlindSpotPath(QPainter &p, SubMaster &fpsm, const FrogPilotUIScene &frogpilot_scene);
   void paintFrogPilotWidgets(QPainter &p, UIState &s, FrogPilotUIState &fs, SubMaster &sm, SubMaster &fpsm, QJsonObject &frogpilot_toggles);
   void updateState(const FrogPilotUIState &fs, const QJsonObject &frogpilot_toggles);
