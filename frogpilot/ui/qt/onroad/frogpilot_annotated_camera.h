@@ -19,6 +19,9 @@ public:
   bool isCruiseSet;
   bool rightHandDM;
 
+  int alertHeight;
+  int frogHopCount;
+
   float distanceConversion;
   float setSpeed;
   float speed;
@@ -34,6 +37,7 @@ public:
   QString accelerationUnit;
   QString leadDistanceUnit;
   QString leadSpeedUnit;
+  QString signalStyle;
   QString speedUnit;
 
 protected:
@@ -44,6 +48,15 @@ private:
   void paintCompass(QPainter &p, QJsonObject &frogpilot_toggles);
   void paintCurveSpeedControl(QPainter &p, SubMaster &fpsm);
   void paintCurveSpeedControlTraining(QPainter &p, SubMaster &fpsm);
+  void paintTurnSignals(QPainter &p, SubMaster &fpsm);
+  void updateSignals();
+
+  int animationFrameIndex;
+  int signalAnimationLength;
+  int signalHeight;
+  int signalMovement;
+  int signalWidth;
+  int totalFrames;
 
   Params params;
   Params params_memory{"", false, true};
@@ -65,4 +78,9 @@ private:
   QSharedPointer<QMovie> cemTurnIcon;
   QSharedPointer<QMovie> chillModeIcon;
   QSharedPointer<QMovie> experimentalModeIcon;
+
+  QTimer *animationTimer;
+
+  QVector<QPixmap> blindspotImages;
+  QVector<QPixmap> signalImages;
 };

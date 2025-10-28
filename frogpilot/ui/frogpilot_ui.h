@@ -14,9 +14,18 @@ struct FrogPilotUIScene {
   bool parked;
   bool reverse;
   bool standstill;
+  bool use_stock_colors;
 
   int conditional_status;
   int started_timer;
+
+  QColor lane_lines_color;
+  QColor lead_marker_color;
+  QColor path_color;
+  QColor path_edges_color;
+  QColor sidebar_color1;
+  QColor sidebar_color2;
+  QColor sidebar_color3;
 
   QJsonObject frogpilot_toggles;
 
@@ -40,6 +49,9 @@ public:
   WifiManager *wifi;
 
 signals:
+  void themeUpdated();
 };
 
 FrogPilotUIState *frogpilotUIState();
+
+void update_theme(FrogPilotUIScene &frogpilot_scene);
