@@ -12,6 +12,10 @@ FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(QWidget *parent) 
   loadGif("../../frogpilot/assets/other_images/turn_icon.gif", cemTurnIcon, QSize(btn_size / 2, btn_size / 2), this);
   loadGif("../../frogpilot/assets/other_images/chill_mode_icon.gif", chillModeIcon, QSize(btn_size / 2, btn_size / 2), this);
   loadGif("../../frogpilot/assets/other_images/experimental_mode_icon.gif", experimentalModeIcon, QSize(btn_size / 2, btn_size / 2), this);
+  loadGif("../../frogpilot/assets/other_images/weather_clear_day.gif", weatherClearDay, QSize(btn_size / 2, btn_size / 2), this);
+  loadGif("../../frogpilot/assets/other_images/weather_clear_night.gif", weatherClearNight, QSize(btn_size / 2, btn_size / 2), this);
+  loadGif("../../frogpilot/assets/other_images/weather_rain.gif", weatherRain, QSize(btn_size / 2, btn_size / 2), this);
+  loadGif("../../frogpilot/assets/other_images/weather_snow.gif", weatherSnow, QSize(btn_size / 2, btn_size / 2), this);
 
   QObject::connect(animationTimer, &QTimer::timeout, [this] {
     animationFrameIndex = (animationFrameIndex + 1) % totalFrames;
@@ -182,6 +186,10 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
     paintTurnSignals(p, fpsm);
   } else if (animationTimer->isActive()) {
     animationTimer->stop();
+  }
+
+  if (!hideBottomIcons) {
+    paintWeather(p, fpsm, frogpilot_scene);
   }
 }
 
@@ -546,6 +554,44 @@ void FrogPilotAnnotatedCameraWidget::paintTurnSignals(QPainter &p, SubMaster &fp
       p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, signalImages[animationFrameIndex].transformed(QTransform().scale(leftBlinker ? 1 : -1, 1)));
     }
   }
+
+  p.restore();
+}
+
+void FrogPilotAnnotatedCameraWidget::paintWeather(QPainter &p, SubMaster &fpsm, FrogPilotUIScene &frogpilot_scene) {
+  const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
+  int weatherId = frogpilotPlan.getWeatherId();
+  if (weatherId == 0) {
+    return;
+  }
+
+  p.save();
+
+  QPoint weatherIconPosition;
+  if (compassPosition != QPoint(0, 0)) {
+    weatherIconPosition = compassPosition;
+    weatherIconPosition.rx() += (rightHandDM ? UI_BORDER_SIZE + widget_size + UI_BORDER_SIZE : -UI_BORDER_SIZE - widget_size - UI_BORDER_SIZE);
+  } else {
+    weatherIconPosition.rx() = rightHandDM ? UI_BORDER_SIZE + widget_size / 2 : width() - UI_BORDER_SIZE - btn_size;
+    weatherIconPosition.ry() = dmIconPosition.y() - widget_size / 2;
+  }
+
+  QRect weatherRect(weatherIconPosition, QSize(widget_size, widget_size));
+
+  p.setBrush(blackColor(166));
+  p.setPen(QPen(blackColor(), 10));
+  p.drawRoundedRect(weatherRect, 24, 24);
+
+  QSharedPointer<QMovie> icon = weatherClearDay;
+  if ((weatherId >= 200 && weatherId <= 232) || (weatherId >= 300 && weatherId <= 321) || (weatherId >= 500 && weatherId <= 531)) {
+    icon = weatherRain;
+  } else if (weatherId >= 600 && weatherId <= 622) {
+    icon = weatherSnow;
+  } else if (weatherId == 800) {
+    icon = frogpilotPlan.getWeatherDaytime() ? weatherClearDay : weatherClearNight;
+  }
+
+  p.drawPixmap(weatherRect, icon->currentPixmap());
 
   p.restore();
 }
