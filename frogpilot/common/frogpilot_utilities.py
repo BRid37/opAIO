@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import math
+import numpy as np
 import requests
 import subprocess
 import tarfile
@@ -45,6 +46,20 @@ def calculate_distance_to_point(lat1, lon1, lat2, lon2):
   c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
   return EARTH_RADIUS * c
+
+
+# Credit goes to Pfeiferj!
+def calculate_road_curvature(modelData, v_ego):
+  orientation_rate = np.array(modelData.orientationRate.z)
+  velocity = np.array(modelData.velocity.x)
+  timebase = np.array(modelData.orientationRate.t)
+
+  lateral_acceleration = orientation_rate * velocity
+  index = np.argmax(np.abs(lateral_acceleration))
+  predicted_lateral_acc = float(lateral_acceleration[index])
+  time_to_curve = float(timebase[index])
+
+  return predicted_lateral_acc / max(v_ego, 1)**2, max(time_to_curve, 1)
 
 
 def contains_event_type(events, frogpilot_events, *event_types):

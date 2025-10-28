@@ -1,6 +1,8 @@
 #include "frogpilot/ui/qt/onroad/frogpilot_annotated_camera.h"
 
 FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(QWidget *parent) : QWidget(parent) {
+  curveSpeedIcon = loadPixmap("../../frogpilot/assets/other_images/curve_speed.png", {btn_size, btn_size});
+
   loadGif("../../frogpilot/assets/other_images/curve_icon.gif", cemCurveIcon, QSize(btn_size / 2, btn_size / 2), this);
   loadGif("../../frogpilot/assets/other_images/lead_icon.gif", cemLeadIcon, QSize(btn_size / 2, btn_size / 2), this);
   loadGif("../../frogpilot/assets/other_images/speed_icon.gif", cemSpeedIcon, QSize(btn_size / 2, btn_size / 2), this);
@@ -67,6 +69,20 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
   } else {
     compassPosition.setX(0);
     compassPosition.setY(0);
+  }
+
+  if (!frogpilotPlan.getSpeedLimitChanged() && !(signalStyle == "static" && carState.getLeftBlinker()) && frogpilot_toggles.value("csc_status").toBool()) {
+    if (frogpilotPlan.getCscTraining()) {
+      paintCurveSpeedControlTraining(p, fpsm);
+    } else {
+      glowTimer.invalidate();
+
+      if (isCruiseSet && frogpilotPlan.getCscControllingSpeed()) {
+        paintCurveSpeedControl(p, fpsm);
+      }
+    }
+  } else {
+    glowTimer.invalidate();
   }
 }
 
@@ -221,6 +237,76 @@ void FrogPilotAnnotatedCameraWidget::paintCompass(QPainter &p, QJsonObject &frog
   p.setBrush(whiteColor());
   p.setPen(Qt::NoPen);
   p.drawPolygon(triangle);
+
+  p.restore();
+}
+
+void FrogPilotAnnotatedCameraWidget::paintCurveSpeedControl(QPainter &p, SubMaster &fpsm) {
+  const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
+
+  p.save();
+
+  QRect curveSpeedRect(QPoint(setSpeedRect.right() + UI_BORDER_SIZE, setSpeedRect.top()), QSize(defaultSize.width() * 1.25, defaultSize.width() * 1.25));
+
+  QPixmap curveSpeedImage = frogpilotPlan.getRoadCurvature() < 0 ? curveSpeedIcon : curveSpeedIcon.transformed(QTransform().scale(-1, 1));
+  QSize curveSpeedSize = curveSpeedImage.size();
+  QPoint curveSpeedPoint(curveSpeedRect.x() + (curveSpeedRect.width()  - curveSpeedSize.width())  / 2, curveSpeedRect.y() + (curveSpeedRect.height() - curveSpeedSize.height()) / 2);
+
+  p.setOpacity(1.0);
+
+  QRect cscRect(curveSpeedRect.topLeft() + QPoint(0, curveSpeedRect.height() + 10), QSize(curveSpeedRect.width(), 100));
+
+  p.setBrush(blueColor(166));
+  p.setFont(InterFont(45, QFont::Bold));
+  p.setPen(QPen(blueColor(), 10));
+
+  p.drawRoundedRect(cscRect, 24, 24);
+  p.setPen(QPen(whiteColor(), 6));
+  p.drawText(cscRect.adjusted(20, 0, 0, 0), Qt::AlignVCenter | Qt::AlignLeft, QString::number(std::nearbyint(fmin(speed, frogpilotPlan.getCscSpeed() * speedConversion))) + speedUnit);
+
+  p.drawPixmap(curveSpeedPoint, curveSpeedImage);
+
+  p.restore();
+}
+
+void FrogPilotAnnotatedCameraWidget::paintCurveSpeedControlTraining(QPainter &p, SubMaster &fpsm) {
+  const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
+
+  p.save();
+
+  if (!glowTimer.isValid()) {
+    glowTimer.start();
+  }
+
+  QRect curveSpeedRect(QPoint(setSpeedRect.right() + UI_BORDER_SIZE, setSpeedRect.top()), QSize(defaultSize.width() * 1.25, defaultSize.width() * 1.25));
+  QPixmap curveSpeedImage = frogpilotPlan.getRoadCurvature() < 0 ? curveSpeedIcon : curveSpeedIcon.transformed(QTransform().scale(-1, 1));
+
+  qreal phase = (glowTimer.elapsed() % 2000) / 2000.0 * 2 * M_PI;
+  qreal alphaFactor = 0.5 + 0.5 * sin(phase);
+
+  QColor glowColor = blueColor();
+  glowColor.setAlphaF(0.3 + 0.7 * alphaFactor);
+
+  int glowWidth = 8 + static_cast<int>(2 * alphaFactor);
+
+  p.setOpacity(1.0);
+
+  p.setBrush(blackColor(166));
+  p.setPen(QPen(glowColor, glowWidth));
+  p.drawRoundedRect(curveSpeedRect, 24, 24);
+
+  QSize curveSpeedSize = curveSpeedImage.size();
+  QPoint curveSpeedPoint(curveSpeedRect.x() + (curveSpeedRect.width()  - curveSpeedSize.width())  / 2, curveSpeedRect.y() + (curveSpeedRect.height() - curveSpeedSize.height()) / 2);
+  p.drawPixmap(curveSpeedPoint, curveSpeedImage);
+
+  QRect textRect(curveSpeedRect.topLeft() + QPoint(0, curveSpeedRect.height() + 10), QSize(curveSpeedRect.width(), 50));
+  p.setBrush(blackColor(166));
+  p.setPen(QPen(blackColor(), 10));
+  p.drawRoundedRect(textRect, 24, 24);
+
+  p.setFont(InterFont(35, QFont::Bold));
+  p.setPen(QPen(whiteColor(), 6));
+  p.drawText(textRect.adjusted(20, 0, 0, 0), Qt::AlignVCenter | Qt::AlignLeft, "Training...");
 
   p.restore();
 }
