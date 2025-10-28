@@ -127,6 +127,8 @@ class FrogPilotPlanner:
     frogpilotPlan.cscSpeed = float(self.frogpilot_vcruise.csc_target)
     frogpilotPlan.cscTraining = self.frogpilot_vcruise.csc.enable_training
 
+    frogpilotPlan.desiredFollowDistance = int(self.frogpilot_following.desired_follow_distance)
+
     frogpilotPlan.experimentalMode = self.frogpilot_cem.experimental_mode
 
     frogpilotPlan.frogpilotEvents = self.frogpilot_events.events.to_msg()

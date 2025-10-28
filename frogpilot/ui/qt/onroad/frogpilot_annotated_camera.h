@@ -14,6 +14,7 @@ public:
   void paintAdjacentPaths(QPainter &p, SubMaster &fpsm, const FrogPilotUIScene &frogpilot_scene, const QJsonObject &frogpilot_toggles);
   void paintBlindSpotPath(QPainter &p, SubMaster &fpsm, const FrogPilotUIScene &frogpilot_scene);
   void paintFrogPilotWidgets(QPainter &p, UIState &s, FrogPilotUIState &fs, SubMaster &sm, SubMaster &fpsm, QJsonObject &frogpilot_toggles);
+  void paintLeadMetrics(QPainter &p, bool adjacent, QPointF *chevron, SubMaster &fpsm, const cereal::RadarState::LeadData::Reader &lead_data);
   void updateState(const FrogPilotUIState &fs, const QJsonObject &frogpilot_toggles);
 
   bool hideBottomIcons;
@@ -32,6 +33,8 @@ public:
   QColor blueColor(int alpha = 255) { return QColor(0, 0, 255, alpha); }
 
   QPoint dmIconPosition;
+
+  QRect leadTextRect;
 
   QSize defaultSize;
 
