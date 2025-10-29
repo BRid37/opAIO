@@ -165,6 +165,7 @@ class FrogPilotVariables:
       CarInterface = interfaces[MOCK.MOCK]
       FPCP = CarInterface.get_frogpilot_params(MOCK.MOCK, gen_empty_fingerprint(), [], CP, toggle)
 
+    toggle.always_on_lateral_set = bool(FPCP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
     toggle.car_make = CP.brand
     toggle.car_model = CP.carFingerprint
     friction = CP.lateralTuning.torque.friction
@@ -185,6 +186,7 @@ class FrogPilotVariables:
     steerKp = CP.lateralTuning.torque.kp
     steerRatio = CP.steerRatio
     toggle.stoppingDecelRate = CP.stoppingDecelRate
+    toggle.use_lkas_for_aol = not toggle.openpilot_longitudinal and CP.safetyConfigs[0].safetyModel == SafetyModel.hyundaiCanfd
     toggle.vEgoStarting = CP.vEgoStarting
     toggle.vEgoStopping = CP.vEgoStopping
 
