@@ -310,8 +310,6 @@ void UIState::updateStatus(FrogPilotUIState *fs) {
     if (scene.started) {
       status = STATUS_DISENGAGED;
       scene.started_frame = sm->frame;
-    } else if (frogpilot_scene.started_timer > 15*60*UI_FREQ && frogpilot_toggles.value("model_randomizer").toBool()) {
-      emit fs->reviewModel();
     }
     started_prev = scene.started;
     scene.world_objects_visible = false;
@@ -406,6 +404,9 @@ void Device::setAwake(bool on) {
 void Device::resetInteractiveTimeout(int timeout, int timeout_onroad) {
   if (timeout == -1) {
     timeout = (ignition_on ? 10 : 30);
+  } else {
+    // FrogPilot variables
+    timeout = (ignition_on ? timeout_onroad : timeout);
   }
   interactive_timeout = timeout * UI_FREQ;
 }

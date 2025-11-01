@@ -534,10 +534,10 @@ struct CarParams {
     ki @2 :Float32;
     kd @8 : Float32;
     friction @3 :Float32;
-    kf @4 :Float32;
     steeringAngleDeadzoneDeg @5 :Float32;
     latAccelFactor @6 :Float32;
     latAccelOffset @7 :Float32;
+    kfDEPRECATED @4 :Float32;
   }
 
   struct LongitudinalPIDTuning {
@@ -545,7 +545,7 @@ struct CarParams {
     kpV @1 :List(Float32);
     kiBP @2 :List(Float32);
     kiV @3 :List(Float32);
-    kf @6 :Float32;
+    kfDEPRECATED @6 :Float32;
     deadzoneBP @4 :List(Float32);
     deadzoneV @5 :List(Float32);
   }

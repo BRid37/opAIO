@@ -4,8 +4,8 @@ from collections import deque
 
 from cereal import log
 from openpilot.common.filter_simple import FirstOrderFilter
-from openpilot.selfdrive.controls.lib.drive_helpers import MIN_SPEED, get_friction
 from openpilot.selfdrive.car.interfaces import FRICTION_THRESHOLD
+from openpilot.selfdrive.controls.lib.drive_helpers import MIN_SPEED, get_friction
 from openpilot.selfdrive.controls.lib.latcontrol import LatControl
 from openpilot.selfdrive.controls.lib.pid import PIDController
 from openpilot.selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_GRAVITY
@@ -21,11 +21,10 @@ from openpilot.selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_G
 # friction in the steering wheel that needs to be overcome to
 # move it at all, this is compensated for too.
 
-MAX_LAT_JERK_UP = 2.5            # m/s^3
-
 LOW_SPEED_X = [0, 10, 20, 30]
 LOW_SPEED_Y = [15, 13, 10, 5]
 
+MAX_LAT_JERK_UP = 2.5            # m/s^3
 
 class LatControlTorque(LatControl):
   def __init__(self, CP, CI, dt):
@@ -33,8 +32,7 @@ class LatControlTorque(LatControl):
     self.torque_params = CP.lateralTuning.torque
     self.torque_from_lateral_accel = CI.torque_from_lateral_accel()
     self.lateral_accel_from_torque = CI.lateral_accel_from_torque()
-    self.pid = PIDController(self.torque_params.kp, self.torque_params.ki,
-                             k_f=self.torque_params.kf, rate=1/self.dt)
+    self.pid = PIDController(self.torque_params.kp, self.torque_params.ki, rate=1/self.dt)
     self.update_limits()
     self.steering_angle_deadzone_deg = self.torque_params.steeringAngleDeadzoneDeg
     self.LATACCEL_REQUEST_BUFFER_NUM_FRAMES = int(1 / self.dt)

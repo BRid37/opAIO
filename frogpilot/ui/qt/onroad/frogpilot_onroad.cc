@@ -26,9 +26,7 @@ void FrogPilotOnroadWindow::updateState(const UIState &s, const FrogPilotUIState
   showSignal = (turnSignalLeft || turnSignalRight) && frogpilot_toggles.value("signal_metrics").toBool();
   showSteering = frogpilot_toggles.value("steering_metrics").toBool();
 
-  if (showBlindspot || showFPS || showSignal || showSteering) {
-    update();
-  }
+  update();
 }
 
 void FrogPilotOnroadWindow::paintEvent(QPaintEvent *event) {
@@ -92,7 +90,7 @@ void FrogPilotOnroadWindow::paintFPS(QPainter &p, const QRect &rect) {
   minFPS = std::min(minFPS, fps);
   maxFPS = std::max(maxFPS, fps);
 
-  QString fpsDisplayString = QString("FPS: %1 | Min: %2 | Max: %3 | Avg: %4")
+  QString fpsDisplayString = QString(tr("FPS: %1 | Min: %2 | Max: %3 | Avg: %4"))
                                 .arg(qRound(fps))
                                 .arg(qRound(minFPS))
                                 .arg(qRound(maxFPS))
