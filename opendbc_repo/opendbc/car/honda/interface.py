@@ -53,7 +53,7 @@ class CarInterface(CarInterfaceBase):
       ret.pcmCruise = not ret.openpilotLongitudinalControl
     else:
       ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hondaNidec)]
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = not frogpilot_toggles.disable_openpilot_long
 
       ret.pcmCruise = True
 

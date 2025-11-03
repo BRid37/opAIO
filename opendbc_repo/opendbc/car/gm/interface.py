@@ -129,7 +129,7 @@ class CarInterface(CarInterfaceBase):
         ret.minEnableSpeed = -1.  # engage speed is decided by PCM
 
     else:  # ASCM, OBD-II harness
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = not frogpilot_toggles.disable_openpilot_long
       ret.networkLocation = NetworkLocation.gateway
       # LRR messages can take up to a few seconds to start sending after ignition, check camera data as well which starts earlier
       ret.radarUnavailable = RADAR_HEADER_MSG not in fingerprint[CanBus.OBSTACLE] and CAMERA_DATA_HEADER_MSG not in fingerprint[CanBus.OBSTACLE] and not docs
@@ -251,7 +251,7 @@ class CarInterface(CarInterfaceBase):
       ret.autoResumeSng = True
       ret.minEnableSpeed = -1
       ret.networkLocation = NetworkLocation.fwdCamera
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = not frogpilot_toggles.disable_openpilot_long
       ret.pcmCruise = False
       ret.safetyConfigs[0].safetyParam |= GMSafetyFlags.HW_CAM.value
 

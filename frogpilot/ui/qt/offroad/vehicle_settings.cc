@@ -22,6 +22,26 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
 
   vehiclesLayout->addWidget(vehiclesPanel);
 
+  disableOpenpilotLong = new ParamControl("DisableOpenpilotLongitudinal", tr("Disable openpilot Longitudinal Control"), tr("<b>Disable openpilot longitudinal</b> and use the car's stock ACC instead."), "");
+  QObject::connect(disableOpenpilotLong, &ToggleControl::toggleFlipped, [parent, this](bool state) {
+    if (state) {
+      if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely disable openpilot longitudinal control?"), this)) {
+        if (started) {
+          if (FrogPilotConfirmationDialog::toggleReboot(this)) {
+            Hardware::reboot();
+          }
+        }
+      } else {
+        params.putBool("DisableOpenpilotLongitudinal", false);
+        disableOpenpilotLong->refresh();
+      }
+    }
+
+    parent->updateVariables();
+    updateToggles();
+  });
+  settingsList->addItem(disableOpenpilotLong);
+
   FrogPilotListWidget *gmList = new FrogPilotListWidget(this);
   FrogPilotListWidget *hkgList = new FrogPilotListWidget(this);
   FrogPilotListWidget *subaruList = new FrogPilotListWidget(this);
@@ -188,6 +208,8 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
   QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [vehiclesLayout, vehiclesPanel, this] {
     if (forceOpenDescriptions) {
       openDescriptions(forceOpenDescriptions, toggles);
+
+      disableOpenpilotLong->showDescription();
     }
     vehiclesLayout->setCurrentWidget(vehiclesPanel);
   });
@@ -196,6 +218,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
 
 void FrogPilotVehiclesPanel::showEvent(QShowEvent *event) {
   if (forceOpenDescriptions) {
+    disableOpenpilotLong->showDescription();
   }
 
   QStringList detected;
@@ -288,6 +311,8 @@ void FrogPilotVehiclesPanel::updateToggles() {
       }
     }
   }
+
+  disableOpenpilotLong->setVisible((parent->hasOpenpilotLongitudinal || parent->openpilotLongitudinalControlDisabled) && !parent->hasExperimentalOpenpilotLongitudinal && parent->tuningLevel >= parent->frogpilotToggleLevels["DisableOpenpilotLongitudinal"].toBool());
 
   openDescriptions(forceOpenDescriptions, toggles);
 

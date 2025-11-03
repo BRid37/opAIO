@@ -208,6 +208,8 @@ class CarInterfaceBase(ABC):
         fp_ret.canUsePedal = not CP.autoResumeSng
         fp_ret.canUseSDSU = not CP.enableDsu and candidate not in UNSUPPORTED_DSU_CAR and candidate not in TSS2_CAR
 
+      fp_ret.openpilotLongitudinalControlDisabled = frogpilot_toggles.disable_openpilot_long
+
     return fp_ret
 
   @staticmethod
