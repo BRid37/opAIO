@@ -176,11 +176,17 @@ class FrogPilotVariables:
     toggle.has_zss = toggle.car_make == "toyota" and bool(FPCP.flags & ToyotaFrogPilotFlags.ZSS.value)
     is_angle_car = CP.steerControlType == car.CarParams.SteerControlType.angle
     latAccelFactor = CP.lateralTuning.torque.latAccelFactor
+    longitudinalActuatorDelay = CP.longitudinalActuatorDelay
     toggle.openpilot_longitudinal = CP.openpilotLongitudinalControl and not toggle.disable_openpilot_long
     pcm_cruise = CP.pcmCruise
+    startAccel = CP.startAccel
+    stopAccel = CP.stopAccel
     steerActuatorDelay = CP.steerActuatorDelay
     steerKp = CP.lateralTuning.torque.kp
     steerRatio = CP.steerRatio
+    toggle.stoppingDecelRate = CP.stoppingDecelRate
+    toggle.vEgoStarting = CP.vEgoStarting
+    toggle.vEgoStopping = CP.vEgoStopping
 
     msg_bytes = self.params.get("LiveTorqueParameters")
     if msg_bytes:
@@ -209,6 +215,15 @@ class FrogPilotVariables:
     toggle.use_custom_latAccelFactor = bool(round(toggle.latAccelFactor, 2) != round(latAccelFactor, 2)) and is_torque_car and not toggle.force_auto_tune or toggle.force_auto_tune_off
     toggle.steerRatio = np.clip(self.params.get("SteerRatio") if advanced_lateral_tuning and tuning_level >= level["SteerRatio"] else steerRatio, steerRatio * 0.5, steerRatio * 1.5)
     toggle.use_custom_steerRatio = bool(round(toggle.steerRatio, 2) != round(steerRatio, 2)) and not toggle.force_auto_tune or toggle.force_auto_tune_off
+
+    advanced_longitudinal_tuning = toggle.openpilot_longitudinal and (self.params.get_bool("AdvancedLongitudinalTune") if tuning_level >= level["AdvancedLongitudinalTune"] else default["AdvancedLongitudinalTune"])
+    toggle.longitudinalActuatorDelay = np.clip(self.params.get("LongitudinalActuatorDelay") if advanced_longitudinal_tuning and tuning_level >= level["LongitudinalActuatorDelay"] else longitudinalActuatorDelay, 0, 1)
+    toggle.max_desired_acceleration = np.clip(self.params.get("MaxDesiredAcceleration") if advanced_longitudinal_tuning and tuning_level >= level["MaxDesiredAcceleration"] else default["MaxDesiredAcceleration"], 0.1, 4.0)
+    toggle.startAccel = np.clip(self.params.get("StartAccel") if advanced_longitudinal_tuning and tuning_level >= level["StartAccel"] else startAccel, 0, 4)
+    toggle.stopAccel = np.clip(self.params.get("StopAccel") if advanced_longitudinal_tuning and tuning_level >= level["StopAccel"] else stopAccel, -4, 0)
+    toggle.stoppingDecelRate = np.clip(self.params.get("StoppingDecelRate") if advanced_longitudinal_tuning and tuning_level >= level["StoppingDecelRate"] else toggle.stoppingDecelRate, 0.001, 1)
+    toggle.vEgoStarting = np.clip(self.params.get("VEgoStarting") if advanced_longitudinal_tuning and tuning_level >= level["VEgoStarting"] else toggle.vEgoStarting, 0.01, 1)
+    toggle.vEgoStopping = np.clip(self.params.get("VEgoStopping") if advanced_longitudinal_tuning and tuning_level >= level["VEgoStopping"] else toggle.vEgoStopping, 0.01, 1)
 
     toggle.alert_volume_controller = self.params.get_bool("AlertVolumeControl") if tuning_level >= level["AlertVolumeControl"] else default["AlertVolumeControl"]
     toggle.disengage_volume = self.params.get("DisengageVolume") if toggle.alert_volume_controller and tuning_level >= level["DisengageVolume"] else default["DisengageVolume"]
