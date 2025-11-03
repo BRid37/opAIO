@@ -167,14 +167,20 @@ class FrogPilotVariables:
 
     toggle.car_make = CP.brand
     toggle.car_model = CP.carFingerprint
+    friction = CP.lateralTuning.torque.friction
     has_bsm = CP.enableBsm
     toggle.has_pedal = CP.enableGasInterceptorDEPRECATED
     has_radar = not CP.radarUnavailable
     toggle.has_sdsu = toggle.car_make == "toyota" and bool(FPCP.flags & ToyotaFrogPilotFlags.SMART_DSU.value)
     has_sng = CP.autoResumeSng
     toggle.has_zss = toggle.car_make == "toyota" and bool(FPCP.flags & ToyotaFrogPilotFlags.ZSS.value)
+    is_angle_car = CP.steerControlType == car.CarParams.SteerControlType.angle
+    latAccelFactor = CP.lateralTuning.torque.latAccelFactor
     toggle.openpilot_longitudinal = CP.openpilotLongitudinalControl and not toggle.disable_openpilot_long
     pcm_cruise = CP.pcmCruise
+    steerActuatorDelay = CP.steerActuatorDelay
+    steerKp = CP.lateralTuning.torque.kp
+    steerRatio = CP.steerRatio
 
     msg_bytes = self.params.get("LiveTorqueParameters")
     if msg_bytes:
@@ -192,6 +198,17 @@ class FrogPilotVariables:
     toggle.hide_speed = advanced_custom_ui and (self.params.get_bool("HideSpeed") if tuning_level >= level["HideSpeed"] else default["HideSpeed"])
     toggle.hide_speed_limit = advanced_custom_ui and (self.params.get_bool("HideSpeedLimit") if tuning_level >= level["HideSpeedLimit"] else default["HideSpeedLimit"])
     toggle.use_wheel_speed = advanced_custom_ui and (self.params.get_bool("WheelSpeed") if tuning_level >= level["WheelSpeed"] else default["WheelSpeed"])
+
+    advanced_lateral_tuning = self.params.get_bool("AdvancedLateralTune") if tuning_level >= level["AdvancedLateralTune"] else default["AdvancedLateralTune"]
+    toggle.steerActuatorDelay = np.clip(self.params.get("SteerDelay") if advanced_lateral_tuning and tuning_level >= level["SteerDelay"] else steerActuatorDelay, 0.01, 1.0)
+    toggle.use_custom_steerActuatorDelay = bool(round(toggle.steerActuatorDelay, 2) != round(steerActuatorDelay, 2))
+    toggle.friction = np.clip(self.params.get("SteerFriction") if advanced_lateral_tuning and tuning_level >= level["SteerFriction"] else friction, 0, 0.5)
+    toggle.use_custom_friction = bool(round(toggle.friction, 2) != round(friction, 2)) and is_torque_car and not toggle.force_auto_tune or toggle.force_auto_tune_off
+    toggle.steerKp = [[0], [np.clip(self.params.get("SteerKP") if advanced_lateral_tuning and is_torque_car and tuning_level >= level["SteerKP"] else steerKp, steerKp * 0.5, steerKp * 1.5)]]
+    toggle.latAccelFactor = np.clip(self.params.get("SteerLatAccel") if advanced_lateral_tuning and tuning_level >= level["SteerLatAccel"] else latAccelFactor, latAccelFactor * 0.75, latAccelFactor * 1.25)
+    toggle.use_custom_latAccelFactor = bool(round(toggle.latAccelFactor, 2) != round(latAccelFactor, 2)) and is_torque_car and not toggle.force_auto_tune or toggle.force_auto_tune_off
+    toggle.steerRatio = np.clip(self.params.get("SteerRatio") if advanced_lateral_tuning and tuning_level >= level["SteerRatio"] else steerRatio, steerRatio * 0.5, steerRatio * 1.5)
+    toggle.use_custom_steerRatio = bool(round(toggle.steerRatio, 2) != round(steerRatio, 2)) and not toggle.force_auto_tune or toggle.force_auto_tune_off
 
     toggle.alert_volume_controller = self.params.get_bool("AlertVolumeControl") if tuning_level >= level["AlertVolumeControl"] else default["AlertVolumeControl"]
     toggle.disengage_volume = self.params.get("DisengageVolume") if toggle.alert_volume_controller and tuning_level >= level["DisengageVolume"] else default["DisengageVolume"]
