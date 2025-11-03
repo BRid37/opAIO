@@ -1,3 +1,5 @@
+#include <sys/xattr.h>
+
 #include "frogpilot/ui/qt/offroad/data_settings.h"
 
 FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
@@ -21,6 +23,48 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
   FrogPilotListWidget *statsLabelsList = new FrogPilotListWidget(this);
   ScrollView *statsLabelsPanel = new ScrollView(statsLabelsList, this);
   dataLayout->addWidget(statsLabelsPanel);
+
+  ButtonControl *deleteDrivingDataButton = new ButtonControl(tr("Delete Driving Data"), tr("DELETE"), tr("<b>Delete all stored driving footage and data</b> to free up space and clear private information."));
+  QObject::connect(deleteDrivingDataButton, &ButtonControl::clicked, [=]() {
+    QDir realDataDir("/data/media/0/realdata/");
+
+    if (ConfirmationDialog::confirm(tr("Delete all driving data and footage?"), tr("Delete"), this)) {
+      std::thread([=]() mutable {
+        parent->keepScreenOn = true;
+
+        deleteDrivingDataButton->setEnabled(false);
+        deleteDrivingDataButton->setValue(tr("Deleting..."));
+
+        QList<QDir> footageDirs = {realDataDir};
+        for (const QDir &footageDir : footageDirs) {
+          if (!footageDir.exists()) {
+            continue;
+          }
+
+          QFileInfoList entries = footageDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+          for (const QFileInfo &entry : entries) {
+            char value[10] = {0};
+            if (!(getxattr(entry.absoluteFilePath().toUtf8().constData(), "user.preserve", value, sizeof(value)) > 0 && strcmp(value, "1") == 0)) {
+              QDir(entry.absoluteFilePath()).removeRecursively();
+            }
+          }
+        }
+
+        deleteDrivingDataButton->setValue(tr("Deleted!"));
+
+        util::sleep_for(2500);
+
+        deleteDrivingDataButton->setEnabled(true);
+        deleteDrivingDataButton->setValue("");
+
+        parent->keepScreenOn = false;
+      }).detach();
+    }
+  });
+  if (forceOpenDescriptions) {
+    deleteDrivingDataButton->showDescription();
+  }
+  dataMainList->addItem(deleteDrivingDataButton);
 
   FrogPilotButtonsControl *frogpilotBackupButton = new FrogPilotButtonsControl(tr("FrogPilot Backups"), tr("<b>Create, delete, or restore FrogPilot backups.</b>"), "", {tr("BACKUP"), tr("DELETE"), tr("DELETE ALL"), tr("RESTORE")});
   QObject::connect(frogpilotBackupButton, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
