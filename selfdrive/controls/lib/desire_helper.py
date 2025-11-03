@@ -78,6 +78,8 @@ class DesireHelper:
         # FrogPilot variables
         if torque_applied:
           self.lane_change_wait_timer = frogpilot_toggles.lane_change_delay
+        else:
+          torque_applied = self.lane_change_wait_timer >= frogpilot_toggles.lane_change_delay and frogpilot_toggles.nudgeless
 
         if not one_blinker or below_lane_change_speed:
           self.lane_change_state = LaneChangeState.off
