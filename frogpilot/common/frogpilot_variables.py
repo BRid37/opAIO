@@ -270,6 +270,7 @@ class FrogPilotVariables:
 
     advanced_lateral_tuning = self.params.get_bool("AdvancedLateralTune") if tuning_level >= level["AdvancedLateralTune"] else default["AdvancedLateralTune"]
     toggle.force_auto_tune = advanced_lateral_tuning and not has_auto_tune and is_torque_car and (self.params.get_bool("ForceAutoTune") if tuning_level >= level["ForceAutoTune"] else default["ForceAutoTune"])
+    toggle.force_auto_tune_off = advanced_lateral_tuning and has_auto_tune and is_torque_car and (self.params.get_bool("ForceAutoTuneOff") if tuning_level >= level["ForceAutoTuneOff"] else default["ForceAutoTuneOff"])
     toggle.steerActuatorDelay = np.clip(self.params.get("SteerDelay") if advanced_lateral_tuning and tuning_level >= level["SteerDelay"] else steerActuatorDelay, 0.01, 1.0)
     toggle.use_custom_steerActuatorDelay = bool(round(toggle.steerActuatorDelay, 2) != round(steerActuatorDelay, 2))
     toggle.friction = np.clip(self.params.get("SteerFriction") if advanced_lateral_tuning and tuning_level >= level["SteerFriction"] else friction, 0, 0.5)
