@@ -661,6 +661,8 @@ class FrogPilotVariables:
     toggle.startup_alert_top = self.params.get("StartupMessageTop") if tuning_level >= level["StartupMessageTop"] else default["StartupMessageTop"]
     toggle.startup_alert_bottom = self.params.get("StartupMessageBottom") if tuning_level >= level["StartupMessageBottom"] else default["StartupMessageBottom"]
 
+    toggle.subaru_sng = toggle.openpilot_longitudinal and (toggle.car_make == "subaru" and not (CP.flags & SubaruFlags.GLOBAL_GEN2 or CP.flags & SubaruFlags.HYBRID) and (self.params.get_bool("SubaruSNG") if tuning_level >= level["SubaruSNG"] else default["SubaruSNG"]))
+
     toggle.tethering_config = self.params.get("TetheringEnabled") if tuning_level >= level["TetheringEnabled"] else default["TetheringEnabled"]
 
     toyota_doors = toggle.car_make == "toyota" and (self.params.get_bool("ToyotaDoors") if tuning_level >= level["ToyotaDoors"] else default["ToyotaDoors"])
