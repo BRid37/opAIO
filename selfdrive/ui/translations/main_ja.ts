@@ -257,6 +257,10 @@
         <source>DANGER FACTOR</source>
         <translation type="gpt-5-generated">危険要因</translation>
     </message>
+    <message>
+        <source>DANGER %</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DevicePanel</name>

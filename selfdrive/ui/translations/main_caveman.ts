@@ -258,6 +258,10 @@
         <source>DANGER FACTOR</source>
         <translation type="gpt-5-generated">DANGER FACTOR</translation>
     </message>
+    <message>
+        <source>DANGER %</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DevicePanel</name>
@@ -1195,7 +1199,7 @@
     </message>
     <message>
         <source>openpilot Crashes</source>
-        <translation type="gpt-5-generated" />
+        <translation type="gpt-5-generated"></translation>
     </message>
     <message>
         <source>This Is Fine Moments</source>
@@ -3512,7 +3516,7 @@ Developer - Many custom setting for seasoned enthusiast</translation>
     </message>
     <message>
         <source>FrogPilot Alerts</source>
-        <translation type="gpt-5-generated" />
+        <translation type="gpt-5-generated"></translation>
     </message>
     <message>
         <source>&lt;b&gt;Optional FrogPilot alerts&lt;/b&gt; that highlight driving events in a more noticeable way.</source>
