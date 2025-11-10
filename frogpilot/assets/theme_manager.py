@@ -360,7 +360,7 @@ class ThemeManager:
     start_of_week = target_date - timedelta(days=target_date.weekday())
     return start_of_week <= current_date < target_date
 
-  def update_active_theme(self, time_validated, frogpilot_toggles, boot_run=False):
+  def update_active_theme(self, time_validated, frogpilot_toggles, boot_run=False, randomize_theme=False):
     if time_validated and frogpilot_toggles.holiday_themes:
       self.holiday_theme = self.update_holiday()
     else:
@@ -374,6 +374,27 @@ class ThemeManager:
         "sound_pack": ("sounds", self.holiday_theme),
         "turn_signal_pack": ("signals", self.holiday_theme),
         "wheel_image": ("wheel_image", self.holiday_theme)
+      }
+    elif (boot_run or randomize_theme) and frogpilot_toggles.random_themes:
+      available_themes = self.get_full_themes()
+      selected_theme = self.randomize_theme_asset(available_themes)
+
+      asset_mappings = {
+        "color_scheme": ("colors", selected_theme.replace("-animated", "")),
+        "distance_icons": ("distance_icons", self.randomize_distance_icons(available_themes, selected_theme.replace("-animated", ""))),
+        "icon_pack": ("icons", selected_theme),
+        "sound_pack": ("sounds", selected_theme.replace("-animated", "")),
+        "turn_signal_pack": ("signals", selected_theme.replace("-animated", "")),
+        "wheel_image": ("wheel_image", self.randomize_wheel_image(available_themes, selected_theme.replace("-animated", "")))
+      }
+    elif not frogpilot_toggles.random_themes:
+      asset_mappings = {
+        "color_scheme": ("colors", frogpilot_toggles.color_scheme),
+        "distance_icons": ("distance_icons", frogpilot_toggles.distance_icons),
+        "icon_pack": ("icons", frogpilot_toggles.icon_pack),
+        "sound_pack": ("sounds", frogpilot_toggles.sound_pack),
+        "turn_signal_pack": ("signals", frogpilot_toggles.signal_icons),
+        "wheel_image": ("wheel_image", frogpilot_toggles.wheel_image)
       }
     else:
       return
