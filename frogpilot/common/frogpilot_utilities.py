@@ -22,7 +22,7 @@ from openpilot.common.realtime import DT_DMON, DT_HW
 from openpilot.system.hardware import HARDWARE
 from panda import Panda
 
-from openpilot.frogpilot.common.frogpilot_variables import DISCORD_WEBHOOK_URL_REPORT, ERROR_LOGS_PATH, KONIK_PATH, MAPD_PATH, MAPS_PATH
+from openpilot.frogpilot.common.frogpilot_variables import DISCORD_WEBHOOK_URL_REPORT, EARTH_RADIUS, ERROR_LOGS_PATH, KONIK_PATH, MAPD_PATH, MAPS_PATH
 
 running_threads = {}
 
@@ -133,6 +133,10 @@ def capture_report(discord_user, report, frogpilot_toggles):
       print(f"Discord mention failed: {mention_resp.status_code} {mention_resp.text}")
   except Exception as exception:
     print(f"Error sending Discord message: {exception}")
+
+
+def clean_model_name(name):
+  return name.replace("(Default)", "").strip()
 
 
 def contains_event_type(events, frogpilot_events, *event_types):

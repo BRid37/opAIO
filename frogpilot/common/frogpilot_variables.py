@@ -295,7 +295,7 @@ class FrogPilotVariables:
     has_nnff = nnff_supported(toggle.car_model)
     toggle.has_pedal = CP.enableGasInterceptorDEPRECATED
     has_radar = not CP.radarUnavailable
-    toggle.has_sdsu = toggle.car_make == "toyota" and bool(FPCP.flags & ToyotaFrogPilotFlags.SMART_DSU.value)
+    toggle.has_sdsu = False #toggle.car_make == "toyota" and bool(FPCP.flags & ToyotaFrogPilotFlags.SMART_DSU.value)
     has_sng = CP.autoResumeSng
     toggle.has_zss = toggle.car_make == "toyota" and bool(FPCP.flags & ToyotaFrogPilotFlags.ZSS.value)
     is_angle_car = CP.steerControlType == car.CarParams.SteerControlType.angle
@@ -479,9 +479,9 @@ class FrogPilotVariables:
     toggle.device_shutdown_time = DEVICE_SHUTDOWN_TIMES.get(self.params.get("DeviceShutdown") if device_management and tuning_level >= level["DeviceShutdown"] else default["DeviceShutdown"])
     toggle.increase_thermal_limits = device_management and (self.params.get_bool("IncreaseThermalLimits") if tuning_level >= level["IncreaseThermalLimits"] else default["IncreaseThermalLimits"])
     toggle.low_voltage_shutdown = np.clip(self.params.get("LowVoltageShutdown") if device_management and tuning_level >= level["LowVoltageShutdown"] else default["LowVoltageShutdown"], VBATT_PAUSE_CHARGING, 12.5)
-    toggle.no_logging = device_management and (self.params.get_bool("NoLogging") if tuning_level >= level["NoLogging"] else default["NoLogging"]) and not self.vetting_branch or toggle.force_onroad
-    toggle.no_uploads = device_management and (self.params.get_bool("NoUploads") if tuning_level >= level["NoUploads"] else default["NoUploads"]) and not self.vetting_branch
-    toggle.no_onroad_uploads = toggle.no_uploads and (self.params.get_bool("DisableOnroadUploads") if tuning_level >= level["DisableOnroadUploads"] else default["DisableOnroadUploads"])
+    toggle.no_logging = True #device_management and (self.params.get_bool("NoLogging") if tuning_level >= level["NoLogging"] else default["NoLogging"]) and not self.vetting_branch or toggle.force_onroad
+    toggle.no_uploads = True #device_management and (self.params.get_bool("NoUploads") if tuning_level >= level["NoUploads"] else default["NoUploads"]) and not self.vetting_branch
+    toggle.no_onroad_uploads = False #toggle.no_uploads and (self.params.get_bool("DisableOnroadUploads") if tuning_level >= level["DisableOnroadUploads"] else default["DisableOnroadUploads"])
 
     distance_button_control = self.params.get("DistanceButtonControl") if tuning_level >= level["DistanceButtonControl"] else default["DistanceButtonControl"]
     toggle.experimental_mode_via_distance = toggle.openpilot_longitudinal and distance_button_control == BUTTON_FUNCTIONS["EXPERIMENTAL_MODE"]
@@ -560,6 +560,9 @@ class FrogPilotVariables:
     toggle.human_lane_changes = longitudinal_tuning and has_radar and (self.params.get_bool("HumanLaneChanges") if tuning_level >= level["HumanLaneChanges"] else default["HumanLaneChanges"])
     toggle.lead_detection_probability = np.clip((self.params.get("LeadDetectionThreshold") if longitudinal_tuning and tuning_level >= level["LeadDetectionThreshold"] else default["LeadDetectionThreshold"]) / 100, 0.25, 0.50)
     toggle.taco_tune = longitudinal_tuning and (self.params.get_bool("TacoTune") if tuning_level >= level["TacoTune"] else default["TacoTune"])
+
+    toggle.model = default["DrivingModel"]
+    toggle.model_name = "Firehose"
 
     toggle.model_ui = self.params.get_bool("ModelUI") if tuning_level >= level["ModelUI"] else default["ModelUI"]
     toggle.dynamic_path_width = toggle.model_ui and (self.params.get_bool("DynamicPathWidth") if tuning_level >= level["DynamicPathWidth"] else default["DynamicPathWidth"])

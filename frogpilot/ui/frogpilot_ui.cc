@@ -6,12 +6,6 @@ static void update_state(FrogPilotUIState *fs) {
   SubMaster &fpsm = *(fs->sm);
   fpsm.update(0);
 
-  if (fpsm.updated("carState")) {
-    const cereal::CarState::Reader &carState = fpsm["carState"].getCarState();
-    frogpilot_scene.parked = carState.getGearShifter() == cereal::CarState::GearShifter::PARK;
-    frogpilot_scene.reverse = carState.getGearShifter() == cereal::CarState::GearShifter::REVERSE;
-    frogpilot_scene.standstill = carState.getStandstill() && !frogpilot_scene.reverse;
-  }
   if (fpsm.updated("deviceState")) {
     const cereal::DeviceState::Reader &deviceState = fpsm["deviceState"].getDeviceState();
     frogpilot_scene.online = deviceState.getNetworkType() != cereal::DeviceState::NetworkType::NONE;
@@ -57,7 +51,7 @@ void update_theme(FrogPilotUIScene &frogpilot_scene) {
 
 FrogPilotUIState::FrogPilotUIState(QObject *parent) : QObject(parent) {
   sm = std::make_unique<SubMaster, const std::initializer_list<const char *>>({
-    "carState", "deviceState", "frogpilotCarState", "frogpilotDeviceState", "frogpilotPlan", "selfdriveState"
+    "deviceState", "frogpilotCarState", "frogpilotDeviceState", "frogpilotPlan", "selfdriveState"
   });
 
   wifi = new WifiManager(this);

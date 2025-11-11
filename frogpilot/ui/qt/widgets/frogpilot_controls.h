@@ -32,6 +32,8 @@ void updateFrogPilotToggles();
 
 QColor loadThemeColors(const QString &colorKey, bool clearCache = false);
 
+QString cleanModelName(QString modelName);
+
 const QString buttonStyle = R"(
   QPushButton {
     padding: 0px 25px 0px 25px;

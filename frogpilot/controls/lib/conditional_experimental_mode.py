@@ -70,9 +70,9 @@ class ConditionalExperimentalMode:
       self.status_value = CEStatus["STOP_LIGHT"]
       return True
 
-    if self.frogpilot_planner.frogpilot_vcruise.slc.experimental_mode:
-      self.status_value = CEStatus["SPEED_LIMIT"]
-      return True
+    #if self.frogpilot_planner.frogpilot_vcruise.slc.experimental_mode:
+      #self.status_value = CEStatus["SPEED_LIMIT"]
+      #return True
 
     return False
 

@@ -52,7 +52,7 @@ private:
   void paintCompass(QPainter &p, QJsonObject &frogpilot_toggles);
   void paintCurveSpeedControl(QPainter &p, SubMaster &fpsm);
   void paintCurveSpeedControlTraining(QPainter &p, SubMaster &fpsm);
-  void paintTurnSignals(QPainter &p, SubMaster &fpsm);
+  void paintTurnSignals(QPainter &p, SubMaster &sm);
   void paintWeather(QPainter &p, SubMaster &fpsm, FrogPilotUIScene &frogpilot_scene);
   void updateSignals();
 

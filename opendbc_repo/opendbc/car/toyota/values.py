@@ -59,7 +59,7 @@ class ToyotaSafetyFlags(IntFlag):
 
 
 # FrogPilot variables
-class ToyotaFrogPilotSafetyFlags(IntFlag):
+#class ToyotaFrogPilotSafetyFlags(IntFlag):
 
 
 class ToyotaFlags(IntFlag):

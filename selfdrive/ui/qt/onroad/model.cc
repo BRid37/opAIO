@@ -91,7 +91,7 @@ void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const
   mapLineToPolygon(model_position, 0.9, path_offset_z, &track_vertices, max_idx, false);
 
   // FrogPilot variables
-  FrogPilotUIScene &frogpilot_scene = frogpilotUIState()->frogpilot_scene;
+  //FrogPilotUIScene &frogpilot_scene = frogpilotUIState()->frogpilot_scene;
 }
 
 void ModelRenderer::drawLaneLines(QPainter &painter) {

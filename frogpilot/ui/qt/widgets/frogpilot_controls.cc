@@ -107,3 +107,7 @@ QColor loadThemeColors(const QString &colorKey, bool clearCache) {
     colorObj.value("alpha").toInt(255)
   );
 }
+
+QString cleanModelName(QString modelName) {
+  return modelName.remove("_default").remove("(Default)");
+}

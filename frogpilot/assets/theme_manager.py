@@ -375,7 +375,7 @@ class ThemeManager:
         "turn_signal_pack": ("signals", self.holiday_theme),
         "wheel_image": ("wheel_image", self.holiday_theme)
       }
-    elif (boot_run or randomize_theme) and frogpilot_toggles.random_themes:
+    elif (boot_run or randomize_theme) and False:
       available_themes = self.get_full_themes()
       selected_theme = self.randomize_theme_asset(available_themes)
 
@@ -387,7 +387,7 @@ class ThemeManager:
         "turn_signal_pack": ("signals", selected_theme.replace("-animated", "")),
         "wheel_image": ("wheel_image", self.randomize_wheel_image(available_themes, selected_theme.replace("-animated", "")))
       }
-    elif not frogpilot_toggles.random_themes:
+    elif not False:
       asset_mappings = {
         "color_scheme": ("colors", frogpilot_toggles.color_scheme),
         "distance_icons": ("distance_icons", frogpilot_toggles.distance_icons),
