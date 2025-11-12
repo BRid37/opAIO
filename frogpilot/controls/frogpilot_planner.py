@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-import json
-
 import cereal.messaging as messaging
 
 from openpilot.common.constants import CV
@@ -26,7 +24,7 @@ class FrogPilotPlanner:
     self.frogpilot_events = FrogPilotEvents(self, error_log, ThemeManager)
     self.frogpilot_following = FrogPilotFollowing(self)
     self.frogpilot_vcruise = FrogPilotVCruise(self, params)
-    self.frogpilot_weather = WeatherChecker()
+    self.frogpilot_weather = WeatherChecker(self)
 
     self.driving_in_curve = False
     self.lateral_check = True #False
@@ -42,6 +40,8 @@ class FrogPilotPlanner:
     self.road_curvature = 0
     self.time_to_curve = 0
     self.v_cruise = 0
+
+    self.gps_position = None
 
     self.gps_location_service = get_gps_location_service(params)
 
@@ -75,14 +75,14 @@ class FrogPilotPlanner:
 
     gps_location = sm[self.gps_location_service]
     if gps_location.flags % 2 == 1:
-      gps_position = {
+      self.gps_position = {
         "latitude": gps_location.latitude,
         "longitude": gps_location.longitude,
         "bearing": gps_location.bearingDeg,
       }
-      params_memory.put("LastGPSPosition", json.dumps(gps_position))
+      params_memory.put("LastGPSPosition", self.gps_position)
     else:
-      gps_position = None
+      self.gps_position = None
       params_memory.remove("LastGPSPosition")
 
     if v_ego >= frogpilot_toggles.minimum_lane_change_speed:
@@ -105,10 +105,10 @@ class FrogPilotPlanner:
     if not sm["carState"].standstill:
       self.tracking_lead = self.update_lead_status()
 
-    self.v_cruise = self.frogpilot_vcruise.update(gps_position, long_control_active, now, time_validated, v_cruise, v_ego, params, params_memory, sm, frogpilot_toggles)
+    self.v_cruise = self.frogpilot_vcruise.update(long_control_active, now, time_validated, v_cruise, v_ego, params, params_memory, sm, frogpilot_toggles)
 
-    if gps_position and time_validated and frogpilot_toggles.weather_presets:
-      self.frogpilot_weather.update_weather(gps_position, now, frogpilot_toggles)
+    if self.gps_position and time_validated and frogpilot_toggles.weather_presets:
+      self.frogpilot_weather.update_weather(now, frogpilot_toggles)
     else:
       self.frogpilot_weather.weather_id = 0
 

@@ -39,12 +39,12 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent) {
   QObject::connect(uiState(), &UIState::offroadTransition, this, &OnroadWindow::offroadTransition);
 }
 
-void OnroadWindow::updateState(const UIState &s) {
+void OnroadWindow::updateState(const UIState &s, const FrogPilotUIState &fs) {
   if (!s.scene.started) {
     return;
   }
 
-  alerts->updateState(s);
+  alerts->updateState(s, fs);
   nvg->updateState(s);
 
   QColor bgColor = bg_colors[s.status];

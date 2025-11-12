@@ -93,6 +93,9 @@ def frogpilot_thread():
       frogpilot_variables.update(theme_manager.holiday_theme, started)
       frogpilot_toggles = frogpilot_variables.frogpilot_toggles
 
+      if frogpilot_planner.gps_position is not None:
+        params.put("LastGPSPosition", frogpilot_planner.gps_position)
+
       if time_validated and is_url_pingable(os.environ.get("STATS_URL", "")):
         send_stats(params)
 

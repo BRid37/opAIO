@@ -153,7 +153,7 @@ class SelfdriveD:
 
     # FrogPilot variables
     self.sm = self.sm.extend(['frogpilotCarState', 'frogpilotPlan'])
-    self.pm = self.pm.extend(['frogpilotOnroadEvents'])
+    self.pm = self.pm.extend(['frogpilotOnroadEvents', 'frogpilotSelfdriveState'])
 
     self.params_memory = Params(memory=True)
 
@@ -516,6 +516,13 @@ class SelfdriveD:
     self.AM.add_many(self.sm.frame, alerts)
     self.AM.process_alerts(self.sm.frame, clear_event_types)
 
+    # FrogPilot variables
+    frogpilot_alerts = self.frogpilot_events.create_alerts(self.state_machine.current_alert_types, [self.CP, CS, self.sm, self.is_metric,
+                                                                                                    self.state_machine.soft_disable_timer, pers,
+                                                                                                    self.frogpilot_toggles])
+    self.frogpilot_AM.add_many(self.sm.frame, frogpilot_alerts)
+    self.frogpilot_AM.process_alerts(self.sm.frame, clear_event_types)
+
   def publish_selfdriveState(self, CS):
     # selfdriveState
     ss_msg = messaging.new_message('selfdriveState')
@@ -539,19 +546,32 @@ class SelfdriveD:
     self.pm.send('selfdriveState', ss_msg)
 
     # onroadEvents - logged every second or on change
-    if (self.sm.frame % int(1. / DT_CTRL) == 0) or (self.events.names != self.events_prev) or (self.frogpilot_events.names != self.frogpilot_events_prev):
+    if (self.sm.frame % int(1. / DT_CTRL) == 0) or (self.events.names != self.events_prev):
       ce_send = messaging.new_message('onroadEvents', len(self.events))
       ce_send.valid = True
       ce_send.onroadEvents = self.events.to_msg()
       self.pm.send('onroadEvents', ce_send)
+    self.events_prev = self.events.names.copy()
 
-      # FrogPilot variables
+    # FrogPilot variables
+    fpss_msg = messaging.new_message('frogpilotSelfdriveState')
+    fpss_msg.valid = True
+    fpss = fpss_msg.frogpilotSelfdriveState
+
+    fpss.alertText1 = self.frogpilot_AM.current_alert.alert_text_1
+    fpss.alertText2 = self.frogpilot_AM.current_alert.alert_text_2
+    fpss.alertSize = self.frogpilot_AM.current_alert.alert_size
+    fpss.alertStatus = self.frogpilot_AM.current_alert.alert_status
+    fpss.alertType = self.frogpilot_AM.current_alert.alert_type
+    fpss.alertSound = self.frogpilot_AM.current_alert.audible_alert
+
+    self.pm.send('frogpilotSelfdriveState', fpss_msg)
+
+    if (self.sm.frame % int(1. / DT_CTRL) == 0) or (self.frogpilot_events.names != self.frogpilot_events_prev):
       fpce_send = messaging.new_message('frogpilotOnroadEvents', len(self.frogpilot_events))
       fpce_send.valid = True
       fpce_send.frogpilotOnroadEvents = self.frogpilot_events.to_msg()
       self.pm.send('frogpilotOnroadEvents', fpce_send)
-    self.events_prev = self.events.names.copy()
-    # FrogPilot variables
     self.frogpilot_events_prev = self.frogpilot_events.names.copy()
 
   def step(self):

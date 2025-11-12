@@ -63,7 +63,6 @@ class Controls:
 
     # FrogPilot variables
     self.sm = self.sm.extend(['liveDelay', 'frogpilotCarState', 'frogpilotPlan'])
-    self.pm = self.pm.extend(['frogpilotSelfdriveState'])
 
     self.frogpilot_toggles = get_frogpilot_toggles()
 

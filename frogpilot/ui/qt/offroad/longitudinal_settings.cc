@@ -1023,7 +1023,7 @@ void FrogPilotLongitudinalPanel::updateToggles() {
     }
 
     else if (key == "MapGears") {
-      setVisible &= parent->isGM || parent->isHKGCanFd || parent->isToyota;
+      setVisible &= parent->isGM || parent->isToyota;
       setVisible &= !parent->isTSK;
     }
 

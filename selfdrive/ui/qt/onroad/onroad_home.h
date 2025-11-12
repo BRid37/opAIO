@@ -18,5 +18,5 @@ private:
 
 private slots:
   void offroadTransition(bool offroad);
-  void updateState(const UIState &s);
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
 };
