@@ -175,9 +175,6 @@ static void hyundai_rx_hook(const CANPacket_t *msg) {
     }
 
     // FrogPilot variables
-    if (msg->addr == 0x391U) {
-      hyundai_lkas_button_check(GET_BIT(msg, 4U));
-    }
   }
 }
 
