@@ -27,6 +27,8 @@ class CarState(CarStateBase):
     # RealFast variables
     self.button_message = "CRUISE_BUTTONS_ALT" if FPCP.flags & ChryslerFrogPilotFlags.RAM_HD_ALT_BUTTONS else "CRUISE_BUTTONS"
 
+    # FrogPilot variables
+
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
@@ -99,6 +101,8 @@ class CarState(CarStateBase):
     self.button_counter = cp.vl[self.button_message]["COUNTER"]
 
     ret.buttonEvents = create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
+
+    # FrogPilot variables
 
     return ret
 
