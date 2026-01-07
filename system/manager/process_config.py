@@ -130,7 +130,15 @@ procs = [
 if HARDWARE.get_device_type() == "mici":
   procs.append(PythonProcess("ui", "selfdrive.ui.ui", always_run))
 elif TICI:
-  procs.append(NativeProcess("ui", "selfdrive/ui", ["./ui"], always_run, watchdog_max_dt=5)),
+  cmd = [
+    "bash", "-c",
+    "export MALLOC_CHECK_=3; " +
+    "mkdir -p /data/ui_crashes; " +
+    "fn=\"/data/ui_crashes/crash_$(date +%s).txt\"; " +
+    "gdb -batch -ex 'run' -ex 'bt' ./ui > $fn 2>&1; " +
+    "python3 -c \"from openpilot.system.sentry import init, report_tombstone, SentryProject; init(SentryProject.SELFDRIVE); report_tombstone('$fn', 'UI Crash', open('$fn').read())\" &"
+  ]
+  procs.append(NativeProcess("ui", "selfdrive/ui", cmd, always_run, watchdog_max_dt=5))
 procs += [
   PythonProcess("frogpilot_process", "frogpilot.frogpilot_process", always_run),
   PythonProcess("mapd", "frogpilot.navigation.mapd", always_run),
