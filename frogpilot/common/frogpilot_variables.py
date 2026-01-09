@@ -548,7 +548,7 @@ class FrogPilotVariables:
     toggle.device_shutdown_time = DEVICE_SHUTDOWN_TIMES.get(self.get_value("DeviceShutdown", cast=int, condition=device_management))
     toggle.increase_thermal_limits = self.get_value("IncreaseThermalLimits", condition=device_management)
     toggle.low_voltage_shutdown = self.get_value("LowVoltageShutdown", cast=float, condition=device_management, min=VBATT_PAUSE_CHARGING, max=12.5)
-    toggle.no_logging = self.get_value("NoLogging", condition=device_management and not self.vetting_branch) or toggle.force_onroad
+    toggle.no_logging = True #self.get_value("NoLogging", condition=device_management and not self.vetting_branch) or toggle.force_onroad
     toggle.no_uploads = self.get_value("NoUploads", condition=device_management and not self.vetting_branch)
     toggle.no_onroad_uploads = self.get_value("DisableOnroadUploads", condition=toggle.no_uploads)
 
