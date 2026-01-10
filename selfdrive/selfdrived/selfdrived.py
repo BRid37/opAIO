@@ -157,6 +157,7 @@ class SelfdriveD:
     self.frogpilot_AM = AlertManager()
     self.frogpilot_events = Events(frogpilot=True)
 
+    self.captured_memory_log = False
     self.distance_pressed_previously = False
 
     self.display_timer = 0
@@ -241,6 +242,9 @@ class SelfdriveD:
       self.events.add(EventName.outOfSpace)
     if self.sm['deviceState'].memoryUsagePercent > 90 and not SIMULATION:
       self.events.add(EventName.lowMemory)
+      if not self.captured_memory_log:
+        sentry.capture_memory_usage()
+        self.captured_memory_log = True
 
     # Alert if fan isn't spinning for 5 seconds
     if self.sm['peripheralState'].pandaType != log.PandaState.PandaType.unknown:
