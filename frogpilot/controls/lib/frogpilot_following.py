@@ -95,5 +95,5 @@ class FrogPilotFollowing:
         far_lead_offset = max(lead_distance - (v_ego * self.t_follow) - STOP_DISTANCE, 0)
         braking_offset += far_lead_offset
 
-      self.danger_factor += ((v_ego - v_lead) / 100)
+      #self.danger_factor += ((v_ego - v_lead) / 100)
       self.t_follow /= braking_offset
