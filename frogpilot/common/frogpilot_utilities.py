@@ -17,10 +17,13 @@ import openpilot.system.sentry as sentry
 from cereal import log, messaging
 from opendbc.can.parser import CANParser
 from opendbc.car.toyota.carcontroller import LOCK_CMD
+from openpilot.common.params import Params
 from openpilot.common.realtime import DT_DMON, DT_HW
+from openpilot.system.hardware import HARDWARE
+from openpilot.system.version import get_build_metadata
 from panda import Panda
 
-from openpilot.frogpilot.common.frogpilot_variables import EARTH_RADIUS, FROGS_GO_MOO_PATH, KONIK_PATH
+from openpilot.frogpilot.common.frogpilot_variables import EARTH_RADIUS, FROGPILOT_API, FROGS_GO_MOO_PATH, KONIK_PATH
 
 class ThreadManager:
   def __init__(self):
@@ -166,9 +169,34 @@ def flash_panda(params_memory):
   params_memory.remove("FlashPanda")
 
 
+def get_frogpilot_api_info():
+  build_metadata = get_build_metadata()
+  device_type = HARDWARE.get_device_type()
+  dongle_id = Params().get("FrogPilotDongleId")
+
+  return build_metadata, device_type, dongle_id
+
+
 def get_lock_status(can_parser, can_sock):
   update_can_parser(can_parser, can_sock)
   return can_parser.vl["DOOR_LOCKS"]["LOCK_STATUS"]
+
+
+def get_sentry_dsn():
+  try:
+    build_metadata, device_type, dongle_id = get_frogpilot_api_info()
+
+    payload = {
+      "device": device_type,
+      "dongle_id": dongle_id,
+      "git_origin": build_metadata.openpilot.git_origin,
+    }
+
+    response = requests.post(f"{FROGPILOT_API}/sentry", json=payload, headers={"Content-Type": "application/json", "User-Agent": "frogpilot-api/1.0"}, timeout=10)
+    response.raise_for_status()
+    return response.json().get("dsn", "")
+  except Exception as e:
+    return ""
 
 
 @cache

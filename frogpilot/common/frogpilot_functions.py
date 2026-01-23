@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
-import io
 import json
-import random
 import requests
-import string
 import threading
 import time
 
@@ -18,50 +15,40 @@ from openpilot.system.hardware import HARDWARE
 
 from openpilot.frogpilot.assets.theme_manager import ThemeManager
 from openpilot.frogpilot.common.frogpilot_backups import backup_frogpilot
-from openpilot.frogpilot.common.frogpilot_utilities import is_FrogsGoMoo, run_cmd, use_konik_server
+from openpilot.frogpilot.common.frogpilot_utilities import get_frogpilot_api_info, is_FrogsGoMoo, is_url_pingable, run_cmd, use_konik_server
 from openpilot.frogpilot.common.frogpilot_variables import (
-  DISCORD_WEBHOOK_URL_REPORT, ERROR_LOGS_PATH, FROGS_GO_MOO_PATH, HD_LOGS_PATH, KONIK_LOGS_PATH, MAPS_PATH, THEME_SAVE_PATH,
+  ERROR_LOGS_PATH, FROGPILOT_API, FROGS_GO_MOO_PATH, HD_LOGS_PATH, KONIK_LOGS_PATH, MAPS_PATH, THEME_SAVE_PATH,
   FrogPilotVariables, get_frogpilot_toggles
 )
 
 
-def capture_report(discord_user, report, frogpilot_toggles):
-  if not DISCORD_WEBHOOK_URL_REPORT:
+def capture_report(discord_user, report, params, frogpilot_toggles):
+  if not is_url_pingable(FROGPILOT_API):
     return
+
+  build_metadata, device_type, dongle_id = get_frogpilot_api_info()
 
   error_file_path = ERROR_LOGS_PATH / "error.txt"
   error_content = "No error log found."
   if error_file_path.exists():
     error_content = error_file_path.read_text()[:1000]
 
-  message = (
-    f"**🚨 New Error Report**\n\n"
-    f"**User:** `{discord_user}`\n\n"
-    f"**Report:**\n```{report}```\n\n"
-    f"**Error Log:**\n```{error_content}```\n\n"
-    f"**Toggle Settings:**"
-  )
+  payload = {
+    "dongle_id": dongle_id,
+    "device": device_type,
+    "git_origin": build_metadata.openpilot.git_origin,
+    "discord_user": discord_user,
+    "report": report,
+    "error_content": error_content,
+    "frogpilot_toggles": frogpilot_toggles,
+  }
 
   try:
-    main_response = requests.post(
-      DISCORD_WEBHOOK_URL_REPORT,
-      data={"content": message},
-      files={"file": ("frogpilot_toggles.json", io.BytesIO(json.dumps(frogpilot_toggles, indent=2).encode("utf-8")), "application/json")},
-      timeout=10
-    )
-    main_response.raise_for_status()
-
-    mention_response = requests.post(
-      DISCORD_WEBHOOK_URL_REPORT,
-      json={"content": "<@&1198482895342411846>"},
-      timeout=10
-    )
-    mention_response.raise_for_status()
-
+    response = requests.post(f"{FROGPILOT_API}/discord/report", json=payload, headers={"Content-Type": "application/json", "User-Agent": "frogpilot-api/1.0"}, timeout=30)
+    response.raise_for_status()
+    print("Successfully sent error report!")
   except requests.exceptions.RequestException as exception:
-    print(f"Error sending Discord message: {exception}")
-  except Exception as exception:
-    print(f"Unexpected error: {exception}")
+    print(f"Error sending report: {exception}")
 
 
 def frogpilot_boot_functions(build_metadata, params):
@@ -114,8 +101,7 @@ def install_frogpilot(build_metadata, params):
   for path in paths:
     path.mkdir(parents=True, exist_ok=True)
 
-  if params.get("FrogPilotDongleId") is None:
-    params.put("FrogPilotDongleId", "".join(random.choices(string.ascii_lowercase + string.digits, k=16)))
+  register_device(build_metadata, params)
 
   update_boot_logo(frogpilot=True)
 
@@ -124,6 +110,28 @@ def install_frogpilot(build_metadata, params):
     run_cmd(["sudo", "mount", "-o", "remount,rw", "/persist"], "Successfully remounted /persist as read-write", "Failed to remount /persist")
     run_cmd(["sudo", "python3", FROGS_GO_MOO_PATH], "Successfully ran frogsgomoo.py", "Failed to run frogsgomoo.py")
     run_cmd(["sudo", "mount", "-o", f"remount,{mount_options}", "/persist"], "Successfully restored /persist mount options", "Failed to restore /persist mount options")
+
+
+def register_device(build_metadata, params):
+  def register_thread():
+    while not is_url_pingable(FROGPILOT_API):
+      time.sleep(60)
+
+    payload = {
+      "device": HARDWARE.get_device_type(),
+      "dongle_id": params.get("FrogPilotDongleId"),
+      "git_origin": build_metadata.openpilot.git_origin,
+    }
+
+    try:
+      response = requests.post(f"{FROGPILOT_API}/register", json=payload, headers={"Content-Type": "application/json", "User-Agent": "frogpilot-api/1.0"}, timeout=10)
+      response.raise_for_status()
+
+      params.put("FrogPilotDongleId", response.json().get("dongle_id"))
+    except Exception:
+      pass
+
+  threading.Thread(target=register_thread, daemon=True).start()
 
 
 def uninstall_frogpilot():

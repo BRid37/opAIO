@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import json
 import math
-import os
 import random
 import tomllib
 
@@ -42,8 +41,7 @@ THRESHOLD = 1 - 1 / math.e                # Requires the condition to be true fo
 
 NON_DRIVING_GEARS = [GearShifter.neutral, GearShifter.park, GearShifter.reverse, GearShifter.unknown]
 
-DISCORD_WEBHOOK_URL_REPORT = os.getenv("DISCORD_WEBHOOK_URL_REPORT")
-DISCORD_WEBHOOK_URL_THEME = os.getenv("DISCORD_WEBHOOK_URL_THEME")
+FROGPILOT_API = "https://frogpilot.com/api"
 
 RESOURCES_REPO = "FrogAi/FrogPilot-Resources"
 
